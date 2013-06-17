@@ -97,9 +97,9 @@ public class AccountReqFile extends DOMFile {
 
     /**
      * Create new request for new account with the specified name and description.
-     * BAnd save the file.
+     * And save the file.
      */
-    public static AccountRequest requestForNewAccount(String displayName,
+    public static AccountRequest requestForNewAccount(String accountId, String displayName,
             String description, AuthRequest ar) throws Exception
     {
         if (allRequests==null) {
@@ -109,8 +109,28 @@ public class AccountReqFile extends DOMFile {
         if(displayName.length()<4){
             throw new NGException("nugen.exception.account.name.length",null);
         }
-        String accountId = displayName.substring(0, 3).toUpperCase() + "_"
-                + generateKey();
+        if (accountId==null) {
+            throw new Exception("AccountId parameter can not be null");
+        }
+        if (accountId.length()<4 || accountId.length()>6) {
+            throw new Exception("AccountId must be four to six charcters/numbers long.  Received ("+accountId+")");
+        }
+        for (int i=0; i<accountId.length(); i++) {
+            char ch = accountId.charAt(i);
+            if (ch < '0'  ||   (ch>'9' && ch<'A') || (ch>'Z' && ch<'a') || ch>'z') {
+                throw new Exception("AccountId must have only letters and numbers.  Received ("+accountId+")");
+            }
+        }
+
+        //to avoid file system problems all ids need to be lower case.
+        accountId = accountId.toLowerCase();
+
+        //now, lets see if there is an account already with that ID
+        NGContainer account = NGPageIndex.getContainerByKey(accountId);
+        if (account!=null) {
+            throw new Exception("Sorry, there already exists an account with that ID ("+accountId+").  Please try again with a different ID.");
+        }
+
         String status = "requested";
         String universalId = ar.getUserProfile().getUniversalId();
         String modUser = ar.getUserProfile().getKey();

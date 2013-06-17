@@ -49,9 +49,11 @@ public class AccountController extends BaseController {
 
             if(action.equals( "Submit" )){
 
+                String accountID = ar.reqParam("accountID");
                 String accountName = ar.reqParam("accountName");
                 String accountDesc = ar.defParam("accountDesc","");
-                AccountRequest accountDetails = AccountReqFile.requestForNewAccount(accountName, accountDesc, ar);
+                AccountRequest accountDetails = AccountReqFile.requestForNewAccount(accountID,
+                    accountName, accountDesc, ar);
 
                 sendAccountRequestEmail( ar,  accountDetails);
             }
@@ -187,7 +189,7 @@ public class AccountController extends BaseController {
             if ("Granted".equals(action)) {
 
                 //Create new Account
-                NGBook ngb = NGBook.createOrReadBookByKey(accountDetails.getAccountId(), accountDetails.getName());
+                NGBook ngb = NGBook.createNewAccount(accountDetails.getAccountId(), accountDetails.getName());
                 ngb.setKey(accountDetails.getAccountId());
                 ngb.getPrimaryRole().addPlayer(ale);
                 ngb.getSecondaryRole().addPlayer(ale);
