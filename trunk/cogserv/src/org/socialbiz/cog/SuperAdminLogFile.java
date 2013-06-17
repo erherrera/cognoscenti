@@ -1,0 +1,172 @@
+package org.socialbiz.cog;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Vector;
+
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
+import org.w3c.dom.Document;
+
+/**
+ * SuperAdminHelper manages a file called 'superadmin.logs' That file holds
+ * information relevant to the running of the whole server 1. automated
+ * scheduling of email messages 2. list of new users who jioned recently 3. list
+ * of account accepted/denied
+ */
+public class SuperAdminLogFile extends DOMFile {
+
+    public SuperAdminLogFile(File path, Document doc) throws Exception {
+        super(path, doc);
+        requireChild("events", DOMFace.class);
+    }
+
+    public static SuperAdminLogFile getInstance() throws Exception {
+        File theFile = NGPage.getRealPath("superadmin.logs");
+        Document newDoc = readOrCreateFile(theFile, "super-admin");
+        SuperAdminLogFile superAdminHelper = new SuperAdminLogFile(theFile,
+                newDoc);
+        return superAdminHelper;
+    }
+
+    /**
+     * This method returns a list of ALL accounts created. TODO: either fix this
+     * to return accounts created in a particular timespan OR: implement a
+     * mechanism that removes the old events from the file, so that only the new
+     * ones are left.
+     */
+    public List<NGBook> getAllNewAccounts() throws Exception {
+        Vector<AdminEvent> allEvents = getEventsParent().getChildren("event",
+                AdminEvent.class);
+        List<NGBook> newAccounts = new ArrayList<NGBook>();
+        for (AdminEvent event : allEvents) {
+            if (event.getContext().equals(AdminEvent.ACCOUNT_CREATED)) {
+                NGBook account = (NGBook) NGPageIndex.getContainerByKey(event
+                        .getObjectId());
+                newAccounts.add(account);
+            }
+        }
+        return newAccounts;
+    }
+
+    /**
+     * This method returns a list of ALL users registered
+     * TODO: either fix this
+     * to return registrations created in a particular timespan OR: implement a
+     * mechanism that removes the old registrations from the file, so that only
+     * the new ones are left.
+     */
+    public List<UserProfile> getAllNewRegisteredUsers() throws Exception {
+        Vector<AdminEvent> allEvents = getEventsParent().getChildren("event",
+                AdminEvent.class);
+        List<UserProfile> newUsers = new ArrayList<UserProfile>();
+        for (AdminEvent event : allEvents) {
+            if (event.getContext().equals(AdminEvent.NEW_USER_REGISTRATION)) {
+                UserProfile profile = UserManager.getUserProfileByKey(event
+                        .getObjectId());
+                if (profile != null) {
+                    newUsers.add(profile);
+                }
+            }
+        }
+        return newUsers;
+    }
+
+    public static void createAdminEvent(String objectId, long modTime,
+            String modUser, String context) throws Exception {
+        SuperAdminLogFile superAdminHelper = getInstance();
+
+        if (objectId == null || modUser == null || context == null
+                || context.equals("")) {
+            throw new RuntimeException(
+                    "parameter is required to log an event for Super Admin");
+        }
+
+        AdminEvent newEvent = superAdminHelper.getEventsParent().createChild(
+                "event", AdminEvent.class);
+        newEvent.setObjectId(objectId);
+        newEvent.setModified(modUser, modTime);
+        newEvent.setContext(context);
+        superAdminHelper.save();
+    }
+
+    public static void setLastNotificationSentTime(long time, String logTrace)
+            throws Exception {
+        SuperAdminLogFile superAdminHelper = getInstance();
+        superAdminHelper.setScalar("lastnotificationsenttime",
+                Long.toString(time));
+        superAdminHelper.setScalar("previousSendLog",
+                superAdminHelper.getScalar("lastSendLog"));
+        superAdminHelper.setScalar("lastSendLog", logTrace);
+        superAdminHelper.save();
+    }
+
+    public static long getLastNotificationSentTime() throws Exception {
+        SuperAdminLogFile superAdminHelper = getInstance();
+        String timeString = superAdminHelper
+                .getScalar("lastnotificationsenttime");
+        return safeConvertLong(timeString);
+    }
+
+    public String getSendLog() throws Exception {
+        return getScalar("lastSendLog");
+    }
+
+    /**
+     * Get a four digit numeric id which is unique on the page.
+     */
+    public String getUniqueOnPage() throws Exception {
+        // getUniqueOnPage is not implemented. Do we need this???
+        throw new ProgramLogicError("getUniqueOnPage is not implemented.");
+    }
+
+    protected DOMFace getEventsParent() throws Exception {
+        return requireChild("events", DOMFace.class);
+    }
+
+    public static void setLastExceptionNo(long exceptionNO) throws Exception {
+        SuperAdminLogFile superAdminHelper = getInstance();
+        superAdminHelper.setScalar("exceptionNumber",
+                String.valueOf(exceptionNO));
+        superAdminHelper.save();
+    }
+
+    public static long getNextExceptionNo() throws Exception {
+        SuperAdminLogFile superAdminHelper = getInstance();
+        String exceptionNo = superAdminHelper.getScalar("exceptionNumber");
+        long exceptionNO = safeConvertLong(exceptionNo) + 1;
+        return exceptionNO;
+    }
+
+    public static void setEmailListenerPropertiesFlag(boolean flag)
+            throws Exception {
+        SuperAdminLogFile superAdminHelper = getInstance();
+        superAdminHelper.setScalar("emailListenerPropertiesFlag",
+                String.valueOf(flag));
+        superAdminHelper.save();
+    }
+
+    public static void setEmailListenerProblem(Throwable ex) throws Exception {
+        SuperAdminLogFile superAdminHelper = getInstance();
+        superAdminHelper.setScalar("emailListenerProblem",
+                NGException.getFullMessage(ex, Locale.getDefault()));
+        superAdminHelper.save();
+    }
+
+    public static boolean getEmailListenerPropertiesFlag() throws Exception {
+        boolean emailListenerPropertiesFlag = false;
+        SuperAdminLogFile superAdminHelper = getInstance();
+        String flag = superAdminHelper.getScalar("emailListenerPropertiesFlag");
+        if (flag != null && flag.length() > 0 && "true".equals(flag)) {
+            emailListenerPropertiesFlag = true;
+        }
+        return emailListenerPropertiesFlag;
+    }
+
+    public static String getEmailListenerProblem() throws Exception {
+        SuperAdminLogFile superAdminHelper = getInstance();
+        return superAdminHelper.getScalar("emailListenerProblem");
+    }
+}

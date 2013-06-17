@@ -1,0 +1,1517 @@
+/*
+ * Thumbnail.java (requires Java 1.2+)
+ */
+package org.socialbiz.cog;
+
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
+import org.socialbiz.cog.util.CVSUtil;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+/**
+* NGPage is a Container that represents a Project.
+* "Page" is the old term, "Leaf" is also an old term, avoid these.
+* The current term for the user interaction is "Project"
+*/
+public class NGPage extends ContainerCommon implements NGContainer
+{
+
+    public PageInfoRecord pageInfo;
+    public ReminderMgr reminderMgr;
+
+    public String address;
+    protected String[] displayNames;
+    protected Vector<NGSection> sectionElements = null;
+    boolean hasNonDefaultAccount = false;
+    boolean accountChanged = false;
+    protected NGBook account;
+    protected Vector<String> existingIds = null;
+
+
+    public static final int CAT_ANONYMOUS = -1;
+    public static final int CAT_PUBLIC    = 0;
+
+
+
+    //Least Recently Used Cache .... keep copies of the last ten
+    //page objects in memory for reuse
+    protected static LRUCache pageCache = new LRUCache(10);
+
+    // Data path must be known, and this is gotten from the session
+    // It can not change over the course of a server instance, so
+    // we can cache it here for use to find other data files (accounts).
+    protected static String    dataPath;
+
+
+    public NGPage(File theFile, Document newDoc)
+        throws Exception
+    {
+        super(theFile, newDoc);
+
+        address = theFile.getPath().replace('\\','/');
+
+        //for now page names consist entirely of address
+        int lastSlash = address.lastIndexOf("/");
+        String smallName = address;
+        if (lastSlash>=0)
+        {
+            smallName = address.substring(lastSlash);
+        }
+        if (smallName.endsWith(".sp"))
+        {
+            smallName = smallName.substring(0, smallName.length()-3);
+        }
+        displayNames = new String[] {smallName};
+
+        pageInfo = requireChild("pageInfo", PageInfoRecord.class);
+
+        displayNames = pageInfo.getPageNames();
+        String accountKey = pageInfo.getBookKey();
+        if (accountKey==null || "main".equals(accountKey))
+        {
+            //schema migration, move off the old account 'main'
+            accountKey = "mainbook";
+            pageInfo.setBookKey(accountKey);
+        }
+
+        hasNonDefaultAccount = (accountKey!=null && accountKey.length()>0);
+        account = NGBook.readBookByKey(accountKey);
+
+        NGSection mAtt = getRequiredSection("Attachments");
+        SectionAttachments.assureSchemaMigration(mAtt, this);
+
+        getRequiredSection("Comments");
+        getRequiredSection("Folders");
+
+        //forces the Tasks section, and also the process initialization
+        getProcess();
+
+        //SCHEMA MIGRATION to remove Public Attachments Section
+        //'Attachments' is the ONLY place documents should be stored.
+        //This code is the only place that manipulates the deprecated "Public Attachments" section.
+        //in order to deprecate Public Attachments, check to see if
+        //there are any attached files init, and move them to
+        //the regular attachments, as public visible regular attachments
+        NGSection pAtt = getSection("Public Attachments");
+        if (pAtt!=null)
+        {
+            SectionAttachments.moveAttachmentsFromDeprecatedSection(pAtt);
+            removeSection("Public Attachments");
+        }
+
+        //This is the ONLY place you should see these
+        //deprecated sections, check to see if
+        //there are any leaflets in there, and move them to the
+        //main comments section.
+        migrateSectionToNoteIfExists("Public Comments");
+        migrateSectionToNoteIfExists("See Also");
+        migrateSectionToNoteIfExists("Links");
+        migrateSectionToNoteIfExists("Description");
+        migrateSectionToNoteIfExists("Public Content");
+        migrateSectionToNoteIfExists("Notes");
+        migrateSectionToNoteIfExists("Author Notes");
+        migrateSectionToNoteIfExists("Private");
+        migrateSectionToNoteIfExists("Member Content");
+        migrateSectionToNoteIfExists("Poll");
+        migrateSectionToNoteIfExists("Geospatial");
+
+        //migrate the old forms of members and admins roles to the new form
+        //the old form was a "userlist" element, with "user" elements below that
+        //with permissions PM, M, PA, and A.  Move those to the real "roles"
+        //and eliminate the old userlist element.
+        NGRole newMemberRole = getRequiredRole("Members");
+        NGRole newAdminRole = getRequiredRole("Administrators");
+
+        DOMFace userList = pageInfo.getChild("userlist", DOMFace.class);
+        if (userList!=null)
+        {
+            Vector<DOMFace> users = userList.getChildren("user", DOMFace.class);
+            for (DOMFace ele : users) {
+                String id = ele.getAttribute("id");
+                AddressListEntry user = AddressListEntry.newEntryFromStorage(id);
+                String permis = ele.getAttribute("permission");
+                if (permis.equals("M") || permis.equals("PA"))
+                {
+                    newMemberRole.addPlayer(user);
+                }
+                if (permis.equals("A"))
+                {
+                    newAdminRole.addPlayer(user);
+                }
+            }
+            //now get rid of all former evidence.
+            pageInfo.removeChildElement(userList.getElement());
+        }
+
+        //assure that the notify role exists
+        getRequiredRole("Notify");
+
+        //upgrade all the note, document, and task records
+        cleanUpTaskUniversalId();
+    }
+
+
+    private void migrateSectionToNoteIfExists(String name)
+        throws Exception
+    {
+        if (getSection(name)!=null)
+        {
+            //this will automatically convert it to leaflet format
+            removeSection(name);
+        }
+    }
+
+
+    /**
+    * schema migration ...
+    * make sure that all tasks have universal ids.
+    * do this here because the GoalRecord constructor
+    * does not easily know what the container is.
+    */
+    protected void cleanUpTaskUniversalId() throws Exception {
+
+        super.cleanUpNoteAndDocUniversalId();
+
+        for (GoalRecord goal : getAllGoals()) {
+            String uid = goal.getUniversalId();
+            if (uid==null || uid.length()==0) {
+                uid = getContainerUniversalId() + "@" + goal.getId();
+                goal.setUniversalId(uid);
+            }
+            long lastModTime = goal.getModifiedDate();
+            if (lastModTime<=0) {
+                String lastModUser = "";
+                for (HistoryRecord hist : goal.getTaskHistory(this)) {
+                    if (hist.getTimeStamp()>lastModTime) {
+                        lastModTime = hist.getTimeStamp();
+                        lastModUser = hist.getResponsible();
+                    }
+                }
+                goal.setModifiedDate(lastModTime);
+                goal.setModifiedBy(lastModUser);
+            }
+        }
+    }
+
+
+    /**
+    * Set all static values back to their initial states, so that
+    * garbage collection can be done, and subsequently, the
+    * class will be reinitialized.
+    */
+    public synchronized static void clearAllStaticVars()
+    {
+        pageCache.emptyCache();
+        dataPath = null;
+    }
+
+    /**
+    * This must be called and initialized BEFORE attempting to access
+    * any page.
+    */
+    public static void initDataPath(String path)
+    {
+        pageCache.emptyCache();
+        dataPath = path;
+    }
+
+
+    public static File getRealPath(String p)
+        throws Exception
+    {
+        if (dataPath==null)
+        {
+            throw new NGException("nugen.exception.datapath.not.initialized",null);
+        }
+        if (p.indexOf('/')>=0)
+        {
+            throw new NGException("nugen.exception.path.have.slash", new Object[]{p});
+        }
+        File theFile = new File(dataPath, p);
+        String fullPath = theFile.getPath();
+
+        String cleanUp1 = fullPath.substring(0,dataPath.length()).toLowerCase().replace('\\','/');
+        String cleanUp2 = dataPath.toLowerCase().replace('\\','/');
+
+        //this is a security check:
+        //The result of combining the path in this way, must result in a path
+        //that is still within the data folder, so check that the cannonical
+        //path starts with the data folder path.
+        if (!cleanUp1.equals(cleanUp2))
+        {
+            throw new NGException("nugen.exception.wrong.path", new Object[]{dataPath,fullPath,cleanUp2,cleanUp1});
+        }
+
+        return new File(fullPath);
+    }
+
+
+    /**
+    * Tells you if this file is within the dataPath folder
+    */
+    public static boolean fileIsInDataPath(File testFile) {
+        String fullPath = testFile.getPath();
+        String cleanUp1 = fullPath.toLowerCase().replace('\\','/');
+        String cleanUp2 = dataPath.toLowerCase().replace('\\','/');
+        return cleanUp1.startsWith(cleanUp2);
+    }
+
+
+    /**
+    * NGPage object is created in memory, and can be manipulated in memory,
+    * but be sure to call "savePage" before finished otherwise nothing is created on disk.
+    */
+    public static NGPage createPage(AuthRequest ar, String p, NGBook ngb)
+        throws Exception
+    {
+        if (!ar.isLoggedIn()) {
+            throw new ProgramLogicError("Have to be logged in to create a new project");
+        }
+        if (p.indexOf('/')>=0) {
+            throw new ProgramLogicError("Expecting a file name, but got something with a slash in it: "+p);
+        }
+        if (!p.endsWith(".sp")) {
+            throw new ProgramLogicError("Expecting a file name ending with .sp, but got something else: "+p);
+        }
+
+        //get the sanitized form
+        String sanitizedKey = SectionUtil.sanitize(p.substring(0,p.length()-3));
+
+        File newFilePath = ngb.getNewProjectPath(sanitizedKey);
+        if (newFilePath.exists()) {
+            throw new ProgramLogicError("Somehow the file given already exists: "+newFilePath);
+        }
+
+        Document newDoc = readOrCreateFile(newFilePath, "page");
+        NGPage newPage = null;
+        if (fileIsInDataPath(newFilePath)) {
+            newPage = new NGPage(newFilePath, newDoc);
+        }
+        else {
+            newPage = new NGProj(newFilePath, newDoc);
+        }
+
+        //make the current user the author, and member, of the new page
+        newPage.addMemberToRole("Administrators", ar.getBestUserId());
+        newPage.addMemberToRole("Members",        ar.getBestUserId());
+
+        //add in the default sections
+        newPage.createSection("Comments",        ar);
+        newPage.createSection("Attachments",     ar);
+        newPage.createSection("Tasks",           ar);
+        newPage.createSection("Folders",         ar);
+
+        //register this into the page index
+        NGPageIndex.makeIndex(newPage);
+
+        //add this new project into the user's watched projects list
+        //so it is easy for them to find later.
+        UserProfile up = ar.getUserProfile();
+        up.setWatch(newPage.getKey(), ar.nowTime);
+        UserManager.writeUserProfilesToFile();
+
+        return newPage;
+    }
+
+    public static NGPage createFromTemplate(AuthRequest ar, String p, NGBook ngb, NGPage template)
+        throws Exception
+    {
+        NGPage newPage = createPage(ar, p, ngb);
+        String bestId = ar.getBestUserId();
+
+        //copy all of the tasks, but no status.
+        for (GoalRecord templateGoal : template.getAllGoals()) {
+            GoalRecord newGoal = newPage.createGoal();
+            newGoal.setSynopsis(templateGoal.getSynopsis());
+            newGoal.setDescription(templateGoal.getDescription());
+            newGoal.setPriority(templateGoal.getPriority());
+            newGoal.setDuration(templateGoal.getDuration());
+            newGoal.setCreator(bestId);
+            newGoal.setState(BaseRecord.STATE_UNSTARTED);
+            newGoal.setRank(templateGoal.getRank());
+            newGoal.setModifiedBy(bestId);
+            newGoal.setModifiedDate(ar.nowTime);
+        }
+
+        //copy all of the roles - without the players
+        for (NGRole role : template.getAllRoles()) {
+            String roleName = role.getName();
+            NGRole alreadyExisting = newPage.getRole(roleName);
+            if (alreadyExisting==null) {
+                newPage.createRole(roleName,role.getDescription());
+            }
+        }
+
+        return newPage;
+    }
+
+    public static NGPage readPageAbsolutePath(File theFile) throws Exception {
+        if (dataPath==null) {
+            throw new NGException("nugen.exception.datapath.not.initialized",null);
+        }
+        if (!theFile.exists()) {
+            throw new NGException("nugen.exception.file.not.exist", new Object[]{theFile});
+        }
+        try
+        {
+            String cacheKey = theFile.toString();
+
+            //look in the cache
+            NGPage newPage = (NGPage) pageCache.recall(cacheKey);
+            if (newPage==null)
+            {
+                Document newDoc;
+                InputStream is = new FileInputStream(theFile);
+                newDoc = DOMUtils.convertInputStreamToDocument(is, false, false);
+                is.close();
+                if (fileIsInDataPath(theFile)) {
+                    newPage = new NGPage(theFile, newDoc);
+                }
+                else {
+                    newPage = new NGProj(theFile, newDoc);
+                }
+            }
+
+            //store into the cache.  Note, there is possibility
+            //that another thread picks this up before we are done with it...
+            //need to implement page lock mechanism to prevent this, and that
+            //means having reliable clean-up code to store at the end of use.
+            //Probably should lock the file reliably....
+            pageCache.store(cacheKey, newPage);
+            return newPage;
+        }
+        catch (Exception e) {
+            throw new NGException("nugen.exception.unable.to.read.file",new Object[]{theFile}, e);
+        }
+    }
+
+
+    public void savePage(AuthRequest ar, String comment)
+        throws Exception
+    {
+        try
+        {
+            setLastModify(ar);
+
+            save();
+
+            if (hasNonDefaultAccount)
+            {
+                account.saveFile(ar, comment);
+            }
+
+            // commit the modified files to the CVS.
+            CVSUtil.commit(address, ar.getBestUserId(), comment);
+
+            //update the inmemory index because the file has changed
+            NGPageIndex.refreshOutboundLinks(this);
+
+            //Update blocking Queue
+            NGPageIndex.postEventMsg(this.getKey());
+
+        }
+        catch (Exception e)
+        {
+            throw new NGException("nugen.exception.unable.to.write.file", new Object[]{address}, e);
+        }
+    }
+
+    //Added new method without using ar parameter to save contents (Need to discuss)
+    public void save(String modUser, long modTime, String comment) throws Exception
+    {
+        try
+        {
+            pageInfo.setModTime(modTime);
+            pageInfo.setModUser(modUser);
+
+            save();
+
+            // commit the modified files to the CVS.
+            CVSUtil.commit(address, modUser, comment);
+
+            //update the inmemory index because the file has changed
+            NGPageIndex.refreshOutboundLinks(this);
+
+            //Update blocking Queue
+            NGPageIndex.postEventMsg(this.getKey());
+        }
+        catch (Exception e)
+        {
+            throw new NGException("nugen.exception.unable.to.write.file", new Object[]{address}, e);
+        }
+    }
+
+
+    /**
+    * This will mark the page as deleted at the time of the request
+    * and by the person in the request.
+    */
+    public void markDeleted(AuthRequest ar)
+    {
+        pageInfo.setDeleted(ar);
+    }
+    /**
+    * This will unmark the page from being deleted, clearing any earlier
+    * setting that the page was deleted
+    */
+    public void markUnDeleted(AuthRequest ar)
+    {
+        pageInfo.clearDeleted();
+    }
+
+    public boolean isDeleted()
+    {
+        return pageInfo.isDeleted();
+    }
+    public long getDeleteDate()
+    {
+        return pageInfo.getDeleteDate();
+    }
+    public String getDeleteUser()
+    {
+        return pageInfo.getDeleteUser();
+    }
+
+
+    public NGSection getSection(String sectionNameToLookFor)
+        throws Exception
+    {
+        NGSection what = getSection2(sectionNameToLookFor);
+        if (what!=null)
+        {
+            String thisName = what.getName();
+            if (!thisName.equals(sectionNameToLookFor))
+            {
+                throw new ProgramLogicError("Strange, asked for a '"+sectionNameToLookFor
+                    +"' but got a '"+thisName+"'.");
+            }
+        }
+        return what;
+    }
+    public NGSection getSectionOrFail(String sectionNameToLookFor)
+        throws Exception
+    {
+        NGSection ngs = getSection(sectionNameToLookFor);
+        if (ngs==null)
+        {
+            throw new NGException("nugen.exception.unable.to.locate.section", new Object[]{sectionNameToLookFor,getKey()});
+        }
+        return ngs;
+    }
+
+    public NGSection getSection2(String sectionNameToLookFor)
+        throws Exception
+    {
+        for (NGSection sec : getAllSections())
+        {
+            String thisName = sec.getName();
+            if (thisName==null || thisName.length()==0)
+            {
+                throw new NGException("nugen.exception.section.not.have.name",null);
+            }
+            String attVal = sec.getAttribute("name");
+            if (!attVal.equals(thisName))
+            {
+                throw new ProgramLogicError("For this section, name attribute is '"+attVal+"' but the getName method gave me '"+thisName+"'.");
+            }
+            if (sectionNameToLookFor.equals(thisName))
+            {
+                if (!thisName.equals(sectionNameToLookFor))
+                {
+                    throw new ProgramLogicError("this makes no sense whatsoever!");
+                }
+                return sec;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+    * Get a section, creating it if it does not exist yet
+    */
+    public NGSection getRequiredSection(String secName)
+        throws Exception
+    {
+        if (secName==null)
+        {
+            throw new RuntimeException("getRequiredSection was passed a null secName parameter.");
+        }
+        NGSection sec = getSection(secName);
+        if (sec==null)
+        {
+            createSection(secName, null);
+            sec = getSection(secName);
+        }
+        return sec;
+    }
+
+
+
+    /**
+    * To create a new, empty, section, call this method.
+    */
+    public void createSection(String secName, AuthRequest ar)
+        throws Exception
+    {
+        SectionDef sd = SectionDef.getDefByName(secName);
+        if (sd==null)
+        {
+            throw new NGException("nugen.exception.no.section.with.given.name", new Object[]{secName});
+        }
+        createSection(sd, ar);
+    }
+
+
+    /**
+    *  The AuthRequest object is needed to record the user and time
+    * of modification.  In the situation that a required section is
+    * missing (such as the Tasks section which is supposed to be created
+    * at the moment the page is created, but there are some old pages
+    * today without Tasks sections) then it does not really matter to
+    * record who added this required section.  In that case, pass a null
+    * in for the AuthRecord, and nothing will be recorded.
+    */
+    public void createSection(SectionDef sd, AuthRequest ar)
+        throws Exception
+    {
+        if (sd==null)
+        {
+            throw new RuntimeException("createSection was passed a null sd parameter");
+        }
+        //clear the cached vector, force regeneration in any case
+        sectionElements = null;
+        String secName = sd.getTypeName();
+        Vector<NGSection> allSections = getChildren("section", NGSection.class);
+        for (NGSection sec : allSections)
+        {
+            if (secName.equals(sec.getAttribute("name")))
+            {
+                return;  //already created
+            }
+        }
+
+        createChildWithID("section", NGSection.class, "name", secName);
+    }
+
+
+    public void removeSection(String nameToRemove)
+        throws Exception
+    {
+        NGSection lameDuck = getSection(nameToRemove);
+        if (lameDuck==null)
+        {
+            throw new NGException("nugen.exception.unable.to.remove.section", new Object[]{nameToRemove});
+        }
+        //testing
+        if (!nameToRemove.equals(lameDuck.getName()))
+        {
+            throw new ProgramLogicError("Got wrong section ("
+                   +nameToRemove+" != "+lameDuck.getName()+").");
+        }
+        SectionDef def = lameDuck.def;
+        if (def.required)
+        {
+            throw new NGException("nugen.exception.section.required",
+                    new Object[]{def.displayName,def.getTypeName(),nameToRemove,lameDuck.getName()});
+        }
+
+        //attempt to convert the contents, if any, to a Leaflet
+        SectionFormat sf = def.format;
+        NGSection notes = getRequiredSection("Comments");
+        if (sf instanceof SectionPrivate)
+        {
+            sf.convertToLeaflet(notes, lameDuck);
+        }
+        else if (sf instanceof SectionWiki)
+        {
+            sf.convertToLeaflet(notes, lameDuck);
+        }
+
+        //clear the cached vector, force regeneration in any case
+        sectionElements = null;
+        removeChild(lameDuck);
+    }
+
+
+    public Vector<NGSection> getAllSections()
+        throws Exception
+    {
+        if (sectionElements==null)
+        {
+            //fetch it and cache it here
+            sectionElements = getChildren("section", NGSection.class);
+        }
+        return sectionElements;
+    }
+
+    public boolean hasSection(String secName)
+        throws Exception
+    {
+        for (NGSection sec : getAllSections())
+        {
+            if (secName.equals(sec.getName()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+    * Move a section to a new position, either one position higher (up)
+    * or one position lower (down).  First parameter is the section name,
+    * second parameter is the direction  true=up, false=down
+    */
+    public void moveSection(String secName, boolean moveUp)
+    {
+        Vector<Element> sections = DOMUtils.getNamedChildrenVector(fEle, "section");
+
+        for (int i=0; i<sections.size(); i++)
+        {
+            Element e = sections.elementAt(i);
+            String secNameFound = e.getAttribute("name");
+            if (secName.equals(secNameFound))
+            {
+                if (moveUp)
+                {
+                    if (i==0)
+                    {
+                        return;   //already first, can't move up
+                    }
+                    Element prevE = sections.elementAt(i-1);
+                    fEle.insertBefore(e, prevE);
+                }
+                else
+                {
+                    if (i>=sections.size()-1)
+                    {
+                        return;   //already last, can't move down
+                    }
+                    Element nextE = sections.elementAt(i+1);
+                    fEle.insertBefore(nextE, e);
+                }
+                //clear the cached vector so it can get the new order
+                sectionElements = null;
+                return;   //we found something, we are done
+            }
+
+            //for now we are silently ignoring requests to move sections
+            //that we can not find.
+        }
+    }
+
+
+    /**
+    * returns the path to the file that holds this page
+    */
+    public String getPageFilePath()
+    {
+        return address;
+    }
+
+
+    public String getKey()
+    {
+        //for a page named "Foo Bar.sp" this will return "foobar"
+        int start = address.lastIndexOf("/")+1;
+        int end = address.length()-3;
+        return SectionUtil.sanitize(address.substring(start,end));
+    }
+
+
+    /**
+    * getPermaLink returns the best name to use for linking to this page
+    * that is guaranteed not to change.  This will be the name of the
+    * directory that the file is stored in, which might be randomly
+    * generated.  This will not necessarily be a descriptive name of
+    * the page.  But it will be one that does not change.
+    */
+    public String getPermaLink(String pageResource)
+    {
+        return "p/"+getKey()+"/"+pageResource;
+    }
+
+    /**
+    * Returns the HTTP relative address for normal resource: public.htm
+    * Now the 'public.htm' does not need to be there, defaulted.
+    */
+    public String getPermaLink()
+    {
+        return getPermaLink("");
+    }
+
+    /**
+    * Returns the current full name of this page
+    */
+    public String getFullName()
+    {
+        if (displayNames==null)
+        {
+            return "Uninitialized (displayNames is null)";
+        }
+        if (displayNames.length==0)
+        {
+            return "Uninitialized (displayNames contains zero items)";
+        }
+        return displayNames[0];
+    }
+
+    public String[] getPageNames()
+    {
+        return displayNames;
+    }
+
+    public void setPageNames(String[] newNames)
+    {
+        pageInfo.setPageNames(newNames);
+        displayNames = pageInfo.getPageNames();
+    }
+
+
+    public String getUpstreamLink() {
+        return pageInfo.getScalar("upstream");
+    }
+
+    public void setUpstreamLink(String uStrm) {
+        pageInfo.setScalar("upstream", uStrm);
+    }
+
+    public void findLinks(Vector<String> v)
+        throws Exception
+    {
+        for (NGSection sec : getAllSections())
+        {
+            sec.findLinks(v);
+        }
+    }
+
+    public void findTags(Vector<String> v)
+        throws Exception
+    {
+        for (NoteRecord note : getAllNotes())
+        {
+            note.findTags(v);
+        }
+    }
+
+
+    public long getLastModifyTime()
+        throws Exception
+    {
+        long timeAttrib = pageInfo.getModTime();
+        if (timeAttrib>0)
+        {
+            return timeAttrib;
+        }
+
+        //currently we have a lot of pages without last modified set, so when it
+        //finds that the case, search through the sections, and find the latest
+        //section modification.  This code can be removed once all the existing
+        //pages get edited and upgraded.
+        long latestSecTime = 0;
+        for (NGSection sec : getAllSections())
+        {
+            long secTime = sec.getLastModifyTime();
+            if (secTime>latestSecTime)
+            {
+                latestSecTime = secTime;
+            }
+        }
+        return latestSecTime;
+    }
+
+    public String getLastModifyUser()
+        throws Exception
+    {
+        String modUser = pageInfo.getModUser();
+        if (modUser!=null)
+        {
+            return modUser;
+        }
+
+        //currently we have a lot of pages without last modified set, so when it
+        //finds that the case, search through the sections, and find the latest
+        //section modification.  This code can be removed once all the existing
+        //pages get edited and upgraded.
+        long latestSecTime = 0;
+        for (NGSection sec : getAllSections())
+        {
+            long secTime = sec.getLastModifyTime();
+            if (secTime>latestSecTime)
+            {
+                latestSecTime = secTime;
+                modUser = sec.getLastModifyUser();
+            }
+        }
+        return modUser;
+     }
+
+    public void setLastModify(AuthRequest ar)
+        throws Exception
+    {
+        ar.assertLoggedIn("Must be logged in in order to modify page.");
+        pageInfo.setModTime(ar.nowTime);
+        pageInfo.setModUser(ar.getBestUserId());
+    }
+
+
+    public NGBook getAccount()
+    {
+        if (account==null) {
+            //this will prove that this always returns a non-null value.
+            throw new RuntimeException("Program Logic Error: something is wrong with NGPage object which has a null account ... this should never happen.");
+        }
+        return account;
+    }
+    public String getAccountKey()
+    {
+        return pageInfo.getBookKey();
+    }
+
+
+    public void setAccount(NGBook ngb)
+    {
+        if (ngb==null)
+        {
+            pageInfo.setBookKey(null);
+            account = null;
+            hasNonDefaultAccount = false;
+            throw new RuntimeException("Should not be using the 'default account' concept any more, this exception is checking to see if it ever happens");
+        }
+        else
+        {
+            pageInfo.setBookKey(ngb.getKey());
+            hasNonDefaultAccount = true;
+            account = ngb;
+        }
+    }
+
+
+    /**
+    * Pages have a set of licenses
+    */
+    public Vector<License> getLicenses()
+        throws Exception
+    {
+        Vector<LicenseRecord> vc = pageInfo.getChildren("license", LicenseRecord.class);
+        Vector<License> v = new Vector<License>();
+        for (License child : vc) {
+            v.add(child);
+        }
+        v.add(new LicenseForProcess(getProcess()));
+        return v;
+    }
+
+    public License getLicense(String id) throws Exception {
+        Vector<LicenseRecord> vc = pageInfo.getChildren("license", LicenseRecord.class);
+        for (License child : vc) {
+            if (id.equals(child.getId())) {
+                return child;
+            }
+        }
+
+        LicenseForProcess lfp = new LicenseForProcess(getProcess());
+        if (id.equals(lfp.getId())) {
+            return lfp;
+        }
+
+        return null;
+    }
+
+    public boolean removeLicense(String id)
+        throws Exception
+    {
+        Vector<LicenseRecord> vc = pageInfo.getChildren("license", LicenseRecord.class);
+        for (LicenseRecord child : vc)
+        {
+            if (id.equals(child.getId()))
+            {
+                pageInfo.removeChild(child);
+                return true;
+            }
+        }
+        //maybe this should throw an exception?
+        return false;
+    }
+
+    public License addLicense(String id)
+        throws Exception
+    {
+        LicenseRecord newLement = pageInfo.createChildWithID("license",
+                LicenseRecord.class, "id", id);
+        return newLement;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+
+    /**
+    * Build in ability to test whether a page is rendered to
+    * correct XHTML.  If all is correct there is no response,
+    * bu if there is an error, an exception is thrown.
+    * This test primarily is to render the page, and then
+    * to parse the result as XML.  If the result is valid XML
+    * then we have some assurance that nothing accidental was
+    * included in the page.  Parhaps we can test the DOM and see
+    * if things are nested correctly ... in the future.
+    */
+    public void testRender(AuthRequest ar)
+        throws Exception
+    {
+        for (int limitLevel=0; limitLevel<=4; limitLevel++)
+        {
+            for (NGSection sec : getAllSections())
+            {
+                ByteArrayOutputStream buf = new ByteArrayOutputStream();
+                Writer testOut = new OutputStreamWriter(buf, "UTF-8");
+
+                AuthRequest ar4test = new AuthDummy(ar.getUserProfile(), testOut);
+                //ar4test.maxLevel = limitLevel;   <--no longer implemented, need to do something else
+                ar4test.setPageAccessLevels(this);
+
+                //write a dummy containing tag -- everything else will be within this
+                testOut.write("<editpage>");
+                //conclude the containing tag
+                testOut.write("</editpage>");
+                testOut.flush();
+                byte[] b = buf.toByteArray();
+                ByteArrayInputStream is = new ByteArrayInputStream(b);
+
+                //parse again
+                try {
+                    DOMUtils.convertInputStreamToDocument(is, false, false);
+                }
+                catch (Exception e) {
+                    throw new NGException("nugen.exception.error.in.section", new Object[] {
+                            sec.getName(), new String(b, "UTF-8") }, e);
+                }
+            }
+        }
+    }
+
+
+    //a page always has a process, so if asked for, and we can't find
+    //it, then we create it.
+    public ProcessRecord getProcess()
+        throws Exception
+    {
+        NGSection sec = getRequiredSection("Tasks");
+        ProcessRecord pr = sec.requireChild("process", ProcessRecord.class);
+        if (pr.getId() == null || pr.getId().length() == 0)  {
+            // default values
+            pr.setId(getUniqueOnPage());
+            pr.setState(BaseRecord.STATE_UNSTARTED);
+        }
+        return pr;
+    }
+
+
+    /**
+    * Returns all the goals for a project.
+    */
+    public List<GoalRecord> getAllGoals()
+        throws Exception
+    {
+        NGSection sec = getRequiredSection("Tasks");
+        return SectionTask.getAllTasks(sec);
+    }
+
+    /**
+    * Find the requested goal, or throw an exception
+    */
+    public GoalRecord getGoalOrFail(String id)
+        throws Exception
+    {
+        NGSection sec = getRequiredSection("Tasks");
+        return SectionTask.getTaskOrFail(sec, id);
+    }
+
+    public GoalRecord getGoalOrNull(String id)
+        throws Exception
+    {
+        NGSection sec = getRequiredSection("Tasks");
+        return SectionTask.getTaskOrNull(sec, id);
+    }
+
+    /**
+    * Creates a goal in a project without any history about creating it
+    */
+    public GoalRecord createGoal()
+        throws Exception
+    {
+        NGSection ngs = getSectionOrFail("Tasks");
+        GoalRecord goal = SectionTask.createTaskWithinNGPage(ngs);
+        String uid = getContainerUniversalId() + "@" + goal.getId();
+        goal.setUniversalId(uid);
+        return goal;
+    }
+
+    /**
+    * Create a new goal that is subordinant to another
+    */
+    public GoalRecord createSubGoal(GoalRecord parent) throws Exception {
+        GoalRecord goal = createGoal();
+        goal.setParentGoal(parent.getId());
+        goal.setDueDate(parent.getDueDate());
+        parent.setState(BaseRecord.STATE_WAITING);
+        return goal;
+    }
+
+
+
+    public List<HistoryRecord> getAllHistory()
+        throws Exception
+    {
+        return getProcess().getAllHistory();
+    }
+
+    public HistoryRecord createNewHistory()
+        throws Exception
+    {
+        HistoryRecord newHist = getProcess().createPartialHistoryRecord();
+        newHist.setId(getUniqueOnPage());
+        return newHist;
+    }
+
+
+
+
+    public void genProcessData(AuthRequest ar)
+        throws Exception
+    {
+        ProcessRecord process = getProcess();
+
+        ar.resp.setContentType("text/xml;charset=UTF-8");
+        Document doc = DOMUtils.createDocument("process");
+        String schema =  ar.baseURL + "rest/xsd/Page.xsd";
+        DOMUtils.setSchemAttribute(doc.getDocumentElement(), schema);
+        Element processEle = doc.getDocumentElement();
+        String processurl = ar.baseURL + "p/" + getKey() + "/process.wfxml";
+        process.fillInWfxmlProcess(doc, processEle, this, processurl);
+        DOMUtils.writeDom(doc, ar.w);
+    }
+
+    public void genActivityData(AuthRequest ar, String id)
+        throws Exception
+    {
+        //todo: not sure these two lines are required
+        getProcess();
+        getRequiredSection("Tasks");
+
+        ar.resp.setContentType("text/xml;charset=UTF-8");
+        Document doc = DOMUtils.createDocument("activity");
+        Element actEle = doc.getDocumentElement();
+        GoalRecord task = getGoalOrFail(id);
+        String processurl = ar.baseURL + "p/" + getKey() + "/process.wfxml";
+        task.fillInWfxmlActivity(doc, actEle,processurl);
+        DOMUtils.writeDom(doc, ar.w);
+    }
+
+    public String getPlainText(AuthRequest ar) throws Exception
+    {
+        StringWriter out = new StringWriter();
+
+        for (int i=0; i<displayNames.length; i++)
+        {
+            out.write(displayNames[i]);
+            out.write("\n");
+        }
+
+        for (NGSection sec : getAllSections())
+        {
+            SectionFormat formatter = sec.getFormat();
+            formatter.writePlainText(sec, out);
+        }
+
+        return out.toString();
+    }
+
+    /**
+    * Get a four digit numeric id which is unique on the page.
+    */
+    public String getUniqueOnPage()
+        throws Exception
+    {
+        existingIds = new Vector<String>();
+
+        //this is not to be trusted any more
+        for (NGSection sec : getAllSections())
+        {
+            sec.findIDs(existingIds);
+        }
+
+        //these added to be sure.  There is no harm in
+        //being redundant.
+        for (NoteRecord note : getAllNotes()) {
+            existingIds.add(note.getId());
+        }
+        for (AttachmentRecord att : getAllAttachments()) {
+            existingIds.add(att.getId());
+        }
+        for (GoalRecord task : getAllGoals()) {
+            existingIds.add(task.getId());
+        }
+        return IdGenerator.generateFourDigit(existingIds);
+    }
+
+
+    public ReminderMgr getReminderMgr()
+        throws Exception
+    {
+        if (reminderMgr==null)
+        {
+            reminderMgr = requireChild("reminders", ReminderMgr.class);
+        }
+        return reminderMgr;
+    }
+
+
+    public NGRole getPrimaryRole() throws Exception {
+        return getRequiredRole("Members");
+    }
+    public NGRole getSecondaryRole() throws Exception {
+        return getRequiredRole("Administrators");
+    }
+
+    /**
+    * implemented special functionality for projects ... there are account
+    * executives, and there are task assignees to consider.
+    */
+    public boolean primaryOrSecondaryPermission(UserRef user) throws Exception {
+        if (primaryPermission(user))
+        {
+            return true;
+        }
+        if (secondaryPermission(user))
+        {
+            return true;
+        }
+        NGRole execs = getAccount().getRoleOrFail("Executives");
+        if (execs.isPlayer(user))
+        {
+            return true;
+        }
+        //now walk through the tasks, and check if person is assigned to any active task
+
+        for (GoalRecord gr : getAllGoals())
+        {
+            int state = gr.getState();
+            if (state == BaseRecord.STATE_STARTED ||
+                state == BaseRecord.STATE_ACCEPTED||
+                state == BaseRecord.STATE_WAITING )
+            {
+                if (gr.isAssignee(user))
+                {
+                    return true;
+                }
+            }
+            if (state == BaseRecord.STATE_REVIEW )
+            {
+                if (gr.isReviewer(user))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    public RoleRequestRecord createRoleRequest(String roleName, String requestedBy, long modifiedDate, String modifiedBy, String requestDescription) throws Exception
+    {
+        DOMFace rolelist = pageInfo.requireChild("Role-Requests", DOMFace.class);
+        RoleRequestRecord newRoleRequest = rolelist.createChild("requests", RoleRequestRecord.class);
+        newRoleRequest.setRequestId(generateKey());
+        newRoleRequest.setModifiedDate(Long.toString(modifiedDate));
+        newRoleRequest.setModifiedBy(modifiedBy);
+        newRoleRequest.setState("Requested");
+        newRoleRequest.setCompleted(false);
+        newRoleRequest.setRoleName(roleName);
+        newRoleRequest.setRequestedBy(requestedBy);
+        newRoleRequest.setRequestDescription(requestDescription);
+        newRoleRequest.setResponseDescription("");
+
+        return newRoleRequest;
+    }
+
+    public synchronized static String generateKey() {
+        return IdGenerator.generateKey();
+    }
+
+    public List<RoleRequestRecord> getAllRoleRequest() throws Exception {
+
+        List<RoleRequestRecord> requestList = new ArrayList<RoleRequestRecord>();
+        DOMFace rolelist = pageInfo.requireChild("Role-Requests", DOMFace.class);
+        Vector<RoleRequestRecord> children =  rolelist.getChildren("requests", RoleRequestRecord.class);
+        for (RoleRequestRecord rrr: children) {
+            requestList.add(rrr);
+        }
+        return requestList;
+    }
+
+    ///////////////// NOTES //////////////////////
+
+
+
+    public void saveContent(AuthRequest ar, String comment) throws Exception{
+        savePage( ar, comment );
+    }
+
+
+    public String getAddress() throws Exception {
+        // TODO Auto-generated method stub
+        return address;
+    }
+
+
+    public String[] getContainerNames(){
+        return getPageNames();
+    }
+
+
+    public void setContainerNames(String[] nameSet) {
+         setPageNames(nameSet);
+    }
+
+
+    /**
+    * Used by ContainerCommon to provide methods for this class
+    */
+    protected DOMFace getAttachmentParent() throws Exception {
+        return getRequiredSection("Attachments");
+    }
+
+    /**
+    * Used by ContainerCommon to provide methods for this class
+    */
+    protected DOMFace getNoteParent() throws Exception {
+        return getRequiredSection("Comments");
+    }
+
+    /**
+    * Used by ContainerCommon to provide methods for this class
+    */
+    protected DOMFace getRoleParent() throws Exception {
+        if (pageInfo==null) {
+            pageInfo = requireChild("pageInfo", PageInfoRecord.class);
+        }
+        return pageInfo.requireChild("roleList", DOMFace.class);
+    }
+
+    /**
+    * Used by ContainerCommon to provide methods for this class
+    */
+    protected DOMFace getHistoryParent() throws Exception {
+        return getProcess().requireChild("history", DOMFace.class);
+    }
+
+
+
+    /**
+    * deprectated, use getNote instead
+    *
+    public NoteRecord getLeaflet(String lid)
+        throws Exception
+    {
+        return getNote(lid);
+    }*/
+
+
+    public void writeContainerLink(AuthRequest ar, int len) throws Exception
+    {
+        ar.write("<a href=\"");
+        ar.write(ar.retPath);
+        ar.write(ar.getResourceURL(this, "public.htm"));
+        ar.write("\">");
+        ar.writeHtml(trimName(getFullName(), len));
+        ar.write( "</a>");
+    }
+
+    public void writeDocumentLink(AuthRequest ar, String documentId, int len) throws Exception
+    {
+        AttachmentRecord att = findAttachmentByID(documentId);
+        if(att==null)
+        {
+            ar.write( "(Document " );
+            ar.write( documentId );
+            ar.write( ")" );
+            return;
+        }
+        String nameOfLink =  trimName(att.getDisplayName(), len);
+        writePageUrl(ar);
+        ar.write( "/docinfo");
+        ar.writeURLData(documentId );
+        ar.write( ".htm\">" );
+        ar.writeHtml(nameOfLink);
+        ar.write( "</a>");
+    }
+
+    public void writeReminderLink(AuthRequest ar, String reminderId, int len) throws Exception
+    {
+        ReminderRecord att = getReminderMgr().findReminderByID( reminderId );
+        if(att==null)
+        {
+            ar.write( "(Reminder " );
+            ar.write( reminderId );
+            ar.write( ")" );
+            return;
+        }
+        String nameOfLink =  trimName(att.getFileDesc(), len);
+        writePageUrl(ar);
+        ar.write( "/sendemailReminder.htm?rid=" );
+        ar.writeURLData(reminderId);
+        ar.write( "'>" );
+        ar.writeHtml(nameOfLink);
+        ar.write( "</a>");
+    }
+
+
+    public void writeTaskLink(AuthRequest ar, String taskId, int len) throws Exception
+    {
+        GoalRecord task = getGoalOrNull(taskId);
+        if(task==null)
+        {
+            ar.write( "(Task " );
+            ar.writeHtml( taskId );
+            ar.write( ")" );
+            return;
+        }
+        String nameOfLink = trimName(task.getSynopsis(), len);
+
+        writePageUrl(ar);
+        ar.write("/projectActiveTasks.htm\">" );
+        ar.writeHtml(nameOfLink);
+        ar.write( "</a>");
+    }
+
+    public void writeNoteLink(AuthRequest ar,String noteId, int len) throws Exception{
+        NoteRecord note = getNote( noteId );
+        if(note==null){
+            if ("x".equals(noteId))
+            {
+                ar.write("(attached documents only)");
+            }
+            else
+            {
+                ar.write( "(Note " );
+                ar.write( noteId );
+                ar.write( ")" );
+            }
+            return;
+        }
+        String nameOfLink =  trimName(note.getSubject(), len);
+        writePageUrl(ar);
+        ar.write("/leaflet");
+        ar.writeURLData(note.getId());
+        ar.write(".htm\">" );
+        ar.writeHtml(nameOfLink);
+        ar.write( "</a>");
+    }
+
+
+    private void writePageUrl(AuthRequest ar) throws Exception{
+        ar.write( "<a href=\"" );
+        ar.writeHtml(ar.baseURL );
+        ar.write( "t/" );
+        ar.writeHtml(getAccount().getKey());
+        ar.write( "/" );
+        ar.writeHtml(getKey());
+    }
+
+
+    public void deleteRoleRequest(String requestId) throws Exception {
+        DOMFace roleRequests = pageInfo.requireChild("Role-Requests",
+                DOMFace.class);
+        Vector<Element> children = DOMUtils.getNamedChildrenVector( roleRequests.getElement(),
+                "requests");
+        for (Element child : children) {
+            if ("requests".equals(child.getLocalName()) || "requests".equals(child.getNodeName())) {
+                String childAttValue = child.getAttribute("id");
+                if (childAttValue != null && requestId.equals(childAttValue)) {
+                    roleRequests.getElement().removeChild(child);
+                }
+            }
+        }
+    }
+
+    public void setAllowPublic(String allowPublic)throws Exception{
+        pageInfo.setAllowPublic(allowPublic);
+    }
+
+    public String getAllowPublic() throws Exception{
+        String value = pageInfo.getAllowPublic();
+        if(value == null || value.length() == 0 ){
+            value = "yes";
+        }
+        return value;
+    }
+
+    public boolean isFrozen() throws Exception
+    {
+        return pageInfo.isFrozen();
+    }
+    public void freezeProject(AuthRequest ar)
+    {
+        pageInfo.freezeProject(ar);
+    }
+
+    public void unfreezeProject()
+    {
+        pageInfo.unfreezeProject();
+    }
+    public long getFrozenDate()
+    {
+        return pageInfo.getAttributeLong("freezeDate");
+    }
+    public String getFrozenUser()
+    {
+        return pageInfo.getAttribute("freezeUser");
+    }
+
+
+
+    public String getProjectMailId()
+    {
+        return pageInfo.getProjectMailId();
+    }
+    public void setProjectMailId(String id)
+    {
+        pageInfo.setProjectMailId(id);
+    }
+
+    /**
+    * Different projects can have different style sheets (themes)
+    */
+    public String getThemePath()
+    {
+        if (account!=null) {
+            return account.getThemePath();
+        }
+        return "theme/blue/";
+    }
+
+    public void scanForNewFiles() throws Exception
+    {
+        //nothing in this class
+    }
+    public void removeExtrasByName(String name)throws Exception
+    {
+        //no extras in this class
+    }
+
+}
