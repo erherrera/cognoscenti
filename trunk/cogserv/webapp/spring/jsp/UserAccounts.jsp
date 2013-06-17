@@ -110,7 +110,7 @@ Required Parameters:
             <br/>
             <div>
                 <form name="createAccountForm" method="GET" action="requestAccount.htm">
-                    <input type="submit" name="create account"  class="inputBtn"  Value="Request New Account">
+                    <input type="submit" class="inputBtn"  Value="Request New Account">
                 </form>
             </div>
         </div>
@@ -133,7 +133,7 @@ Required Parameters:
             <fmt:message key="noaccount.message.1"/>
             <fmt:message key="noaccount.message.2"/>
             <form name="createAccountForm" method="GET" action="requestAccount.htm">
-                <input type="submit" name="create account"  class="inputBtn"  Value="Request New Account">
+                <input type="submit" class="inputBtn"  Value="Request New Account">
             </form>
             <fmt:message key="noaccount.message.3"/>
             <fmt:message key="noaccount.message.4"/>

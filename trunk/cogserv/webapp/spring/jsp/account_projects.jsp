@@ -61,7 +61,6 @@ Required parameter:
 </script>
 <% if(!ar.isLoggedIn()){%>
 
-<%@page import="org.socialbiz.cog.spring.ProjectHelper"%>
 <%@page import="org.socialbiz.cog.TemplateRecord"%>
 <body>
 <div class="generalArea">
@@ -109,7 +108,6 @@ Required parameter:
                                 <%
                                 for (NGPageIndex ngpi : templates)
                                 {
-                                    ProjectHelper helper = new ProjectHelper();
                                     %>
                                     <option value="<%ar.writeHtml(ngpi.containerKey);%>" ><%ar.writeHtml(ngpi.containerName);%></option>
                                     <%

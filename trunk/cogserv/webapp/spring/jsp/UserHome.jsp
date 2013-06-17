@@ -1,15 +1,14 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
+%><%@page import="org.socialbiz.cog.IDRecord"
+%><%@page import="org.socialbiz.cog.NotificationRecord"
 %><%@page import="org.socialbiz.cog.RssServlet"
+%><%@page import="org.socialbiz.cog.SectionWiki"
+%><%@page import="org.socialbiz.cog.SuperAdminLogFile"
+%><%@page import="org.socialbiz.cog.TemplateRecord"
 %><%@page import="org.socialbiz.cog.ValueElement"
 %><%@page import="org.socialbiz.cog.WatchRecord"
-%><%@page import="org.socialbiz.cog.IDRecord"
-%><%@page import="org.socialbiz.cog.TemplateRecord"
-%><%@page import="org.socialbiz.cog.spring.ProjectHelper"
-%><%@page import="org.socialbiz.cog.SectionWiki"
 %><%@page import="org.springframework.context.ApplicationContext"
-%><%@page import="org.socialbiz.cog.NotificationRecord"
-%><%@page import="org.socialbiz.cog.SuperAdminLogFile"
 %>
 <head>
     <style type="text/css">
@@ -31,9 +30,9 @@
     request.setCharacterEncoding("UTF-8");
     UserProfile  uProf =(UserProfile)request.getAttribute("userProfile");
     ApplicationContext context = (ApplicationContext)request.getAttribute("messages");
-    
+
     List templateList = uProf.getTemplateList();
-    
+
     Vector<NGPageIndex> templates = new Vector();
     if (templateList != null)
     {
@@ -52,7 +51,7 @@
 
         NGPageIndex.sortInverseChronological(templates);
     }
-    
+
 %>
 <script>
         var specialSubTab = '<fmt:message key="${requestScope.subTabId}"/>';
@@ -82,12 +81,12 @@
     var flag = false;
     var projectNameRequiredAlert = '<fmt:message key="nugen.project.name.required.error.text"/>';
     var projectNameTitle = '<fmt:message key="nugen.project.projectname.textbox.text"/>';
-    
+
     function trim(s) {
         var temp = s;
         return temp.replace(/^s+/,'').replace(/s+$/,'');
     }
-    
+
     var paginator;
     var d = document;
 
@@ -106,7 +105,7 @@
                 alert("projectValidationResponse Error:" +o.responseText);
             }
     }
-    
+
     var sortVisitedDates = function(a, b, desc) {
         if(!YAHOO.lang.isValue(a)) {
             return (!YAHOO.lang.isValue(b)) ? 0 : 1;
@@ -118,7 +117,7 @@
         var compState = comp(a.getData("visitedTimePeriod"), b.getData("visitedTimePeriod"), desc);
         return compState;
     };
-        
+
     var WatchedProjectDT2;
     var elRow2;
     var nameFormater = function(elCell, oRecord, oColumn, sData)
@@ -126,11 +125,11 @@
            elCell.innerHTML = "<a href='<%=ar.retPath%>t/"+oRecord.getData("pageBookKey")+"/"+oRecord.getData("pagekey")+"/projectHome.htm' "+
                               "  title=\"navigate to the watched page\">" + oRecord.getData("name") + "</a>";
        };
-       
+
     function deleteRow(){
         WatchedProjectDT2.deleteRow(elRow2);
     }
-    
+
     var sortNames = function(a, b, desc) {
         if(!YAHOO.lang.isValue(a)) {
             return (!YAHOO.lang.isValue(b)) ? 0 : 1;
@@ -142,7 +141,7 @@
         var compState = comp(a.getData("pagenameHidden"), b.getData("pagenameHidden"), desc);
         return compState;
     };
-    
+
     </script>
 </body>
 <%@ include file="functions.jsp"%>
