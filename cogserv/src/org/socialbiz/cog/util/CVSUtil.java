@@ -1,0 +1,347 @@
+package org.socialbiz.cog.util;
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
+import org.socialbiz.cog.NGPage;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+public class CVSUtil
+{
+
+    public static final String ADD          = "add";          //Add a new file/directory to the repository
+    public static final String ADMIN        = "admin";        //Administration front end for rcs
+    public static final String ANNOTATE     = "annotate";     //Show last revision where each line was modified
+    public static final String CHACL        = "chacl";        //Change the Access Control List for a directory
+    public static final String CHECKOUT     = "checkout";     //Checkout sources for editing
+    public static final String CHOWN        = "chown";        //Change the owner of a directory
+    public static final String COMMIT       = "commit";       //Check files into the repository
+    public static final String DIFF         = "diff";         //Show differences between revisions
+    public static final String EDIT         = "edit";         //Get ready to edit a watched file
+    public static final String EDITORS      = "editors";      //See who is editing a watched file
+    public static final String EXPORT       = "export";       //Export sources from CVS, similar to checkout
+    public static final String HISTORY      = "history";      //Show repository access history
+    public static final String IMPORT       = "import";       //Import sources into CVS, using vendor branches
+    public static final String INIT         = "init";         //Create a CVS repository if it doesn't exist
+    public static final String INFOR        = "info";         //Display information about supported protocols
+    public static final String LOG          = "log";          //Print out history information for files
+    public static final String LOGIN        = "login";        //Prompt for password for authenticating server
+    public static final String LOGOUT       = "logout";       //Removes entry in .cvspass for remote repository
+    public static final String LS           = "ls";           //List files in the repository
+    public static final String LSACL        = "lsacl";        //List the directories Access Control List
+    public static final String PASSWORD     = "passwd";       //Set the user's password (Admin: Administer users)
+    public static final String AUTHSERVER   = "authserver";   //Authentication server mode
+    public static final String RANNOTATE    = "rannotate";    //Show last revision where each line of module was modified
+    public static final String RDIFF        = "rdiff";        //Create 'patch' format diffs between releases
+    public static final String RELEASE      = "release";      //Indicate that a Module is no longer in use
+    public static final String REMOVE       = "remove";       //Remove an entry from the repository
+    public static final String RLOG         = "rlog";         //Print out history information for a module
+    public static final String RTAG         = "rtag";         //Add a symbolic tag to a module
+    public static final String SERVERS      = "server";       //Server mode
+    public static final String STATUS       = "status";       //Display status information on checked out files
+    public static final String TAG          = "tag";          //Add a symbolic tag to checked out version of files
+    public static final String UNEDIT       = "unedit";       //Undo an edit command
+    public static final String UPDATE       = "update";       //Bring work tree in sync with repository
+    public static final String VERSION      = "version";      //Show current CVS version(s)
+    public static final String WATCH        = "watch";        //Set watches
+    public static final String WATCHERS     = "watchers";     //See who is watching a file
+
+    private static String cvsConnectStr = "";
+    private static String SPACE = " ";
+    private static String CVS_D = "cvs -d ";
+    private static boolean cvsEnabled = false;
+    private static String DBL_QUOTE = "\"";
+
+
+    public CVSUtil(String m_cvsConnectStr, String m_password, boolean m_isCVSEnabled)
+    {
+        cvsConnectStr = m_cvsConnectStr;
+        cvsEnabled = m_isCVSEnabled;
+    }
+
+    public static NGPage getLatestCopyFromCVS(NGPage ngp) throws Exception
+    {
+        if (ngp == null) {
+            return ngp;
+        }
+        // get the latest copy of the file before editing.
+        String filePath = ngp.getPageFilePath();
+        // do a cvs update.
+        CVSUtil.update(filePath);
+        // do a cvs edit.
+        CVSUtil.edit(filePath);
+        // reconstruct the page from the updated content.
+        ngp = NGPage.readPageAbsolutePath(new java.io.File(filePath));
+        return ngp;
+    }
+
+
+    public static String getOutputMessage(Process process) throws Exception
+    {
+        if (process == null) {
+            return "";
+        }
+
+        BufferedReader br=new BufferedReader(new InputStreamReader(process.getInputStream()));
+        StringBuffer sb = new StringBuffer();
+        String str = br.readLine();
+        while( str != null){
+            str = br.readLine();
+            sb.append(str);
+        }
+        return sb.toString();
+    }
+
+    public static String getErrorMessage(Process process) throws Exception
+    {
+        if (process == null) {
+            return "";
+        }
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        StringBuffer sb = new StringBuffer();
+
+        String str = br.readLine();
+        while( str != null){
+            str = br.readLine();
+            sb.append(str);
+        }
+        return sb.toString();
+    }
+
+    public static boolean isProcessSuccess(Process process) throws Exception
+    {
+        if (process == null) {
+            return false;
+        }
+        String str = getErrorMessage(process);
+        return ((str.length() == 0)? true : false);
+    }
+
+    public static Process executeCommand(String command) throws Exception
+    {
+        if ((command == null) || command .length() == 0)
+        {
+            throw new ProgramLogicError("Attempt to execute a comand line command with a null command value.");
+        }
+        Runtime runTime = Runtime.getRuntime();
+        // for windows - use cmd.exe. for Solaris this needs to be changed.
+        Process process = runTime.exec("cmd.exe /c "+ command);
+        return process;
+    }
+
+    public static String getCVSConnectString(String connStr, String password)  throws Exception
+    {
+        if (connStr == null || connStr.length() == 0 || password == null || password.length() == 0) {
+            return connStr;
+        }
+
+        int idx = connStr.indexOf("@");
+        connStr = connStr.substring(0, idx) + ":" + password + connStr.substring(idx, connStr.length());
+        return connStr;
+    }
+
+    public static boolean login(String cvsConnectStr) throws Exception
+    {
+        if (cvsConnectStr == null || cvsConnectStr.length() == 0) {
+            return false;
+        }
+
+        Process process = CVSUtil.executeCommand(CVS_D + cvsConnectStr + SPACE + CVSUtil.LOGIN);
+        return CVSUtil.isProcessSuccess(process);
+    }
+
+    public static boolean logout(String cvsConnectStr) throws Exception
+    {
+        if (cvsConnectStr == null || cvsConnectStr.length() == 0) {
+            return false;
+        }
+
+        Process process = CVSUtil.executeCommand(CVS_D + cvsConnectStr + SPACE + CVSUtil.LOGOUT);
+        return CVSUtil.isProcessSuccess(process);
+    }
+
+    public static Process add(String file, String userName, String comment) throws Exception
+    {
+        if (!cvsEnabled)
+        {
+            return null;  //silently do nothing if not enabled
+        }
+        if (file == null || file.length() == 0)
+        {
+            throw new NGException("nugen.exception.file.missing.to.add",null);
+        }
+        if (userName == null) {
+            userName = "";
+        }
+        if (comment == null) {
+            comment = "";
+        }
+
+        file = convertBStoFWS(file);
+        // get the parent directory name from the file path.
+        String dirName = file.substring(file.lastIndexOf("/")+1);
+
+        // for adding a file into CVS one has to be in any of the CVS directory to execute the command.
+        Process p1 = CVSUtil.executeCVSCommand("CD " + dirName + " && " + CVSUtil.ADD + CVSUtil.SPACE + DBL_QUOTE + file + DBL_QUOTE);
+        Process p2 = null;
+        if (CVSUtil.isProcessSuccess(p1)) {
+            p2 = CVSUtil.commit(file, userName, (comment + " :: " +  "(" + userName + ")") );
+        }
+        return ((p2 == null)? p1 : p2);
+    }
+
+    public static Process commit(String file, String userName, String comment) throws Exception
+    {
+        if (!cvsEnabled)
+        {
+            return null;  //silently do nothing if not enabled
+        }
+        if (file == null || file.length() == 0)
+        {
+            throw new NGException("nugen.exception.file.missing.to.commit",null);
+        }
+
+        if (userName == null) {
+            userName = "";
+        }
+        if (comment == null) {
+            comment = "";
+        }
+
+        return CVSUtil.executeCVSCommand(CVSUtil.COMMIT + CVSUtil.SPACE
+                    + "-m" + CVSUtil.SPACE
+                    + CVSUtil.quote4CMDLine(comment + " :: (" + userName + ")" )
+                    + CVSUtil.SPACE + DBL_QUOTE + convertBStoFWS(file) + DBL_QUOTE );
+    }
+
+    public static Process update(String file) throws Exception
+    {
+        if (!cvsEnabled)
+        {
+            return null;  //silently do nothing if not enabled
+        }
+        if (file == null || file.length() == 0)
+        {
+            throw new NGException("nugen.exception.file.missing.to.update",null);
+        }
+
+        return CVSUtil.executeCVSCommand(CVSUtil.UPDATE + CVSUtil.SPACE + DBL_QUOTE
+                    + convertBStoFWS(file) + DBL_QUOTE);
+    }
+
+    public static Process checkOut(String file) throws Exception
+    {
+        if (!cvsEnabled)
+        {
+            return null;  //silently do nothing if not enabled
+        }
+        if (file == null || file.length() == 0)
+        {
+            throw new NGException("nugen.exception.file.missing.to.checkout",null);
+        }
+
+        return CVSUtil.executeCVSCommand(CVSUtil.CHECKOUT + CVSUtil.SPACE + DBL_QUOTE
+                     + convertBStoFWS(file) + DBL_QUOTE);
+    }
+
+    public static Process edit(String file) throws Exception
+    {
+        if (!cvsEnabled)
+        {
+            return null;  //silently do nothing if not enabled
+        }
+        if (file == null || file.length() == 0)
+        {
+            throw new NGException("nugen.exception.file.missing.to.edit",null);
+        }
+
+        return CVSUtil.executeCVSCommand(CVSUtil.EDIT + CVSUtil.SPACE + DBL_QUOTE
+                     + convertBStoFWS(file) + DBL_QUOTE);
+    }
+
+    public static Process executeCVSCommand(String command) throws Exception
+    {
+        if (!cvsEnabled)
+        {
+            return null;  //silently do nothing if not enabled
+        }
+        if (command == null || command.length() == 0)
+        {
+            throw new ProgramLogicError("Null command.  Method executeCVSCommand needs to be passed a valid, non-null command value.");
+        }
+        Process process = CVSUtil.executeCommand(CVS_D + cvsConnectStr + SPACE + command);
+        return process;
+    }
+
+    private static String convertBStoFWS(String str)
+    {
+        if (str == null || str.length() == 0)
+        {
+            return str;
+        }
+        return str.replace('\\', '/');
+    }
+
+    public static boolean isCVSEnabled() throws Exception
+    {
+        return cvsEnabled;
+    }
+
+    public static String
+    quote4CMDLine(String str)
+    {
+        //passing a null in results a no output, no quotes, nothing
+        if (str == null) {
+            return "\"\"";
+        }
+        int len = str.length();
+        int startPos = 0;
+        String trans = null;
+
+        StringBuffer res = new StringBuffer("\"");
+        for (int i=0; i<len; i++) {
+            char ch = str.charAt(i);
+            switch ( ch) {
+                case '\"':
+                    trans = "\\\"";
+                    break;
+                default:
+                    continue;
+            }
+            if (trans != null) {
+                if (i > startPos) {
+                    res.append(str.substring(startPos, i));
+                }
+                res.append(trans);
+                startPos = i+1;
+                trans = null;
+            }
+        }
+        // now write out whatever is left
+        if (len > startPos) {
+            res.append(str.substring(startPos));
+        }
+        res.append("\"");
+        return res.toString();
+    }
+
+    public static void main(String arg[])
+    {
+        try
+        {
+            //Runtime r1 = Runtime.getRuntime();
+            //Process p1 = r1.exec("cmd.exe /c cd C:\\testcvs\\ps\\ && cvs -d:pserver:kumar:kumar@133.164.97.10:2401/space/cvs add \"C:\\testcvs\\ps\\nugen\\cvstest.txt\"");
+
+            Runtime r2 = Runtime.getRuntime();
+            r2.exec("cmd.exe /c cvs -d:pserver:kumar:kumar@133.164.97.10:2401/space/cvs commit -m \"test\" \"C:\\testcvs\\ps\\nugen\\cvstest.txt\"");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            System.exit(0);
+        }
+    }
+
+
+
+}

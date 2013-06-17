@@ -1,0 +1,72 @@
+#Configuration for NuGen Demo
+
+# Data Folder
+# This is the location where the .sp files will be stored.
+# Can be any local path, include the complete path to the folder.
+# Make sure that this folder exists before you start.
+dataFolder=D:/iBPM/ibpm_cloud_src/ps/nugen/data_pages/
+
+# Attachment folder
+# This is the location where the attachment files will be stored.
+# Can be any local path, include the complete path to the folder.
+# Make sure that this folder exists before you start.
+attachFolder=D:/iBPM/ibpm_cloud_src/ps/nugen/data_attachments/
+
+# User folder
+# This is the location where the user files will be stored.
+# Can be any local path, include the complete path to the folder.
+# Make sure that this folder exists before you start.
+userFolder=D:/iBPM/ibpm_cloud_src/ps/nugen/data_users/
+
+
+# Library Folder
+# This is an alternate (newer) way of saving project information
+# in the Cognoscenti server.  Specify a list of lib folders (separated by
+# semicolon) and the server will search that folder tree for project
+# files.  Attachments are stored in the same folder with the project file
+# only one project file per OS file folder allowed.
+# Use can edit the attachment files directly, and re-synch later with
+# project.  Each project is a folder, and much easier to access attachments.
+#libFolder=c:/sanddata/coglib/
+
+#Local Connections designate named paths on the server machine
+#to which a local connection can be made
+#A sequence of expressions surrounded by square brackets, within
+#each expression is a name=path
+#use only forward slashes, and end the path with a slash
+localConnections=[iflow\=d\:/sandbox/iflow/][photos\=d\:/vacphoto/]
+
+#cvsConnections specifies a list of otential CVS root folders that
+#can be used to create a connection to CVS.  A list of triplet values in
+#square brackets.  [root=XXX,repository=YYY,sandbox=ZZZ]
+cvsConnections=[root\=\:pserver\:uid\:pwd@10.124.230.110\:/pub/ftp/084all/cvs,repository\=iflow,sandbox\=d\:/sandbox/iflow/DOCS][root\=\:pserver\:uid\:pwd@133.164.97.10\:/space/cvs,repository\=ps/ProdMgmt,sandbox\=d\:/sandbox/ps/ProdMgmt]
+
+
+
+# baseURL
+# This is the public base address if Proxy is used in firewall
+# eg:   baseURL=https://interstagebpm.com/av/
+
+
+# BusinessEntityRoot
+# eg:   BusinessEntityRoot=D:/Project/Avatar/workspace/Nugen_local/data_BusinessEntity/
+
+
+# This is the property used to set till how many of days , a history record can be displayed  
+max_days_interval = 30
+
+#specify the user ID that has administrator privilidges
+#Note that you have to run the server and create a user account first
+#and then reconfigure setting the ID of that user here.
+#superAdmin=NRKOSUFJG
+
+
+#Add this property to see feature that is in-development
+#serverMode=Development
+
+#emailOpenIDProvider
+#This is the URL of an openID provider that follows these rules:
+# 1. the user log in using their email address
+# 2. the resulting OpenID starts with the string specified
+# 3. anything following the string is the email address of the user
+emailOpenIDProvider=http://SSOFI.provider.mycompany.com/emailid/
