@@ -195,6 +195,10 @@ Optional Parameter:
                     {
                         elCell.innerHTML = "<a href='<%=ar.retPath%>" + oRecord.getData("PageLink") + "' target='_blank'>" + oRecord.getData("NoteSubj") + "</a>";
                     };
+                    var formatUpdater = function(elCell, oRecord, oColumn, sData)
+                    {
+                        elCell.innerHTML = "<a href='<%=ar.retPath%>v/" + oRecord.getData("LastModifiedBy") + "/userSettings.htm' target='_blank'>" + oRecord.getData("LastModifiedName") + "</a>";
+                    };
 
                     var formatNameUrl = function(elCell, oRecord, oColumn, sData)
                     {
@@ -209,11 +213,14 @@ Optional Parameter:
                         }
                     };
                     var myColumnDefs = [
-                        {key:"No",label:"<fmt:message key="nugen.serach.result.table.col.Number"/>",formatter:YAHOO.widget.DataTable.formatNumber,sortable:true,resizeable:true},
+                        {key:"No",label:"<fmt:message key="nugen.serach.result.table.col.Number"/>",
+                                  formatter:YAHOO.widget.DataTable.formatNumber,sortable:true,resizeable:true},
                         {key:"NoteSubj",label:"Note", formatter:formatUrl, sortable:true,resizeable:true},
                         {key:"PageName",label:"Project", sortable:true,resizeable:true},
-                        {key:"LastModifiedBy",label:"<fmt:message key="nugen.serach.result.table.col.LastUpdated"/>", sortable:true, resizeable:true},
-                        {key:"LastModifiedTime",label:"<fmt:message key="nugen.serach.result.table.col.lastUpdatedTime"/>",sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
+                        {key:"LastModifiedBy",label:"<fmt:message key="nugen.serach.result.table.col.LastUpdated"/>",
+                                  formatter:formatUpdater, sortable:true, resizeable:true},
+                        {key:"LastModifiedTime",label:"<fmt:message key="nugen.serach.result.table.col.lastUpdatedTime"/>",
+                                  sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
                         {key:"timePeriod",label:"timePeriod",sortable:true, resizeable:true,hidden:true}
                     ];
 

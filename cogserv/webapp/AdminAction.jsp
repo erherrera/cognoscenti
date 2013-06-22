@@ -40,6 +40,11 @@
     {
         deleteMarkedPages();
     }
+    else if (action.equals("Send Test Email"))
+    {
+        //EmailSender.main(new String[0]);
+        EmailSender.sendTestEmail();
+    }
     else
     {
         throw new Exception ("Unrecognized command: "+action);

@@ -72,7 +72,7 @@ public class EmailSender extends TimerTask {
     public static Exception threadLastMsgException = null;
 
     @SuppressWarnings("unused")
-    private static SendEmailThread sendEmailThread;
+    private static SendEmailThread sendEmailThread = null;
 
     /**
      * @deprecated
@@ -192,22 +192,6 @@ public class EmailSender extends TimerTask {
     }
 
     /**
-     * Use this to attempt to detect mis-configurations, and give a reasonable
-     * error message when something important is missing.
-     */
-    private void assertEmailConfigOK() throws Exception {
-        String proto = getProperty("mail.transport.protocol");
-        if (proto == null || proto.length() == 0) {
-            throw new NGException("nugen.exception.email.config.issue", null);
-        }
-        if (!proto.equals("smtp")) {
-            throw new NGException(
-                    "nugen.exception.email.config.file.smtp.issue",
-                    new Object[] { proto });
-        }
-    }
-
-    /**
      * This method is designed to be called repeatedly ... every 20 minutes.
      * What it then does is calculate the next due date. If it is currently
      * after the due date, then the sendDailyDigest is sent.
@@ -278,17 +262,18 @@ public class EmailSender extends TimerTask {
             // email address, instead of the address in the profile.
             String overrideAddress = getProperty("overrideAddress");
 
-            Authenticator authenticator = null;
-            if ("true".equals(getProperty("mail.smtp.auth"))) {
-                authenticator = new MyAuthenticator(
-                        getProperty("mail.smtp.user"),
-                        getProperty("mail.smtp.password"));
-            }
+            Authenticator authenticator = new MyAuthenticator(emailProperties);
             Session mailSession = Session.getInstance(emailProperties,
                     authenticator);
 
             mailSession.setDebug(Boolean.valueOf(getProperty("mail.debug"))
                     .booleanValue());
+
+            //someone suggested this for SMTPS
+            //mailSession.addProvider(new Provider(Provider.Type.Transport, "smtps", "com.sun.mail.smtp.SMTPSSLTransport", "", ""));
+
+
+
             transport = mailSession.getTransport();
             transport.connect();
             StringWriter bodyOut = null;
@@ -689,10 +674,9 @@ public class EmailSender extends TimerTask {
         }
 
         // this of course does not work because we have not specified the
-        // timezone
-        // within which to calculate the time of date. Will use the default
-        // timezone
-        // that the server is in. Good enough for now.
+        // timezone within which to calculate the time of date. Will use
+        // the default timezone that the server is in.
+        // Good enough for now.
         Calendar cal = new GregorianCalendar(tomorrow.get(Calendar.YEAR),
                 tomorrow.get(Calendar.MONTH), tomorrow.get(Calendar.DATE),
                 // TODO: Change it back to 3 AM after testing
@@ -837,15 +821,8 @@ public class EmailSender extends TimerTask {
 
         Transport transport = null;
         try {
-            Authenticator authenticator = null;
-            if ("true".equals(getProperty("mail.smtp.auth"))) {
-                authenticator = new MyAuthenticator(
-                        getProperty("mail.smtp.user"),
-                        getProperty("mail.smtp.password"));
-            }
-
-            Session mailSession = Session.getInstance(emailProperties,
-                    authenticator);
+            Authenticator authenticator = new MyAuthenticator(emailProperties);
+            Session mailSession = Session.getInstance(emailProperties, authenticator);
             mailSession.setDebug("true".equals(getProperty("mail.debug")));
 
             transport = mailSession.getTransport();
@@ -869,16 +846,12 @@ public class EmailSender extends TimerTask {
                 message.setSubject(encodedSubjectLine);
 
                 MimeBodyPart textPart = new MimeBodyPart();
-                textPart.setHeader("Content-Type",
-                        "text/html; charset=\"utf-8\"");
-                textPart.setText(eRec.getBodyText()
-                        + getUnSubscriptionAsString(ooa), "UTF-8");
-                textPart.setHeader("Content-Transfer-Encoding",
-                        "quoted-printable");
+                textPart.setHeader("Content-Type", "text/html; charset=\"utf-8\"");
+                textPart.setText(eRec.getBodyText() + getUnSubscriptionAsString(ooa), "UTF-8");
+                textPart.setHeader("Content-Transfer-Encoding", "quoted-printable");
                 // apparently using 'setText' can change the content type for
                 // you automatically, so re-set it.
-                textPart.setHeader("Content-Type",
-                        "text/html; charset=\"utf-8\"");
+                textPart.setHeader("Content-Type", "text/html; charset=\"utf-8\"");
 
                 Multipart mp = new MimeMultipart();
                 mp.addBodyPart(textPart);
@@ -897,8 +870,7 @@ public class EmailSender extends TimerTask {
                         addressTo[0] = new InternetAddress(ooa.getEmail());
                     }
                 } catch (Exception ex) {
-                    throw new NGException(
-                            "nugen.exception.problem.with.address",
+                    throw new NGException("nugen.exception.problem.with.address",
                             new Object[] { addressCount, ooa.getEmail() }, ex);
                 }
 
@@ -980,15 +952,28 @@ public class EmailSender extends TimerTask {
         return singletonSender;
     }
 
-    private class MyAuthenticator extends javax.mail.Authenticator {
-        private PasswordAuthentication authentication;
+    /**
+     * A simple authenticator class that gets the username and password
+     * from the properties object if mail.smtp.auth is set to true.
+     * 
+     * documentation on javax.mail.Authenticator says that if you want 
+     * authentication, return an object, otherwise return null.  So
+     * null is returned if no auth setting or user/password.
+     */
+    private static class MyAuthenticator extends javax.mail.Authenticator {
+        private Properties props;
 
-        public MyAuthenticator(String username, String password) {
-            authentication = new PasswordAuthentication(username, password);
+        public MyAuthenticator(Properties _props) {
+            props = _props;
         }
 
         protected PasswordAuthentication getPasswordAuthentication() {
-            return authentication;
+            if ("true".equals(props.getProperty("mail.smtp.auth"))) {
+                return new PasswordAuthentication(
+                        props.getProperty("mail.smtp.user"),
+                        props.getProperty("mail.smtp.password"));
+            }
+            return null;
         }
     }
 
@@ -1012,13 +997,16 @@ public class EmailSender extends TimerTask {
             for (ReminderRecord reminder : rVec) {
                 if ("yes".equals(reminder.getSendNotification())) {
                     if (noOfReminders == 0) {
-                        ar.write("<div style=\"margin-top:25px;margin-bottom:5px;\"><span style=\"font-size:24px;font-weight:bold;\">Reminders To Share Document</span>&nbsp;&nbsp;&nbsp;");
+                        ar.write("<div style=\"margin-top:25px;margin-bottom:5px;\">");
+                        ar.write("<span style=\"font-size:24px;font-weight:bold;\">");
+                        ar.write("Reminders To Share Document</span>&nbsp;&nbsp;&nbsp;");
 
                         ar.write("<a href=\"");
                         ar.write(ar.baseURL);
                         ar.write("v/");
                         ar.writeURLData(up.getKey());
-                        ar.write("/userActiveTasks.htm\">View Latest </a>(Below is list of reminders of documents which you are requested to upload.)</div>");
+                        ar.write("/userActiveTasks.htm\">View Latest </a>");
+                        ar.write("(Below is list of reminders of documents which you are requested to upload.)</div>");
                         ar.write("\n <table width=\"800\" class=\"Design8\">");
                         ar.write("\n <thead> ");
                         ar.write("\n <tr>");
@@ -1105,5 +1093,129 @@ public class EmailSender extends TimerTask {
         ar.write(AccessControl.getAccessReminderParams(aPage, reminder));
         ar.write("&emailId=");
         ar.writeURLData(up.getPreferredEmail());
+    }
+    
+    /**
+     * Use this to attempt to detect mis-configurations, and give a reasonable
+     * error message when something important is missing.
+     */
+    private void assertEmailConfigOK() throws Exception {
+
+        String proto = getProperty("mail.transport.protocol");
+        if (proto == null || proto.length() == 0) {
+            throw new NGException("nugen.exception.email.config.issue", null);
+        }
+        if (!proto.equals("smtp")) {
+            throw new NGException(
+                    "nugen.exception.email.config.file.smtp.issue",
+                    new Object[] { proto });
+        }
+        String auth = getProperty("mail.smtp.auth");
+        if ("true".equals(auth)) {
+            //in this case you need both a user name and a password
+            String user = getProperty("mail.smtp.user");
+            if (user==null){
+                throw new Exception("When mail.smtp.auth=true you need to specify a user name:  mail.smtp.user");
+            }
+            String password = getProperty("mail.smtp.password");
+            if (password==null){
+                throw new Exception("When mail.smtp.auth=true you need to specify a password:  mail.smtp.password");
+            }
+        }
+        else if (!"false".equals(auth)) {
+            throw new Exception("mail.smtp.auth must be set to 'true' or 'false' - value ("+auth+") is not allowed.");
+        }
+    }
+
+    public static void dumpProperties(Properties props) {
+        
+        for (String key : props.stringPropertyNames()) {
+            System.out.println("  ** Property "+key+" = "+props.getProperty(key));
+        }
+    }
+    
+    /**
+     * use this to send a quick test message
+     * using the server configuration
+     */
+    public static void sendTestEmail() throws Exception {
+        Properties props = emailProperties;
+        
+        try {
+            final String fromAddress = props.getProperty("mail.smtp.from");
+            if (fromAddress==null) {
+                throw new Exception("In order to send a test email, configure a setting for mail.smtp.from in the email properties file");
+            }
+            final String destAddress = props.getProperty("mail.smtp.testAddress");
+            if (destAddress==null) {
+                throw new Exception("In order to send a test email, configure a setting for mail.smtp.testAddress in the email properties file");
+            }
+            final String msgText = "This is a sample email message sent "+(new Date()).toString();
+    
+            // these should be set already -- for GOOGLE
+            // props.put("mail.smtp.starttls.enable", "true");
+            // props.put("mail.smtp.auth", "true");
+            // props.put("mail.smtp.host", "smtp.gmail.com");
+            // props.put("mail.smtp.port", "587");
+    
+            Authenticator authenticator = new MyAuthenticator(props);
+            Session session = Session.getInstance(props, authenticator);
+            
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(fromAddress));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destAddress));
+            message.setSubject("Testing Subject");
+            message.setText(msgText);
+    
+            Transport.send(message);
+    
+            System.out.println("Sent test mail to " + destAddress);
+        }
+        catch (Exception e) {
+            System.out.println("ERROR sending email message");
+            dumpProperties(props);
+            e.printStackTrace();
+            throw e;
+        }
+
+    }
+
+    /**
+     * Sometimes testing email settings can be a pain, so this main routine
+     * allows for an easy way, in Eclipse or on the command line to 
+     * test email sending without TomCat or anything else around.
+     * 
+     * Parameters are:
+     * 0: your user name
+     * 1: your password
+     * 
+     * Enter the other test values (destination address, from address, host, port)
+     * directly into the code below.
+     */
+    public static void main(String[] args) {
+        if (args.length < 2) {
+            System.out.println("Format: EmailSender <user> <password>");
+            return;
+        }
+        emailProperties = new Properties();
+
+        emailProperties.put("mail.smtp.starttls.enable", "true");
+        //emailProperties.put("mail.smtp.starttls.require", "true");
+        emailProperties.put("mail.smtp.auth", "true");
+        emailProperties.put("mail.smtp.host", "smtp.gmail.com");
+        emailProperties.put("mail.smtp.port", "587");
+        emailProperties.put("mail.smtp.user", args[0]);
+        emailProperties.put("mail.smtp.password",args[1]);
+        emailProperties.put("mail.smtp.from", "keith2010@kswenson.oib.com");
+        emailProperties.put("mail.smtp.testAddress", "demotest@kswenson.oib.com");
+      
+        try {
+            sendTestEmail();
+            return ;
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            return ;
+        }
     }
 }
