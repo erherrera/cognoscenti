@@ -58,6 +58,12 @@
                         Really delete the deleted pages.
                     </td>
                </tr>
+                <tr>
+                    <td>
+                        <input type="submit" name="action" value="Send Test Email"/>
+                        See if the server can send an email.
+                    </td>
+               </tr>
         </form>
 
             </table>

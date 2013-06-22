@@ -17,8 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 @SuppressWarnings("serial")
-public class DataFeedServlet extends HttpServlet
-{
+public class DataFeedServlet extends HttpServlet {
 
     // all of the supported operations.
     public static final String OPERATION_SEARCH = "SEARCH";
@@ -35,49 +34,37 @@ public class DataFeedServlet extends HttpServlet
     public static final String FUTURETASKS = "futuretasks";
     public static final String COMPLETEDTASKS = "completedtasks";
 
-    public DataFeedServlet()
-    {
+    public DataFeedServlet() {
     }
 
-    protected
-    void
-    doGet(HttpServletRequest request,
-        HttpServletResponse response)
-        throws ServletException
-    {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException {
         doPost(request, response);
     }
 
-    protected
-    void
-    doPost(HttpServletRequest request,
-        HttpServletResponse response)
-        throws ServletException
-    {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         try {
             handleAllRequests(ar);
         }
-        catch(Exception e) {
+        catch (Exception e) {
             ar.logException("Data Feed Servlet", e);
         }
-        finally{
+        finally {
             NGPageIndex.clearAllLock();
         }
         ar.logCompletedRequest();
     }
 
-    private void handleAllRequests(AuthRequest ar)
-        throws Exception
-    {
+    private void handleAllRequests(AuthRequest ar) throws Exception {
         String isNewUI = ar.defParam("isNewUI", "");
-        if("yes".equalsIgnoreCase(isNewUI )){
+        if ("yes".equalsIgnoreCase(isNewUI)) {
             ar.setNewUI(true);
         }
 
-        if (!ar.isLoggedIn())
-        {
-            throw new NGException("nugen.exception.cant.perform.search",null);
+        if (!ar.isLoggedIn()) {
+            throw new NGException("nugen.exception.cant.perform.search", null);
         }
 
         String operation = reqParam(ar.req, PARAM_OPERATION);
@@ -96,9 +83,7 @@ public class DataFeedServlet extends HttpServlet
     }
 
     // operation Search.
-    private void handleSearchOperation(AuthRequest ar)
-        throws Exception
-    {
+    private void handleSearchOperation(AuthRequest ar) throws Exception {
         String qs = ar.reqParam(PARAM_SEARCHSTRING);
 
         SearchResultRecord[] records = performLuceneSearchOperation(ar, qs);
@@ -106,17 +91,13 @@ public class DataFeedServlet extends HttpServlet
     }
 
     // operation get task list.
-    private void handleGetTaskList(AuthRequest ar)
-        throws Exception
-    {
-        if (ar == null)
-        {
+    private void handleGetTaskList(AuthRequest ar) throws Exception {
+        if (ar == null) {
             throw new RuntimeException("handleGetTaskList requires a non-null parameter ar");
         }
 
-        if (!ar.isLoggedIn())
-        {
-            throw new NGException("nugen.exception.login.to.set.tasklist",null);
+        if (!ar.isLoggedIn()) {
+            throw new NGException("nugen.exception.login.to.set.tasklist", null);
         }
         String listType = reqParam(ar.req, PARAM_TASKLIST);
         String openId = defParam(ar.req, "u", ar.getBestUserId());
@@ -128,10 +109,9 @@ public class DataFeedServlet extends HttpServlet
     }
 
     /************************ internal methods. ************************/
-    private void writeSearchRecordsToResponse(AuthRequest ar, SearchResultRecord[] records) throws Exception
-    {
-        if (ar==null || records == null)
-        {
+    private void writeSearchRecordsToResponse(AuthRequest ar, SearchResultRecord[] records)
+            throws Exception {
+        if (ar == null || records == null) {
             throw new ProgramLogicError("writeSearchRecordsToResponse parameter must not be null");
         }
 
@@ -139,60 +119,48 @@ public class DataFeedServlet extends HttpServlet
         Document doc = DOMUtils.createDocument("ResultSet");
         Element resultSetEle = doc.getDocumentElement();
 
-        for (int i=0; i<records.length; i++)
-        {
+        for (int i = 0; i < records.length; i++) {
             SearchResultRecord sr = records[i];
             Element resultEle = DOMUtils.createChildElement(doc, resultSetEle, "Result");
-            DOMUtils.createChildElement(doc, resultEle, "No" , String.valueOf((i+1)));
-            DOMUtils.createChildElement(doc, resultEle, "PageName" , sr.getPageName());
-            DOMUtils.createChildElement(doc, resultEle, "PageKey" , sr.getPageKey());
-            DOMUtils.createChildElement(doc, resultEle, "PageLink" , sr.getPageLink());
+            DOMUtils.createChildElement(doc, resultEle, "No", String.valueOf((i + 1)));
+            DOMUtils.createChildElement(doc, resultEle, "PageName", sr.getPageName());
+            DOMUtils.createChildElement(doc, resultEle, "PageKey", sr.getPageKey());
+            DOMUtils.createChildElement(doc, resultEle, "PageLink", sr.getPageLink());
 
-            DOMUtils.createChildElement(doc, resultEle, "BookName" , sr.getBookName());
-            DOMUtils.createChildElement(doc, resultEle, "NoteSubj" , sr.getNoteSubject());
-            String name = sr.getLastModifiedBy();
-            if (name==null || name.length()==0)
-            {
-                name = "unknown";
+            DOMUtils.createChildElement(doc, resultEle, "BookName", sr.getBookName());
+            DOMUtils.createChildElement(doc, resultEle, "NoteSubj", sr.getNoteSubject());
+
+            UserProfile uProf = UserManager.findUserByAnyId(sr.getLastModifiedBy());
+            String userName = "unknown";
+            String userKey = "unknown";
+            if (uProf != null) {
+                userName = uProf.getName();
+                userKey = uProf.getKey();
             }
-            DOMUtils.createChildElement(doc, resultEle, "LastModifiedBy" , name);
-            name = sr.getLastModifiedBy();
-            if (name==null || name.length()==0)
-            {
-                name = "unknown";
-            }
-            else
-            {
-                UserProfile uProf = UserManager.findUserByAnyId(name);
-                if (uProf!=null)
-                {
-                    name = uProf.getName();
-                }
-            }
-            DOMUtils.createChildElement(doc, resultEle, "LastModifiedName" , name);
+
+            DOMUtils.createChildElement(doc, resultEle, "LastModifiedBy", userKey);
+            DOMUtils.createChildElement(doc, resultEle, "LastModifiedName", userName);
+
             String timeVal = SectionUtil.getNicePrintTime(sr.getLastModifiedTime(), ar.nowTime);
-            if (timeVal.trim().length()==0)
-            {
+            if (timeVal.trim().length() == 0) {
                 timeVal = "unknown";
             }
-            DOMUtils.createChildElement(doc, resultEle, "LastModifiedTime" , timeVal);
-            DOMUtils.createChildElement(doc, resultEle, "UserLink" , sr.getUserLink());
-            DOMUtils.createChildElement(doc, resultEle, "timePeriod" , sr.getTimePeriod());
+            DOMUtils.createChildElement(doc, resultEle, "LastModifiedTime", timeVal);
+            DOMUtils.createChildElement(doc, resultEle, "UserLink", sr.getUserLink());
+            DOMUtils.createChildElement(doc, resultEle, "timePeriod", sr.getTimePeriod());
         }
-        //TODO Duplicate Code.
+
+        // TODO Duplicate Code.
         resultSetEle.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         resultSetEle.setAttribute("totalResultsAvailable", String.valueOf(records.length));
         resultSetEle.setAttribute("totalResultsReturned", String.valueOf(records.length));
         resultSetEle.setAttribute("firstResultPosition", "0");
 
-
         writeXMLToResponse(ar, doc);
     }
 
-    private void writeTaskListToResponse(AuthRequest ar, TaskListRecord[] records) throws Exception
-    {
-        if (ar==null || records == null)
-        {
+    private void writeTaskListToResponse(AuthRequest ar, TaskListRecord[] records) throws Exception {
+        if (ar == null || records == null) {
             throw new ProgramLogicError("writeTaskListToResponse parameter must not be null");
         }
 
@@ -200,51 +168,51 @@ public class DataFeedServlet extends HttpServlet
         Document doc = DOMUtils.createDocument("ResultSet");
         Element resultSetEle = doc.getDocumentElement();
 
-        for (int i=0; i<records.length; i++)
-        {
+        for (int i = 0; i < records.length; i++) {
             TaskListRecord rec = records[i];
             NGPageIndex ngpi = NGPageIndex.getContainerIndexByKeyOrFail(rec.pageKey);
 
             Element resultEle = DOMUtils.createChildElement(doc, resultSetEle, "Result");
-            DOMUtils.createChildElement(doc, resultEle, "No" , String.valueOf((i+1)));
-            DOMUtils.createChildElement(doc, resultEle, "Id" , rec.taskId);
-            DOMUtils.createChildElement(doc, resultEle, "State" , String.valueOf(rec.taskState));
+            DOMUtils.createChildElement(doc, resultEle, "No", String.valueOf((i + 1)));
+            DOMUtils.createChildElement(doc, resultEle, "Id", rec.taskId);
+            DOMUtils.createChildElement(doc, resultEle, "State", String.valueOf(rec.taskState));
             String imageName = null;
-            if (rec.isAttachment)
-            {
+            if (rec.isAttachment) {
                 imageName = "ts_attachment.gif";
             }
-            else
-            {
+            else {
                 imageName = GoalRecord.stateImg(rec.taskState);
             }
             DOMUtils.createChildElement(doc, resultEle, "StateImg", imageName);
             StringBuffer sb = new StringBuffer(rec.taskSyn);
             if (rec.taskDesc != null && rec.taskDesc.length() > 0) {
-                    sb.append(" - ").append(rec.taskDesc);
+                sb.append(" - ").append(rec.taskDesc);
             }
-            DOMUtils.createChildElement(doc, resultEle, "NameAndDescription" , sb.toString());
+            DOMUtils.createChildElement(doc, resultEle, "NameAndDescription", sb.toString());
             String assignees = UserManager.getUserNamesFromUserId(rec.taskAssignee);
-            if (assignees==null || assignees.length()==0)
-            {
+            if (assignees == null || assignees.length() == 0) {
                 assignees = "unknown";
             }
-            DOMUtils.createChildElement(doc, resultEle, "Assignee" , assignees);
-            DOMUtils.createChildElement(doc, resultEle, "Priority" ,  String.valueOf(rec.taskPriority));
-            if(rec.taskDue>0){
-                DOMUtils.createChildElement(doc, resultEle, "DueDate" ,  SectionUtil.getNicePrintDate(rec.taskDue));
+            DOMUtils.createChildElement(doc, resultEle, "Assignee", assignees);
+            DOMUtils.createChildElement(doc, resultEle, "Priority",
+                    String.valueOf(rec.taskPriority));
+            if (rec.taskDue > 0) {
+                DOMUtils.createChildElement(doc, resultEle, "DueDate",
+                        SectionUtil.getNicePrintDate(rec.taskDue));
             }
-           // DOMUtils.createChildElement(doc, resultEle, "DueDate" ,  SectionUtil.getNicePrintDate(rec.taskDue));
-            if(rec.taskStart>0){
-            DOMUtils.createChildElement(doc, resultEle, "StartDate" ,  SectionUtil.getNicePrintDate(rec.taskStart));
+            // DOMUtils.createChildElement(doc, resultEle, "DueDate" ,
+            // SectionUtil.getNicePrintDate(rec.taskDue));
+            if (rec.taskStart > 0) {
+                DOMUtils.createChildElement(doc, resultEle, "StartDate",
+                        SectionUtil.getNicePrintDate(rec.taskStart));
             }
-            DOMUtils.createChildElement(doc, resultEle, "PageKey" , rec.pageKey);
-            DOMUtils.createChildElement(doc, resultEle, "PageName" , rec.pageName);
-            DOMUtils.createChildElement(doc, resultEle, "PageURL" , ar.getResourceURL(ngpi, ""));
-            DOMUtils.createChildElement(doc, resultEle, "timePeriod" ,  String.valueOf(rec.taskDue));
+            DOMUtils.createChildElement(doc, resultEle, "PageKey", rec.pageKey);
+            DOMUtils.createChildElement(doc, resultEle, "PageName", rec.pageName);
+            DOMUtils.createChildElement(doc, resultEle, "PageURL", ar.getResourceURL(ngpi, ""));
+            DOMUtils.createChildElement(doc, resultEle, "timePeriod", String.valueOf(rec.taskDue));
         }
 
-        //TODO Duplicate Code.
+        // TODO Duplicate Code.
         resultSetEle.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         resultSetEle.setAttribute("totalResultsAvailable", String.valueOf(records.length));
         resultSetEle.setAttribute("totalResultsReturned", String.valueOf(records.length));
@@ -253,30 +221,27 @@ public class DataFeedServlet extends HttpServlet
         writeXMLToResponse(ar, doc);
 
     }
+
     public static SearchResultRecord[] performLuceneSearchOperation(AuthRequest ar,
-            String searchText)
-        throws Exception
-    {
-        //String b = ar.defParam("b", "All Books");
-        //boolean isGlobal = "All Books".equals(b);
-        //String pf = ar.defParam("pf", "all");
+            String searchText) throws Exception {
+        // String b = ar.defParam("b", "All Books");
+        // boolean isGlobal = "All Books".equals(b);
+        // String pf = ar.defParam("pf", "all");
         String u = ar.defParam("u", "old");
-        if("new".equals(u)){
+        if ("new".equals(u)) {
             ar.setNewUI(true);
         }
         SearchManager.initializeIndex();
         List<SearchResultRecord> temp = SearchManager.performSearch(ar, searchText);
         SearchResultRecord[] records = new SearchResultRecord[temp.size()];
-        for (int i=0; i<temp.size(); i++) {
+        for (int i = 0; i < temp.size(); i++) {
             records[i] = temp.get(i);
         }
         return records;
     }
 
     // operation get task list.
-    public static TaskListRecord[] getTaskList(UserProfile up, String listType)
-        throws Exception
-    {
+    public static TaskListRecord[] getTaskList(UserProfile up, String listType) throws Exception {
 
         Vector<TaskListRecord> allTask = new Vector<TaskListRecord>();
         Vector<TaskListRecord> activeTask = new Vector<TaskListRecord>();
@@ -284,45 +249,37 @@ public class DataFeedServlet extends HttpServlet
         Vector<TaskListRecord> futureTask = new Vector<TaskListRecord>();
 
         TaskListRecord[] tasks = new TaskListRecord[0];
-        if (up == null ||
-            listType == null || listType.length() == 0)
-        {
+        if (up == null || listType == null || listType.length() == 0) {
             return tasks;
         }
 
-        for (NGPageIndex ngpi : NGPageIndex.getAllContainer())
-        {
-            //start by clearing any outstanding locks in every loop
+        for (NGPageIndex ngpi : NGPageIndex.getAllContainer()) {
+            // start by clearing any outstanding locks in every loop
             NGPageIndex.clearAllLock();
 
-            if (!ngpi.isProject())
-            {
+            if (!ngpi.isProject()) {
                 continue;
             }
             NGPage aPage = ngpi.getPage();
             String pageKey = aPage.getKey();
 
-            for(GoalRecord gr : aPage.getAllGoals())
-            {
-                if ((!gr.isAssignee(up)) && (!gr.isReviewer(up)))
-                {
+            for (GoalRecord gr : aPage.getAllGoals()) {
+                if ((!gr.isAssignee(up)) && (!gr.isReviewer(up))) {
                     continue;
                 }
-                TaskListRecord tr = new TaskListRecord(gr, pageKey, aPage.getFullName(), aPage.getPermaLink());
+                TaskListRecord tr = new TaskListRecord(gr, pageKey, aPage.getFullName(),
+                        aPage.getPermaLink());
                 int state = gr.getState();
 
                 allTask.add(tr);
 
-                if(state == BaseRecord.STATE_ERROR)
-                {
+                if (state == BaseRecord.STATE_ERROR) {
                     if (gr.isAssignee(up)) {
                         activeTask.add(tr);
                     }
                 }
-                else if(state == BaseRecord.STATE_ACCEPTED ||
-                          state == BaseRecord.STATE_STARTED ||
-                          state == BaseRecord.STATE_WAITING)
-                {
+                else if (state == BaseRecord.STATE_ACCEPTED || state == BaseRecord.STATE_STARTED
+                        || state == BaseRecord.STATE_WAITING) {
                     // the assignee should see this task in the active task list.
                     if (gr.isAssignee(up)) {
                         activeTask.add(tr);
@@ -333,80 +290,67 @@ public class DataFeedServlet extends HttpServlet
                         futureTask.add(tr);
                     }
                 }
-                else if(state == BaseRecord.STATE_REVIEW)
-                {
+                else if (state == BaseRecord.STATE_REVIEW) {
                     // when the user is THE reviewer and not yet approved this task
                     // then this should be in the active tasks list.
-                    if (gr.isNextReviewer(up))
-                    {
+                    if (gr.isNextReviewer(up)) {
                         activeTask.add(tr);
                     }
                     // when user is a reviewer and the task is NOT approved by the reviewer
                     // and the user is NOT the next reviewer then the task should
-                    // be lised in the future task list.
-                    else if (gr.isReviewer(up) && (gr.isApprovedBy(up) == false))
-                    {
+                    // be listed in the future task list.
+                    else if (gr.isReviewer(up) && (gr.isApprovedBy(up) == false)) {
                         futureTask.add(tr);
                     }
-                    // when the user is a reviewer and task is approved by the reviewer and the user
-                    // then the task should be lised in the completed task list.
-                    else if (gr.isReviewer(up) && (gr.isApprovedBy(up)))
-                    {
+                    // when the user is a reviewer and task is approved by the reviewer
+                    // and the user then the task should be listed in the completed task list.
+                    else if (gr.isReviewer(up) && (gr.isApprovedBy(up))) {
                         completedTask.add(tr);
                     }
                 }
-                else if(state == BaseRecord.STATE_UNSTARTED)
-                {
-                    // when the task is unstarted then assignee and the approver/ reviewer
-                    // should see the task in future list.
+                else if (state == BaseRecord.STATE_UNSTARTED) {
+                    // when the task is unstarted then assignee and the
+                    // approver/ reviewer should see the task in future list.
                     futureTask.add(tr);
                 }
-                else if(state == BaseRecord.STATE_COMPLETE)
-                {
+                else if (state == BaseRecord.STATE_COMPLETE) {
                     completedTask.add(tr);
                 }
             }
         }
 
-        if (listType.equalsIgnoreCase(ALLTASKS))
-        {
+        if (listType.equalsIgnoreCase(ALLTASKS)) {
             tasks = new TaskListRecord[allTask.size()];
             allTask.copyInto(tasks);
         }
-        else if (listType.equalsIgnoreCase(MYACTIVETASKS))
-        {
+        else if (listType.equalsIgnoreCase(MYACTIVETASKS)) {
             tasks = new TaskListRecord[activeTask.size()];
             activeTask.copyInto(tasks);
         }
-        else if (listType.equalsIgnoreCase(COMPLETEDTASKS))
-        {
+        else if (listType.equalsIgnoreCase(COMPLETEDTASKS)) {
             tasks = new TaskListRecord[completedTask.size()];
             completedTask.copyInto(tasks);
         }
-        else if (listType.equalsIgnoreCase(FUTURETASKS))
-        {
+        else if (listType.equalsIgnoreCase(FUTURETASKS)) {
             tasks = new TaskListRecord[futureTask.size()];
             futureTask.copyInto(tasks);
         }
         return tasks;
     }
 
-    private String reqParam(HttpServletRequest request, String paramName)
-        throws Exception
-    {
+    private String reqParam(HttpServletRequest request, String paramName) throws Exception {
         String val = defParam(request, paramName, null);
-        if (val == null || val.length()==0) {
-            throw new ProgramLogicError("DataFeedServlet requires a parameter named '"+paramName+"'. ");
+        if (val == null || val.length() == 0) {
+            throw new ProgramLogicError("DataFeedServlet requires a parameter named '" + paramName
+                    + "'. ");
         }
         return val;
     }
 
-    private void writeXMLToResponse(AuthRequest ar, Document doc)
-        throws Exception
-    {
-        if (ar == null)
-        {
-            throw new ProgramLogicError("writeXMLToResponse requires a non-null AuthRequest parameter");
+    private void writeXMLToResponse(AuthRequest ar, Document doc) throws Exception {
+        if (ar == null) {
+            throw new ProgramLogicError(
+                    "writeXMLToResponse requires a non-null AuthRequest parameter");
         }
 
         ar.resp.setContentType("text/xml;charset=UTF-8");
@@ -414,32 +358,25 @@ public class DataFeedServlet extends HttpServlet
         ar.flush();
     }
 
-    private String defParam(
-        HttpServletRequest request,
-        String paramName,
-        String defaultValue)
-        throws Exception
-    {
+    private String defParam(HttpServletRequest request, String paramName, String defaultValue)
+            throws Exception {
         String val = request.getParameter(paramName);
         if (val == null) {
             return defaultValue;
         }
-        // this next line should not be needed, but I have seen this hack recommended
-        // in many forums.
+        // this next line should not be needed, but I have seen this hack
+        // recommended in many forums.
         String modVal = new String(val.getBytes("iso-8859-1"), "UTF-8");
         return modVal;
     }
 
     public static SearchResultRecord[] performLuceneSearchOperationForPublicNotes(AuthRequest ar,
-            String searchText)
-        throws Exception
-    {
+            String searchText) throws Exception {
         return performLuceneSearchOperation(ar, searchText);
     }
 }
 
-class TaskListRecord
-{
+class TaskListRecord {
     boolean isAttachment = false;
     String taskId;
     int taskState;
@@ -454,9 +391,7 @@ class TaskListRecord
     String pageName;
     String taskStatus;
 
-    TaskListRecord(GoalRecord goal, String pKey, String pName, String pLink)
-        throws Exception
-    {
+    TaskListRecord(GoalRecord goal, String pKey, String pName, String pLink) throws Exception {
         taskId = goal.getId();
         taskState = goal.getState();
         taskSyn = goal.getSynopsis();
