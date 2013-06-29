@@ -252,7 +252,7 @@ public class NGWebUtils {
 
         EmailSender.containerEmail(ooa, container, "Added to " + role
                 + " role of " + container.getFullName(), bodyWriter.toString(),
-                null);
+                null, new Vector<String>());
         NGPageIndex.releaseLock(container);
     }
 
@@ -385,7 +385,7 @@ public class NGWebUtils {
 
         EmailSender.queueEmailNGC(sendTo, container,
                 "Role Requested by " + ar.getBestUserId(),
-                bodyWriter.toString(), null);
+                bodyWriter.toString(), null, new Vector<String>());
 
     }
 

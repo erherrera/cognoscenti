@@ -1413,8 +1413,6 @@ public class MainTabsViewControler extends BaseController {
               //don't send anything if the user does not have an email address
               return;
           }
-          boolean tempmem = (ar.defParam("tempmem", null)!=null);
-          boolean includeBody = (ar.defParam("includeBody", null)!=null);
           String note = ar.defParam("note", "");
 
           StringWriter bodyWriter = new StringWriter();
@@ -1422,8 +1420,22 @@ public class MainTabsViewControler extends BaseController {
           clone.setNewUI(true);
           clone.retPath = ar.baseURL;
           clone.write("<html><body>");
+          List<AttachmentRecord> attachList = NGWebUtils.getSelectedAttachments(ar, ngp);
+          Vector<String> attachIds = new Vector<String>();
+          
+          //if you really want the files attached to the email message, then include a list of
+          //their attachment ids here
+          boolean includeFiles = (ar.defParam("includeFiles", null)!=null);
+          if (includeFiles) {
+              for (AttachmentRecord att : attachList) {
+                  attachIds.add(att.getId());
+              }
+          }
+          
+          boolean tempmem = (ar.defParam("tempmem", null)!=null);
+          boolean includeBody = (ar.defParam("includeBody", null)!=null);
           writeNoteAttachmentEmailBody(clone, ar.ngp, noteRec, tempmem, ooa.getAssignee(), note,
-                includeBody, NGWebUtils.getSelectedAttachments(ar, ngp));
+                includeBody, attachList);
 
           NGWebUtils.standardEmailFooter(clone, ar.getUserProfile(), ooa, ngp);
 
@@ -1438,7 +1450,7 @@ public class MainTabsViewControler extends BaseController {
               }
               fromAddress = up.getEmailWithName();
           }
-          EmailSender.containerEmail(ooa, ngp, subject, bodyWriter.toString(), fromAddress);
+          EmailSender.containerEmail(ooa, ngp, subject, bodyWriter.toString(), fromAddress, attachIds);
       }
 
       public static void writeNoteAttachmentEmailBody(AuthRequest ar,

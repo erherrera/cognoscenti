@@ -1,6 +1,7 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@page import="java.net.URLDecoder"
+%><%@page import="org.socialbiz.cog.AttachmentVersion"
 %><%
 /*
 Required parameters:
@@ -22,6 +23,9 @@ Required parameters:
     NGPage ngp =NGPageIndex.getProjectByKeyOrFail(pageId);
 
     AttachmentRecord attachment = ngp.findAttachmentByIDOrFail(aid);
+    AttachmentVersion aVer = attachment.getLatestVersion(ngp);
+    File attachFile = aVer.getLocalFile();
+    long fileSize = attachFile.length();
 
     boolean canAccessDoc = AccessControl.canAccessDoc(ar, ngp, attachment);
 
@@ -181,7 +185,8 @@ Required parameters:
                         <tr>
                             <td class="gridTableColummHeader">Version:</td>
                             <td style="width: 20px;"></td>
-                            <td><%=attachment.getVersion()%> of <%= attachment.getLatestVersion(ngp).getNumber() %></td>
+                            <td><%=attachment.getVersion()%> of <%= aVer.getNumber() %>
+                             - Size: <%=fileSize%> bytes</td>
                         </tr>
                         <%
                         }%>
