@@ -8,8 +8,7 @@
 %><%@page import="org.socialbiz.cog.ErrorLog"
 %><%@page import="java.io.PrintWriter"
 %><%@page import="java.util.Locale"
-%><%
-    String pageTitle = (String) request.getAttribute("pageTitle");
+%><%String pageTitle = (String) request.getAttribute("pageTitle");
     String exceptionNO = ar.defParam("exceptionNO",null);
     String userName = "User not logged in";
     if (ar.isLoggedIn())
@@ -25,7 +24,7 @@
     }
 
     long todayTime = ar.nowTime;
-    HashMap<String, String> errorResult=ErrorLog.displayErrorDetailsByErrorID(exceptionNO ,String.valueOf(todayTime) );
+    HashMap<String, String> errorResult=ErrorLog.getMapOfPropertiesForOneErrorID(exceptionNO ,String.valueOf(todayTime) );
 
     String msg = errorResult.get("ErrorDescription").toString();
 
@@ -41,9 +40,7 @@
         //thrown from within a page, nested who knows how many levels deep.
         //This attempts to close all the containing structures if possible.
         ar.write("</li></ul></div></td></tr></table></li></ul></div></td></tr></table></div></td></tr></table></li></ul></div></td></tr></table>");
-    }
-
-%>
+    }%>
 <link href="<%=ar.baseURL%>css/body.css" rel="styleSheet" type="text/css" media="screen" />
 <script type="text/javascript" src="<%=ar.baseURL%>jscript/nugen_utils.js"></script>
 <script type="text/javascript" src="<%=ar.baseURL%>jscript/yahoo-dom-event.js"></script>

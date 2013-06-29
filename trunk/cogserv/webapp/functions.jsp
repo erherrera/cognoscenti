@@ -866,16 +866,6 @@
     }
 
 
-
-    public void renumberRanks(AuthRequest ar, NGPage ngp)
-        throws Exception
-    {
-        NGSection ngs = ngp.getSectionOrFail("Tasks");
-        SectionTask.renumberRanks(ngs);
-        ngs.setLastModify(ar);
-    }
-
-
     public static boolean isMember(AuthRequest ar, NGContainer ngc)
         throws Exception
     {

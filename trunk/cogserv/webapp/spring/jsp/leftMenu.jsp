@@ -56,7 +56,7 @@ Optional Parameter:
     </div>
     <%
     }
-    if (ar.isLoggedIn()) {
+    else {
         UserProfile uProf = ar.getUserProfile();
         String acttionUrl = ar.retPath + "v/" + uProf.getKey() + "/Search.htm";
         String bKey = "All Books";
@@ -79,7 +79,7 @@ Optional Parameter:
                 <input type="hidden" name="t" value="<%ar.writeHtml(tabId);%>" />
                 <table class="search">
                     <tr>
-                        <td><input type="text" name="qs" id="qs"/></td>
+                        <td><input type="text" name="qs" size="16" id="qs"/></td>
                         <td><input type="image" src="<%=ar.baseURL%>button_go.gif" /></td>
                     </tr>
                 </table>

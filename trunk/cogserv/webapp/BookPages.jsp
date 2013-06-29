@@ -52,7 +52,7 @@
 
 <%
 
-    Vector<NGPageIndex> v = NGPageIndex.getAllPagesInBook(ngb.key);
+    Vector<NGPageIndex> v = NGPageIndex.getAllProjectsInAccount(ngb.key);
     if (v.size()>0)
     {
 %>

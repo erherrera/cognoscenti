@@ -540,7 +540,7 @@
         <put-attribute name="body" value="/spring/jsp/errorLog.jsp"/>
     </definition>
 
-      <definition name="ErrorDetailLog" extends="baseLayout">
+      <definition name="detailsErrorLog" extends="baseLayout">
         <put-attribute name="title" value="Details Error Log"/>
         <put-attribute name="body" value="/spring/jsp/detailsErrorLog.jsp"/>
     </definition>

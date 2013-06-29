@@ -655,11 +655,8 @@ public class ProcessController extends BaseController {
                 }
             }
 
-            //put them in the new order specified
-            GoalRecord.sortTasksByRank(tasks);
-
             //clean up and normalize into canonical form
-            SectionTask.renumberRanks(tasks);
+            ngp.renumberGoalRanks();
 
             JSONObject paramMap = new JSONObject();
             paramMap.put(Constant.MSG_TYPE,SUCCESS_LOCAL);
