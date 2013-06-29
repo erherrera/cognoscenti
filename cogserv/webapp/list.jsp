@@ -58,7 +58,7 @@
 
     for (NGBook ngb : allBooks)
     {
-        Vector<NGPageIndex> allProjects = NGPageIndex.getAllPagesInBook(ngb.key);
+        Vector<NGPageIndex> allProjects = NGPageIndex.getAllProjectsInAccount(ngb.key);
         NGRole owner = ngb.getSecondaryRole();
 
 %>

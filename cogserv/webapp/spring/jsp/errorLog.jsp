@@ -1,5 +1,12 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="administration.jsp"
+%><%
+
+    String searchDate = ar.defParam("searchDate", null);
+    if (searchDate==null) {
+        //put today in if no date given
+        searchDate = new SimpleDateFormat("MM/dd/yyyy").format(new Date());
+    }
 %>
 
 <div class="content tab03" style="display:block;">
@@ -10,38 +17,24 @@
                 <tr>
                     <td rowspan="2" width="42px"><img src="<%=ar.retPath %>assets/iconError_BIG.png" width="32" height="32" /></td>
                     <td>
-                        <div class="pageHeading">Error Log</div>
+                        <div class="pageHeading">Error Log for <%=searchDate%></div>
                     </td>
                 </tr>
             </table>
         </div>
         <div style="height:10px;"></div>
         <table border="0px solid red">
+            <form method="get" action="errorLog.htm">
             <tr>
                 <td class="gridTableColummHeader">Search By Date:</td>
                 <td style="width:12px;"></td>
-                <td><input type="text" class="inputGeneralSmall" size="10" name="searchDate" id="searchDate"  value='' readonly="1"/>
+                <td><input type="text" class="inputGeneralSmall" size="10" name="searchDate" id="searchDate"  value="<%=searchDate%>" readonly="1"/>
                     <img src="<%=ar.retPath %>/jscalendar/img.gif" id="btn_searchDate" style="cursor: pointer;" title="Date selector"/>
                 </td>
+                <td> &nbsp; </td>
+                <td><input type="submit" value="View Errors for Date"/></td>
             </tr>
-            <tr>
-                <td colspan="3" id="showDiv" style="display:none">
-                    <table>
-                        <tr><td style="height:5px"></td></tr>
-                        <tr>
-                            <td width="148" class="gridTableColummHeader"></td>
-                            <td width="39" style="width:20px;"></td>
-                            <td><input type="text" class="inputGeneral" /></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr><td style="height:5px"></td></tr>
-            <tr>
-                <td width="148" class="gridTableColummHeader"></td>
-                <td width="39" style="width:20px;"></td>
-                <td><input type="image" src="<%=ar.retPath %>assets/btnSearch.gif" onclick="populateErrorLogs(document.getElementById('searchDate').value);"/></td>
-            </tr>
+            </form>
         </table>
         <div id="container" class="yui-skin-sam" >
             <div id="paging1"></div>
@@ -50,20 +43,10 @@
         <%
         SectionTask.plugInCalenderScript(out, "searchDate", "btn_searchDate");
         %>
-    </div>    
+    </div>
 </div>
 <script type="text/javascript">
-    var date = new Date();
-    var d  = date.getDate();
-    var day = (d < 10) ? '0' + d : d;
-    var m = date.getMonth() + 1;
-    var month = (m < 10) ? '0' + m : m;
-    var yy = date.getYear();
-    var year = (yy < 1000) ? yy + 1900 : yy;
-    var searchDate=month+"/" +day +"/" + year;
-    document.getElementById("searchDate").value=searchDate;
-    
-    YAHOO.util.Event.addListener(window, "load", populateErrorLogs(searchDate) );
+
     function populateErrorLogs(date){
 
         // for the loading Panel
@@ -163,7 +146,7 @@
                 }
             };
 
-            var servletURL = "<%=ar.retPath%>v/<%ar.writeURLData(userKey);%>/getErrorLogXML.ajax?searchByDate="+date;
+            var servletURL = "<%=ar.retPath%>v/<%ar.writeURLData(userKey);%>/getErrorLogXML.ajax?searchByDate=<%=searchDate%>";
 
             var getXML = YAHOO.util.Connect.asyncRequest("GET",servletURL, connectionCallback);
 
@@ -173,7 +156,7 @@
             };
         }();
     }
-    
+
     (function(){
         var default_options = {
             prefix: '',     // prefix added to counter display
@@ -182,15 +165,15 @@
             show_seconds: true, // if true, seconds is also displayed
             frequency: 1000    // 1 second in milliseconds
         };
-    
+
         var timer = function(display,options){
             if (typeof display == 'function') { this.display = display; }
             else { this.el = (typeof display == 'string') ? document.getElementById(display) : display; }
-    
+
             this.options = {};
             if (!options) options = {};
             for (var p in default_options) { this.options[p] = (p in options) ? options[p] : default_options[p]; }
-    
+
             if (!this.options.show_seconds && !options.frequency) this.options.frequency = 60000;   // change to 1 min. intervals
         }
         timer.prototype = {
@@ -205,7 +188,7 @@
                     var m = Math.floor(s/60); s %= 60;
                     var h = Math.floor(m/60); m %= 60;
                     var d = Math.floor(h/24); h %= 24;
-    
+
                     if (obj.display) obj.display(d,h,m,s);
                     if (obj.el) {
                         var html = '';
@@ -237,19 +220,21 @@
             },
             stop: function() { clearInterval(this.timerID); }
         };
-    
+
         // Expose
         window.ElapsedTimer = timer;
     })();
-    
+
     (function(){
         var fn = window.onload;
         window.onload = function(){
             if (typeof fn == 'function') { fn(); }
-    
+
             (new ElapsedTimer('elapsed_time')).resume('<%=lastSentTime%>');
         }
     })();
+
+    populateErrorLogs(searchDate);
 </script>
 
 <%

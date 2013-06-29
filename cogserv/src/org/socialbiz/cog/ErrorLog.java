@@ -65,7 +65,7 @@ public class ErrorLog extends DOMFile {
         }
         StackTraceElement[] element =ex.getStackTrace()  ;
 
-        ErrorLogDetails errorLogDetails = (ErrorLogDetails) createChild("error", ErrorLogDetails.class);
+        ErrorLogDetails errorLogDetails = createChild("error", ErrorLogDetails.class);
         long exceptionNO = SuperAdminLogFile.getNextExceptionNo();
         SuperAdminLogFile.setLastExceptionNo(exceptionNO);
         errorLogDetails.setErrorNo(String.valueOf(exceptionNO));
@@ -86,31 +86,14 @@ public class ErrorLog extends DOMFile {
         return exceptionNO;
     }
 
-    private static File getAbsolutePath(String searchByDate) throws Exception {
+    public static File getErrorFileFullPath(Date date) throws Exception {
 
-        File xmlFolder = ConfigFile.getWebINFPath();
-        File readXMLFile=null;
-        String path=xmlFolder.getPath() + "/errorLog_"+searchByDate+".xml";
-
-        readXMLFile = new File(path);
-        return readXMLFile;
+        String searchByDate=new SimpleDateFormat("yyyy.MM.dd").format(date);
+        String userFolder = ConfigFile.getProperty("userFolder");
+        return new File(userFolder, "errorLog_"+searchByDate+".xml");
     }
 
-    public static Document getErrorLogByDate(String searchByDate) throws Exception
-    {
-        try {
-            Date date = new SimpleDateFormat("MM/dd/yyyy").parse(searchByDate);
-            searchByDate=new SimpleDateFormat("yyyy.MM.dd").format(date);
-            File xmlFile=getAbsolutePath(searchByDate);
-
-            return readOrCreateFile(xmlFile, "errorlog");
-        } catch (Exception e) {
-            throw new NGException("nugen.exception.unable.to.load.errorfile",
-                    new Object[]{searchByDate}, e);
-        }
-    }
-
-    public static HashMap<String, String> displayErrorDetailsByErrorID(String errorId,String searchByDate) throws Exception {
+    public static HashMap<String, String> getMapOfPropertiesForOneErrorID(String errorId,String searchByDate) throws Exception {
 
         Date searchDate = new Date(Long.valueOf(searchByDate));
         String newSearchDate = new SimpleDateFormat("yyyy.MM.dd").format(searchDate);

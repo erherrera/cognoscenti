@@ -172,7 +172,7 @@ Required parameter:
     <tbody>
     <%
     int sno=0;
-    for (NGPageIndex ngpi : NGPageIndex.getAllPagesInBook(accountKey))
+    for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInAccount(accountKey))
     {
         sno++;
         String linkAddr = ar.retPath + "t/" +ngpi.pageBookKey+"/"+ngpi.containerKey + "/projectHome.htm";

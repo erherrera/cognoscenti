@@ -486,21 +486,6 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
-    public NGSection getSection(String sectionNameToLookFor)
-        throws Exception
-    {
-        NGSection what = getSection2(sectionNameToLookFor);
-        if (what!=null)
-        {
-            String thisName = what.getName();
-            if (!thisName.equals(sectionNameToLookFor))
-            {
-                throw new ProgramLogicError("Strange, asked for a '"+sectionNameToLookFor
-                    +"' but got a '"+thisName+"'.");
-            }
-        }
-        return what;
-    }
     public NGSection getSectionOrFail(String sectionNameToLookFor)
         throws Exception
     {
@@ -512,33 +497,18 @@ public class NGPage extends ContainerCommon implements NGContainer
         return ngs;
     }
 
-    public NGSection getSection2(String sectionNameToLookFor)
-        throws Exception
-    {
-        for (NGSection sec : getAllSections())
-        {
+    public NGSection getSection(String sectionNameToLookFor) throws Exception {
+        for (NGSection sec : getAllSections()) {
             String thisName = sec.getName();
-            if (thisName==null || thisName.length()==0)
-            {
-                throw new NGException("nugen.exception.section.not.have.name",null);
+            if (thisName == null || thisName.length() == 0) {
+                throw new NGException("nugen.exception.section.not.have.name", null);
             }
-            String attVal = sec.getAttribute("name");
-            if (!attVal.equals(thisName))
-            {
-                throw new ProgramLogicError("For this section, name attribute is '"+attVal+"' but the getName method gave me '"+thisName+"'.");
-            }
-            if (sectionNameToLookFor.equals(thisName))
-            {
-                if (!thisName.equals(sectionNameToLookFor))
-                {
-                    throw new ProgramLogicError("this makes no sense whatsoever!");
-                }
+            if (sectionNameToLookFor.equals(thisName)) {
                 return sec;
             }
         }
         return null;
     }
-
 
     /**
     * Get a section, creating it if it does not exist yet
@@ -1054,10 +1024,13 @@ public class NGPage extends ContainerCommon implements NGContainer
     public GoalRecord createGoal()
         throws Exception
     {
+        String id = getUniqueOnPage();
         NGSection ngs = getSectionOrFail("Tasks");
-        GoalRecord goal = SectionTask.createTaskWithinNGPage(ngs);
-        String uid = getContainerUniversalId() + "@" + goal.getId();
+        GoalRecord goal = ngs.createChildWithID("task", GoalRecord.class, "id", id);
+        String uid = getContainerUniversalId() + "@" + id;
         goal.setUniversalId(uid);
+        goal.setRank(32000000);
+        renumberGoalRanks();
         return goal;
     }
 
@@ -1513,6 +1486,40 @@ public class NGPage extends ContainerCommon implements NGContainer
     public void removeExtrasByName(String name)throws Exception
     {
         //no extras in this class
+    }
+
+    /**
+     * Find all the tasks on this page, and assign them new, arbitrary
+     * rank values such that they remain in the same order.
+     * Assigned new values increasing by 10 so that other tasks can be place
+     * between existing tasks if necessary.
+     */
+    public void renumberGoalRanks() throws Exception {
+        int rankVal = 0;
+        List<GoalRecord> allGoals = getAllGoals();
+        GoalRecord.sortTasksByRank(allGoals);
+        for (GoalRecord tr : allGoals) {
+            String myParent = tr.getParentGoalId();
+            // only renumber tasks that have no parent. Others renumbered
+            // recursively
+            if (myParent == null || myParent.length() == 0) {
+                rankVal += 10;
+                tr.setRank(rankVal);
+                rankVal = renumberRankChildren(allGoals, rankVal, tr.getId());
+            }
+        }
+    }
+
+    private static int renumberRankChildren(List<GoalRecord> allGoals, int rankVal, String parentId)
+            throws Exception {
+        for (GoalRecord aGoal : allGoals) {
+            if (parentId.equals(aGoal.getParentGoalId())) {
+                rankVal += 10;
+                aGoal.setRank(rankVal);
+                rankVal = renumberRankChildren(allGoals, rankVal, aGoal.getId());
+            }
+        }
+        return rankVal;
     }
 
 

@@ -191,17 +191,4 @@ public class NGSection extends DOMFace
         def.format.findIDs(v, this);
     }
 
-
-
-
-    /**
-    * @deprecated
-    public boolean appearsAtLevel(int displayLevel)
-        throws Exception
-    {
-        throw new ProgramLogicError("appearsAtLevel is not implemented");
-    }
-    */
-
-
 }

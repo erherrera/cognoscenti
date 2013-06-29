@@ -72,21 +72,6 @@ public class SectionTask extends SectionUtil implements SectionFormat
         out.write("\n</script> ");
     }
 
-    public static GoalRecord createTaskWithinNGPage(NGSection section) throws Exception
-    {
-        String id = section.parent.getUniqueOnPage();
-        GoalRecord task = section.createChildWithID("task",
-                GoalRecord.class, "id", id);
-
-        //find and give it a good rank number
-        task.setRank(32000000);
-        renumberRanks(section);
-        return task;
-    }
-
-
-
-
     public static List<GoalRecord> getAllTasks(NGSection sec)
             throws Exception
     {
@@ -151,45 +136,6 @@ public class SectionTask extends SectionUtil implements SectionFormat
             v.add(link);
         }
     }
-
-    public static void renumberRanks(NGSection sec)
-        throws Exception
-    {
-        List<GoalRecord> taskList = getAllTasks(sec);
-        renumberRanks(taskList);
-    }
-
-    public static void renumberRanks(List<GoalRecord> taskList)
-        throws Exception
-    {
-        int rankVal = 0;
-        for (GoalRecord tr : taskList)
-        {
-            String myParent = tr.getParentGoalId();
-            //only renumber tasks that have no parent.  Others renumbered recursively
-            if (myParent==null || myParent.length()==0) {
-                rankVal += 10;
-                tr.setRank( rankVal );
-                rankVal = renumberRankChildren(taskList, rankVal, tr.getId());
-            }
-        }
-    }
-
-    private static int renumberRankChildren(List<GoalRecord> taskList, int rankVal, String parentId)
-        throws Exception
-    {
-        for (GoalRecord tr : taskList)
-        {
-            if (parentId.equals(tr.getParentGoalId()))
-            {
-                rankVal += 10;
-                tr.setRank( rankVal );
-                rankVal = renumberRankChildren(taskList, rankVal, tr.getId());
-            }
-        }
-        return rankVal;
-    }
-
 
     public void writePlainText(NGSection section, Writer out) throws Exception
     {

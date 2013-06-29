@@ -1,5 +1,8 @@
 package org.socialbiz.cog.spring;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,27 +38,13 @@ public class SuperAdminController extends BaseController {
      public ModelAndView errorLogPage(@PathVariable String userKey,HttpServletRequest request,
              HttpServletResponse response)
      throws Exception {
-
-         ModelAndView modelAndView = null;
-         AuthRequest ar = null;
-         UserProfile up = null;
          try{
-             ar = AuthRequest.getOrCreate(request, response);
-             if(!ar.isLoggedIn()){
-                 return redirectToLoginView(ar, "message.loginalert.errors.log",null);
-             }
-             if(!ar.isSuperAdmin()){
-                 throw new NGException("nugen.exceptionhandling.system.admin.rights",null);
-             }
-             up = UserManager.getUserProfileOrFail(userKey);
-             request.setAttribute("title", up.getName());
-             modelAndView = createModelAndView(ar, up, null, "Administration", "errorLog");
-             request.setAttribute("subTabId", "nugen.admin.subtab.errors.log");
+             AuthRequest ar = AuthRequest.getOrCreate(request, response);
+             return adminModelSetUp(ar, userKey, "errorLog", "nugen.admin.subtab.errors.log");
 
          }catch(Exception ex){
              throw new NGException("nugen.operation.fail.administration.page", new Object[]{userKey} , ex);
          }
-         return modelAndView;
      }
 
      @RequestMapping(value = "/{userKey}/emailListnerSettings.htm", method = RequestMethod.GET)
@@ -64,123 +53,80 @@ public class SuperAdminController extends BaseController {
              throws Exception {
 
 
-         ModelAndView modelAndView = null;
-         AuthRequest ar = null;
-         UserProfile up = null;
          try{
-             ar = AuthRequest.getOrCreate(request, response);
-             if(!ar.isLoggedIn()){
-                 return redirectToLoginView(ar, "message.loginalert.email.listener.setting",null);
-             }
-             if(!ar.isSuperAdmin()){
-                 throw new NGException("nugen.exceptionhandling.system.admin.rights",null);
-             }
-             up = UserManager.getUserProfileOrFail(userKey);
-             request.setAttribute("title", up.getName());
-             modelAndView = createModelAndView(ar, up, null, "Administration", "emailListnerSettings");
-             request.setAttribute("subTabId", "nugen.admin.subtab.email");
+             AuthRequest ar = AuthRequest.getOrCreate(request, response);
+             return adminModelSetUp(ar, userKey, "emailListnerSettings", 
+                     "nugen.admin.subtab.email");
 
          }catch(Exception ex){
              throw new NGException("nugen.operation.fail.administration.page", new Object[]{userKey} , ex);
          }
-         return modelAndView;
-
      }
 
      @RequestMapping(value = "/{userKey}/lastNotificationSend.htm", method = RequestMethod.GET)
      public ModelAndView lastNotificationSend(@PathVariable String userKey,
              HttpServletRequest request, HttpServletResponse response)
              throws Exception {
-
-
-         ModelAndView modelAndView = null;
-         AuthRequest ar = null;
-         UserProfile up = null;
          try{
-             ar = AuthRequest.getOrCreate(request, response);
-             if(!ar.isLoggedIn()){
-                 return redirectToLoginView(ar, "message.loginalert.last.notification.send",null);
-             }
-             if(!ar.isSuperAdmin()){
-                 throw new NGException("nugen.exceptionhandling.system.admin.rights",null);
-             }
-             up = UserManager.getUserProfileOrFail(userKey);
-             request.setAttribute("title", up.getName());
-             modelAndView = createModelAndView(ar, up, null, "Administration", "lastNotificationSend");
-             request.setAttribute("subTabId", "nugen.admin.subtab.last.notification.send");
+             AuthRequest ar = AuthRequest.getOrCreate(request, response);
+             return adminModelSetUp(ar, userKey, "lastNotificationSend", 
+                     "nugen.admin.subtab.last.notification.send");
 
          }catch(Exception ex){
              throw new NGException("nugen.operation.fail.administration.page", new Object[]{userKey} , ex);
          }
-         return modelAndView;
-
      }
 
      @RequestMapping(value = "/{userKey}/newAccounts.htm", method = RequestMethod.GET)
      public ModelAndView newAccounts(@PathVariable String userKey,
              HttpServletRequest request, HttpServletResponse response)
              throws Exception {
-
-
-         ModelAndView modelAndView = null;
-         AuthRequest ar = null;
-         UserProfile up = null;
          try{
-             ar = AuthRequest.getOrCreate(request, response);
-             if(!ar.isLoggedIn()){
-                 return redirectToLoginView(ar, "message.loginalert.new.accounts",null);
-             }
-             if(!ar.isSuperAdmin()){
-                 throw new NGException("nugen.exceptionhandling.system.admin.rights",null);
-             }
-             up = UserManager.getUserProfileOrFail(userKey);
-             request.setAttribute("title", up.getName());
-             modelAndView = createModelAndView(ar, up, null, "Administration", "newAccounts");
-             request.setAttribute("subTabId", "nugen.admin.subtab.new.accounts");
-
+             AuthRequest ar = AuthRequest.getOrCreate(request, response);
+             return adminModelSetUp(ar, userKey, "newAccounts", "nugen.admin.subtab.new.accounts");
          }catch(Exception ex){
              throw new NGException("nugen.operation.fail.administration.page", new Object[]{userKey} , ex);
          }
-         return modelAndView;
-
      }
 
      @RequestMapping(value = "/{userKey}/deniedAccounts.htm", method = RequestMethod.GET)
      public ModelAndView deniedAccounts(@PathVariable String userKey,
              HttpServletRequest request, HttpServletResponse response)
              throws Exception {
-
-
-         ModelAndView modelAndView = null;
-         AuthRequest ar = null;
-         UserProfile up = null;
          try{
-             ar = AuthRequest.getOrCreate(request, response);
-             if(!ar.isLoggedIn()){
-                 return redirectToLoginView(ar, "message.loginalert.denied.accounts",null);
-             }
-             if(!ar.isSuperAdmin()){
-                 throw new NGException("nugen.exceptionhandling.system.admin.rights",null);
-             }
-             up = UserManager.getUserProfileOrFail(userKey);
-             request.setAttribute("title", up.getName());
-             modelAndView = createModelAndView(ar, up, null, "Administration", "deniedAccounts");
-             request.setAttribute("subTabId", "nugen.admin.subtab.denied.accounts");
+             AuthRequest ar = AuthRequest.getOrCreate(request, response);
+             return adminModelSetUp(ar, userKey, "deniedAccounts", 
+                     "nugen.admin.subtab.denied.accounts");
 
          }catch(Exception ex){
              throw new NGException("nugen.operation.fail.administration.page", new Object[]{userKey} , ex);
          }
-         return modelAndView;
-
      }
 
      @RequestMapping(value = "/{userKey}/getErrorLogXML.ajax", method = RequestMethod.GET)
      public void errorLogXMLData(@PathVariable String userKey,@RequestParam String searchByDate,HttpServletRequest request,
              HttpServletResponse response)
      throws Exception {
-         AuthRequest ar = NGWebUtils.getAuthRequest(request, response, "User must be logged in as a Super admin to see the error Log.");
-         Document doc=ErrorLog.getErrorLogByDate(searchByDate);
-         writeXMLToResponse(ar,doc);
+         try {
+             AuthRequest ar = NGWebUtils.getAuthRequest(request, response, "User must be logged in as a Super admin to see the error Log.");
+             Date date = new SimpleDateFormat("MM/dd/yyyy").parse(searchByDate);
+             File xmlFile=ErrorLog.getErrorFileFullPath(date);
+             
+             if (!xmlFile.exists()) {
+                 Document doc = DOMUtils.createDocument("errorlog");
+                 doc.getDocumentElement().setAttribute("missingFile", xmlFile.toString());
+                 writeXMLToResponse(ar,doc);
+             }
+             else {
+                 Document doc = ErrorLog.readOrCreateFile(xmlFile, "errorlog");
+                 doc.getDocumentElement().setAttribute("fileName", xmlFile.toString());
+                 writeXMLToResponse(ar,doc);
+             }
+         }
+         catch (Exception e) {
+             //need something better here to return the error as XML
+             throw e;
+         }
      }
 
      @RequestMapping(value = "/{userKey}/errorDetails{errorId}.htm", method = RequestMethod.GET)
@@ -191,9 +137,9 @@ public class SuperAdminController extends BaseController {
          ModelAndView modelAndView = null;
          try{
              AuthRequest ar=NGWebUtils.getAuthRequest(request, response, "User must be logged in as a Super admin to see the error Log.");
-             HashMap<String, String> searchResult=ErrorLog.displayErrorDetailsByErrorID(errorId ,searchByDate);
-             modelAndView = new ModelAndView("ErrorDetailLog");
-             modelAndView.addObject("searchResult", searchResult);
+             HashMap<String, String> oneErrorDetails=ErrorLog.getMapOfPropertiesForOneErrorID(errorId ,searchByDate);
+             modelAndView = new ModelAndView("detailsErrorLog");
+             modelAndView.addObject("searchResult", oneErrorDetails);
              modelAndView.addObject("goURL", ar.getCompleteURL());
          }catch(Exception ex){
              throw new NGException("nugen.operation.fail.error.detail.page", null , ex);
@@ -229,20 +175,29 @@ public class SuperAdminController extends BaseController {
          ar.flush();
      }
 
-     public static ModelAndView createModelAndView(AuthRequest ar,
-             UserProfile up, ModelAndView modelAndView, String tabId,
-             String modelAndViewName) {
+     private static ModelAndView adminModelSetUp(AuthRequest ar,
+              String userKey, String modelAndViewName, String subTabId) throws Exception {
 
+         if(!ar.isLoggedIn()){
+             return redirectToLoginView(ar, "message.loginalert.errors.log",null);
+         }
+         if(!ar.isSuperAdmin()){
+             throw new NGException("nugen.exceptionhandling.system.admin.rights",null);
+         }
+         UserProfile up = UserManager.getUserProfileOrFail(userKey);
+         String tabId = "Administration";
          HttpServletRequest request = ar.req;
-         modelAndView = new ModelAndView(modelAndViewName);
+         ModelAndView modelAndView = new ModelAndView(modelAndViewName);
 
          String realRequestURL = request.getRequestURL().toString();
          request.setAttribute("realRequestURL", realRequestURL);
 
+         request.setAttribute("title", up.getName());
          request.setAttribute("userKey", up.getKey());
          request.setAttribute("userProfile", up);
          request.setAttribute("pageTitle", "User: " + up.getName());
          request.setAttribute("tabId", tabId);
+         request.setAttribute("subTabId", subTabId);
          return modelAndView;
      }
 

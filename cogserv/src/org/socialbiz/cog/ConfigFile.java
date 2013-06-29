@@ -225,7 +225,11 @@ public class ConfigFile {
             throw new NGException("nugen.exception.folder.not.found", new Object[] { "userFolder",
                     testDir.getAbsolutePath() });
         }
-
+        String baseURL = props.getProperty("baseURL");
+        if (baseURL==null) {
+            throw new NGException("nugen.exception.system.configured.incorrectly",
+                    new Object[] { "baseURL" });
+        }
     }
 
     /**

@@ -206,7 +206,7 @@
 
     if (action.equals("Renumber Ranks"))
     {
-        renumberRanks(ar, ngp);
+        ngp.renumberGoalRanks();
     }
     if (action.equals("Approve"))
     {
