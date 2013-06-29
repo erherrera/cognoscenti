@@ -3,9 +3,6 @@
  */
 package org.socialbiz.cog;
 
-import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.util.CVSUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,6 +14,10 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
+import org.socialbiz.cog.util.CVSUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -441,7 +442,7 @@ public class NGPage extends ContainerCommon implements NGContainer
             // commit the modified files to the CVS.
             CVSUtil.commit(address, modUser, comment);
 
-            //update the inmemory index because the file has changed
+            //update the in memory index because the file has changed
             NGPageIndex.refreshOutboundLinks(this);
 
             //Update blocking Queue
@@ -1513,5 +1514,6 @@ public class NGPage extends ContainerCommon implements NGContainer
     {
         //no extras in this class
     }
+
 
 }

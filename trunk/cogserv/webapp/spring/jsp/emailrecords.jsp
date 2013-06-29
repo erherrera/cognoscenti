@@ -45,23 +45,20 @@
             <tbody>
             <%
 
-            Vector emailRecords = EmailRecordMgr.findEmailRecordByProjectId(ngp.getKey());
 
-            if(emailRecords != null){
-                Enumeration e2 = emailRecords.elements();
                 int emailCount = 0;
-                while(e2.hasMoreElements())
+                for (EmailRecord eRec : ngp.getAllEmail() )
                 {
-                    EmailRecord eRec = (EmailRecord)e2.nextElement();
                     emailCount++;
                     List<OptOutAddr> toList = eRec.getAddressees();
                 %>
                     <tr>
                         <td>
-                            <%writeHtml(out, eRec.getFromAddress());%>
+                            <%ar.writeHtml(eRec.getFromAddress());%>
                         </td>
                         <td>
-                            <%writeHtml(out, eRec.getSubject());%>
+                            <%writeHtml(out, eRec.getSubject());%><br/>
+                            <%ar.writeHtml(eRec.getExceptionMessage());%>
                         </td>
                         <td>
                         <%
@@ -86,7 +83,7 @@
                     </tr>
                 <%
                     }
-                }
+
                 %>
             </tbody>
         </table>

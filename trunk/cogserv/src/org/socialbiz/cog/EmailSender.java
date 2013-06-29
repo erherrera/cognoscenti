@@ -728,11 +728,20 @@ public class EmailSender extends TimerTask {
         NGPageIndex.releaseLock(ngc);
     }
 
+
+    /**
+     * TODO: This should probable be on the NGPage object.
+     */
     private void createEmailRecordInternal(NGContainer ngc, String from,
             Vector<OptOutAddr> addresses, String subject, String emailBody)
             throws Exception {
 
         try {
+            if (!(ngc instanceof NGPage)) {
+                throw new ProgramLogicError("the container with an email message must be a NGPage object!");
+            }
+
+            NGPage ngp = (NGPage)ngc;
 
             // just checking here that all the addressees have a valid email
             // address.
@@ -741,8 +750,7 @@ public class EmailSender extends TimerTask {
                 ooa.assertValidEmail();
             }
 
-            EmailRecord emailRec = EmailRecordMgr.createEmailRecord(ngc
-                    .getUniqueOnPage());
+            EmailRecord emailRec = ngp.createEmail();
             emailRec.setStatus(EmailRecord.READY_TO_GO);
             emailRec.setFromAddress(from);
             emailRec.setCreateDate(System.currentTimeMillis());
@@ -750,7 +758,7 @@ public class EmailSender extends TimerTask {
             emailRec.setBodyText(emailBody);
             emailRec.setSubject(subject);
             emailRec.setProjectId(ngc.getKey());
-            EmailRecordMgr.save();
+            ngp.save();
 
             EmailRecordMgr.triggerNextMessageSend();
         } catch (Exception e) {
@@ -780,6 +788,8 @@ public class EmailSender extends TimerTask {
 
     /**
      * Creates an email record and then sends it immediately
+     * Does NOT associate this with a NGPage object.
+     * TODO: check if this should be on a project
      */
     private void instantEmailSend(Vector<OptOutAddr> addresses, String subject,
             String emailBody, String fromAddress) throws Exception {
@@ -955,8 +965,8 @@ public class EmailSender extends TimerTask {
     /**
      * A simple authenticator class that gets the username and password
      * from the properties object if mail.smtp.auth is set to true.
-     * 
-     * documentation on javax.mail.Authenticator says that if you want 
+     *
+     * documentation on javax.mail.Authenticator says that if you want
      * authentication, return an object, otherwise return null.  So
      * null is returned if no auth setting or user/password.
      */
@@ -1094,7 +1104,7 @@ public class EmailSender extends TimerTask {
         ar.write("&emailId=");
         ar.writeURLData(up.getPreferredEmail());
     }
-    
+
     /**
      * Use this to attempt to detect mis-configurations, and give a reasonable
      * error message when something important is missing.
@@ -1128,19 +1138,19 @@ public class EmailSender extends TimerTask {
     }
 
     public static void dumpProperties(Properties props) {
-        
+
         for (String key : props.stringPropertyNames()) {
             System.out.println("  ** Property "+key+" = "+props.getProperty(key));
         }
     }
-    
+
     /**
      * use this to send a quick test message
      * using the server configuration
      */
     public static void sendTestEmail() throws Exception {
         Properties props = emailProperties;
-        
+
         try {
             final String fromAddress = props.getProperty("mail.smtp.from");
             if (fromAddress==null) {
@@ -1151,24 +1161,24 @@ public class EmailSender extends TimerTask {
                 throw new Exception("In order to send a test email, configure a setting for mail.smtp.testAddress in the email properties file");
             }
             final String msgText = "This is a sample email message sent "+(new Date()).toString();
-    
+
             // these should be set already -- for GOOGLE
             // props.put("mail.smtp.starttls.enable", "true");
             // props.put("mail.smtp.auth", "true");
             // props.put("mail.smtp.host", "smtp.gmail.com");
             // props.put("mail.smtp.port", "587");
-    
+
             Authenticator authenticator = new MyAuthenticator(props);
             Session session = Session.getInstance(props, authenticator);
-            
+
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(fromAddress));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destAddress));
             message.setSubject("Testing Subject");
             message.setText(msgText);
-    
+
             Transport.send(message);
-    
+
             System.out.println("Sent test mail to " + destAddress);
         }
         catch (Exception e) {
@@ -1182,13 +1192,13 @@ public class EmailSender extends TimerTask {
 
     /**
      * Sometimes testing email settings can be a pain, so this main routine
-     * allows for an easy way, in Eclipse or on the command line to 
+     * allows for an easy way, in Eclipse or on the command line to
      * test email sending without TomCat or anything else around.
-     * 
+     *
      * Parameters are:
      * 0: your user name
      * 1: your password
-     * 
+     *
      * Enter the other test values (destination address, from address, host, port)
      * directly into the code below.
      */
@@ -1208,7 +1218,7 @@ public class EmailSender extends TimerTask {
         emailProperties.put("mail.smtp.password",args[1]);
         emailProperties.put("mail.smtp.from", "keith2010@kswenson.oib.com");
         emailProperties.put("mail.smtp.testAddress", "demotest@kswenson.oib.com");
-      
+
         try {
             sendTestEmail();
             return ;
