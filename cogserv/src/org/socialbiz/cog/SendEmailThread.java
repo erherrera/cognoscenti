@@ -12,10 +12,23 @@ public class SendEmailThread extends Thread {
             //don't send email immediately on startup ... wait 30 seconds
             Thread.sleep(30000);
             EmailSender emailSender = EmailSender.getInstance();
-            EmailRecord eRec = null;
             while (true) {
                 try {
-                    while ( (eRec = EmailRecordMgr.getEmailReadyToSend()) != null ) {
+                    EmailRecord eRec=null;
+                    NGPage possiblePage = null;
+
+                    //walk through the known pages and see if there are any email
+                    //messages there to send
+                    while ((possiblePage=NGPageIndex.getPageWithEmailToSend()) != null) {
+                        while ( (eRec=possiblePage.getEmailReadyToSend()) != null) {
+                            emailSender.sendPreparedMessageImmediately(eRec);
+                        }
+                        possiblePage.save();
+                    }
+
+                    //This is the old, deprecated way to store email messages in the
+                    //for sending later in a single global store.
+                    while ( (eRec=EmailRecordMgr.getEmailReadyToSend()) != null) {
                         emailSender.sendPreparedMessageImmediately(eRec);
                         EmailRecordMgr.save();
                     }

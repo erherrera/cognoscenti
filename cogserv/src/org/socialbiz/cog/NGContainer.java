@@ -1,6 +1,7 @@
 package org.socialbiz.cog;
 
 import java.util.List;
+
 import org.socialbiz.cog.dms.ResourceEntity;
 
 /**
@@ -265,5 +266,28 @@ public interface NGContainer
     * guaranteed to remain constant unless specified by the server administrator.
     */
     public String getContainerUniversalId();
+
+
+    /**
+     * returns all the email records in this container
+     */
+    public List<EmailRecord> getAllEmail() throws Exception;
+
+    /**
+     * creates an email record and sets the ID to a unique value for this project
+     */
+    public EmailRecord createEmail() throws Exception;
+
+    /**
+     * Return a single email message that needs to be sent.
+     * It returns whatever happens to be the first one, and if there
+     * are multiple, there is no guarantee you will get the same one each time.
+     */
+    public EmailRecord getEmailReadyToSend() throws Exception;
+    /**
+     * Scan through the email on this project, and return the number of
+     * email messages on the page that have nto been sent yet.
+     */
+    public int countEmailToSend() throws Exception;
 
  }

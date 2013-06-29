@@ -1,15 +1,16 @@
 package org.socialbiz.cog;
 
-import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.dms.ConnectionSettings;
-import org.socialbiz.cog.dms.ConnectionType;
-import org.socialbiz.cog.dms.ResourceEntity;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
+
+import org.socialbiz.cog.dms.ConnectionSettings;
+import org.socialbiz.cog.dms.ConnectionType;
+import org.socialbiz.cog.dms.ResourceEntity;
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
 import org.w3c.dom.Document;
 
 /**
@@ -124,7 +125,7 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
     }
 
     public AttachmentRecord createAttachment() throws Exception {
-        AttachmentRecord attach = (AttachmentRecord) attachParent.createChild("attachment", AttachmentRecord.class);
+        AttachmentRecord attach = attachParent.createChild("attachment", AttachmentRecord.class);
         String newId = getUniqueOnPage();
         attach.setId(newId);
         attach.setContainer(this);
@@ -291,7 +292,7 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
 
 
     public NoteRecord createNote() throws Exception {
-        NoteRecord note = (NoteRecord) noteParent.createChild("note", NoteRecord.class);
+        NoteRecord note = noteParent.createChild("note", NoteRecord.class);
         String localId = getUniqueOnPage();
         note.setId( localId );
         note.setUniversalId(getContainerUniversalId() + "@" + localId);
@@ -365,7 +366,7 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
         if (existing!=null) {
             throw new NGException("nugen.exception.cant.create.new.role", new Object[]{roleName});
         }
-        CustomRole newRole = (CustomRole) roleParent.createChild("role", CustomRole.class);
+        CustomRole newRole = roleParent.createChild("role", CustomRole.class);
         newRole.setName(roleName);
         newRole.setDescription(description);
         return newRole;
@@ -438,7 +439,7 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
     public HistoryRecord createNewHistory()
         throws Exception
     {
-        HistoryRecord newHist = (HistoryRecord) historyParent.createChild("event", HistoryRecord.class);
+        HistoryRecord newHist = historyParent.createChild("event", HistoryRecord.class);
         newHist.setId(getUniqueOnPage());
         return newHist;
     }
@@ -670,4 +671,38 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
 
     }
 
+    @Override
+    public List<EmailRecord> getAllEmail() throws Exception {
+        DOMFace mail = requireChild("mail", DOMFace.class);
+        return mail.getChildren("email", EmailRecord.class);
+    }
+
+    @Override
+    public EmailRecord createEmail() throws Exception {
+        DOMFace mail = requireChild("mail", DOMFace.class);
+        EmailRecord email = mail.createChild("email", EmailRecord.class);
+        email.setId(getUniqueOnPage());
+        return email;
+    }
+
+    @Override
+    public EmailRecord getEmailReadyToSend() throws Exception {
+        for (EmailRecord er : getAllEmail()) {
+            if (er.statusReadyToSend()) {
+                return er;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public int countEmailToSend() throws Exception {
+        int count = 0;
+        for (EmailRecord er : getAllEmail()) {
+            if (er.statusReadyToSend()) {
+                count++;
+            }
+        }
+        return count;
+    }
 }

@@ -1,7 +1,5 @@
 package org.socialbiz.cog;
 
-import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.exception.ProgramLogicError;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +12,11 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
 import javax.servlet.ServletContext;
+
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
 
 /**
 * NGPageIndex is an index entry in an index of pages
@@ -90,6 +92,9 @@ public class NGPageIndex
 
     private static Vector<NGPageIndex> allContainers;
     private static Hashtable<String,NGPageIndex> keyToContainer;
+
+    //there may be a number of pages that have unsent email, and so this is a list of keys
+    private static Vector<String> projectsWithEmailToSend = new Vector<String>();
 
     /**
     * containerType is the type of container whether it is Account, Project or User
@@ -214,6 +219,11 @@ public class NGPageIndex
         }
         ngpi.unlinkAll();
         ngpi.buildLinks(aPage);
+
+        //check if there is new email, and put this in the index as well
+        if (aPage.countEmailToSend()>0) {
+            projectsWithEmailToSend.add(key);
+        }
     }
 
     public static Vector<NGPageIndex> getAllContainer()
@@ -698,6 +708,13 @@ public class NGPageIndex
         }
         allContainers.add(bIndex);
         keyToContainer.put(key, bIndex);
+
+        //look for email and remember if there is some
+        if (ngc instanceof NGPage) {
+            if (((NGPage)ngc).countEmailToSend()>0) {
+                projectsWithEmailToSend.add(key);
+            }
+        }
     }
 
 
@@ -1334,6 +1351,32 @@ public class NGPageIndex
         hashTags.removeAllElements();
     }
 
+
+    /**
+     * Get the first page that has email that still needs to be sent
+     * Returns null if there are not any
+     */
+    public static NGPage getPageWithEmailToSend() throws Exception {
+        if (projectsWithEmailToSend.size()==0) {
+            return null;
+        }
+
+        Vector<String> copyList = new Vector<String>();
+        copyList.addAll(projectsWithEmailToSend);
+        for (String key : copyList) {
+            NGContainer ngc = getContainerByKey(key);
+            if (ngc instanceof NGPage) {
+                NGPage aPage = (NGPage)ngc;
+                if (aPage.countEmailToSend()>0) {
+                    return aPage;
+                }
+            }
+            //hmm, didn't have email after all, should be removed.  This is how
+            //the list gets cleaned up after the email is sent
+            projectsWithEmailToSend.remove(key);
+        }
+        return null;
+    }
 
 
 
