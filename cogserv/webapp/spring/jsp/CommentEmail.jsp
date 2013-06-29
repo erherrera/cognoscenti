@@ -206,6 +206,12 @@ Optional Parameters:
                     </tr>
                     <tr><td style="height:30px"></td></tr>
                     <tr>
+                        <td class="gridTableColummHeader">Send Files:</td>
+                        <td style="width:20px;"></td>
+                        <td><input id="includeFilesCheckBox" type="checkbox" name="includeFiles"> Actually send files as attachments to the email (unprotected)</td>
+                    </tr>
+                    <tr><td style="height:30px"></td></tr>
+                    <tr>
                         <td class="gridTableColummHeader" valign="top">Unsubscribe:</td>
                         <td style="width:20px;"></td>
                         <td>

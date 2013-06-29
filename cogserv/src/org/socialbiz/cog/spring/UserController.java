@@ -2215,7 +2215,7 @@ public class UserController extends BaseController {
         clone.write("</body></html>");
 
         EmailSender.containerEmail(ooa, ngp, subject, bodyWriter.toString(),
-                null);
+                null, new Vector<String>());
     }
 
 }

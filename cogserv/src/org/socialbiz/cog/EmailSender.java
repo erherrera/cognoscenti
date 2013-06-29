@@ -14,6 +14,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.Multipart;
@@ -690,15 +692,15 @@ public class EmailSender extends TimerTask {
     }
 
     public static void containerEmail(OptOutAddr ooa, NGContainer ngc,
-            String subject, String emailBody, String from) throws Exception {
+            String subject, String emailBody, String from, Vector<String> attachIds) throws Exception {
         ooa.assertValidEmail();
         Vector<OptOutAddr> addressList = new Vector<OptOutAddr>();
         addressList.add(ooa);
-        queueEmailNGC(addressList, ngc, subject, emailBody, from);
+        queueEmailNGC(addressList, ngc, subject, emailBody, from, attachIds);
     }
 
     public static void queueEmailNGC(Vector<OptOutAddr> addresses,
-            NGContainer ngc, String subject, String emailBody, String from)
+            NGContainer ngc, String subject, String emailBody, String from, Vector<String> attachIds)
             throws Exception {
         if (subject == null || subject.length() == 0) {
             throw new ProgramLogicError(
@@ -720,11 +722,10 @@ public class EmailSender extends TimerTask {
         if (from == null) {
             from = composeFromAddress(ngc);
         }
-        es.createEmailRecordInternal(ngc, from, addresses, subject, emailBody);
+        es.createEmailRecordInternal(ngc, from, addresses, subject, emailBody, attachIds);
 
-        // i am highly suspicious of this line, since we didn't GET the lock
-        // here
-        // we probably should not be releasing the lock here.
+        // TODO: i am highly suspicious of this line, since we didn't GET the lock
+        // here we probably should not be releasing the lock here.
         NGPageIndex.releaseLock(ngc);
     }
 
@@ -733,15 +734,10 @@ public class EmailSender extends TimerTask {
      * TODO: This should probable be on the NGPage object.
      */
     private void createEmailRecordInternal(NGContainer ngc, String from,
-            Vector<OptOutAddr> addresses, String subject, String emailBody)
+            Vector<OptOutAddr> addresses, String subject, String emailBody, Vector<String> attachIds)
             throws Exception {
 
         try {
-            if (!(ngc instanceof NGPage)) {
-                throw new ProgramLogicError("the container with an email message must be a NGPage object!");
-            }
-
-            NGPage ngp = (NGPage)ngc;
 
             // just checking here that all the addressees have a valid email
             // address.
@@ -750,7 +746,7 @@ public class EmailSender extends TimerTask {
                 ooa.assertValidEmail();
             }
 
-            EmailRecord emailRec = ngp.createEmail();
+            EmailRecord emailRec = ngc.createEmail();
             emailRec.setStatus(EmailRecord.READY_TO_GO);
             emailRec.setFromAddress(from);
             emailRec.setCreateDate(System.currentTimeMillis());
@@ -758,7 +754,8 @@ public class EmailSender extends TimerTask {
             emailRec.setBodyText(emailBody);
             emailRec.setSubject(subject);
             emailRec.setProjectId(ngc.getKey());
-            ngp.save();
+            emailRec.setAttachmentIds(attachIds);
+            ngc.save("SERVER", System.currentTimeMillis(), "Sending an email message");
 
             EmailRecordMgr.triggerNextMessageSend();
         } catch (Exception e) {
@@ -867,6 +864,9 @@ public class EmailSender extends TimerTask {
                 mp.addBodyPart(textPart);
                 message.setContent(mp);
 
+                attachFiles(mp, eRec);
+                
+                
                 // set the to address.
                 InternetAddress[] addressTo = new InternetAddress[1];
 
@@ -907,6 +907,37 @@ public class EmailSender extends TimerTask {
                 }
             }
         }
+    }
+
+    private void attachFiles(Multipart mp, EmailRecord eRec) throws Exception {
+        Vector<String> attachids = eRec.getAttachmentIds();
+        if (attachids.size()==0) {
+            return;
+        }
+        String projId = eRec.getProjectId();
+        if (projId ==null || projId.length()==0) {
+            //no project id, no way to attach documents
+            return;
+        }
+        
+        NGContainer ngc = NGPageIndex.getContainerByKey(projId);
+        for (String oneId : attachids) {
+            MimeBodyPart pat = new MimeBodyPart();
+            
+            AttachmentRecord attach = ngc.findAttachmentByID(oneId);
+            if (attach==null) {
+                //attachments might get removed in the mean time, just ignore them
+                continue;
+            }
+            AttachmentVersion aVer = attach.getLatestVersion(ngc);
+            File attachFile = aVer.getLocalFile();
+            
+            // Put a file in the part
+            FileDataSource fds = new FileDataSource(attachFile);
+            pat.setDataHandler(new DataHandler(fds));
+            pat.setFileName(attach.getDisplayName());
+            mp.addBodyPart(pat);
+        }        
     }
 
     public static Vector<AddressListEntry> parseAddressList(String list) {

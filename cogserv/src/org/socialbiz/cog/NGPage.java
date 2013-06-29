@@ -1479,13 +1479,14 @@ public class NGPage extends ContainerCommon implements NGContainer
         return "theme/blue/";
     }
 
-    public void scanForNewFiles() throws Exception
-    {
-        //nothing in this class
+    public void scanForNewFiles() throws Exception {
+        // nothing in this class, this is overridden in the subclass NGProj
+        // to look for new file that appeared in the project folder
     }
-    public void removeExtrasByName(String name)throws Exception
-    {
-        //no extras in this class
+
+    public void removeExtrasByName(String name) throws Exception {
+        // no extras in this class, this is overridden in the subclass NGProj
+        // in order to clean up file in the folder that should not be there.
     }
 
     /**

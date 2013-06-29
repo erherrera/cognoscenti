@@ -38,7 +38,7 @@ public class ReminderEmailHelper {
             writeReminderEmailBody(clone, ngp, rRec);
             NGWebUtils.standardEmailFooter(clone, ar.getUserProfile(), ooa, ngp);
             clone.write("</body></html>");
-            EmailSender.containerEmail(ooa, ngp, subject, bodyWriter.toString(), null);
+            EmailSender.containerEmail(ooa, ngp, subject, bodyWriter.toString(), null, new Vector<String>());
         }
         if (ngp instanceof NGPage)
         {

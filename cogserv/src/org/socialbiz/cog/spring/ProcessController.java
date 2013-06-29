@@ -32,7 +32,6 @@ import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.ProcessRecord;
-import org.socialbiz.cog.SectionTask;
 import org.socialbiz.cog.SectionUtil;
 import org.socialbiz.cog.GoalRecord;
 import org.socialbiz.cog.UserProfile;

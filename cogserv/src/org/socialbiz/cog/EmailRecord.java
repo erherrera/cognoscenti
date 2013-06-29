@@ -41,7 +41,7 @@ public class EmailRecord extends DOMFace
     }
 
     public Vector<OptOutAddr> getAddressees() throws Exception {
-        Vector<DOMFace> children = (Vector<DOMFace>) getChildren("to", DOMFace.class);
+        Vector<DOMFace> children = getChildren("to", DOMFace.class);
 
         Vector<OptOutAddr> res = new Vector<OptOutAddr>();
         for (DOMFace assignee : children) {
@@ -160,14 +160,21 @@ public class EmailRecord extends DOMFace
         setScalar("exception", NGException.getFullMessage(e));
     }
 
+    public Vector<String> getAttachmentIds() {
+        return getVector("attachid");
+    }
+    public void setAttachmentIds(Vector<String> ids) {
+        setVector("attachid", ids);
+    }
 
+    
     /**
     * Either this sends the email message, and marks it as sent, or it fails
     * to send the message, and marks it as failed.
-    */
     public void sendThisMessage() throws Exception {
         EmailSender emailSender = EmailSender.getInstance();
         emailSender.sendPreparedMessageImmediately(this);
     }
+    */
 
 }
