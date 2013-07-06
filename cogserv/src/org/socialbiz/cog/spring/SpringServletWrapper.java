@@ -83,7 +83,7 @@ public class SpringServletWrapper extends HttpServlet
             throw new ServletException("Unable to handle web request to URL ("+requestAddr+")", e);
         }
         finally{
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
         ar.logCompletedRequest();
     }

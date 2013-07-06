@@ -107,7 +107,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             }
             throw new IllegalArgumentException("Failed to get Notes for Container Id: " + pageId, e);
         }finally{
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
 
     }
@@ -175,7 +175,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             throw new IllegalArgumentException("Failed to save note: " + leafData.getId());
         }
         finally{
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
     }
     public LeafData createNote(String pageId, LeafData leafData) throws IllegalArgumentException{
@@ -240,7 +240,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             }
             throw new IllegalArgumentException("Failed to create Note", e);
         }finally{
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
 
     }
@@ -264,7 +264,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             }
             throw new IllegalArgumentException("Failed to delete Note:" + leadId, e);
         }finally{
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
     }
 
@@ -297,7 +297,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             throw new IllegalArgumentException("Invalid Vontainer or Note Id, Container Id:" + pageId
                 + " Note Id:" + id, e);
         }finally{
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
     }
 
@@ -448,7 +448,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             e.printStackTrace();
             throw new IllegalArgumentException(e);
         }finally{
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
 
     }
@@ -468,7 +468,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             e.printStackTrace();
             throw new IllegalArgumentException(e);
         }finally{
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
     }
 

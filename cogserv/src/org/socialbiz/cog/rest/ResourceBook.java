@@ -297,7 +297,7 @@ public class ResourceBook implements NGResource
         Hashtable<String, String> pageList = new Hashtable<String, String>();
         for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInAccount(ngb.key))
         {
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
 
             if (!ngpi.isProject())
             {
@@ -327,7 +327,7 @@ public class ResourceBook implements NGResource
             DOMUtils.createChildElement(loutdoc, element_pagerecord, "modifiedtime" , UtilityMethods.getXMLDateFormat(ngp.getLastModifyTime()));
             DOMUtils.createChildElement(loutdoc, element_pagerecord, "remark" , comment);
         }
-        NGPageIndex.clearAllLock();
+        NGPageIndex.clearLocksHeldByThisThread();
     }
     public void setName(String name)
     {

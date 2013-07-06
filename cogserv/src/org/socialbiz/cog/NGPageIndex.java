@@ -111,7 +111,8 @@ public class NGPageIndex
     public String pageBookName;
     public String pageBookKey;
 
-    public String lockedBy = "";
+    private long lockedBy = 0;
+
     public Exception lockedByAuditException = new Exception("Audit Lock Trail");
     private static int blqSize = 10;
 
@@ -382,36 +383,7 @@ public class NGPageIndex
     }
 
 
-    public static void clearAllLock(){
-        String ctid = "tid:" + Thread.currentThread().getId();
-        List<NGPageIndex> indexList = lockMap.remove(ctid);
-        if(indexList == null){
-              return;
-        }
-        for (NGPageIndex ngpindx : indexList){
-            ngpindx.clearLock();
-        }
-    }
 
-    public static void releaseLock(NGContainer ngc){
-        String ckey = ngc.getKey();
-        String ctid = "tid:" + Thread.currentThread().getId();
-        List<NGPageIndex> indexList = lockMap.get(ctid);
-        if(indexList == null){
-            return;
-        }
-
-        Iterator<NGPageIndex> iter = indexList.iterator();
-        while(iter.hasNext()){
-            NGPageIndex ngpi = iter.next();
-            if(ngpi.containerKey.equalsIgnoreCase(ckey)) {
-                ngpi.clearLock();
-                indexList.remove(ngpi);
-                break;
-            }
-        }
-
-    }
 
 
     /**
@@ -1039,34 +1011,30 @@ public class NGPageIndex
         return rmsg;
     }
 
-    public String setLock()throws Exception{
+    public void setLock()throws Exception{
+        long thisThread = Thread.currentThread().getId();
         try{
-            String lTime = ConfigFile.getProperty(UPDATE_LOCK_WAIT);
-            if(lTime == null || lTime.length() == 0){
-                return NO_LOCK_ID;
-            }else{
-                String ctid = "tid:" + Thread.currentThread().getId();
-                if(ctid.equals(lockedBy)){
-                    return "lock";
-                }
-
-                long l = DOMFace.safeConvertLong(lTime);
-                String lockObj =  lockBlq.poll(l, TimeUnit.SECONDS);
-                if(lockObj == null){
-                    throw new NGException("nugen.exception.fail.to.lock.container",
-                            new Object[]{ctid,this.containerKey,lockedBy}, lockedByAuditException);
-                }
-                this.lockedBy = ctid;
-                this.lockedByAuditException = new Exception("Audit lock hold by " + ctid + " pageId: " + this.containerKey);
-                List<NGPageIndex> ngpiList = NGPageIndex.lockMap.get(lockedBy);
-                if(ngpiList == null){
-                    ngpiList = new ArrayList<NGPageIndex>();
-                    NGPageIndex.lockMap.put(lockedBy, ngpiList);
-
-                }
-                ngpiList.add(this);
-                return lockObj;
+            if (lockedBy == thisThread) {
+                //thread already has this lock, so ignore this.  Everything is
+                //unlocked at once at the end of the web request
+                return;
             }
+
+            String ctid = "tid:" + thisThread;
+            String lockObj =  lockBlq.poll(10, TimeUnit.SECONDS);
+            if(lockObj == null){
+                throw new NGException("nugen.exception.fail.to.lock.container",
+                        new Object[]{ctid,this.containerKey,lockedBy}, lockedByAuditException);
+            }
+
+            lockedBy = thisThread;
+            lockedByAuditException = new Exception("Audit lock hold by " + ctid + " pageId: " + containerKey);
+            List<NGPageIndex> ngpiList = NGPageIndex.lockMap.get(ctid);
+            if(ngpiList == null){
+                ngpiList = new ArrayList<NGPageIndex>();
+                NGPageIndex.lockMap.put(ctid, ngpiList);
+            }
+            ngpiList.add(this);
         }catch(Exception e){
             String msg =
                 "Failed to set up the lock for Edit, Please check '"
@@ -1076,14 +1044,17 @@ public class NGPageIndex
     }
 
     public void clearLock(){
-        String ctid = "tid:" + Thread.currentThread().getId();
+        long thisThread = Thread.currentThread().getId();
+        String ctid = "tid:" + thisThread;
         try{
-            String lTime = ConfigFile.getProperty(UPDATE_LOCK_WAIT);
-            if(lTime == null || lTime.length() == 0){ //Locking Mechanism is nit activated
+            if (lockedBy != thisThread) {
+                //should probably throw an exception here ... but signature is not right
+                //and, not sure what we can do about it.  Unlocking should continue.
+                System.out.println("LOCK ERROR - clear lock called when thread does not have lock!");
                 return;
             }
-            this.lockedBy = "";
-            this.lockedByAuditException = new Exception("Audit Lock Trail");
+            this.lockedBy = 0;
+            this.lockedByAuditException = null;
             lockBlq.add(LOCK_ID);
         }catch(IllegalStateException e){
             //Lock is already available
@@ -1093,7 +1064,36 @@ public class NGPageIndex
         }
     }
 
+    public static void clearLocksHeldByThisThread(){
+        String ctid = "tid:" + Thread.currentThread().getId();
+        List<NGPageIndex> indexList = lockMap.remove(ctid);
+        if(indexList == null){
+              return;
+        }
+        for (NGPageIndex ngpindx : indexList){
+            ngpindx.clearLock();
+        }
+    }
 
+    public static void releaseLock(NGContainer ngc){
+        String ckey = ngc.getKey();
+        String ctid = "tid:" + Thread.currentThread().getId();
+        List<NGPageIndex> indexList = lockMap.get(ctid);
+        if(indexList == null){
+            return;
+        }
+
+        Iterator<NGPageIndex> iter = indexList.iterator();
+        while(iter.hasNext()){
+            NGPageIndex ngpi = iter.next();
+            if(ngpi.containerKey.equalsIgnoreCase(ckey)) {
+                ngpi.clearLock();
+                indexList.remove(ngpi);
+                break;
+            }
+        }
+
+    }
 
 /////////////// INTERNAL PRIVATE METHODS ///////////////////
 

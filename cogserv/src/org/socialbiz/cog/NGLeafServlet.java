@@ -124,7 +124,7 @@ public class NGLeafServlet extends javax.servlet.http.HttpServlet {
         }
         finally
         {
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
         ar.logCompletedRequest();
     }
@@ -308,7 +308,7 @@ public class NGLeafServlet extends javax.servlet.http.HttpServlet {
         } catch (Exception e) {
             handleException(e, ar);
         } finally {
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
         ar.logCompletedRequest();
     }
@@ -325,7 +325,7 @@ public class NGLeafServlet extends javax.servlet.http.HttpServlet {
         } catch (Exception e) {
             handleException(e, ar);
         } finally {
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
         ar.logCompletedRequest();
     }
@@ -342,7 +342,7 @@ public class NGLeafServlet extends javax.servlet.http.HttpServlet {
         } catch (Exception e) {
             handleException(e, ar);
         } finally {
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
         ar.logCompletedRequest();
     }
@@ -364,7 +364,7 @@ public class NGLeafServlet extends javax.servlet.http.HttpServlet {
         }
         finally
         {
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
     }
 

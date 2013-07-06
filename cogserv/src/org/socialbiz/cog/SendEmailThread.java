@@ -33,6 +33,8 @@ public class SendEmailThread extends Thread {
                         EmailRecordMgr.save();
                     }
 
+                    //only call this when you are sure you are not holding on to any containers
+                    NGPageIndex.clearLocksHeldByThisThread();
                     EmailRecordMgr.blockUntilNextMessage();
                 }
                 catch (Exception e) {

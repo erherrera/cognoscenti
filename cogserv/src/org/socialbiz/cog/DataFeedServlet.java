@@ -52,7 +52,7 @@ public class DataFeedServlet extends HttpServlet {
             ar.logException("Data Feed Servlet", e);
         }
         finally {
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
         ar.logCompletedRequest();
     }
@@ -255,7 +255,7 @@ public class DataFeedServlet extends HttpServlet {
 
         for (NGPageIndex ngpi : NGPageIndex.getAllContainer()) {
             // start by clearing any outstanding locks in every loop
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
 
             if (!ngpi.isProject()) {
                 continue;

@@ -22,7 +22,7 @@ public class NGFilter implements Filter {
             request.setCharacterEncoding("UTF-8");
             chain.doFilter(request, response);
         }finally{
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
 
     }

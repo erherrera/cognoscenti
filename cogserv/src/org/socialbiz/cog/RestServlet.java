@@ -56,7 +56,7 @@ public class RestServlet extends javax.servlet.http.HttpServlet {
             //do something better
         }
         finally {
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
         ar.logCompletedRequest();
     }
