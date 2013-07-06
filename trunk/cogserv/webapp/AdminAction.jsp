@@ -72,4 +72,6 @@
 
 
 <%@ include file="functions.jsp"%>
-<%  NGPageIndex.clearAllLock(); %>
+<%
+    NGPageIndex.clearLocksHeldByThisThread();
+%>

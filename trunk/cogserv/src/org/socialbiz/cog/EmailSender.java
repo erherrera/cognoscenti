@@ -229,6 +229,8 @@ public class EmailSender extends TimerTask {
         if (threadLastCheckTime > nextScheduledTime) {
             sendDailyDigest();
         }
+        //only call this when you are sure you are not holding on to any containers
+        NGPageIndex.clearLocksHeldByThisThread();
     }
 
     /*
@@ -411,7 +413,7 @@ public class EmailSender extends TimerTask {
                 } catch (Exception ce) { /* ignore this exception */
                 }
             }
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
     }
 
@@ -723,10 +725,6 @@ public class EmailSender extends TimerTask {
             from = composeFromAddress(ngc);
         }
         es.createEmailRecordInternal(ngc, from, addresses, subject, emailBody, attachIds);
-
-        // TODO: i am highly suspicious of this line, since we didn't GET the lock
-        // here we probably should not be releasing the lock here.
-        NGPageIndex.releaseLock(ngc);
     }
 
 
@@ -865,8 +863,8 @@ public class EmailSender extends TimerTask {
                 message.setContent(mp);
 
                 attachFiles(mp, eRec);
-                
-                
+
+
                 // set the to address.
                 InternetAddress[] addressTo = new InternetAddress[1];
 
@@ -919,11 +917,11 @@ public class EmailSender extends TimerTask {
             //no project id, no way to attach documents
             return;
         }
-        
+
         NGContainer ngc = NGPageIndex.getContainerByKey(projId);
         for (String oneId : attachids) {
             MimeBodyPart pat = new MimeBodyPart();
-            
+
             AttachmentRecord attach = ngc.findAttachmentByID(oneId);
             if (attach==null) {
                 //attachments might get removed in the mean time, just ignore them
@@ -931,13 +929,13 @@ public class EmailSender extends TimerTask {
             }
             AttachmentVersion aVer = attach.getLatestVersion(ngc);
             File attachFile = aVer.getLocalFile();
-            
+
             // Put a file in the part
             FileDataSource fds = new FileDataSource(attachFile);
             pat.setDataHandler(new DataHandler(fds));
             pat.setFileName(attach.getDisplayName());
             mp.addBodyPart(pat);
-        }        
+        }
     }
 
     public static Vector<AddressListEntry> parseAddressList(String list) {
@@ -1025,7 +1023,7 @@ public class EmailSender extends TimerTask {
 
         for (NGPageIndex ngpi : NGPageIndex.getAllContainer()) {
             // start by clearing any outstanding locks in every loop
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
 
             if (!ngpi.isProject()) {
                 continue;

@@ -191,7 +191,7 @@ public class GWTUploadServlet extends UploadAction {
             e.printStackTrace();
             throw new UploadActionException(e.getMessage());
         } finally {
-            NGPageIndex.clearAllLock();
+            NGPageIndex.clearLocksHeldByThisThread();
         }
 
         // / Remove files from session because we have a copy of them

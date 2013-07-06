@@ -121,7 +121,9 @@
 </html>
 
 <%@ include file="functions.jsp"%>
-<%  NGPageIndex.clearAllLock(); %>
+<%
+    NGPageIndex.clearLocksHeldByThisThread();
+%>
 <%!public void writeCommas(Writer out, String val)
         throws Exception
     {

@@ -27,11 +27,11 @@
                 <th>bookKey</th>
             </thead>
         <%
-        for (NGPageIndex ngpi : NGPageIndex.getAllContainer())
-        {
+            for (NGPageIndex ngpi : NGPageIndex.getAllContainer())
+                {
             //start by clearing any outstanding locks in every loop
-            NGPageIndex.clearAllLock();
-    
+            NGPageIndex.clearLocksHeldByThisThread();
+            
             if (!ngpi.isProject())
             {
                 continue;
