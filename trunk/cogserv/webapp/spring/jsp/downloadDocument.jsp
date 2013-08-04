@@ -13,6 +13,7 @@ Required parameters:
 
     String pageId   = ar.reqParam("pageId");
     String aid      = ar.reqParam("aid");
+    String version  = ar.defParam("version", null);
 
 %><%!String pageTitle = "";%><%
     response.setCharacterEncoding("UTF-8"); // Otherwise platform default encoding will be used to write the characters.
@@ -23,9 +24,7 @@ Required parameters:
     NGPage ngp =NGPageIndex.getProjectByKeyOrFail(pageId);
 
     AttachmentRecord attachment = ngp.findAttachmentByIDOrFail(aid);
-    AttachmentVersion aVer = attachment.getLatestVersion(ngp);
-    File attachFile = aVer.getLocalFile();
-    long fileSize = attachFile.length();
+    long fileSize = attachment.getFileSize(ngp);
 
     boolean canAccessDoc = AccessControl.canAccessDoc(ar, ngp, attachment);
 
@@ -185,7 +184,7 @@ Required parameters:
                         <tr>
                             <td class="gridTableColummHeader">Version:</td>
                             <td style="width: 20px;"></td>
-                            <td><%=attachment.getVersion()%> of <%= aVer.getNumber() %>
+                            <td><%=attachment.getVersion()%>
                              - Size: <%=fileSize%> bytes</td>
                         </tr>
                         <%

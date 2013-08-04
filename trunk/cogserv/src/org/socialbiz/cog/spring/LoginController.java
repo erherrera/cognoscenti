@@ -328,7 +328,7 @@ public class LoginController extends BaseController {
             //at this point log them in and create profile
             up = UserManager.createUserWithId(email);
             anonPage.removeProfileRequest(chosen.getId());
-            anonPage.saveUserPage(ar, "requested to create profile for "+email);
+            anonPage.saveFile(ar, "requested to create profile for "+email);
             ar.setLoggedInUser(up, email,null,null);
             UserManager.writeUserProfilesToFile();
 
@@ -451,7 +451,7 @@ public class LoginController extends BaseController {
                 String gotowait = ar.retPath+"t/waitForEmail.htm?email="+URLEncoder.encode(email, "UTF-8")
                         +"&option="+URLEncoder.encode("Reset Password", "UTF-8")
                         +"&go="+URLEncoder.encode(go, "UTF-8");
-                anonPage.saveUserPage(ar, "requested to change password for "+email);
+                anonPage.saveFile(ar, "requested to change password for "+email);
                 response.sendRedirect(gotowait);
                 return;
             }
@@ -469,7 +469,7 @@ public class LoginController extends BaseController {
                 String gotowait = ar.retPath+"t/waitForEmail.htm?email="+URLEncoder.encode(email, "UTF-8")
                         +"&option="+URLEncoder.encode("Create New Profile", "UTF-8")
                         +"&go="+URLEncoder.encode(go, "UTF-8");
-                anonPage.saveUserPage(ar, "requested to create profile for "+email);
+                anonPage.saveFile(ar, "requested to create profile for "+email);
                 response.sendRedirect(gotowait);
                 return;
             }

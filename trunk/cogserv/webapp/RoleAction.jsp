@@ -7,9 +7,7 @@
 %><%@page import="org.socialbiz.cog.NGRole"
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="java.net.URLEncoder"
-%><%
-
-    //This can be used by people who are already a player of the role,
+%><%//This can be used by people who are already a player of the role,
     //to allow others to become players as well, or to remove them from the role
     //This allows a person who is a player to remove themselves.
 
@@ -91,12 +89,11 @@
         HistoryRecord.createHistoryRecord(ngp,
                 u, HistoryRecord.CONTEXT_TYPE_ROLE,
                 historyAction, ar, descript);
-        ngp.savePage(ar, descript);
+        ngp.saveFile(ar, descript);
     }
     else
     {
         throw new Exception("RoleAction needs to be taught how to save role changes on other containers");
     }
-    response.sendRedirect(go);
-%>
+    response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>

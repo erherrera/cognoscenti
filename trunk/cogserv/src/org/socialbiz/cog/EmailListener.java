@@ -3,13 +3,11 @@ package org.socialbiz.cog;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -41,22 +39,20 @@ public class EmailListener extends TimerTask{
     private final static long EVERY_TWENTY_SECONDS = 1000*20;
 
     private static Session session = null;
-    private Store store = null;
-    private static Folder popFolder = null;
 
     private File emailPropFile = null;
     private static Properties emailProperties = null;
     private AuthRequest ar;
-
-    private boolean exceptionThrownAlready = false;
+    private static HashSet<String> alreadyProcessed = new HashSet<String>();
 
     public static boolean propertiesChanged = false;
+    public static long lastFolderRead;
 
     private EmailListener() throws Exception
     {
         this.ar = AuthDummy.serverBackgroundRequest();
         this.emailPropFile = ConfigFile.getFile("EmailNotification.properties");
-        setEmailProperties();
+        setEmailProperties(emailPropFile);
     }
 
     /**
@@ -84,18 +80,14 @@ public class EmailListener extends TimerTask{
          }
          catch(Exception e)
          {
-             if(!exceptionThrownAlready){
-
-                 Exception failure = new Exception("Failure in the EmailListener thread run method. Thread died.", e);
-                 ar.logException("Failure in the EmailListener thread run method. Thread died.", failure);
-                 threadLastCheckException = failure;
-                 exceptionThrownAlready = true;
-                 try {
-                     SuperAdminLogFile.setEmailListenerPropertiesFlag(false);
-                     SuperAdminLogFile.setEmailListenerProblem(failure);
-                 } catch (Exception ex) {
-                     ar.logException("Could not set EmailListenerPropertiesFlag in superadmin.logs file.", ex);
-                 }
+             Exception failure = new Exception("Failure in the EmailListener thread run method. Thread died.", e);
+             ar.logException("EMAIL LISTENER PROBLEM: ", failure);
+             threadLastCheckException = failure;
+             try {
+                 SuperAdminLogFile.setEmailListenerPropertiesFlag(false);
+                 SuperAdminLogFile.setEmailListenerProblem(failure);
+             } catch (Exception ex) {
+                 ar.logException("Could not set EmailListenerPropertiesFlag in superadmin.logs file.", ex);
              }
          }
      }
@@ -108,7 +100,13 @@ public class EmailListener extends TimerTask{
             }
 
             String user = emailProperties.getProperty("mail.pop3.user");
+            if (user==null || user.length()==0) {
+                throw new Exception("In order to read email, there must be a setting for 'mail.pop3.user' in "+emailPropFile.getAbsolutePath()+".");
+            }
             String pwd = emailProperties.getProperty("mail.pop3.password");
+            if (pwd==null || pwd.length()==0) {
+                throw new Exception("In order to read email, there must be a setting for 'mail.pop3.password' in "+emailPropFile.getAbsolutePath()+".");
+            }
 
             if (user == null || user.length() == 0 || pwd == null || pwd.length() == 0) {
                 throw new NGException("nugen.exception.email.config.incorrect.invalid.user.or.password",
@@ -117,7 +115,7 @@ public class EmailListener extends TimerTask{
 
             return Session.getInstance(emailProperties, new EmailAuthenticator(user, pwd));
         }catch (Exception e) {
-            throw new NGException("nugen.exception.email.unable.to.create.session",null,e);
+            throw new NGException("nugen.exception.email.unable.to.create.session",new String[]{"user", "pwd"},e);
         }
     }
 
@@ -135,37 +133,49 @@ public class EmailListener extends TimerTask{
         }
     }
 
-    public void  connectToMailServer()throws Exception {
+    private Folder connectToMailServer()throws Exception {
+        Store store = null;
         try {
 
             store = getPOP3Store();
             store.connect();
 
-            popFolder = store.getFolder("INBOX");
+            Folder popFolder = store.getFolder("INBOX");
             popFolder.open(Folder.READ_WRITE);
+            if (!popFolder.isOpen()) {
+                throw new Exception("for some reason the 'INBOX' folder was not opened.");
+            }
 
-            exceptionThrownAlready = false;
             SuperAdminLogFile.setEmailListenerPropertiesFlag(true);
+
+            return popFolder;
 
         }catch (MessagingException me) {
             throw new NGException("nugen.exception.email.unable.to.connect.to.mail.server",null,me);
         } finally {
             // close the store.
+            // but wait!  Won't that close the folder?
             if (store != null) {
+                /*
                 try {
                     store.close();
                 } catch (MessagingException me) {
-                    /* ignore this exception */
+                    // ignore this exception
                 }
+                */
             }
         }
     }
 
     private void handlePOP3Folder() throws Exception {
+        Folder popFolder = null;
         try {
 
-            connectToMailServer();
+            popFolder = connectToMailServer();
 
+            if (!popFolder.isOpen()) {
+                throw new Exception("for some reason the 'INBOX' folder was not opened.");
+            }
             Message[] messages = popFolder.getMessages();
             if (messages == null || messages.length == 0) {
                 // nothing to process.
@@ -178,20 +188,32 @@ public class EmailListener extends TimerTask{
 
             for (int i = 0; i < messages.length; i++) {
                 Message message = messages[i];
+
                 // most of the POP mail servers/providers does not support flags
                 // for other then delete
                 if (message.isSet(Flag.DELETED)) {
                     continue;
                 }
 
+                String signature = message.getSubject() + message.getSentDate();
+                if (alreadyProcessed.contains(signature)) {
+                    //skip processing of messages already seen
+                    continue;
+                }
+                alreadyProcessed.add(signature);
+
                 try {
                     processEmailMsg(message);
-                } catch (Exception processingError) {
-                    processingError.printStackTrace();
-                    // handle the exception here. but don't throw rethrow.
-                    throw new NGException("nugen.exception.email.listner.thread.process.fail",null, processingError);
+                }
+                catch (Exception e) {
+                    //failure of one message should not stop the processing of other email messages
+                    //this is kind of dangerous...should have a list of previously processed
+                    //messages someplace.
+                    ar.logException("Error Processing Message "+i, e);
                 }
             }
+            lastFolderRead = System.currentTimeMillis();
+
         }catch (Exception e) {
             throw new NGException("nugen.exception.email.listner.thread.read.fail",null, e);
         }finally {
@@ -208,40 +230,28 @@ public class EmailListener extends TimerTask{
     private void processEmailMsg(Message message) throws Exception {
         try{
 
-            List<String> toAddresses = new ArrayList<String>();
-            Address[] recipients = message.getRecipients(Message.RecipientType.TO);
-            for (Address address : recipients) {
-                toAddresses.add(address.toString());
-            }
-
             createNoteFromMail(message);
-
-            handleEmailAttachments(message);
+            message.setFlag(Flag.DELETED, true);
 
         }catch (Exception e) {
             //May be in this case we should also send reply to sender stating that 'note could not be created due to some reason'.
             throw new NGException("nugen.exception.could.not.process.email", new Object[]{message.getSubject()},e);
-        }finally{
-            message.setFlag(Flag.DELETED, true);
         }
     }
 
     public void createNoteFromMail(Message message) throws Exception {
+        String subject = message.getSubject();
         try{
             Address[] recipientAdrs= message.getAllRecipients();
-            String pageId =  getPageId(recipientAdrs[0].toString());
-            if(pageId == null){
-                throw new NGException("nugen.exception.project.id.not.found",null);
-            }
-            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
+            String pageKey =  getProjectKey(recipientAdrs[0].toString(), subject);
+            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageKey);
 
             NoteRecord note = ngp.createNote();
 
-            String subject = message.getSubject();
             note.setSubject( subject );
 
-            note.setVisibility(1);
-            note.setEditable(1);
+            note.setVisibility(SectionDef.MEMBER_ACCESS);
+            note.setEditable(NoteRecord.EDIT_MEMBER);
 
             String bodyText = getEmailBody(message);
             HtmlToWikiConverter htmlToWikiConverter = new HtmlToWikiConverter();
@@ -258,27 +268,40 @@ public class EmailListener extends TimerTask{
             note.setLastEditedBy(fromAdd);
 
             ngp.save(fromAdrs[0].toString(), ar.nowTime,"");
-            NGPageIndex.releaseLock(ngp);
 
+            handleEmailAttachments(ngp, message);
+
+            NGPageIndex.releaseLock(ngp);
         }catch(Exception e){
-            throw new NGException("nugen.exception.cant.create.note.from.msg", new Object[]{message},e);
+            throw new NGException("nugen.exception.cant.create.note.from.msg", new Object[]{subject},e);
         }
     }
 
     private String getFromAddress(String fromAdr) {
-        String fromAddress = null;
-        if(fromAdr.contains("<") && fromAdr.contains(">")){
-            fromAddress = fromAdr.substring(fromAdr.indexOf("<")+1, fromAdr.indexOf(">"));
+        int startBrace = fromAdr.indexOf("<");
+        int endBrace = fromAdr.indexOf(">");
+        if(startBrace >= 0 && endBrace > startBrace+1) {
+            return fromAdr.substring(startBrace+1, endBrace);
         }
-        return fromAddress;
+        return fromAdr;
     }
 
-    private String getPageId(String recipientAdr) {
-        String pageId = null;
-        if(recipientAdr.contains("+") && recipientAdr.contains("@")){
-            pageId = recipientAdr.substring(recipientAdr.indexOf("+")+1, recipientAdr.indexOf("@"));
+    private String getProjectKey(String recipientAdr, String subject) throws Exception {
+        int afterPlusPos = recipientAdr.indexOf("+")+1;
+        int atPos = recipientAdr.indexOf("@");
+        if(afterPlusPos > 0 && atPos > afterPlusPos){
+            return recipientAdr.substring(afterPlusPos, atPos);
         }
-        return pageId;
+
+        //no clue in the to address, so try the subject
+        int afterStartBrace = subject.indexOf("[cog:")+5;
+        int endBrace = subject.indexOf("]");
+        if(afterStartBrace > 4 && endBrace > afterStartBrace){
+            return subject.substring(afterStartBrace, endBrace);
+        }
+
+        throw new Exception("Unable to find a page id in the destination email address: ("
+                +recipientAdr+") or in subject: ("+subject+")");
     }
 
     private static String getEmailBody(Message msg) throws Exception {
@@ -333,28 +356,33 @@ public class EmailListener extends TimerTask{
         char[] buf = new char[3333];
         int len = isr.read(buf);
         while (len>0) {
-        	out.write(buf, 0, len);
-        	len = isr.read(buf);
+            out.write(buf, 0, len);
+            len = isr.read(buf);
         }
         return out.getBuffer();
     }
 
-    private void handleEmailAttachments(Message message) throws Exception {
+    private void handleEmailAttachments(NGPage ngp, Message message) throws Exception {
         try{
             Address[] fromAdrs = message.getFrom();
             String fromAdd = getFromAddress(fromAdrs[0].toString());
 
             Multipart mp = (Multipart) message.getContent();
-            String pageId =  getPageId(message.getAllRecipients()[0].toString());
-            for (int i = 0, n = mp.getCount(); i < n; i++) {
-                Part part = mp.getBodyPart(i);
-                String disposition = part.getDisposition();
-                if ((disposition != null) && ((disposition.equals(Part.ATTACHMENT) || (disposition.equals(Part.INLINE))))) {
+            if (true)  {
+                for (int i = 0, n = mp.getCount(); i < n; i++) {
+                    Part part = mp.getBodyPart(i);
+                    String disposition = part.getDisposition();
+                    if (disposition == null)  {
+                        //what is this if it is null???
+                        continue;
+                    }
+                    if (disposition.equals(Part.ATTACHMENT) ||
+                            disposition.equals(Part.INLINE)) {
 
-                    InputStream is = part.getInputStream();
-                    String fileName = part.getFileName();
-
-                    createDocumentRecord(pageId,is, fileName, fromAdd);
+                        InputStream is = part.getInputStream();
+                        String fileName = part.getFileName();
+                        createDocumentRecord(ngp, is, fileName, fromAdd);
+                    }
                 }
             }
         }catch (Exception e) {
@@ -362,41 +390,28 @@ public class EmailListener extends TimerTask{
         }
     }
 
-    private void createDocumentRecord(String pageId,InputStream is,String fileName,String fromAdd) throws Exception {
+    private void createDocumentRecord(NGPage ngp,InputStream is,String fileName,String fromAdd) throws Exception {
         try{
-            if(pageId == null){
-                throw new NGException("nugen.exception.project.id.not.found",null);
-            }
-            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
             ar.assertContainerFrozen(ngp);
             ar.setPageAccessLevels(ngp);
             String fileExtension = fileName.substring(fileName.indexOf("."));
 
-            //AttachmentHelper.uploadNewDocument(ar, ngp, tempFile, fileName, 1, "Uploaded through received Email.");
-
-            int visibility = 1;
             int version = 0;
-            AttachmentRecord attachment = null;
-            List<AttachmentRecord> att = ngp.getAllAttachments();
-            for (AttachmentRecord attachmentRecord : att) {
-                if(attachmentRecord.getDisplayName().equals(fileName)){
-                    attachment = attachmentRecord;
-                    version = attachment.getVersion();
-                    visibility = attachment.getVisibility();
-                    break;
-                }
-            }
+            AttachmentRecord attachment = ngp.findAttachmentByName(fileName);
             if(attachment == null){
                 attachment =  ngp.createAttachment();
+                attachment.setDisplayName(fileName);
+                attachment.setVisibility(1);
+            }
+            else {
+                version = attachment.getVersion();
             }
 
-            attachment.setDisplayName(fileName);
             attachment.setComment("Uploaded through received Email.");
             attachment.setModifiedBy(fromAdd);
             attachment.setModifiedDate(System.currentTimeMillis());
             attachment.setType("FILE");
             attachment.setVersion(version+1);
-            attachment.setVisibility(visibility);
 
             saveUploadedFile(ar, attachment, is,fileExtension,fromAdd,ngp);
 
@@ -408,73 +423,24 @@ public class EmailListener extends TimerTask{
         }
     }
 
-    public static String saveUploadedFile(AuthRequest ar, AttachmentRecord att,
+    public static void saveUploadedFile(AuthRequest ar, AttachmentRecord att,
            InputStream is,String fileExtension, String fromAdd, NGContainer ngp) throws Exception {
 
-        // first make sure that the server is configured properly
-        String attachFolder = ar.getSystemProperty("attachFolder");
-        if (attachFolder == null) {
-            throw new NGException("nugen.exception.system.configured.incorrectly", new Object[]{"attachFolder"});
-        }
-        File localRoot = new File(attachFolder);
-        if (!localRoot.exists()) {
-            throw new NGException("nugen.exception.incorrect.setting.for.attachfolder", new Object[]{attachFolder});
-        }
-        if (!localRoot.isDirectory()) {
-            throw new NGException("nugen.exception.incorrectfile.setting.for.attachfolder", new Object[]{attachFolder});
-        }
+        att.streamNewVersion(ar, ngp, is);
 
-
-        File tempFile = File.createTempFile("~editaction",  fileExtension);
-        tempFile.delete();
-        saveToFileEML(is, tempFile);
-        FileInputStream fis = new FileInputStream(tempFile);
-        tempFile.delete();
-        AttachmentVersion av = AttachmentVersionSimple.getNewSimpleVersion(ngp.getKey(), att.getId(),
-                fileExtension, fis);
-
-        //update the record
-        att.setVersion(av.getNumber());
-        att.setStorageFileName(av.getLocalFile().getName());
         att.setModifiedDate(System.currentTimeMillis());
+
+        //TODO: is this the right setting?  What if this is not a real user?
         att.setModifiedBy(fromAdd);
-
-        return fileExtension;
     }
 
-    public static void saveToFileEML(InputStream is, File destinationFile)throws Exception {
-        if (destinationFile == null) {
-            throw new IllegalArgumentException("Can not save file.  Destination file must not be null.");
-        }
+    private Properties setEmailProperties(File emailPropFile) throws Exception {
 
-        if (destinationFile.exists()) {
-            throw new NGException("nugen.exception.file.already.exist", new Object[]{destinationFile});
-        }
-        File folder = destinationFile.getParentFile();
-        if (!folder.exists()) {
-            throw new NGException("nugen.exception.folder.not.exist", new Object[]{destinationFile});
-        }
-
-        try {
-            FileOutputStream fileOut = new FileOutputStream(destinationFile);
-            int ret = 0;
-            byte[] buff = new byte[2048];
-            while( (ret = is.read(buff)) > 0 ){
-                fileOut.write(buff, 0, ret);
-            }
-            fileOut.close();
-        } catch (Exception e) {
-            throw new NGException("nugen.exception.failed.to.save.file", new Object[]{destinationFile}, e);
-        }
-    }
-
-    private Properties setEmailProperties() throws Exception {
-
-        emailProperties = new Properties();
         if (!emailPropFile.exists()) {
             throw new NGException("nugen.exception.incorrect.sys.config", new Object[]{emailPropFile.getAbsolutePath()});
         }
 
+        emailProperties = new Properties();
         FileInputStream fis = new FileInputStream(emailPropFile);
         emailProperties.load(fis);
 

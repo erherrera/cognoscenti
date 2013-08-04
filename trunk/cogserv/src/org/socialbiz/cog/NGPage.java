@@ -399,33 +399,27 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
-    public void savePage(AuthRequest ar, String comment)
-        throws Exception
-    {
-        try
-        {
+    public void saveFile(AuthRequest ar, String comment) throws Exception {
+        try {
             setLastModify(ar);
-
             save();
-
-            if (hasNonDefaultAccount)
-            {
+            if (hasNonDefaultAccount) {
                 account.saveFile(ar, comment);
             }
 
             // commit the modified files to the CVS.
             CVSUtil.commit(address, ar.getBestUserId(), comment);
 
-            //update the inmemory index because the file has changed
+            // update the inmemory index because the file has changed
             NGPageIndex.refreshOutboundLinks(this);
 
-            //Update blocking Queue
+            // Update blocking Queue
             NGPageIndex.postEventMsg(this.getKey());
 
         }
-        catch (Exception e)
-        {
-            throw new NGException("nugen.exception.unable.to.write.file", new Object[]{address}, e);
+        catch (Exception e) {
+            throw new NGException("nugen.exception.unable.to.write.file", 
+                    new Object[] { address }, e);
         }
     }
 
@@ -1243,7 +1237,7 @@ public class NGPage extends ContainerCommon implements NGContainer
 
 
     public void saveContent(AuthRequest ar, String comment) throws Exception{
-        savePage( ar, comment );
+        saveFile( ar, comment );
     }
 
 

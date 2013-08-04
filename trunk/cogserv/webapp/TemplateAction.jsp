@@ -35,7 +35,7 @@
         throw new Exception("Don't understand action: "+action);
     }
 
-    uPage.saveUserPage(ar,action);
+    uPage.saveFile(ar,action);
 
     response.sendRedirect(go);
 %>

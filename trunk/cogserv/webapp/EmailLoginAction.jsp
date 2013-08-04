@@ -66,7 +66,7 @@
             String gotowait = ar.retPath+"t/waitForEmail.htm?email="+URLEncoder.encode(email, "UTF-8")
                     +"&option="+URLEncoder.encode("Reset Password", "UTF-8")
                     +"&go="+URLEncoder.encode(go, "UTF-8");
-            anonPage.saveUserPage(ar, "requested to change password for "+email);
+            anonPage.saveFile(ar, "requested to change password for "+email);
             response.sendRedirect(gotowait);
             return;
         }

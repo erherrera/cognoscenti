@@ -12,8 +12,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Unable to set account.");
 
     String p = ar.reqParam("p");
@@ -61,9 +60,7 @@
     }
 
     ngp.setAccount(ngb);
-    ngp.savePage(ar, "Set Account");
-    response.sendRedirect(go);
-
-%>
+    ngp.saveFile(ar, "Set Account");
+    response.sendRedirect(go);%>
 
 <%@ include file="functions.jsp"%>

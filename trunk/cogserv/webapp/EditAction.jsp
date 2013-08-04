@@ -6,8 +6,7 @@
 %><%@page import="org.socialbiz.cog.NGPageIndex"
 %><%@page import="org.socialbiz.cog.NGSection"
 %><%@page import="org.socialbiz.cog.SectionUtil"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't edit this section.");
 
     //here we are testing is TomCat is configured correctly.  If it is this value
@@ -40,7 +39,7 @@
             return;
         }
         ngs.setText(val, ar);
-        ngp.savePage(ar, "Edit Action");
+        ngp.saveFile(ar, "Edit Action");
     }
     String returnToAddress = redirectToViewLevel(ar, ngp, ngs.def.viewAccess);
 
@@ -49,8 +48,7 @@
         returnToAddress = "Edit.jsp?s="+SectionUtil.encodeURLData(section)
                          +"&p="+SectionUtil.encodeURLData(p);
     }
-    response.sendRedirect(returnToAddress);
-%>
+    response.sendRedirect(returnToAddress);%>
 <%@ include file="functions.jsp"%>
 
 <%!

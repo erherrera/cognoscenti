@@ -36,7 +36,7 @@
     th.scanAllTask();
     th.syncTasksToProfile(uPage);
 
-    uPage.saveUserPage(ar,"Synchronize Goals from Projects");
+    uPage.saveFile(ar,"Synchronize Goals from Projects");
 
     response.sendRedirect(go);
 

@@ -1,6 +1,10 @@
 package org.socialbiz.cog;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
 import org.w3c.dom.Document;
 
@@ -86,8 +90,11 @@ public class NGProj extends NGPage
             if (fname.endsWith(".sp")) {
                 continue;
             }
+            if (fname.startsWith(".cog")) {
+                continue;
+            }
+            
             //all others are possible documents at this point
-
             AttachmentRecord att = null;
             for (AttachmentRecord knownAtt : list) {
                 if (fname.equals(knownAtt.getDisplayName())) {
@@ -102,6 +109,16 @@ public class NGProj extends NGPage
             att.setType("EXTRA");
             list.add(att);
         }
+        for (AttachmentRecord knownAtt : list) {
+            AttachmentVersion aVer = knownAtt.getLatestVersion(this);
+            if (aVer==null) {
+                continue;
+            }
+            File attFile = aVer.getLocalFile();
+            if (!attFile.exists()) {
+                knownAtt.setType("GONE");
+            }
+        }
     }
 
 
@@ -113,6 +130,28 @@ public class NGProj extends NGPage
                 attachParent.removeChild(att);
                 break;
             }
+        }
+    }
+ 
+    public void saveFile(AuthRequest ar, String comment) throws Exception {
+        super.saveFile(ar, comment);
+        assureLaunchingPad(ar);
+    }
+    
+    public void assureLaunchingPad(AuthRequest ar) throws Exception {
+        File launchFile = new File(containingFolder, ".cogProjectView.htm");
+        if (!launchFile.exists()) {
+            boolean previousUI = ar.isNewUI();
+            ar.setNewUI(true);
+            OutputStream os = new FileOutputStream(launchFile);
+            Writer w = new OutputStreamWriter(os, "UTF-8");
+            w.write("<html><body><script>document.location = \"");
+            UtilityMethods.writeHtml(w, ar.baseURL);
+            UtilityMethods.writeHtml(w, ar.getResourceURL(this, "public.htm"));
+            w.write("\";</script></body></html>");
+            w.flush();
+            w.close();
+            ar.setNewUI(previousUI);
         }
     }
 }

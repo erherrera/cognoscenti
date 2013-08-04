@@ -34,11 +34,13 @@
     if ("Add".equals(cmd)) {
 
         att.setType("FILE");
-        File curFile = att.getLatestVersion(ngp).getLocalFile();
-        att.setAttachTime(curFile.lastModified());
-        att.setModifiedDate(curFile.lastModified());
+        AttachmentVersion aVer = att.getLatestVersion(ngp);
+        if (aVer!=null) {
+	        File curFile = aVer.getLocalFile();
+	        att.setAttachTime(curFile.lastModified());
+	        att.setModifiedDate(curFile.lastModified());
+        }
         att.setModifiedBy(ar.getBestUserId());
-
     }
     else if ("Remove".equals(cmd)) {
 

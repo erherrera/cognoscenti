@@ -3,6 +3,7 @@
 %><%@page import="org.socialbiz.cog.CustomRole"
 %><%@page import="org.socialbiz.cog.RoleRequestRecord"
 %><%@page import="org.socialbiz.cog.SuperAdminLogFile"
+%><%@page import="org.socialbiz.cog.EmailListener"
 %><%@page import="java.util.Date"
 %>
 <%
@@ -12,6 +13,11 @@
 
 <div class="content tab01">
     <div style="height:20px">&nbsp;</div>
+    <div class="generalHeading">Email Access</div>
+    <div class="generalContent">
+    Email Address: <% ar.writeHtml(EmailListener.getEmailProperties().getProperty("mail.smtp.from")); %><br/>
+    Token:  [cog:<% ar.writeHtml(ngp.getKey()); %>] - include this in the subject to address this project.
+    </div>
     <div class="generalHeading">Watch project</div>
     <div class="generalContent">
     <%

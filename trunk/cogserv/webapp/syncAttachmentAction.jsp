@@ -22,7 +22,6 @@
     ar.assertLoggedIn("Can't create an attachment.");
 %>
 <%
-
     Hashtable params = new Hashtable();
     Enumeration sElements = request.getParameterNames();
     while (sElements.hasMoreElements())
@@ -62,9 +61,8 @@
         throw new Exception("Don't understand the operation: "+action);
     }
 
-    ngp.savePage(ar, "Modified attachments");
+    ngp.saveFile(ar, "Modified attachments");
     response.sendRedirect(ar.getResourceURL(ngp,"attach.htm"));
-
 %>
 <%@ include file="functions.jsp"%>
 

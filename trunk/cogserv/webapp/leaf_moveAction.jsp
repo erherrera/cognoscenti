@@ -74,6 +74,9 @@
             newDoc.copyFrom(oldDoc);
 
             AttachmentVersion oldVers = oldDoc.getLatestVersion(hookProj);
+            if (oldVers==null) {
+                continue;
+            }
             File oldFile = oldVers.getLocalFile();
             FileInputStream fis = new FileInputStream(oldFile);
             newDoc.streamNewVersion(ar,ngp,fis);
@@ -95,8 +98,8 @@
             task.setMovedTo(ngp.getKey(), newTask.getId());
         }
 
-        hookProj.savePage(ar, "moved resources to project: "+ngp.getFullName());
-        ngp.savePage(ar, "received resources from project: "+hookProj.getFullName());
+        hookProj.saveFile(ar, "moved resources to project: "+ngp.getFullName());
+        ngp.saveFile(ar, "received resources from project: "+hookProj.getFullName());
         response.sendRedirect(go);
     }
     catch (Exception e) {

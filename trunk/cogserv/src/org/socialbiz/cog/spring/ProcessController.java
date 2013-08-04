@@ -259,7 +259,7 @@ public class ProcessController extends BaseController {
                         HistoryRecord.CONTEXT_TYPE_TASK, eventType,
                         ar, "");
 
-        ngp.savePage(ar, CREATE_TASK);
+        ngp.saveFile(ar, CREATE_TASK);
     }
 
 
@@ -381,7 +381,7 @@ public class ProcessController extends BaseController {
             HistoryRecord.createHistoryRecord(ngp, task.getId(),
                     HistoryRecord.CONTEXT_TYPE_TASK, eventType, ar, comments);
 
-            ngp.savePage(ar, "Edit Work Item");
+            ngp.saveFile(ar, "Edit Work Item");
 
             JSONObject jo = new JSONObject();
             jo.put("msgType", "success");
@@ -472,7 +472,7 @@ public class ProcessController extends BaseController {
                     HistoryRecord.CONTEXT_TYPE_TASK,
                     HistoryRecord.EVENT_TYPE_MODIFIED, ar, "");
 
-            ngp.savePage(ar, CREATE_TASK);
+            ngp.saveFile(ar, CREATE_TASK);
 
             return redirectBrowser(ar,go);
         }catch(Exception ex){
@@ -595,7 +595,7 @@ public class ProcessController extends BaseController {
                             ar, accomp);
             String go = ar.reqParam("go");
 
-            ngp.savePage(ar, "updated a task status");
+            ngp.saveFile(ar, "updated a task status");
 
             return redirectBrowser(ar,go);
 
@@ -661,7 +661,7 @@ public class ProcessController extends BaseController {
             paramMap.put(Constant.MSG_TYPE,SUCCESS_LOCAL);
             paramMap.put(Constant.MSG_DETAIL,"Update Order Successfull");
             responseMessage = paramMap.toString();
-            ngp.savePage(ar, "Reordered the tasks");
+            ngp.saveFile(ar, "Reordered the tasks");
         }catch (Exception ex) {
             responseMessage = NGWebUtils.getExceptionMessageForAjaxRequest(ex, ar.getLocale());
             ar.logException("Caught by SUCCESS_LOCAL.ajax", ex);

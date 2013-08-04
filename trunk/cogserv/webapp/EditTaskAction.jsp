@@ -224,7 +224,7 @@
             task.getId(), HistoryRecord.CONTEXT_TYPE_TASK,
             eventType, ar, accomp);
 
-    ngp.savePage(ar, "Edit Task");
+    ngp.saveFile(ar, "Edit Task");
     response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>
 <%!

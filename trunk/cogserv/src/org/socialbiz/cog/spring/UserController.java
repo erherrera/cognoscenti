@@ -578,7 +578,7 @@ public class UserController extends BaseController {
             HistoryRecord.createHistoryRecord(project, role.getName(),
                 HistoryRecord.CONTEXT_TYPE_ROLE,
                 HistoryRecord.EVENT_TYPE_CREATED, ar, "");
-            project.savePage(ar, "Add New Role "+roleName+" to roleList");
+            project.saveFile(ar, "Add New Role "+roleName+" to roleList");
 
             return redirectBrowser(ar,"permission.htm");
 
@@ -1029,7 +1029,7 @@ public class UserController extends BaseController {
                 newReq.setUserKey(up.getKey());
                 newReq.sendEmail(ar, go);
 
-                anonPage.saveUserPage(ar, "requested to add Id "+newid);
+                anonPage.saveFile(ar, "requested to add Id "+newid);
             }else{
                 up.addId(newid);
                 up.setLastUpdated(ar.nowTime);
@@ -1691,7 +1691,7 @@ public class UserController extends BaseController {
             newReq.sendEmail(ar, go);
             up.setName(ar.defParam("name", ""));
 
-            anonPage.saveUserPage(ar, "requested to add Id "+newid);
+            anonPage.saveFile(ar, "requested to add Id "+newid);
 
             JSONObject paramMap = new JSONObject();
             paramMap.put(Constant.MSG_TYPE , Constant.SUCCESS);

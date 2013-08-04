@@ -16,8 +16,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't create a page.");
 
     //here we are testing is TomCat is configured correctly.  If it is this value
@@ -92,7 +91,7 @@
         process.addLicensedParent(parent);
     }
 
-    ngp.savePage(ar, "Creating a page");
+    ngp.saveFile(ar, "Creating a page");
     ar.setPageAccessLevels(ngp);
 
     //now, link up the page with the parent
@@ -136,8 +135,7 @@
         }
     }
 
-    response.sendRedirect(ar.getResourceURL(ngp,""));
-%>
+    response.sendRedirect(ar.getResourceURL(ngp,""));%>
 <%!//make search friendly urls
     public String sanitizeHyphenate(String p)
         throws Exception

@@ -93,7 +93,7 @@ public class FolderAccessHelper {
         }
 
         cSet.setLastModified(ar.nowTime);
-        up.saveUserPage(ar, "requested to create folder " +  displayName);
+        up.saveFile(ar, "requested to create folder " +  displayName);
     }
 
 
@@ -102,7 +102,7 @@ public class FolderAccessHelper {
         UserPage up = ar.getUserPage();
         ConnectionSettings cSet = up.getConnectionSettingsOrFail(fid);
         cSet.setDeleted(true);
-        up.saveUserPage(ar, "requested to delete connection ");
+        up.saveFile(ar, "requested to delete connection ");
     }
 
 
@@ -512,7 +512,7 @@ public class FolderAccessHelper {
         {
             cSet.setFolderPassword(pwd);
         }
-        up.saveUserPage(ar, "requested to update the the password of connection " +ar);
+        up.saveFile(ar, "requested to update the the password of connection " +ar);
     }
 
 
@@ -572,7 +572,7 @@ public class FolderAccessHelper {
             ar.nowTime, HistoryRecord.EVENT_DOC_UPDATED, ar, "");
 
         ngp.setLastModify(ar);
-        ngp.savePage(ar, "Linked a remote attachments");
+        ngp.saveFile(ar, "Linked a remote attachments");
 
         return true;
     }

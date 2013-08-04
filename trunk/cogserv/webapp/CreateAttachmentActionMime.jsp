@@ -80,8 +80,8 @@
         String key = (String) en.nextElement();
         if (key.startsWith("rmFileId"))
         {
-            String value = (String) params.get(key);
-            rmFileIdVect.add(value);
+    String value = (String) params.get(key);
+    rmFileIdVect.add(value);
         }
     }
     String[] filesToBeRemoved = new String[rmFileIdVect.size()];
@@ -100,16 +100,16 @@
         String ftype    = reqParamSpecial(params, "ftype");
         if (!ftype.equals("FILE"))
         {
-            throw new Exception("This action jsp can not handle the attachment type: "+ftype);
+    throw new Exception("This action jsp can not handle the attachment type: "+ftype);
         }
         attachment.setType("FILE");
         if (destFolder.equals("*PUB*"))
         {
-            attachment.setVisibility(1);
+    attachment.setVisibility(1);
         }
         else
         {
-            attachment.setVisibility(2);
+    attachment.setVisibility(2);
         }
         setDisplayName(ngp, attachment, displayName);
         saveUploadedFile(ar, ufs, attachment, fileName);
@@ -131,13 +131,12 @@
         ReminderRecord rRec= rMgr.findReminderByID(reminderid);
         if (rRec!=null)
         {
-            rRec.setClosed();
+    rRec.setClosed();
         }
     }
 
-    ngp.savePage(ar, "Modified attachments");
+    ngp.saveFile(ar, "Modified attachments");
     response.sendRedirect(ar.getResourceURL(ngp,"attach.htm"));
-
 %>
 <%@ include file="functions.jsp"%>
 
