@@ -235,6 +235,9 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
                 //getting the version requested.  Why are they asking for a version that
                 //does not exist?
                 attachmentVersion = att.getLatestVersion(ngp);
+                if (attachmentVersion==null) {
+                    throw new NGException("nugen.exception.unable.to.serve.attachment", new Object[]{att.getType()});
+                }
             }
 
             File attachmentFile =  attachmentVersion.getLocalFile();

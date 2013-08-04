@@ -70,7 +70,7 @@
         throw new Exception("Don't understand that action: "+action);
     }
 
-    ngp.savePage(ar, "modified section "+section);
+    ngp.saveFile(ar, "modified section "+section);
 
     response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>

@@ -85,9 +85,11 @@ public class UserPage extends ContainerCommon
 
 
 
-    public void saveUserPage(AuthRequest ar, String comment)
-        throws Exception
-    {
+    public void saveUserPage(AuthRequest ar, String comment) throws Exception {
+        saveFile(ar,comment);
+    }
+    
+    public void saveFile(AuthRequest ar, String comment) throws Exception {
         setLastModify(ar);
         save();
     }

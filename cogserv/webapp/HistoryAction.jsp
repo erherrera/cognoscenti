@@ -25,8 +25,7 @@
 %><%@page import="java.net.URL"
 %><%@page import="java.io.OutputStream"
 %><%@page import="org.w3c.dom.NodeList"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't edit a work item.");
     boolean createNewSubPage = false;
 
@@ -54,7 +53,7 @@
                 "0", HistoryRecord.CONTEXT_TYPE_PROCESS,
                 eventType, ar, newStatus);
 
-        ngp.savePage(ar, "Edit Work Item");
+        ngp.saveFile(ar, "Edit Work Item");
     }
     else
     {
@@ -62,6 +61,5 @@
     }
 
 
-    response.sendRedirect(go);
-%>
+    response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>

@@ -378,7 +378,7 @@ public class ProjectSync
         }
 
 
-        local.savePage(ar, "Synchronized notes and documents from upstream project");
+        local.saveFile(ar, "Synchronized notes and documents from upstream project");
     }
 
 

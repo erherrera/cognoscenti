@@ -65,7 +65,7 @@
                     InputStream is = link.openStream();
                     AttachmentVersion av = newAtt.streamNewVersion(ar, ngp, is);
                     newAtt.setModifiedDate(stat.timeRemote);
-                    ngp.savePage(ar, "Downloaded a file from beamUp project");
+                    ngp.saveFile(ar, "Downloaded a file from beamUp project");
                     found=true;
                     break;
                 }
@@ -81,7 +81,7 @@
                     note.setSubject(stat.nameRemote);
                     note.setData(stat.urlRemote);
                     note.setLastEdited(stat.timeRemote);
-                    ngp.savePage(ar, "Downloaded a Note from beamUp project");
+                    ngp.saveFile(ar, "Downloaded a Note from beamUp project");
                     found=true;
                     break;
                 }

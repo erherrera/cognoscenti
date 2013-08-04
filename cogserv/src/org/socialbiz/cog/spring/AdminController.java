@@ -54,7 +54,7 @@ public class AdminController extends BaseController {
             process.setSynopsis(ar.reqParam("goal"));
             process.setDescription(ar.reqParam("purpose"));
 
-            ngp.savePage(ar, "Changed Goal and/or Purpose of Project");
+            ngp.saveFile(ar, "Changed Goal and/or Purpose of Project");
             NGPageIndex.refreshOutboundLinks(ngp);
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.admin.change.goal", new Object[]{project,account} , ex);
@@ -134,7 +134,7 @@ public class AdminController extends BaseController {
             }
             ngp.setPageNames(nameSet);
 
-            ngp.savePage(ar, "Change Name Action");
+            ngp.saveFile(ar, "Change Name Action");
 
             modelAndView = new ModelAndView(new RedirectView( "admin.htm"));
         }catch(Exception ex){
@@ -167,7 +167,7 @@ public class AdminController extends BaseController {
                 nameSet = shrink(nameSet, oldPos);
                 ngp.setPageNames(nameSet);
             }
-            ngp.savePage(ar, "Change Name Action");
+            ngp.saveFile(ar, "Change Name Action");
 
             modelAndView = new ModelAndView(new RedirectView( "admin.htm") );
         }catch(Exception ex){
@@ -441,7 +441,7 @@ public class AdminController extends BaseController {
             }else if("unfreezeProject".equals(operation)){
                 ngp.unfreezeProject();
             }
-            ngp.savePage(ar, "Updated allow public document.");
+            ngp.saveFile(ar, "Updated allow public document.");
 
             JSONObject jo = new JSONObject();
             jo.put(Constant.MSG_TYPE , Constant.SUCCESS);
@@ -483,7 +483,7 @@ public class AdminController extends BaseController {
                         ngp.setDefRemoteFolder(defFolder);
                     }
                 }
-                ngp.savePage(ar, "Updated default location of project.");
+                ngp.saveFile(ar, "Updated default location of project.");
                 modelAndView = new ModelAndView(new RedirectView( "admin.htm"));
                 modelAndView.addObject("folderId", null);
                 modelAndView.addObject("path", null);
@@ -566,7 +566,7 @@ public class AdminController extends BaseController {
 
             ngp.setProjectMailId(ar.defParam("projectMailId",""));
 
-            ngp.savePage(ar, "Changed Goal and/or Purpose of Project");
+            ngp.saveFile(ar, "Changed Goal and/or Purpose of Project");
             NGPageIndex.refreshOutboundLinks(ngp);
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.admin.update.project.settings", new Object[]{project,account} , ex);

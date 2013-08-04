@@ -62,7 +62,7 @@
         }
     }
     //save these updates now
-    uPage.saveUserPage(ar, "Change to status report "+stat.getId());
+    uPage.saveFile(ar, "Change to status report "+stat.getId());
     response.sendRedirect("PStatus3.jsp?srid="+stat.getId());
 
 %>

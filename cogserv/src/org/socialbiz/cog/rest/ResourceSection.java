@@ -147,7 +147,7 @@ public class ResourceSection  implements NGResource
         Element element_section = lindoc.getDocumentElement();
         updateDataContent(ngp,ngs,element_section);
 
-        ngp.savePage(lar,"Section Created");
+        ngp.saveFile(lar,"Section Created");
 
         //Create Status
         lrstatus.setResourceid(ngp.getKey());
@@ -166,7 +166,7 @@ public class ResourceSection  implements NGResource
         lar.setPageAccessLevels(ngp);
         lar.assertAuthor("Must be an admin of the page in order to remove a  section");
         ngp.removeSection(lname);
-        ngp.savePage(lar,"Delete Section");
+        ngp.saveFile(lar,"Delete Section");
 
         //Delete Status
         lrstatus.setResourceid(ngp.getKey());
@@ -193,7 +193,7 @@ public class ResourceSection  implements NGResource
         Element element_section = lindoc.getDocumentElement();
         updateDataContent(ngp,ngs,element_section);
 
-        ngp.savePage(lar,"Update Section");
+        ngp.saveFile(lar,"Update Section");
          //Create Status
         lrstatus.setResourceid(ngp.getKey());
         String secAddr = lserverURL + "p/" + ngp.getKey() + "/s/" + lname + "/section.xml";
@@ -258,7 +258,7 @@ public class ResourceSection  implements NGResource
         Element element_section = lindoc.getDocumentElement();
         updateDataContent(ngp,ngs,element_section);
 
-        ngp.savePage(lar,"Update Data");
+        ngp.saveFile(lar,"Update Data");
          //Create Status
         if(nlid.length() >0){
             lrstatus.setResourceid(nlid);
@@ -301,7 +301,7 @@ public class ResourceSection  implements NGResource
 
         NGSection ngs = ngp.getSectionOrFail(lname);
         ngs.setLastModify(lar);
-        ngp.savePage(lar, "Delete Data");
+        ngp.saveFile(lar, "Delete Data");
 
         //Delete Status
         lrstatus.setResourceid(ngp.getKey());

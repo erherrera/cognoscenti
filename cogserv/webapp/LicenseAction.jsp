@@ -11,8 +11,7 @@
 %><%@page import="org.socialbiz.cog.ProcessRecord"
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.GoalRecord"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Unable to create a licenses.");
     boolean createNewSubPage = false;
 
@@ -36,9 +35,8 @@
         lr.setCreator(ar.getBestUserId());
         lr.setRole(role);
         lr.setReadOnly(readOnly!=null);
-        ngp.savePage(ar, action);
+        ngp.saveFile(ar, action);
     }
 
-    response.sendRedirect(go);
-%>
+    response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>

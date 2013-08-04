@@ -9,8 +9,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't  change the name of this page.");
 
     String p = ar.reqParam("p");
@@ -57,11 +56,9 @@
             ngp.setPageNames(nameSet);
         }
     }
-    ngp.savePage(ar, "Change Name Action");
+    ngp.saveFile(ar, "Change Name Action");
 
-    response.sendRedirect(go);
-
-%><%@ include file="functions.jsp"
+    response.sendRedirect(go);%><%@ include file="functions.jsp"
 %><%!
 
     // compare the sanitized versions of the names in the array, and if

@@ -16,8 +16,7 @@
 %><%@page import="java.io.InputStreamReader"
 %><%@page import="org.w3c.dom.Document"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Unable to edit parent process links.");
 
     String p = ar.reqParam("p");
@@ -75,7 +74,7 @@
 
         process.addLicensedParent(destUrl);
         ngs.setLastModify(ar);
-        ngp.savePage(ar, "Edit Task");
+        ngp.saveFile(ar, "Edit Task");
 
         response.sendRedirect(goToUrl.toString());
         return;
@@ -92,11 +91,10 @@
 
         process.addLicensedParent(destUrl);
         ngs.setLastModify(ar);
-        ngp.savePage(ar, "Edit Task");
+        ngp.saveFile(ar, "Edit Task");
 
         response.sendRedirect(go);
         return;
-    }
-%>
+    }%>
 <%@ include file="functions.jsp"%>
 

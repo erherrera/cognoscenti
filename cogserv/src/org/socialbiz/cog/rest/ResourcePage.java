@@ -190,7 +190,7 @@ public class ResourcePage implements NGResource
             }
         }
 
-        ngp.savePage(lar, "Creating a page from a REST API request");
+        ngp.saveFile(lar, "Creating a page from a REST API request");
         NGPageIndex.makeIndex(ngp);
 
         //Create Status
@@ -437,7 +437,7 @@ public class ResourcePage implements NGResource
             }
         }
 
-        ngp.savePage(lar, "");
+        ngp.saveFile(lar, "");
 
          //Create Status
         lrstatus.setResourceid(ngp.getKey());
@@ -598,7 +598,7 @@ public class ResourcePage implements NGResource
             String remark = DOMUtils.textValueOfChild(element_license, "remark", true);
             lr.setNotes(remark);
             newids = newids +"," + id;
-            ngp.savePage(lar, "Create License");
+            ngp.saveFile(lar, "Create License");
         }
 
         if(newids.startsWith(",")) {
@@ -689,7 +689,7 @@ public class ResourcePage implements NGResource
                 String remark = DOMUtils.textValueOfChild(element_license, "remark", true);
                 lr.setNotes(remark);
                 newids = newids +"," + id;
-                ngp.savePage(lar, "Create License");
+                ngp.saveFile(lar, "Create License");
             }
         }
 

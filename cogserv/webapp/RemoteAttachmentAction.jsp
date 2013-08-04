@@ -17,8 +17,7 @@
 %><%@page import="java.net.URLDecoder"
 %><%@page import="java.util.Properties"
 %><%@page import="java.util.StringTokenizer"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't create an attachment.");
 
     Hashtable params = new Hashtable();
@@ -58,10 +57,8 @@
         throw new Exception("Don't understand the operation: "+ action);
     }
 
-    ngp.savePage(ar, "Modified attachments");
-    response.sendRedirect(ar.getResourceURL(ngp,"attach.htm"));
-
-%>
+    ngp.saveFile(ar, "Modified attachments");
+    response.sendRedirect(ar.getResourceURL(ngp,"attach.htm"));%>
 <%@ include file="functions.jsp"%>
 
 <%!

@@ -127,14 +127,9 @@ public class EmailSender extends TimerTask {
         props.load(fis);
 
         // Some settings should not be settings, and should instead be fixed to
-        // these values
-        props.put("mail.contenttype", "text/html;charset=UTF-8"); // we always
-                                                                  // generate
-                                                                  // UTF-8 html
-
+        // these values.   we always generate UTF-8 html
+        props.put("mail.contenttype", "text/html;charset=UTF-8");
         emailProperties = props;
-
-        getProperty("mail.smtp.from", "no-reply@example.com");
     }
 
     /**
@@ -928,6 +923,9 @@ public class EmailSender extends TimerTask {
                 continue;
             }
             AttachmentVersion aVer = attach.getLatestVersion(ngc);
+            if (aVer==null) {
+                continue;
+            }
             File attachFile = aVer.getLocalFile();
 
             // Put a file in the part

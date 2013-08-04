@@ -195,7 +195,7 @@ public class AccountController extends BaseController {
                 ngb.getSecondaryRole().addPlayer(ale);
                 ngb.setDescription( ar.reqParam("description") );
 
-                ngb.save(modUser, ar.nowTime, "New Account created");
+                ngb.saveFile(ar, "New Account created");
                 NGPageIndex.makeIndex(ngb);
 
                 //Change the status accepted

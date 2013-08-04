@@ -11,8 +11,7 @@
 %><%@page import="java.util.Hashtable"
 %><%@page import="java.util.Properties"
 %><%@page import="java.util.StringTokenizer"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't delete a project.");
 
     String p        = ar.reqParam("p");
@@ -34,8 +33,6 @@
     {
         throw new Exception("Don't understand that action: '"+action+"'");
     }
-    ngp.savePage(ar, action);
-    response.sendRedirect(ar.getResourceURL(ngp,"admin.htm"));
-
-%>
+    ngp.saveFile(ar, action);
+    response.sendRedirect(ar.getResourceURL(ngp,"admin.htm"));%>
 <%@ include file="functions.jsp"%>

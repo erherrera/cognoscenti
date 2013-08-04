@@ -74,7 +74,7 @@ public class RemoteLinkController extends BaseController {
                 throw new ProgramLogicError("syncSharePointAttachment.htm does not understand the operation: "+action);
             }
 
-            ngp.savePage(ar, "Modified attachments");
+            ngp.saveFile(ar, "Modified attachments");
             response.sendRedirect(ar.baseURL+"t/"+accountId+"/"+pageId+"/attachment.htm");
 
         }catch(Exception ex){
@@ -178,12 +178,12 @@ public class RemoteLinkController extends BaseController {
                    if ("checkin".equals(value))
                    {
                        fah.uploadAttachment(ngp, aid);
-                       ngp.savePage(ar, "Modified attachments");
+                       ngp.saveFile(ar, "Modified attachments");
                    }
                    else if ("checkout".equals(value))
                    {
                        fah.refreshAttachmentFromRemote(ngp, aid);
-                       ngp.savePage(ar, "Modified attachments");
+                       ngp.saveFile(ar, "Modified attachments");
                    }
                }
             }

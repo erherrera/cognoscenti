@@ -681,6 +681,9 @@ public class AttachmentRecord extends DOMFace {
             return -1;
         }
         AttachmentVersion av = getLatestVersion(ngc);
+        if (av==null) {
+            return -1;
+        }
         File f = av.getLocalFile();
         return f.length();
     }

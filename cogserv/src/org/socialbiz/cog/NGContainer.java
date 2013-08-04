@@ -258,6 +258,7 @@ public interface NGContainer
     */
     public String getThemePath();
 
+    public void saveFile(AuthRequest ar, String comment) throws Exception;
     public void save(String modUser, long modTime, String comment)throws Exception;
 
     /**

@@ -63,8 +63,8 @@
                 taskid, HistoryRecord.CONTEXT_TYPE_TASK,
                 HistoryRecord.EVENT_TYPE_MODIFIED, ar, accomp);
         }
-        ngpx.savePage(ar, "User updating their status");
-        uPage.saveUserPage(ar,"User updating their status");
+        ngpx.saveFile(ar, "User updating their status");
+        uPage.saveFile(ar,"User updating their status");
 
         response.sendRedirect(go+"#"+taskid);
         return;

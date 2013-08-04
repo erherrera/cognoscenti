@@ -16,8 +16,7 @@
 %><%@page import="java.util.Hashtable"
 %><%@page import="java.util.Properties"
 %><%@page import="java.util.StringTokenizer"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't edit an attachment.");
 
     String p        = ar.reqParam("p");
@@ -28,8 +27,6 @@
 
     ngp.scanForNewFiles();
 
-    ngp.savePage(ar, "Refresh Folder");
-    response.sendRedirect(ar.getResourceURL(ngp,"attach.htm"));
-
-%>
+    ngp.saveFile(ar, "Refresh Folder");
+    response.sendRedirect(ar.getResourceURL(ngp,"attach.htm"));%>
 <%@ include file="functions.jsp"%>

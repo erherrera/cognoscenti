@@ -7,8 +7,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't  change the goal/purpose of this page.");
 
     String p = ar.reqParam("p");
@@ -29,13 +28,11 @@
         process.setSynopsis(goal);
         process.setDescription(purpose);
         ngp.setUpstreamLink(beam);
-        ngp.savePage(ar, "Changed Goal and/or Purpose of Project");
+        ngp.saveFile(ar, "Changed Goal and/or Purpose of Project");
     }
     else
     {
         throw new Exception("ChangeGoalAction page does not understand the action: "+action);
     }
 
-    response.sendRedirect(go);
-
-%><%@ include file="functions.jsp"%>
+    response.sendRedirect(go);%><%@ include file="functions.jsp"%>

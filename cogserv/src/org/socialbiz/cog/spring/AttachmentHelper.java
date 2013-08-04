@@ -56,7 +56,7 @@ public class AttachmentHelper {
         HistoryRecord.createHistoryRecord(ngc, attachment.getId(), HistoryRecord.CONTEXT_TYPE_DOCUMENT,
                 ar.nowTime, HistoryRecord.EVENT_DOC_ADDED, ar, "");
 
-        ngc.save(modUser, ar.nowTime, comment);
+        ngc.saveFile(ar, comment);
     }
 
     public static void updateAttachment(AuthRequest ar,
@@ -153,7 +153,7 @@ public class AttachmentHelper {
         ar.nowTime, HistoryRecord.EVENT_DOC_UPDATED, ar, "");
 
         ngp.setLastModify(ar);
-        ngp.savePage(ar, "Modified attachments");
+        ngp.saveFile(ar, "Modified attachments");
     }
 
     //Will remove this function while cleaning AccountDocumentController
@@ -429,13 +429,13 @@ public class AttachmentHelper {
         ar.nowTime, HistoryRecord.EVENT_DOC_UPDATED, ar, "");
 
         ngp.setLastModify(ar);
-        ngp.savePage(ar, "Updatd remote attachments");
+        ngp.saveFile(ar, "Updatd remote attachments");
     }
 
     public static void unlinkDocFromRepository(AuthRequest ar, String aid, NGPage ngp) throws Exception{
         AttachmentRecord attachment = ngp.findAttachmentByIDOrFail(aid);
         attachment.setRemoteCombo(null);
-        ngp.savePage(ar, "Unlinked attachment from repository");
+        ngp.saveFile(ar, "Unlinked attachment from repository");
     }
 
     public static void linkToRemoteFile( AuthRequest ar, NGPage ngp, String aid,
@@ -455,6 +455,6 @@ public class AttachmentHelper {
             ar.nowTime, HistoryRecord.EVENT_DOC_UPDATED, ar, "");
 
         ngp.setLastModify(ar);
-        ngp.savePage(ar, "Modified attachments");
+        ngp.saveFile(ar, "Modified attachments");
     }
 }

@@ -75,7 +75,7 @@ public class CreateProjectController extends BaseController {
                     HistoryRecord.createHistoryRecord(page,newUser,HistoryRecord.CONTEXT_TYPE_PERMISSIONS,
                             0,HistoryRecord.EVENT_PLAYER_ADDED, ar, roleName);
                 }
-                page.savePage(ar, "Add New Members ("+roleMembers.size()+") to Role "+roleName);
+                page.saveFile(ar, "Add New Members ("+roleMembers.size()+") to Role "+roleName);
 
                 String emailIds = ar.reqParam("rolemember");
                 NGWebUtils.updateUserContactAndSaveUserPage(ar, "Add", emailIds);
@@ -378,7 +378,7 @@ public class CreateProjectController extends BaseController {
         }
 
         ngPage.setAccount(ngb);
-        ngPage.savePage(ar, "Creating a page");
+        ngPage.saveFile(ar, "Creating a page");
 
         NGPageIndex.makeIndex(ngPage);
         ar.setPageAccessLevels(ngPage);
@@ -420,7 +420,7 @@ public class CreateProjectController extends BaseController {
                 }
 
                 project.setAccount(ngb);
-                project.savePage(ar, "Creating a project");
+                project.saveFile(ar, "Creating a project");
                 NGPageIndex.makeIndex(project);
             } else {
                 project = createPage(ar, ngb);
@@ -445,7 +445,7 @@ public class CreateProjectController extends BaseController {
         process.setSynopsis("Goal Setting");
         process.setDescription("Purpose of Projec Setting");
 
-        subProject.savePage(ar, "Changed Goal and/or Purpose of Project");
+        subProject.saveFile(ar, "Changed Goal and/or Purpose of Project");
         LicensedURL parentLicensedURL = null;
 
         if (parentProcessUrl != null && parentProcessUrl.length() > 0) {
@@ -463,7 +463,7 @@ public class CreateProjectController extends BaseController {
             GoalRecord goal = parentProject.getGoalOrFail(goalId);
             goal.setSub(subProcessURL);
             goal.setState(BaseRecord.STATE_WAITING);
-            parentProject.savePage(ar, "Linked with Subprocess");
+            parentProject.saveFile(ar, "Linked with Subprocess");
         }
     }
 }

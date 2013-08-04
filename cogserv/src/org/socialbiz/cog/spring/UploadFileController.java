@@ -158,7 +158,7 @@ public class UploadFileController extends BaseController {
             HistoryRecord.createHistoryRecord(ngp, rRec.getId(), HistoryRecord.CONTEXT_TYPE_DOCUMENT,
                     ar.nowTime, HistoryRecord.EVENT_DOC_ADDED, ar, "Added Reminder for "+assignee);
 
-            ngp.savePage(ar, "Modified attachments");
+            ngp.saveFile(ar, "Modified attachments");
             modelAndView = createRedirectView(ar, "reminders.htm");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.email.reminder", new Object[]{pageId,accountId} , ex);
@@ -293,7 +293,7 @@ public class UploadFileController extends BaseController {
                     ar.nowTime, HistoryRecord.EVENT_DOC_ADDED, ar, "Created Link URL");
 
             attachment.setStorageFileName(taskUrl);
-            ngp.savePage(ar, "Created Link URL");
+            ngp.saveFile(ar, "Created Link URL");
             modelAndView = createRedirectView(ar, "attachment.htm");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.create.link.url.to.project", new Object[]{pageId,accountId} , ex);
@@ -494,7 +494,7 @@ public class UploadFileController extends BaseController {
                 throw new ProgramLogicError("Don't understand the operation: "+ action);
             }
 
-            ngp.savePage(ar, "Modified attachments");
+            ngp.saveFile(ar, "Modified attachments");
             response.sendRedirect(ar.baseURL+"t/"+accountId+"/"+pageId+"/attachment.htm");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.remote.attachment", new Object[]{pageId,accountId} , ex);

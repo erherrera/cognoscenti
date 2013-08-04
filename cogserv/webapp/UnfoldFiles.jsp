@@ -86,6 +86,10 @@
                 continue;
             }
             AttachmentVersion av = att.getLatestVersion(ngp);
+            if (av==null) {
+                //only happens if, for some reason, there is a GONE attachment
+                continue;
+            }
             File sourceFile = av.getLocalFile();
             FileInputStream fis = new FileInputStream(sourceFile);
 

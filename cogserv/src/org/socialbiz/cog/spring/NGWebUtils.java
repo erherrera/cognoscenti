@@ -635,7 +635,7 @@ public class NGWebUtils {
             for (AddressListEntry ale : contactList) {
                 role.addPlayerIfNotPresent(ale);
             }
-            up.saveUserPage(ar, "Added contacts");
+            up.saveFile(ar, "Added contacts");
         }
     }
 
@@ -650,7 +650,7 @@ public class NGWebUtils {
                         .newEntryFromStorage(emailIds);
                 eventType = HistoryRecord.EVENT_PLAYER_REMOVED;
                 role.removePlayer(ale);
-                up.saveUserPage(ar, "removed user " + emailIds + " from role "
+                up.saveFile(ar, "removed user " + emailIds + " from role "
                         + role.getName());
             } else if (op.equals("Add")) {
                 eventType = HistoryRecord.EVENT_PLAYER_ADDED;

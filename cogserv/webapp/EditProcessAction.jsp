@@ -7,8 +7,7 @@
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.HistoryRecord"
 %><%@page import="org.socialbiz.cog.ProcessRecord"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Unable to edit processes.");
 
     //here we are testing is TomCat is configured correctly.  If it is this value
@@ -75,8 +74,7 @@
         process.setPriority(priority);
     }
 
-    ngp.savePage(ar, "Edit Gaol");
+    ngp.saveFile(ar, "Edit Gaol");
 
-    response.sendRedirect(go);
-%>
+    response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>

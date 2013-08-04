@@ -8,8 +8,7 @@
 %><%@page import="org.socialbiz.cog.ProcessRecord"
 %><%@page import="java.util.Vector"
 %><%@page import="java.util.Enumeration"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't update Parent Processes list.");
 
     String p = ar.reqParam("p");
@@ -48,8 +47,7 @@
 
     process.setParentProcesses(pp);
     ngs.setLastModify(ar);
-    ngp.savePage(ar, "Edit Task");
+    ngp.saveFile(ar, "Edit Task");
 
-    response.sendRedirect(go);
-%>
+    response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>

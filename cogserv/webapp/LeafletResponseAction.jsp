@@ -44,7 +44,7 @@
         llr.setData(data);
         llr.setChoice(choice);
         llr.setLastEdited(ar.nowTime);
-        ngp.savePage(ar, "Updated response to note");
+        ngp.saveFile(ar, "Updated response to note");
     }
 
     response.sendRedirect(go);%>

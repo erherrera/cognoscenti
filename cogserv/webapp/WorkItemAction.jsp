@@ -146,6 +146,6 @@
             task.getId(), HistoryRecord.CONTEXT_TYPE_TASK,
             eventType, ar, comments);
 
-    ngp.savePage(ar, action);
+    ngp.saveFile(ar, action);
     response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>

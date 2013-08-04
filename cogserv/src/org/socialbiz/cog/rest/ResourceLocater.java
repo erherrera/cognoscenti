@@ -746,7 +746,7 @@ public class ResourceLocater
                 }
                 String rlicence = lele.getAttribute("id");
                 tr.setFreePass(rlicence);
-                ngp.savePage(lar, "Saving FreePass");
+                ngp.saveFile(lar, "Saving FreePass");
 
                  //Create Status
                 lrstatus.setResourceid(ngp.getKey());

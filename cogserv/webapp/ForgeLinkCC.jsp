@@ -88,7 +88,7 @@
     }
 
     ngs.setLastModify(ar);
-    ngp.savePage(ar, "Linked with Subprocess");
+    ngp.saveFile(ar, "Linked with Subprocess");
 
     response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>
