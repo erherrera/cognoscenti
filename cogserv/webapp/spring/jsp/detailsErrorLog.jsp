@@ -1,4 +1,6 @@
 <%@page errorPage="/spring/jsp/error.jsp"
+%><%@page import="org.socialbiz.cog.ErrorLog"
+%><%@page import="org.socialbiz.cog.ErrorLogDetails"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
 %><%
@@ -7,27 +9,30 @@
 
 Required Parameters:
 
-    1. searchByDate : This parameter is used to search log file, here its passed as hidden attribute in controller.
-    2. goURL        : This is the url of current page which is used when form is successfully processed bt controller.
-
-    3. searchResult : This request attribute provide the search result from the log file of specified date if any.
+    1. errorId      : This parameter specifies the error id to look up and display.
+    2. errorDate    : The date of the log file to find the error in.
+    3. goURL        : This is the url of current page which is used when form is successfully processed bt controller.
 */
 
 
-    HashMap searchResult =(HashMap)request.getAttribute("searchResult");
+    long errorDate = Long.parseLong((String)request.getAttribute("errorDate"));
+    String errorId =(String)request.getAttribute("errorId");
     String searchByDate=ar.reqParam("searchByDate");
     String goURL=ar.reqParam("goURL");
 
+    ErrorLog eLog = ErrorLog.getLogForDate(errorDate);
+    ErrorLogDetails eDetails = eLog.getDetails(errorId);
+
+    String formattedDate = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss.SSS").format(eDetails.getModTime());
+
 %>
 <script type="text/javascript">
-<!--
-Submitting the user comments
-//-->
 
 function postMyComment(){
-document.forms["logUserComents"].submit();
+    document.forms["logUserComents"].submit();
 }
 </script>
+
 <!-- Begin mainContent (Body area) -->
 <div id="mainContent">
     <!-- Content Area Starts Here -->
@@ -38,7 +43,7 @@ document.forms["logUserComents"].submit();
                     <td rowspan="2" width="42px"><img src="<%=ar.retPath %>assets/iconError_BIG.png" width="32" height="32" /></td>
                     <td>
                         <div class="pageHeading">
-                            Details of Error: <%ar.writeHtml(searchResult.get("errorNo").toString()); %>
+                            Details of Error: <%ar.writeHtml(errorId); %>
                         </div>
                     </td>
                 </tr>
@@ -47,25 +52,24 @@ document.forms["logUserComents"].submit();
         <div class="generalSettings">
              <form name="logUserComents" action="logUserComents.form" method="post">
 
-              <input type="hidden" name="errorNo" id="errorNo" value="<%ar.writeHtml(searchResult.get("errorNo").toString()); %>"/>
-              <input type="hidden" name="dateTime" id="dateTime" value="<%ar.writeHtml(searchResult.get("Date&Time").toString()); %>"/>
+              <input type="hidden" name="errorNo" id="errorNo" value="<%ar.writeHtml(errorId); %>"/>
               <input type="hidden" name="searchByDate" id="searchByDate" value="<%ar.writeHtml(searchByDate); %>"/>
               <input type="hidden" name="goURL" id="goURL" value="<%ar.writeHtml(goURL); %>"/>
 
                 <table width="100%" border="0px solid red">
                     <tr>
                       <td style="text-align:left">
-                        <b>Error Message:</b>  <%ar.writeHtmlWithLines(searchResult.get("ErrorMessage").toString()); %>
+                        <b>Error Message:</b>  <%ar.writeHtmlWithLines(eDetails.getErrorMessage()); %>
                         <br /><br />
-                        <b>Page:</b> <a href="<%ar.writeHtml(searchResult.get("URL").toString()); %>"><%ar.writeHtml(searchResult.get("URL").toString()); %></a>
+                        <b>Page:</b> <a href="<%ar.writeHtml(eDetails.getURI()); %>"><%ar.writeHtml( eDetails.getURI()); %></a>
                         <br /><br />
-                        <b>Date & Time:</b> <%ar.writeHtml(searchResult.get("Date&Time").toString()); %>
+                        <b>Date & Time:</b> <%ar.writeHtml(formattedDate); %>
                         <br /><br />
-                        <b>User Detail: </b> <%ar.writeHtml(searchResult.get("userDetails").toString()); %>
+                        <b>User Detail: </b> <%ar.writeHtml(eDetails.getModUser()); %>
                         <br /><br />
                         <b>Comments: </b>
                         <br />
-                        <textarea rows="4" name="comments" id="comments" class="textAreaGeneral"><%ar.writeHtml(searchResult.get("userComments").toString()); %></textarea>
+                        <textarea rows="4" name="comments" id="comments" class="textAreaGeneral"><%ar.writeHtml(eDetails.getUserComment()); %></textarea>
                         <br /><br />
                         <input type="submit" class="inputBtn" value="<fmt:message key="nugen.button.comments.update" />"
                                                                 onclick="postMyComment()">
@@ -89,7 +93,7 @@ document.forms["logUserComents"].submit();
                       <tr>
                           <td style="text-align:left">
                             <div id="errorDetails" class="errorStyle" style="display:none;">
-                            <pre style="overflow:auto;width:900px;"><%ar.writeHtml(searchResult.get("ErrorDescription").toString()); %></pre>
+                            <pre style="overflow:auto;width:900px;"><%ar.writeHtml(eDetails.getErrorDetails()); %></pre>
                             </div>
                           </td>
                       </tr>

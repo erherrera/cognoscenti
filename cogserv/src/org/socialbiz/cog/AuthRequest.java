@@ -1602,7 +1602,7 @@ public class AuthRequest
         long exceptionNO=0;
         try
         {
-            exceptionNO=ErrorLog.logException(msg, ex, nowTimeString, nowTime,
+            exceptionNO=ErrorLog.logException(msg, ex, nowTime,
                 getUserProfile(), getCompleteURL());
         }
         catch (Exception e)

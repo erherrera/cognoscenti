@@ -10,16 +10,6 @@
     NGPage ngp = (NGPage) NGPageIndex.getContainerByKeyOrFail(pageId);
     NGRole role = ngp.getRole("Members");
     String isPersonalTab = "no";
-    String roleName = null;
-    String roleDescription = null;
-    String requestDescription = null;
-    String responseDescription = null;
-    String roleRequestState = null;
-    String leaveRole = null;
-    String joinRole = null;
-    String pending = null;
-    String rejected = null;
-    boolean isPlayer = false;
     String pageTitle = ngp.getFullName();
 %>
 <body class="yui-skin-sam">

@@ -17,6 +17,11 @@
 
     String dataFolder = ar.getSystemProperty("dataFolder");
 
+    if (action.equals("Garbage Collect Pages")) {
+        deleteMarkedPages();
+        action = "Reinitialize Index";
+    }
+
     if (action.equals("Reinitialize Index") || action.equals("Start Email Sender"))
     {
         ServletContext sc = session.getServletContext();
@@ -29,20 +34,13 @@
 
         UserManager.reloadUserProfiles();
     }
-
     else if (action.equals("Remove Disabled Users"))
     {
         UserManager.removeDisabledUsers();
         UserManager.reloadUserProfiles();
     }
-
-    else if (action.equals("Garbage Collect Pages"))
-    {
-        deleteMarkedPages();
-    }
     else if (action.equals("Send Test Email"))
     {
-        //EmailSender.main(new String[0]);
         EmailSender.sendTestEmail();
     }
     else
@@ -52,26 +50,26 @@
 
     response.sendRedirect(go);
 
-%>
+%><%!
 
-<%!public void deleteMarkedPages()
+public void deleteMarkedPages()
         throws Exception
+{
+    Vector v = NGPageIndex.getDeletedContainers();
+    Enumeration e = v.elements();
+    while (e.hasMoreElements())
     {
-        Vector v = NGPageIndex.getDeletedContainers();
-        Enumeration e = v.elements();
-        while (e.hasMoreElements())
+        NGPageIndex ngpi = (NGPageIndex) e.nextElement();
+        File deadFile = new File(ngpi.containerPath);
+        if (deadFile.exists())
         {
-            NGPageIndex ngpi = (NGPageIndex) e.nextElement();
-            File deadFile = new File(ngpi.containerPath);
-            if (deadFile.exists())
-            {
-                deadFile.delete();
-            }
+            deadFile.delete();
         }
-    }%>
+    }
+}
 
+%><%@ include file="functions.jsp"
+%><%
 
-<%@ include file="functions.jsp"%>
-<%
     NGPageIndex.clearLocksHeldByThisThread();
 %>

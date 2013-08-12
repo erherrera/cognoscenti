@@ -33,8 +33,6 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 public class AdminController extends BaseController {
 
-    public static final String LOGIN_MSG = "User must be logged in to perform this operation.";
-
     @RequestMapping(value = "/{account}/{project}/changeGoal.form", method = RequestMethod.POST)
     public ModelAndView changeGoalHandler(@PathVariable String account,@PathVariable String project,
             HttpServletRequest request,
@@ -372,13 +370,14 @@ public class AdminController extends BaseController {
         AuthRequest ar = null;
         String message = "";
         try{
-            ar = getLoggedInAuthRequest(request, response, "message.must.be.login.to.perform.action");
+            ar = AuthRequest.getOrCreate(request, response);
 
             String htmlDom = ar.reqParam("errorData");
             String comments = ar.defParam("user_comments","");
             String errorId = ar.reqParam("errorId");
             String searchByDate = ar.reqParam("dateTime");
-            ErrorLog.logUserComments(errorId ,searchByDate,comments);
+            long searchDate = Long.parseLong(searchByDate);
+            ErrorLog.logUserComments(errorId, searchDate, comments);
 
             sendErrorMessageEmail( ar, htmlDom,comments );
 
@@ -398,13 +397,14 @@ public class AdminController extends BaseController {
         clone.setNewUI(true);
         clone.retPath = ar.baseURL;
         clone.write("<html><body>\n");
-        clone.write("<p>This message was sent by ");
+        clone.write("<p>User got the following error while using Cognoscenti. ");
         if(ar.getUserProfile()!=null){
+            clone.write("Reported by ");
             ar.getUserProfile().writeLink( clone );
+            clone.write( ". " );
         }
 
-        clone.write( " .User got below error while using the Application." );
-        clone.write(" </p>");
+        clone.write("</p>");
 
         if(comments!=null && comments.length()>0){
             clone.write("<h3> Comments from User: </h3>");

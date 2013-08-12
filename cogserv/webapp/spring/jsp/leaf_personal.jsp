@@ -232,24 +232,12 @@
           UserProfile up = ar.getUserProfile();
           String roleMember = up.getUniversalId();
           if(roles!=null){
-              NGRole role = null;
-              String roleName= null;
-              String roleDescription = null;
-              //String roleEligibilty = null;
-              String requestDescription = null;
-              String responseDescription = null;
-              String roleRequestState = null;
-              String leaveRole = null;
-              String joinRole = null;
-              String pending = null;
-              String rejected = null;
               RoleRequestRecord roleRequestRecord = null;
-              boolean isPlayer = false;
               Iterator  iterator = roles.iterator();
               while(iterator.hasNext()){
-                  role = (NGRole)iterator.next();
+                  NGRole role = (NGRole)iterator.next();
           %>
-          <%@include file="join_leave_role_block.jsp"%>
+              <%@include file="join_leave_role_block.jsp"%>
           <%
               }
           }

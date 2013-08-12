@@ -80,6 +80,12 @@ public class UserController extends BaseController {
         binder.registerCustomEditor(byte[].class,new ByteArrayMultipartFileEditor());
     }
 
+    private ModelAndView needAccessView(HttpServletRequest request, String why) {
+        request.setAttribute("property_msg_key", why);
+        return new ModelAndView("Warning");
+    }
+
+
     @RequestMapping(value = "/{userKey}/userProfile.htm", method = RequestMethod.GET)
     public ModelAndView loadProfile(@PathVariable String userKey,
             HttpServletRequest request, HttpServletResponse response)
@@ -1183,13 +1189,12 @@ public class UserController extends BaseController {
             boolean canAccessPage = AccessControl.canAccessRoleRequest(ar, ngp, roleRequestRecord);
 
             if(!canAccessPage){
-                ar.assertLoggedIn("You need to login to perform this function.");
+                 return needAccessView(request, "nugen.project.member.login.msg");
             }
 
             String isAccessThroughEmail = ar.reqParam("isAccessThroughEmail");
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("pageId", pageId);
 
             modelAndView = new ModelAndView("roleRequest");
 

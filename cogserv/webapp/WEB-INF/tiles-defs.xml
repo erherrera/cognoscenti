@@ -90,7 +90,7 @@
         <put-attribute name="body" value="/spring/jsp/leaf_private.jsp" />
     </definition>
 
-    <definition name="admin" extends="baseLayout">
+    <definition name="leaf_admin" extends="baseLayout">
         <put-attribute name="title" value="Admin" />
         <put-attribute name="body" value="/spring/jsp/leaf_admin.jsp" />
     </definition>
@@ -353,7 +353,7 @@
         <put-attribute name="title" value="Attachments" />
         <put-attribute name="body" value="/spring/jsp/UserAccountDocument.jsp" />
     </definition>
-    <definition name="accountSettingPage" extends="baseLayout">
+    <definition name="UserAccountSetting" extends="baseLayout">
         <put-attribute name="title" value="Admin" />
         <put-attribute name="body" value="/spring/jsp/UserAccountSetting.jsp" />
     </definition>

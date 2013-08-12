@@ -6,27 +6,32 @@
 %><%@page import="org.socialbiz.cog.AuthRequest"
 %><%@page import="org.socialbiz.cog.HTMLWriter"
 %><%@page import="org.socialbiz.cog.ErrorLog"
+%><%@page import="org.socialbiz.cog.ErrorLogDetails"
 %><%@page import="java.io.PrintWriter"
 %><%@page import="java.util.Locale"
 %><%String pageTitle = (String) request.getAttribute("pageTitle");
-    String exceptionNO = ar.defParam("exceptionNO",null);
     String userName = "User not logged in";
-    if (ar.isLoggedIn())
-    {
+    if (ar.isLoggedIn()) {
         userName = ar.getUserProfile().getName();
     }
 
-    if (pageTitle == null)
+    if (pageTitle == null) {
         pageTitle = "Error Page";
+    }
 
+    String exceptionNO = ar.defParam("exceptionNO", null);
+
+    //this code was allowing a display to be made of an unlogged exception, logging
+    //it here is a little sloppy.  Should assure that all errors are logged before this page.
     if (exceptionNO == null) {
         exceptionNO=String.valueOf(ar.logException("", exception));
     }
 
-    long todayTime = ar.nowTime;
-    HashMap<String, String> errorResult=ErrorLog.getMapOfPropertiesForOneErrorID(exceptionNO ,String.valueOf(todayTime) );
 
-    String msg = errorResult.get("ErrorDescription").toString();
+    ErrorLog eLog = ErrorLog.getLogForDate(ar.nowTime);
+    ErrorLogDetails eDetails = eLog.getDetails(exceptionNO);
+
+    String msg = eDetails.getErrorDetails();
 
     //get rid of pointless name of exception class that appears in 99% of cases
     if (msg.startsWith("java.lang.Exception: ")) {
@@ -87,16 +92,16 @@
             int counter=0;
             while (runner!=null)
             {
-                msg = runner.toString();
+                String msg1 = runner.toString();
                 if (msg.startsWith("java.lang.Exception: "))
                 {
-                    msg = msg.substring(21);
+                    msg1 = msg.substring(21);
                 }
                 ar.write("\n<br/>");
                 ar.write("\n<li><span style=\"color:#5377ac\"><b>");
                 ar.write(Integer.toString(++counter));
                 ar.write(".  ");
-                ar.writeHtmlWithLines(msg);
+                ar.writeHtmlWithLines(msg1);
                 ar.write("</b></span></li>");
                 runner = runner.getCause();
             }
@@ -115,7 +120,7 @@
         <br/>
         <img src="<%= ar.retPath %>but_process_view.gif" title="Show Error details" onclick="showHideCommnets('stackTrace')">
         <div id="stackTrace" class="errorStyle" style="display:none">
-            <span style="overflow:auto;width:900px;"><%ar.writeHtmlWithLines(errorResult.get("ErrorDescription").toString()); %></span>
+            <span style="overflow:auto;width:900px;"><%ar.writeHtmlWithLines(eDetails.getErrorDetails()); %></span>
         </div>
     </div>
 
