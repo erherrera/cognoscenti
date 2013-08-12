@@ -3,7 +3,6 @@ package org.socialbiz.cog.spring;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -55,7 +54,7 @@ public class SuperAdminController extends BaseController {
 
          try{
              AuthRequest ar = AuthRequest.getOrCreate(request, response);
-             return adminModelSetUp(ar, userKey, "emailListnerSettings", 
+             return adminModelSetUp(ar, userKey, "emailListnerSettings",
                      "nugen.admin.subtab.email");
 
          }catch(Exception ex){
@@ -69,7 +68,7 @@ public class SuperAdminController extends BaseController {
              throws Exception {
          try{
              AuthRequest ar = AuthRequest.getOrCreate(request, response);
-             return adminModelSetUp(ar, userKey, "lastNotificationSend", 
+             return adminModelSetUp(ar, userKey, "lastNotificationSend",
                      "nugen.admin.subtab.last.notification.send");
 
          }catch(Exception ex){
@@ -95,7 +94,7 @@ public class SuperAdminController extends BaseController {
              throws Exception {
          try{
              AuthRequest ar = AuthRequest.getOrCreate(request, response);
-             return adminModelSetUp(ar, userKey, "deniedAccounts", 
+             return adminModelSetUp(ar, userKey, "deniedAccounts",
                      "nugen.admin.subtab.denied.accounts");
 
          }catch(Exception ex){
@@ -111,7 +110,7 @@ public class SuperAdminController extends BaseController {
              AuthRequest ar = NGWebUtils.getAuthRequest(request, response, "User must be logged in as a Super admin to see the error Log.");
              Date date = new SimpleDateFormat("MM/dd/yyyy").parse(searchByDate);
              File xmlFile=ErrorLog.getErrorFileFullPath(date);
-             
+
              if (!xmlFile.exists()) {
                  Document doc = DOMUtils.createDocument("errorlog");
                  doc.getDocumentElement().setAttribute("missingFile", xmlFile.toString());
@@ -129,6 +128,9 @@ public class SuperAdminController extends BaseController {
          }
      }
 
+     /**
+      * TODO: this is ridiculous having the user ID in the path... not needed, not used
+      */
      @RequestMapping(value = "/{userKey}/errorDetails{errorId}.htm", method = RequestMethod.GET)
      public ModelAndView errorDetailsPage(@PathVariable String errorId, @RequestParam String searchByDate,HttpServletRequest request,
              HttpServletResponse response)
@@ -137,9 +139,9 @@ public class SuperAdminController extends BaseController {
          ModelAndView modelAndView = null;
          try{
              AuthRequest ar=NGWebUtils.getAuthRequest(request, response, "User must be logged in as a Super admin to see the error Log.");
-             HashMap<String, String> oneErrorDetails=ErrorLog.getMapOfPropertiesForOneErrorID(errorId ,searchByDate);
              modelAndView = new ModelAndView("detailsErrorLog");
-             modelAndView.addObject("searchResult", oneErrorDetails);
+             modelAndView.addObject("errorId", errorId);
+             modelAndView.addObject("errorDate", searchByDate);
              modelAndView.addObject("goURL", ar.getCompleteURL());
          }catch(Exception ex){
              throw new NGException("nugen.operation.fail.error.detail.page", null , ex);
@@ -157,9 +159,11 @@ public class SuperAdminController extends BaseController {
              String userComments=ar.defParam("comments", "");
 
              String searchByDate=ar.reqParam("searchByDate");
+             long logFileDate = Long.parseLong(searchByDate);
+
              String goURL=ar.reqParam("goURL");
 
-             ErrorLog.logUserComments(errorNo ,searchByDate,userComments);
+             ErrorLog.logUserComments(errorNo, logFileDate, userComments);
              return redirectBrowser(ar,goURL);
          }catch(Exception ex){
              throw new NGException("nugen.operation.fail.error.log.user.comment", null , ex);

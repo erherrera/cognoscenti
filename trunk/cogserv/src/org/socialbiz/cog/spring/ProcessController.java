@@ -66,7 +66,7 @@ public class ProcessController extends BaseController {
             NGPageIndex.assertBook(account);
 
             // call a method for creating new task
-            taskAction(ar, pageId, request, null, false);
+            taskActionCreate(ar, pageId, request, null);
 
             String assignto= ar.defParam("assignto", "");
             NGWebUtils.updateUserContactAndSaveUserPage(ar, "Add",assignto);
@@ -100,29 +100,27 @@ public class ProcessController extends BaseController {
     }
 
     @RequestMapping(value = "/{account}/{pageId}/createSubTask.form", method = RequestMethod.POST)
-    public ModelAndView createSubTask(@PathVariable
-    String account, @PathVariable
-    String pageId, @RequestParam
-    String taskId, HttpServletRequest request, HttpServletResponse response)
+    public ModelAndView createSubTask(@PathVariable String account,
+            @PathVariable String pageId, @RequestParam String taskId,
+            HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             ar.assertLoggedIn("Must be logged in to manipulate tasks.");
             NGPageIndex.assertBook(account);
 
-            taskAction(ar, pageId, request, taskId, false);
+            //TODO: taskId should really be parentTaskId
+            taskActionCreate(ar, pageId, request, taskId);
 
             String assignto= ar.defParam("assignto", "");
             NGWebUtils.updateUserContactAndSaveUserPage(ar, "Add",assignto);
 
             String go = ar.reqParam("go");
-            modelAndView = new ModelAndView(new RedirectView(go));
+            return new ModelAndView(new RedirectView(go));
 
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.create.sub.task", new Object[]{pageId,account} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{account}/{pageId}/subtask.htm", method = RequestMethod.GET)
@@ -152,8 +150,71 @@ public class ProcessController extends BaseController {
         return modelAndView;
     }
 
-    public void taskAction(AuthRequest ar, String pageId,
-            HttpServletRequest request, String parentTaskId, boolean updateTask)
+    private void taskActionUpdate(AuthRequest ar, String pageId,
+            HttpServletRequest request, String parentTaskId)
+            throws Exception
+    {
+       // final boolean updateTask =  true;
+        NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
+        ar.setPageAccessLevels(ngp);
+        ar.assertMember("Must be a member of a project to manipulate tasks.");
+        ar.assertContainerFrozen(ngp);
+
+        UserProfile userProfile = ar.getUserProfile();
+
+        String taskState = ar.reqParam("state");
+        String priority = ar.reqParam("priority");
+
+        GoalRecord task = ngp.getGoalOrFail(parentTaskId);
+        int eventType = HistoryRecord.EVENT_TYPE_MODIFIED;
+        task.setSynopsis(ar.reqParam("taskname_update"));
+
+        task.setDueDate(SectionUtil.niceParseDate(ar.defParam("dueDate_update","")));
+        task.setStartDate(SectionUtil.niceParseDate(ar.defParam("startDate_update","")));
+        task.setEndDate(SectionUtil.niceParseDate(ar.defParam("endDate_update","")));
+
+        String assignto= ar.defParam("assignto", null);
+        String assigneeAddress = null;
+
+        if (assignto!=null && assignto.length()>0) {
+            assigneeAddress = parseEmailId(assignto);
+        }
+        if(assigneeAddress!=null) {
+            //if the assignee is set, use it
+            task.getAssigneeRole().addPlayer(new AddressListEntry(assigneeAddress));
+        }
+        else {
+            //if the assignee is not set, then set assignee to the current user.
+            task.getAssigneeRole().addPlayer(new AddressListEntry(userProfile));
+        }
+
+
+        String processLink = ar.defParam("processLink", "");
+        if (processLink.length()>0) {
+            task.setSub(processLink);
+        }
+
+        task.setPriority(Integer.parseInt(priority));
+        task.setDescription(ar.defParam("description", ""));
+        task.setState(Integer.parseInt(taskState));
+        if(task.getState()==5){
+            task.setPercentComplete(100);
+        }
+
+
+        task.setCreator(userProfile.getUniversalId());
+        task.setModifiedDate(ar.nowTime);
+        task.setModifiedBy(ar.getBestUserId());
+
+        HistoryRecord.createHistoryRecord(ngp, task.getId(),
+                        HistoryRecord.CONTEXT_TYPE_TASK, eventType, ar, "");
+
+        ngp.saveFile(ar, CREATE_TASK);
+    }
+
+
+    private void taskActionCreate(AuthRequest ar, String pageId,
+            HttpServletRequest request, String parentTaskId)
             throws Exception
     {
         NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
@@ -164,45 +225,30 @@ public class ProcessController extends BaseController {
         UserProfile userProfile = ar.getUserProfile();
 
         int eventType;
-        boolean isSubTask = false;
 
         GoalRecord task = null;
+        GoalRecord parentTask = null;
 
-        if (updateTask) {
-            task = ngp.getGoalOrFail(parentTaskId);
-            eventType = HistoryRecord.EVENT_TYPE_MODIFIED;
-            task.setSynopsis(ar.reqParam("taskname_update"));
+
+        boolean isSubTask = (parentTaskId != null && parentTaskId.length() > 0);
+        if (isSubTask) {
+            parentTask = ngp.getGoalOrFail(parentTaskId);
+            task = ngp.createSubGoal(parentTask);
+            eventType = HistoryRecord.EVENT_TYPE_SUBTASK_CREATED;
         } else {
-            isSubTask = (parentTaskId != null && parentTaskId.length() > 0);
-            if (isSubTask) {
-                GoalRecord parentTask = ngp.getGoalOrFail(parentTaskId);
-                task = ngp.createSubGoal(parentTask);
-                eventType = HistoryRecord.EVENT_TYPE_SUBTASK_CREATED;
-            } else {
-                task = ngp.createGoal();
-                eventType = HistoryRecord.EVENT_TYPE_CREATED;
-            }
-            task.setSynopsis(ar.reqParam("taskname"));
+            task = ngp.createGoal();
+            eventType = HistoryRecord.EVENT_TYPE_CREATED;
         }
+        task.setSynopsis(ar.reqParam("taskname"));
 
         if (isSubTask) {
             // set the subtask's due date.
-            task.setDueDate(ngp.getGoalOrFail(parentTaskId).getDueDate());
+            task.setDueDate(parentTask.getDueDate());
         } else {
-            String duedate=null;
-            if (updateTask) {
-                duedate = ar.defParam("dueDate_update","");
-            }else{
-                duedate = ar.defParam("dueDate","");
-            }
+            String duedate = ar.defParam("dueDate","");
             if(duedate.length()>0){
                 task.setDueDate(SectionUtil.niceParseDate(duedate));
             }
-        }
-
-        if (updateTask) {
-            task.setStartDate(SectionUtil.niceParseDate(ar.defParam("startDate_update","")));
-            task.setEndDate(SectionUtil.niceParseDate(ar.defParam("endDate_update","")));
         }
 
         String assignto= ar.defParam("assignto", null);
@@ -230,39 +276,27 @@ public class ProcessController extends BaseController {
             task.setSub(processLink);
         }
 
-        task.setPriority(Integer.parseInt(ar.defParam("priority", "0")));
+        task.setPriority(Integer.parseInt(ar.reqParam("priority")));
         task.setDescription(ar.defParam("description", ""));
-        if (updateTask) {
-            task.setState(Integer.parseInt(ar.defParam("state", "0")));
-            if(task.getState()==5){
-                task.setPercentComplete(100);
-            }
+        // should allow the user to specify the desired state, but if not specified,
+        // the default should be "offered" when creating a task.
+
+        String startOption=ar.defParam("startActivity", "");
+        if(startOption.length()>0){
+            task.setState(BaseRecord.STATE_STARTED);
         }else{
-            // should allow the user to specify the desired state, but if not specified,
-            // the default should be "offered" when creating a task.
-
-            String startOption=ar.defParam("startActivity", "");
-            if(startOption.length()>0){
-                task.setState(BaseRecord.STATE_STARTED);
-            }else{
-                task.setState(BaseRecord.STATE_UNSTARTED);
-            }
-
+            task.setState(BaseRecord.STATE_UNSTARTED);
         }
 
 
-        task.setCreator(userProfile.getUniversalId());
+        task.setCreator(ar.getBestUserId());
         task.setModifiedDate(ar.nowTime);
         task.setModifiedBy(ar.getBestUserId());
 
         HistoryRecord.createHistoryRecord(ngp, task.getId(),
-                        HistoryRecord.CONTEXT_TYPE_TASK, eventType,
-                        ar, "");
-
+                        HistoryRecord.CONTEXT_TYPE_TASK, eventType, ar, "");
         ngp.saveFile(ar, CREATE_TASK);
     }
-
-
 
 
     @RequestMapping(value = "/{account}/{pageId}/task{taskId}.htm", method = RequestMethod.GET)
@@ -277,11 +311,11 @@ public class ProcessController extends BaseController {
             NGPageIndex.assertBook(account);
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
             ar.setPageAccessLevels(ngp);
+
             GoalRecord task = ngp.getGoalOrFail(taskId);
+            boolean canAccessGoal = AccessControl.canAccessGoal(ar, ngp, task);
 
-            boolean canAccessTask = AccessControl.canAccessGoal(ar, ngp, task);
-
-            if(!canAccessTask){
+            if(!canAccessGoal){
                 if(!ar.isLoggedIn()){
                     request.setAttribute("property_msg_key", "message.login.to.see.task.detail");
                 }else if(!ar.isMember()){
@@ -328,13 +362,14 @@ public class ProcessController extends BaseController {
 
             NGPage ngp=null;
 
+            //TODO: this is really sloppy, two different parameters used for same thing!
             if(pId.equals(null)){
                 ngp = (NGPage) NGPageIndex.getContainerByKeyOrFail(pageId);
             }else{
                 ngp = (NGPage) NGPageIndex.getContainerByKeyOrFail(pId);
             }
             ar.setPageAccessLevels(ngp);
-            ar.assertMember("Unable to edit tasks on this page.");
+            ar.assertMember("Must be a member of a project to update tasks.");
 
             String id = ar.reqParam("id");
             GoalRecord task = ngp.getGoalOrFail(id);
@@ -409,6 +444,7 @@ public class ProcessController extends BaseController {
 
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
             ar.setPageAccessLevels(ngp);
+            ar.assertMember("Must be a member of a project to reassign tasks.");
 
             String taskId = ar.reqParam("taskid");
             GoalRecord task = ngp.getGoalOrFail(taskId);
@@ -438,6 +474,7 @@ public class ProcessController extends BaseController {
 
             NGPage ngp =  (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
             ar.setPageAccessLevels(ngp);
+            ar.assertMember("Must be a member of a project to reassign tasks.");
             ar.assertContainerFrozen(ngp);
 
             String taskId = ar.reqParam("taskid");
@@ -492,7 +529,7 @@ public class ProcessController extends BaseController {
             NGPageIndex.assertBook(account);
             String go = ar.reqParam("go");
 
-            taskAction(ar, pageId, request, taskId, true);
+            taskActionUpdate(ar, pageId, request, taskId);
 
             return redirectBrowser(ar,go);
         }catch(Exception ex){
@@ -580,7 +617,7 @@ public class ProcessController extends BaseController {
             String status=ar.defParam("status", "");
             GoalRecord task  = ngp.getGoalOrFail(taskId);
             task.setStatus(status);
-            task.setState(Integer.parseInt(ar.defParam("states", "0")));
+            task.setState(Integer.parseInt(ar.reqParam("states")));
             if(task.getState()==5){
                 task.setPercentComplete(100);
             }else{
@@ -609,13 +646,15 @@ public class ProcessController extends BaseController {
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
 
-        AuthRequest ar = null;
+        AuthRequest ar = AuthRequest.getOrCreate(request, response);
         String responseMessage = "";
         try{
-            ar = AuthRequest.getOrCreate(request, response);
             ar.assertLoggedIn("You need to login to perform this function.");
 
             NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
+            ar.setPageAccessLevels(ngp);
+            ar.assertMember("Must be a member of a project to reorder tasks.");
+
             List<GoalRecord> tasks = ngp.getAllGoals();
 
             //Get the ranks of all the tasks from the browser
@@ -678,36 +717,38 @@ public class ProcessController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             NGPageIndex.assertBook(account);
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(projectId);
+            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(projectId);
+            ar.setPageAccessLevels(ngp);
+            ar.assertMember("Must be a member of a project to get tasks.");
 
             response.setContentType("text/csv;charset=UTF-8");
             MultiLevelNumber numbers = new MultiLevelNumber();
 
             ar.write("Task,Assignee,Status,Percent,StartDate,EndDate,DueDate,Description,ID\n");
 
-            List<GoalRecord> tasks = nGPage.getAllGoals();
+            List<GoalRecord> tasks = ngp.getAllGoals();
             for (GoalRecord task : tasks) {
 
                 int percent = task.getCorrectedPercentComplete();
                 int taskLevel = determineTaskLevel(task);
                 String taskNums = numbers.nextAtLevel(taskLevel);
 
-                writeStrForCsv(ar,taskNums);
-                writeStrForCsv(ar," ");
-                writeStrForCsv(ar,task.getSynopsis());
+                writeWithoutCommas(ar,taskNums);
+                writeWithoutCommas(ar," ");
+                writeWithoutCommas(ar,task.getSynopsis());
                 ar.write(",");
                 NGRole assignee = task.getAssigneeRole();
-                List<AddressListEntry> players = assignee.getExpandedPlayers(nGPage);
+                List<AddressListEntry> players = assignee.getExpandedPlayers(ngp);
                 boolean needspace = false;
                 for (AddressListEntry ale : players) {
                     if (needspace) {
                         ar.write(" ");
                     }
-                    writeStrForCsv(ar,ale.getName());
+                    writeWithoutCommas(ar,ale.getName());
                     needspace = true;
                 }
                 ar.write(",");
-                writeStrForCsv(ar,BaseRecord.stateName(task.getState()));
+                writeWithoutCommas(ar,BaseRecord.stateName(task.getState()));
                 ar.write(",");
                 ar.write(Integer.toString(percent));
                 ar.write("%,");
@@ -717,9 +758,9 @@ public class ProcessController extends BaseController {
                 ar.write(",");
                 writeDateForCsv(ar, task.getDueDate());
                 ar.write(",");
-                writeStrForCsv(ar,task.getDescription());
+                writeWithoutCommas(ar,task.getDescription());
                 ar.write(",");
-                writeStrForCsv(ar,task.getId());
+                writeWithoutCommas(ar,task.getId());
                 ar.write("\n");
             }
             ar.flush();
@@ -732,16 +773,16 @@ public class ProcessController extends BaseController {
     private int determineTaskLevel(GoalRecord task) throws Exception
     {
         int level=0;
-        GoalRecord t2 = task.getParentGoal();
-        while (t2 != null)
+        GoalRecord g3 = task.getParentGoal();
+        while (g3 != null)
         {
             level++;
-            t2 = t2.getParentGoal();
+            g3 = g3.getParentGoal();
         }
         return level;
     }
 
-    private void writeStrForCsv(AuthRequest ar, String str) throws Exception
+    private void writeWithoutCommas(AuthRequest ar, String str) throws Exception
     {
         StringBuffer stripped = new StringBuffer();
         for (int i=0; i<str.length(); i++)

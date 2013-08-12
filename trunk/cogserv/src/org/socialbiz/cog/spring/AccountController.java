@@ -323,7 +323,7 @@ public class AccountController extends BaseController {
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(ngb);
 
-            modelAndView = new ModelAndView("accountSettingPage");
+            modelAndView = new ModelAndView("UserAccountSetting");
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("headerType", "account");
             request.setAttribute("tabId", "Account Settings");

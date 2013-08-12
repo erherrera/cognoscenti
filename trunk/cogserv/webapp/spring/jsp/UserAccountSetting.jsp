@@ -92,6 +92,9 @@
     <div class="generalHeading">Account Settings</div>
     <div class="generalContent">
         <form action="changeAccountDescription.form" method="post">
+            <input type="hidden" name="p" value="<%writeHtml(out,pageFullName);%>">
+            <input type="hidden" name="go" value="<%writeHtml(out,pageAddress);%>">
+            <input type="hidden" name="encodingGuard" value="%E6%9D%B1%E4%BA%AC" />
             <table>
                 <tr><td height="5px"></td></tr>
                 <tr>
@@ -138,9 +141,22 @@
                         <input type="submit" value="Change Theme" name="action" class="inputBtn" />
                     </td>
                 </tr>
-                <input type="hidden" name="p" value="<%writeHtml(out,pageFullName);%>">
-                <input type="hidden" name="go" value="<%writeHtml(out,pageAddress);%>">
-                <input type="hidden" name="encodingGuard" value="%E6%9D%B1%E4%BA%AC" />
+                <tr><td height="10px"></td></tr>
+                <tr>
+                    <td class="gridTableColummHeader_2">Account Key:</td>
+                    <td style="width:20px;"></td>
+                    <td>
+                        <% ar.writeHtml(ngb.getKey()); %>
+                    </td>
+                </tr>
+                <tr><td height="10px"></td></tr>
+                <tr>
+                    <td class="gridTableColummHeader_2">Storage Path:</td>
+                    <td style="width:20px;"></td>
+                    <td>
+                        <% ar.writeHtml(ngb.getPreferredProjectLocation()); %>
+                    </td>
+                </tr>
             </table>
         </form>
     </div>

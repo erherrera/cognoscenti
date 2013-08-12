@@ -87,7 +87,7 @@ public class DataFeedServlet extends HttpServlet {
         String qs = ar.reqParam(PARAM_SEARCHSTRING);
 
         SearchResultRecord[] records = performLuceneSearchOperation(ar, qs);
-        writeSearchRecordsToResponse(ar, records);
+        writeSearchRecordsToResponse(ar, qs, records);
     }
 
     // operation get task list.
@@ -109,7 +109,7 @@ public class DataFeedServlet extends HttpServlet {
     }
 
     /************************ internal methods. ************************/
-    private void writeSearchRecordsToResponse(AuthRequest ar, SearchResultRecord[] records)
+    private void writeSearchRecordsToResponse(AuthRequest ar, String query, SearchResultRecord[] records)
             throws Exception {
         if (ar == null || records == null) {
             throw new ProgramLogicError("writeSearchRecordsToResponse parameter must not be null");
@@ -152,9 +152,10 @@ public class DataFeedServlet extends HttpServlet {
 
         // TODO Duplicate Code.
         resultSetEle.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        resultSetEle.setAttribute("totalResultsAvailable", String.valueOf(records.length));
-        resultSetEle.setAttribute("totalResultsReturned", String.valueOf(records.length));
+        resultSetEle.setAttribute("totalResultsAvailable", Integer.toString(records.length));
+        resultSetEle.setAttribute("totalResultsReturned", Integer.toString(records.length));
         resultSetEle.setAttribute("firstResultPosition", "0");
+        resultSetEle.setAttribute("query", query);
 
         writeXMLToResponse(ar, doc);
     }

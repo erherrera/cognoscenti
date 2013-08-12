@@ -31,6 +31,10 @@ public class DOMFile extends DOMFace
         associatedFile = path;
     }
 
+    public File getFilePath() {
+        return associatedFile;
+    }
+
     public static Document readOrCreateFile(File path, String rootNode)
         throws Exception
     {

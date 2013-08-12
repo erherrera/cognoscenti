@@ -98,6 +98,8 @@ public class RemoteLinkController extends BaseController {
             HttpServletResponse response) throws Exception {
         ModelAndView modelAndView = null;
         try{
+            request.setAttribute("book", accountId);
+            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             NGPageIndex.assertBook(accountId);
             NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
@@ -113,9 +115,7 @@ public class RemoteLinkController extends BaseController {
             }
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("book", accountId);
             request.setAttribute("tabId", "Project Documents");
-            request.setAttribute("pageId", pageId);
             request.setAttribute("title", nGPage.getFullName());
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.sync.share.point.attachment.page", new Object[]{pageId,accountId} , ex);
@@ -148,6 +148,8 @@ public class RemoteLinkController extends BaseController {
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
+            request.setAttribute("book", accountId);
+            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 sendRedirectToLogin(ar, "message.login.sync.attachment",null);

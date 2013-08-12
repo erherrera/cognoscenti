@@ -814,8 +814,9 @@ public class GoalRecord extends BaseRecord {
     }
 
     public void startTheNextTask(List<GoalRecord> tasks) throws Exception {
-        if (tasks == null || tasks.size() == 0)
+        if (tasks == null || tasks.size() == 0) {
             return;
+        }
 
         GoalRecord.sortTasksByRank(tasks);
 
@@ -888,5 +889,31 @@ public class GoalRecord extends BaseRecord {
     public boolean hasSubProcess() throws Exception {
         String sub = getSub();
         return (sub != null && sub.length() > 0);
+    }
+
+    /**
+     * This value, if set, is the GMT time that the wait period is scheduled
+     * to end.  IF the goal is discovered in wait mode after this time, then
+     * it should be reset to active mode.  A setting of zero or negative
+     * indicates that this wakup is disabled.
+     */
+    public void setWaitEnd(long timeout) {
+        setScalar("waitEnd", Long.toString(timeout));
+    }
+    public long getWaitEnd() {
+        return safeConvertLong(getScalar("waitEnd"));
+    }
+
+    /**
+     * WaitPeriod is an expression that specifies what the normal wait
+     * delay will be: day(1), week(1), month(1) or something like that.
+     * An empty string (or null) indicates that there is no specified
+     * normal waiting period.
+     */
+    public void setWaitPeriod(String period) {
+        setScalar("waitPeriod", period);
+    }
+    public String getWaitPeriod() {
+        return getScalar("waitPeriod");
     }
 }

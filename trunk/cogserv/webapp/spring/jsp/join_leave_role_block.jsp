@@ -4,25 +4,19 @@
 %><%@page import="org.socialbiz.cog.RoleRequestRecord"
 %>
 <%
-    roleName=role.getName();
-    roleDescription = role.getDescription();
+    String roleName=role.getName();
+    String roleDescription = role.getDescription();
     String roleEligibilty = role.getRequirements();
-    isPlayer = role.isExpandedPlayer(up, ngp);
+    boolean isPlayer = role.isExpandedPlayer(up, ngp);
 
-    /*if(!isPlayer && "Members".equals(roleName)){
-        NGRole accountExecutive = ngp.getAccount().getRoleOrFail("Executives");
-        if(accountExecutive.isPlayer(new AddressListEntry(roleMember))){
-            isPlayer = true;
-        }
-    }*/
-    leaveRole = "display: block;";
-    joinRole = "display: none;";
-    pending =  "display: none;";
-    rejected =  "display: none;";
+    String leaveRole = "display: block;";
+    String joinRole = "display: none;";
+    String pending =  "display: none;";
+    String rejected =  "display: none;";
     roleRequestRecord = ngp.getRoleRequestRecord(roleName,roleMember);
-    requestDescription = "";
-    responseDescription = "";
-    roleRequestState = "";
+    String requestDescription = "";
+    String responseDescription = "";
+    String roleRequestState = "";
     if(roleRequestRecord != null){
         roleRequestState = roleRequestRecord.getState();
         requestDescription = roleRequestRecord.getRequestDescription();
@@ -63,7 +57,7 @@
         </td>
         <td width="30px" style="text-align:center"><img src="<%=ar.retPath %>/assets/verticalSeperator.gif" alt="" /></td>
     <%} %>
-        
+
         <td>
             <div id="div_<%ar.writeHtml(roleName);%>_on" style="<%ar.writeHtml(leaveRole); %>">
                 <input type="button" name="action" class="inputBtn" value="<fmt:message key='nugen.button.projectsetting.leaverole'/>" onclick="return leaveRole(<%ar.writeQuote4JS(ngp.getKey());%>,'leave_role','<%=ar.retPath %>',<%ar.writeQuote4JS(roleName); %>,<% ar.writeQuote4JS(String.valueOf(ngp.isFrozen())); %>)">
@@ -125,8 +119,8 @@
         <tr><td style="height:10px;"></td></tr>
         <tr><td colspan="3" class="horizontalSeperatorGray"></td></tr>
         <%} %>
-    
-    
+
+
 <script>
  var isFrozen = "<%=ngp.isFrozen()%>";
     function openJoinOrLeaveRoleForm(pageId,action,URL,roleName,rolDescription){
