@@ -123,6 +123,7 @@ public class MainTabsViewControler extends BaseController {
 
             ar.setPageAccessLevels(nGPage);
             if(!ar.isMember()){
+                request.setAttribute("roleName", "Members");
                 return needAccessView(request, "nugen.member.section.memberlogin");
             }
 
@@ -185,6 +186,7 @@ public class MainTabsViewControler extends BaseController {
                 return needAccessView(request, "nugen.project.deleted.notes.login.msg");
             }
             if(!ar.isMember()){
+                request.setAttribute("roleName", "Members");
                 return needAccessView(request, "nugen.projecthome.deletednotes.memberlogin");
             }
 
@@ -289,6 +291,7 @@ public class MainTabsViewControler extends BaseController {
                 return needAccessView(request, "nugen.project.deleted.doc.login.msg");
             }
             if(!ar.isMember()){
+                request.setAttribute("roleName", "Members");
                 return needAccessView(request, "nugen.attachment.deletedattachment.memberlogin");
             }
 
@@ -333,6 +336,7 @@ public class MainTabsViewControler extends BaseController {
                 return needAccessView(request, "nugen.project.gantt.chart.login.msg");
             }
             if(!ar.isMember()){
+                request.setAttribute("roleName", "Members");
                 return needAccessView(request, "nugen.projecthome.task.memberlogin");
             }
 
@@ -373,6 +377,7 @@ public class MainTabsViewControler extends BaseController {
                 return needAccessView(request, "nugen.project.permission.login.msg");
             }
             if(!ar.isMember()){
+                request.setAttribute("roleName", "Members");
                 return needAccessView(request, "nugen.projecthome.permission.memberlogin");
             }
 
@@ -413,6 +418,7 @@ public class MainTabsViewControler extends BaseController {
                 return needAccessView(request, "nugen.project.history.login.msg");
             }
             if(!ar.isMember()){
+                request.setAttribute("roleName", "Members");
                 return needAccessView(request, "nugen.projecthome.projectbulletin.memberlogin");
             }
 
@@ -1161,6 +1167,7 @@ public class MainTabsViewControler extends BaseController {
                 return needAccessView(request, "nugen.project.reminders.login.msg");
             }
             if(!ar.isMember()){
+                request.setAttribute("roleName", "Members");
                 return needAccessView(request, "nugen.projecthome.reminders.memberlogin");
             }
 
@@ -1626,6 +1633,7 @@ public class MainTabsViewControler extends BaseController {
                   return needAccessView(request, "nugen.project.draft.notes.login.msg");
               }
               if(!ar.isMember()){
+                  request.setAttribute("roleName", "Members");
                   return needAccessView(request, "nugen.projecthome.draftnotes.memberlogin");
               }
 
@@ -1677,6 +1685,7 @@ public class MainTabsViewControler extends BaseController {
                   return needAccessView(request, "nugen.project.upload.email.reminder.login.msg");
               }
               if(!ar.isMember()){
+                  request.setAttribute("roleName", "Members");
                   return needAccessView(request, "nugen.projectsettings.emailRecords.memberlogin");
               }
 
@@ -1708,6 +1717,7 @@ public class MainTabsViewControler extends BaseController {
                   return needAccessView(request, "nugen.project.task.login.msg");
               }
               if(!ar.isMember()){
+                  request.setAttribute("roleName", "Members");
                   return needAccessView(request, "nugen.projecthome.task.memberlogin");
               }
 
@@ -1747,6 +1757,7 @@ public class MainTabsViewControler extends BaseController {
                   return needAccessView(request, "nugen.project.task.login.msg");
               }
               if(!ar.isMember()){
+                  request.setAttribute("roleName", "Members");
                   return needAccessView(request, "nugen.projecthome.task.memberlogin");
               }
 
@@ -1786,6 +1797,7 @@ public class MainTabsViewControler extends BaseController {
                   return needAccessView(request, "nugen.project.task.login.msg");
               }
               if(!ar.isMember()){
+                  request.setAttribute("roleName", "Members");
                   return needAccessView(request, "nugen.projecthome.task.memberlogin");
               }
 
@@ -1825,6 +1837,7 @@ public class MainTabsViewControler extends BaseController {
                   return needAccessView(request, "nugen.project.task.login.msg");
               }
               if(!ar.isMember()){
+                  request.setAttribute("roleName", "Members");
                   return needAccessView(request, "nugen.projecthome.task.memberlogin");
               }
 
@@ -1864,6 +1877,7 @@ public class MainTabsViewControler extends BaseController {
                   return needAccessView(request, "nugen.project.task.login.msg");
               }
               if(!ar.isMember()){
+                  request.setAttribute("roleName", "Members");
                   return needAccessView(request, "nugen.projecthome.task.memberlogin");
               }
 

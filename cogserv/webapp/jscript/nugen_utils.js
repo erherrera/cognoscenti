@@ -230,9 +230,7 @@ TabRef = function(href,name,ref){
         }
 
           var arrayOfTabs3 = [new Tab(retPath+"t/"+book+"/"+pageId+"/attachment.htm","List Documents"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/uploadDocument.htm","Upload Document"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/linkURLToProject.htm","Link URL to Project"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/linkToRepository.htm","Link from Repository") ,
+                           new Tab(retPath+"t/"+book+"/"+pageId+"/addDocument.htm","Add Document"),
                            new Tab(retPath+"t/"+book+"/"+pageId+"/syncSharePointAttachmentDisplay.htm","Synchonize") ,
                            new Tab(retPath+"t/"+book+"/"+pageId+"/reminders.htm","Reminders"),
                            new Tab(retPath+"t/"+book+"/"+pageId+"/emailReminder.htm","Send Email Reminder"),

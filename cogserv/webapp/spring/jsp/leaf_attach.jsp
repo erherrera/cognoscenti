@@ -18,17 +18,11 @@
         <%if(ngp.isFrozen()){%>
             openFreezeMessagePopup();
         <%}else{%>
-            if(flag == "newAttachment"){
-                document.getElementById("createDocForm").action = "uploadDocument.htm";
-                document.getElementById("createDocForm").submit();
-            }else if(flag == "linkUrl"){
-                document.getElementById("createDocForm").action = "linkURLToProject.htm";
+            if(flag == "addDocument"){
+                document.getElementById("createDocForm").action = "addDocument.htm";
                 document.getElementById("createDocForm").submit();
             }else if(flag == "emailReminder"){
                 document.getElementById("createDocForm").action = "emailReminder.htm";
-                document.getElementById("createDocForm").submit();
-            }else if(flag == "linkRepository"){
-                document.getElementById("createDocForm").action = "linkToRepository.htm";
                 document.getElementById("createDocForm").submit();
             }else if(flag == "syncDocuments"){
                 document.getElementById("createDocForm").action = "syncSharePointAttachmentDisplay.htm";
@@ -74,20 +68,12 @@
             <tr>
                 <td align="right">
                     <img src="<%=ar.retPath %>assets/iconUpload.png" />
-                    <a href="javascript:onClickAction('newAttachment')"  title="<fmt:message key='nugen.attachment.button.UploadDocument'/>">
+                    <a href="javascript:onClickAction('addDocument')"  title="<fmt:message key='nugen.attachment.button.UploadDocument'/>">
                         <fmt:message key='nugen.attachment.button.UploadDocument'/>
-                    </a>&nbsp;&nbsp;
-                    <img src="<%=ar.retPath %>assets/iconLinkedUrl.png" />
-                    <a href="javascript:onClickAction('linkUrl')"  title="<fmt:message key='nugen.attachment.uploadattachment.LinkURL'/>">
-                        <fmt:message key='nugen.attachment.uploadattachment.LinkURL'/>
                     </a>&nbsp;&nbsp;
                     <img src="<%=ar.retPath %>assets/images/iconEmailNote.gif" />
                     <a href="javascript:onClickAction('sendDocsByEmail');"  title="<fmt:message key='nugen.attachment.uploadattachment.send.doc.by.email'/>" >
                         <fmt:message key='nugen.attachment.uploadattachment.send.doc.by.email'/>
-                    </a>&nbsp;&nbsp;
-                    <img src="<%=ar.retPath %>assets/images/iconLinkedFile.png" />
-                    <a href="javascript:onClickAction('linkRepository')"  title="<fmt:message key='nugen.attachment.uploadattachment.LinkFromRepository'/>">
-                        <fmt:message key='nugen.attachment.uploadattachment.LinkFromRepository'/>
                     </a>&nbsp;&nbsp;
                     <img src="<%=ar.retPath %>assets/iconSync.gif" />
                     <a href="javascript:onClickAction('syncDocuments')"  title="<fmt:message key='nugen.attachment.uploadattachment.Synchronize'/>">
@@ -303,7 +289,7 @@
                                 switch( task.index){
                                     case 0:
                                         if(oRecord.getData("ftype") != 'URL'){
-                                            onClickAction('newAttachment');
+                                            onClickAction('addDocument');
                                         }
                                         break;
                                     case 1:
