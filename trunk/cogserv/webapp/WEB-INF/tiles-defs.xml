@@ -261,7 +261,11 @@
         <put-attribute name="body" value="/spring/jsp/ChangePassword.jsp" />
     </definition>
 
-    <definition name="upload_document_form" extends="baseLayout">
+    <definition name="addDocument" extends="baseLayout">
+        <put-attribute name="title" value="Add Document" />
+        <put-attribute name="body" value="/spring/jsp/addDocument.jsp" />
+    </definition>
+    <definition name="uploadDocumentForm" extends="baseLayout">
         <put-attribute name="title" value="Upload Attachment Form" />
         <put-attribute name="body" value="/spring/jsp/uploadDocumentForm.jsp" />
     </definition>
@@ -270,7 +274,7 @@
         <put-attribute name="body" value="/spring/jsp/UploadRevisedDocument.jsp" />
     </definition>
 
-    <definition name="linkurlproject_form" extends="baseLayout">
+    <definition name="createLinkUrlProjectForm" extends="baseLayout">
         <put-attribute name="title" value="Link URL To Project Form" />
         <put-attribute name="body" value="/spring/jsp/createLinkUrlProjectForm.jsp" />
     </definition>
@@ -357,7 +361,7 @@
         <put-attribute name="title" value="Admin" />
         <put-attribute name="body" value="/spring/jsp/UserAccountSetting.jsp" />
     </definition>
-  <definition name="upload_document_form_account" extends="baseLayout">
+    <definition name="upload_document_form_account" extends="baseLayout">
         <put-attribute name="title" value="Upload Attachment Form" />
         <put-attribute name="body" value="/spring/jsp/uploadDocumentFormAccount.jsp" />
     </definition>

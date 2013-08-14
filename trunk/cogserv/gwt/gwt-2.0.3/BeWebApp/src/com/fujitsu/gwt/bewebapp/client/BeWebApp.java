@@ -248,6 +248,7 @@ public class BeWebApp implements EntryPoint {
         grid.setText(1, 0, "Select File:");
         grid.getCellFormatter().setStyleName(1, 0, "gridTableColummHeader_3");
         grid.setText(2, 0, "");
+        grid.setStyleName("linkWizard");
         hPageId = new Hidden("pageid", apageid);
         grid.setWidget(2, 1, hPageId);
 

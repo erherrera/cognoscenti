@@ -8,7 +8,6 @@
     UserProfile uProf = null;
     String pageId = ar.reqParam("pageId");
     NGPage ngp = (NGPage) NGPageIndex.getContainerByKeyOrFail(pageId);
-    NGRole role = ngp.getRole("Members");
     String isPersonalTab = "no";
     String pageTitle = ngp.getFullName();
 %>
@@ -25,17 +24,21 @@
     <%
         //for now two objects for UserProfile is created one will be removed soon
         if(ar.isLoggedIn()){
-            UserProfile up = ar.getUserProfile();
-            uProf = ar.getUserProfile();
-            String roleMember = up.getUniversalId();
-            RoleRequestRecord roleRequestRecord = null;
+            String roleName2 = ar.defParam("roleName", null);
+            if (roleName2!=null) {
+                NGRole role = ngp.getRole("Members");
+                UserProfile up = ar.getUserProfile();
+                uProf = ar.getUserProfile();
+                String roleMember = up.getUniversalId();
+                RoleRequestRecord roleRequestRecord = null;
 
     %>
             <table>
                 <%@include file="join_leave_role_block.jsp"%>
             </table>
             <br /><br /><br /><br /><br /><br />
-            <%} %>
+            <%  }
+            } %>
         </div>
     </div>
 </body>

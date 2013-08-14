@@ -1,11 +1,11 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%
-    AuthRequest ud_ar = AuthRequest.getOrCreate(request, response, out);  
+    AuthRequest ud_ar = AuthRequest.getOrCreate(request, response, out);
     ud_ar.assertLoggedIn("You need to Login to Upload a file.");
-    String pageId = ud_ar.reqParam("pageId"); 
+    String pageId = ud_ar.reqParam("pageId");
     NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
-    
+
 %>
 <html>
     <head>
@@ -19,8 +19,8 @@
         <div>
             <div class="pageHeading">Upload Document</div>
             <div class="pageSubHeading">
-                Use this form to upload a file to the Project "<%=ngp.getFullName() %>" 
-            </div>  
+                Use this form to upload a file to the Project "<%=ngp.getFullName() %>"
+            </div>
             <%if(ngp.isFrozen()){ %>
             <div id="loginArea">
                 <span class="black">
@@ -28,7 +28,7 @@
                 </span>
             </div>
             <%}else{ %>
-             
+
             <div id="gwt_single_upload"></div>
             <%}
          %>
