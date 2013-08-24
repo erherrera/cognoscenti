@@ -1,0 +1,39 @@
+<html>
+<head>
+    <link rel="stylesheet" href="../css/body.css" media="screen" type="text/css">
+</head>
+<body>
+<h3>Error Initializing the Server</h3>
+
+<p>Here is the error that occurred while trying to start the server:</p>
+<table class="gridTable"><tr><td><b>{{exceptionMsg}}</b></td></tr></table>
+
+<h3>Parameter Settings</h3>
+<table  class="tableArea">
+<tr>
+<td>dataFolder</td>
+<td>{{filetest dataFolder}}</td>
+<td>The server needs a data folder to keep all the project files in.</td>
+</tr>
+
+<tr>
+<td>attachFolder</td>
+<td>{{filetest attachFolder}}</td>
+<td>The server needs an attachment folder to keep all the documents that are attached to the projects in.</td>
+</tr>
+
+<tr>
+<td>userFolder</td>
+<td>{{filetest userFolder}}</td>
+<td>The server needs a user folder to keep all the user information in.</td>
+</tr>
+
+</table>
+
+<pre>
+{{exceptionTrace}}
+</pre>
+
+
+</body>
+</html>

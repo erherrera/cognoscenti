@@ -3,8 +3,8 @@
  */
 package  org.socialbiz.cog.test;
 
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.socialbiz.cog.NGPageIndex;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  *
@@ -19,7 +19,7 @@ public class AdminManagerTest extends BaseTest {
         request.addParameter("pageId", "Test4");
 
         try {
-            NGPageIndex.initIndex("D:/IBPM_avatar/ps/nugen/data_pages/");
+            NGPageIndex.initIndex();
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

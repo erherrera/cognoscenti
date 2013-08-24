@@ -1,12 +1,14 @@
 package org.socialbiz.cog;
 
-import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.exception.ProgramLogicError;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
+
 import javax.servlet.ServletContext;
+
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
 
 /**
  * Holds configuration settings
@@ -15,7 +17,8 @@ public class ConfigFile {
     /**
      * This is the path to the WEB-INF folder where all config information lives
      */
-    private static String webInfPath;
+    private static File rootPath;
+    private static File webInfPath;
 
     /**
      * the name of the file that the properties are expected to be in
@@ -29,6 +32,14 @@ public class ConfigFile {
     private static Properties props = null;
 
     /**
+     * Given the path to a file within the application, this will return the
+     * absolute File path object to access it.
+     */
+    public static File getFileFromRoot(String filePath) {
+        return new File(rootPath, filePath);
+    }
+
+    /**
      * Given a name of a configuration file, this will return the File object to
      * access it.
      */
@@ -37,12 +48,25 @@ public class ConfigFile {
     }
 
     public static File getWebINFPath() {
-        return new File(webInfPath);
+        return webInfPath;
     }
 
     public static void initialize(ServletContext sc) throws Exception {
         try {
-            webInfPath = sc.getRealPath("WEB-INF");
+            rootPath   = new File(sc.getRealPath(""));
+            if (!rootPath.exists()) {
+                //this is just paranoia, should never happen
+                throw new Exception("Something is very wrong with the server ... "+
+                     "the root of the application is not being retrieved correctly from the "+
+                     "servlet contxt object.  Something is wrong with the TomCat server.");
+            }
+            webInfPath = new File(sc.getRealPath("WEB-INF"));
+            if (!webInfPath.exists()) {
+                //this is just paranoia, should never happen
+                throw new Exception("Something is very wrong with the server ... "+
+                     "the WEB-INF folder is not being found from the "+
+                     "servlet contxt object.  Something is wrong with the TomCat server.");
+            }
             configFile = getFile("config.txt");
 
             if (!configFile.exists()) {
@@ -239,7 +263,7 @@ public class ConfigFile {
      * every time the server is started. However, two servers are highly
      * unlikely to have the same value, and that is the purpose, to distinguish
      * servers.
-     * 
+     *
      * Use can specify the value in the config file setting: ServerId
      */
     static String serverId = null;

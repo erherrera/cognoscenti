@@ -1510,13 +1510,12 @@ public class MainTabsViewControler extends BaseController {
               else {
                   ar.write("\n<p><i>Access the web page using the following link:</i> <a href=\"");
                   ar.write(noteURL);
-                  ar.write("\" title=\"Access the latest version of this message\"><b>");
-                  if (selectedNote.getSubject() != "" && selectedNote.getSubject() != null) {
-                      ar.writeHtml(selectedNote.getSubject());
+                  ar.write("\" title=\"Access the latest version of this note\"><b>");
+                  String noteSubj = selectedNote.getSubject();
+                  if (noteSubj==null || noteSubj.length()==0) {
+                      noteSubj = "Note has no name.";
                   }
-                  else {
-                      ar.writeHtml("Note Link");
-                  }
+                  ar.writeHtml(noteSubj);
                   ar.write("</b></a></p>");
               }
 

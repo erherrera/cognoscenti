@@ -34,7 +34,7 @@
             </tr>
             <tr>
                 <td>Password</td>
-                <td><%=emailProperties.getProperty("mail.pop3.password")%></td>
+                <td>****************</td>
             </tr>
         </table>
         <p>

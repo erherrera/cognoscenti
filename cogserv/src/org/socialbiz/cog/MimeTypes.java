@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
+
 import javax.activation.FileTypeMap;
 import javax.activation.MimetypesFileTypeMap;
 
@@ -67,7 +68,7 @@ public class MimeTypes
     * where the mime type property file is located and will
     * be read from.
     */
-    public static void initialize(String basePath)
+    public static void initialize(File basePath)
         throws Exception
     {
         File mapFile = new File(basePath,"mimeType.properties");

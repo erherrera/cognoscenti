@@ -1,7 +1,8 @@
 package org.socialbiz.cog.rest;
 
-import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.exception.ProgramLogicError;
+import java.util.List;
+import java.util.Vector;
+
 import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.DOMUtils;
@@ -9,16 +10,16 @@ import org.socialbiz.cog.DataFeedServlet;
 import org.socialbiz.cog.IdGenerator;
 import org.socialbiz.cog.License;
 import org.socialbiz.cog.NGBook;
-import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.NGContainer;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.NGSection;
+import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.ProcessRecord;
 import org.socialbiz.cog.SearchResultRecord;
 import org.socialbiz.cog.UtilityMethods;
-import java.util.List;
-import java.util.Vector;
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -229,7 +230,6 @@ public class ResourcePage implements NGResource
         String cmsg = null;
         if(ngp.isDeleted()){
             cmsg = "Successfully deleted page " + ngp.getFullName();
-            resetNGPageIndex();
         }
         else{
             lrstatus.setStatusCode(500);
@@ -718,19 +718,4 @@ public class ResourcePage implements NGResource
         }
     }
 
-    private void resetNGPageIndex()
-    {
-        try {
-            String dataFolder = lar.getSystemProperty("dataFolder");
-
-            NGPageIndex.initIndex(dataFolder);
-            NGPageIndex.scanAllPages(dataFolder);
-        }
-        catch(Exception e)
-        {
-            //For now make print it for debug
-            e.printStackTrace();
-
-        }
-    }
 }

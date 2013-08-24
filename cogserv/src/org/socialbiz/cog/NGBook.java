@@ -3,14 +3,15 @@
  */
 package org.socialbiz.cog;
 
-import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.util.CVSUtil;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
+
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
+import org.socialbiz.cog.util.CVSUtil;
 import org.w3c.dom.Document;
 
 /**
@@ -65,11 +66,11 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * migrates these to the standard Role object storage format, to a role
      * called 'Executives' The tag 'members' and 'pmembers' are removed from the
      * file.
-     * 
+     *
      * the old format did not distinguish between executives and owners so these
      * members are migrated to both executives and owners, presumably the real
      * owner will remove the others.
-     * 
+     *
      * But this code, like other migration code, must be left in in case there
      * are olld book files around with the old format. until 2 years after April
      * 2011 and there are no books older than this.
@@ -103,8 +104,10 @@ public class NGBook extends ContainerCommon implements NGContainer {
                     "in readBookByKey called before the account index initialzed.");
         }
         if (key == null) {
-            // pass a null in to get the default book
-            return defaultBook;
+            // used to pass a null in to get the default book
+            // however, this should no longer be used.  TEST to see.
+            throw new Exception("Program Logic Error: Account key of null is no longer allowed.");
+            //return defaultBook;
         }
 
         NGBook retVal = keyToBook.get(key);
@@ -275,7 +278,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * to quickly find and manipulate books. Book records are read and held in
      * memory since they are used so frequently, and there are relatively few of
      * them.
-     * 
+     *
      * This method need to consider carefully the "reinitialize" situation.
      * There is an Admin page which allows for clearing memory, garbage
      * collecting, and then reinitializing all the static variables. This is a
@@ -285,21 +288,21 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * the problem that some code tests and automatically regenerates certain
      * structures, and you might have the problem that multiple threads might be
      * rebuilding the index at the same time, and this would be bad.
-     * 
+     *
      * This method was once written to create all the structures in temporary
      * variables, and then update the globals all at once, but this is not
      * entirely satisfactory because one of the methods used during the
      * initialization might use the older existing indices, which might have the
      * effect of causing a link reference from the new tables to the old tables,
      * and cause garbage collection to fail to reclaim that memory.
-     * 
+     *
      * The cleanest method would be to clear all global variables, garbage
      * collect with nothing in memory, and then rebuild completely from scratch.
      * That requires a special mode of the server, which prevents any access
      * during the time that the internal memory is being rebuilt. At this point
      * in time such an admin mode is not present, so there is no way to prevent
      * access during the time that the memory is being constructed.
-     * 
+     *
      * Currently, the globals are cleaned out (nulled), and then reconstructed.
      * If there are accesses during the time of rebuilding, there are two
      * possibilities. First, there could be an exception terminating the
@@ -705,11 +708,11 @@ public class NGBook extends ContainerCommon implements NGContainer {
     /**
      * Given a new project with a key 'p', this will return the File for the new
      * project file (which does not exist yet). There are two methods:
-     * 
+     *
      * 1) if a preferred location has been set, then a new folder in that will
      * be created, and the project NGProj placed within that. 2) if no preferred
      * location, then a regular NGPage will be created in datapath folder.
-     * 
+     *
      * Note: p is NOT the name of the file, but the sanitized key. The returned
      * name should have the .sp suffix on it.
      */
