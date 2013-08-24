@@ -1,32 +1,43 @@
 <html>
 <head>
-    <link rel="stylesheet" href="../css/body.css" media="screen" type="text/css">
+    <link rel="stylesheet" href="../css/global.css" media="screen" type="text/css">
 </head>
 <body>
 <h3>Error Initializing the Server</h3>
 
 <p>Here is the error that occurred while trying to start the server:</p>
-<table class="gridTable"><tr><td><b>{{exceptionMsg}}</b></td></tr></table>
+<table class="gridTable2"><tr><td><b>{{exceptionMsg}}</b></td></tr></table>
+<form method="post" action="form">
+<input type="submit" value="Restart Server" class="inputBtn" name="option">
+<input type="hidden" value="{{go}}" name="go">
+</form>
 
 <h3>Parameter Settings</h3>
-<table  class="tableArea">
+<table  class="gridTable2">
+<tr>
+<td>libFolder</td>
+<td>{{pathtest libFolder}}</td>
+<td>The server needs a library folder to keep all the project information together as a tree.</td>
+</tr>
+
 <tr>
 <td>dataFolder</td>
-<td>{{filetest dataFolder}}</td>
+<td>{{pathtest dataFolder}}</td>
 <td>The server needs a data folder to keep all the project files in.</td>
 </tr>
 
 <tr>
 <td>attachFolder</td>
-<td>{{filetest attachFolder}}</td>
+<td>{{pathtest attachFolder}}</td>
 <td>The server needs an attachment folder to keep all the documents that are attached to the projects in.</td>
 </tr>
 
 <tr>
 <td>userFolder</td>
-<td>{{filetest userFolder}}</td>
+<td>{{pathtest userFolder}}</td>
 <td>The server needs a user folder to keep all the user information in.</td>
 </tr>
+
 
 </table>
 
