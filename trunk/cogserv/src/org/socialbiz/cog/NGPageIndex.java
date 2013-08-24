@@ -551,7 +551,7 @@ public class NGPageIndex
             AttachmentVersionSimple.attachmentFolder = attachFolderFile;
 
             //reinitialize ... should be as good as new.
-            initIndex(ConfigFile.getProperty("dataFolder"));
+            initIndex();
             initFailure = null;
             initMode = 3;
 
@@ -566,65 +566,65 @@ public class NGPageIndex
         }
     }
 
-
-    public static synchronized void initIndex(String path)
-        throws Exception
-    {
-        if (allContainers == null)
-        {
-            try
-            {
+    public static synchronized void initIndex() throws Exception {
+        if (allContainers == null) {
+            try {
+                String path = ConfigFile.getProperty("dataFolder");
                 NGPage.initDataPath(path);
-                scanAllPages(path);
+                scanAllPages();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 initFailure = e;
                 throw e;
             }
         }
     }
 
-
-    public static synchronized void scanAllPages(String rootDirectory)
+    public static synchronized void scanAllPages()
         throws Exception
     {
-        File root = ConfigFile.getFolderOrFail(rootDirectory);
-        NGTerm.initialize();
-        keyToContainer = new Hashtable<String,NGPageIndex>();
-        allContainers = new Vector<NGPageIndex>();
+        String rootDirectory = ConfigFile.getProperty("dataFolder");
+        if (rootDirectory!=null && rootDirectory.length()>0) {
+            File root = ConfigFile.getFolderOrFail(rootDirectory);
+            NGTerm.initialize();
+            keyToContainer = new Hashtable<String,NGPageIndex>();
+            allContainers = new Vector<NGPageIndex>();
 
-        NGBook.scanAllBooks(rootDirectory);
-        for (NGBook acct : NGBook.getAllAccounts()) {
-            makeIndex(acct);
-        }
+            NGBook.scanAllBooks(rootDirectory);
+            for (NGBook acct : NGBook.getAllAccounts()) {
+                makeIndex(acct);
+            }
 
-        File[] children = root.listFiles();
-        for (int i=0; i<children.length; i++)
-        {
-            File child = children[i];
-            String fileName = child.getName();
-            if (!fileName.endsWith(".sp"))
+            File[] children = root.listFiles();
+            for (int i=0; i<children.length; i++)
             {
-                //ignore all files except those that end in .sp
-                continue;
-            }
-            try {
-                NGPage aPage = NGPage.readPageAbsolutePath(child);
-                makeIndex(aPage);
-            }
-            catch (Exception eig) {
-                //ignore exceptions due to bad files
-                //simply ignore unparseable files.
-                //this is initialization, and an exception beacuse of one bad
-                //file would prevent the server from starting.
-                //BUT log it so the admin knows
-                AuthRequest dummy = AuthDummy.serverBackgroundRequest();
-                dummy.logException("Failure reading file during Initialization: "+child.toString(), eig);
+                File child = children[i];
+                String fileName = child.getName();
+                if (!fileName.endsWith(".sp"))
+                {
+                    //ignore all files except those that end in .sp
+                    continue;
+                }
+                try {
+                    NGPage aPage = NGPage.readPageAbsolutePath(child);
+                    makeIndex(aPage);
+                }
+                catch (Exception eig) {
+                    //ignore exceptions due to bad files
+                    //simply ignore unparseable files.
+                    //this is initialization, and an exception beacuse of one bad
+                    //file would prevent the server from starting.
+                    //BUT log it so the admin knows
+                    AuthRequest dummy = AuthDummy.serverBackgroundRequest();
+                    dummy.logException("Failure reading file during Initialization: "+child.toString(), eig);
+                }
             }
         }
 
         String[] libFolders = ConfigFile.getArrayProperty("libFolder");
+        Vector<File> allProjectFiles = new Vector<File>();
+        Vector<File> allAccountFiles = new Vector<File>();
+
         for (String libFolder : libFolders) {
 
             File libDirectory = new File(libFolder);
@@ -633,9 +633,43 @@ public class NGPageIndex
                 throw new Exception("Configuration error: LibFolder does not exist: "+libFolder);
             }
 
-            seekProjects(libDirectory);
+            seekProjectsAndAccounts(libDirectory, allProjectFiles, allAccountFiles);
+            //seekProjects(libDirectory);
         }
 
+        //now process the project files if any
+        for (File aProjPath : allProjectFiles) {
+            NGProj aProj = NGProj.readProjAbsolutePath(aProjPath);
+            makeIndex(aProj);
+        }
+
+    }
+
+
+    private static void seekProjectsAndAccounts(File folder, Vector<File> pjs, Vector<File> acts)
+            throws Exception {
+
+        //only use the first ".sp" file or ".account" file in a given folder
+        boolean foundOne = false;
+
+        for (File child : folder.listFiles()) {
+
+            String name = child.getName();
+            if (child.isDirectory()) {
+                seekProjectsAndAccounts(child, pjs, acts);
+            }
+            else if (foundOne) {
+                //ignore all files after one is found
+            }
+            else if (name.endsWith(".sp")) {
+                pjs.add(child);
+                foundOne = true;
+            }
+            else if (name.endsWith(".account")) {
+                acts.add(child);
+                foundOne = true;
+            }
+        }
     }
 
     private static void seekProjects(File folder)  throws Exception {

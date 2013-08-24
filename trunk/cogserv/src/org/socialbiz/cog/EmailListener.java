@@ -2,9 +2,9 @@ package org.socialbiz.cog;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashSet;
@@ -15,6 +15,7 @@ import java.util.TimerTask;
 import javax.mail.Address;
 import javax.mail.Authenticator;
 import javax.mail.FetchProfile;
+import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -24,7 +25,6 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.UIDFolder;
-import javax.mail.Flags.Flag;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.socialbiz.cog.exception.NGException;
@@ -76,6 +76,25 @@ public class EmailListener extends TimerTask{
          // make sure that this method doesn't throw any exception
          try
          {
+             // start by checking the configuration, and just skip out if not configured
+             // TODO: need a better way to report these configuration problem
+             //for now, just exit without a fuss
+             if(emailProperties == null) {
+                 System.out.println("Email listener: is not configured");
+                 return;
+             }
+             String user = emailProperties.getProperty("mail.pop3.user");
+             if (user==null || user.length()==0) {
+                 System.out.println("Email listener: no configuration for mail.pop3.user");
+                 return;
+             }
+             String pwd = emailProperties.getProperty("mail.pop3.password");
+             if (pwd==null || pwd.length()==0) {
+                 System.out.println("Email listener: no configuration for mail.pop3.password");
+                 return;
+             }
+
+             //now really attempt to read the email.  Errors after this point recorded in file
              handlePOP3Folder();
          }
          catch(Exception e)

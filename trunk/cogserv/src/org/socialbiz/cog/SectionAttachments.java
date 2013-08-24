@@ -169,12 +169,15 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
     public void findIDs(Vector<String> v, NGSection sec)
         throws Exception
     {
-        assertRightAttachmentsSection(sec);
+        //legacy upgrade...there are some old attachments sections that are to be automatically
+        //deleted or migrated during scema migration.  Unfortunately, there are some calls to
+        //get unique ids during schema migration, and possibly before this section has had a
+        //chance to be migrated.  So rather than bomb out, the search of IDs should search even
+        //outdated or legacy sections. The idea begin findIds is that finding more IDs is better
+        //than skipping IDs and possibly causing a clash.
 
-        //since we know that this is the standard attachments section, we can use the standard
-        //function to get all the attachments.
-        for (AttachmentRecord att : sec.parent.getAllAttachments())
-        {
+        List<AttachmentRecord> attChildren = sec.getChildren("attachment", AttachmentRecord.class);
+        for (AttachmentRecord att : attChildren) {
             v.add(att.getId());
         }
     }

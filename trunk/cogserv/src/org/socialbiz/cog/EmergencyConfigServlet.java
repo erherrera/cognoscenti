@@ -3,15 +3,19 @@
  */
 package org.socialbiz.cog;
 
-import org.socialbiz.cog.exception.ProgramLogicError;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.Writer;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.socialbiz.cog.exception.ProgramLogicError;
+import org.workcast.streams.TemplateStreamer;
+import org.workcast.streams.TemplateTokenRetriever;
 
 /**
  * The emergency config servlet is used ONLY when the server is unable
@@ -177,13 +181,18 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
     private void displayConfigPage(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 
         Writer out = resp.getWriter();
-        String go = req.getParameter("go");
         resp.setContentType("text/html;charset=UTF-8");
 
+        String go = req.getParameter("go");
+        ConfigTokenRetriever ctr = new ConfigTokenRetriever(go);
+
+        File templateFile = ConfigFile.getFileFromRoot("init/InitErrorDisplay.htm");
+        TemplateStreamer.streamTemplate(out, templateFile, "UTF-8", ctr);
+
+/**
         //we know that the server did not initialize, and here is why
         Exception failure = NGPageIndex.initFailureException();
         String initFailure =failure.toString();
-
         StringBuffer mainMessage = new StringBuffer();
 
         String dataFolder = ConfigFile.getProperty("dataFolder");
@@ -295,6 +304,7 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
 
         out.write("</body>\n");
         out.write("</html>\n");
+        ***/
         out.flush();
     }
 
@@ -378,60 +388,13 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
         }
 
         resp.setContentType("text/html;charset=UTF-8");
-//        Writer out = resp.getWriter();
 
         //initialize the data folder file as necessary
         File dataFolderFile = new File(dataFolder);
         if (dataFolderFile.exists())
         {
             //initialize important variables and index
-            NGPageIndex.initIndex(dataFolder);
-
-
-/********* DONT BELIEVE WE NEED THIS ANY MORE
-            boolean createdSomething = false;
-            //now check that there is a book "main.book", create
-            //one if necessary
-            File mainBook = new File(dataFolder, "main.book");
-            if (!mainBook.exists())
-            {
-                FileOutputStream fos = new FileOutputStream(mainBook);
-                OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-                osw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-                osw.write("<book>");
-                osw.write("<members></members>");
-                osw.write("<name>Main Book</name>");
-                osw.write("<pmembers></pmembers>");
-                osw.write("<styleSheet>my2.css</styleSheet>");
-                osw.write("<logo>logo.gif</logo>");
-                osw.write("</book>");
-                osw.close();
-                createdSomething=true;
-            }
-
-            //now check that there is a page "main.sp" and a
-            //book main.book as default
-            File mainPage = new File(dataFolder, "main.sp");
-            if (!mainPage.exists())
-            {
-                //directly writing out avoids problems with users, access control, etc.
-                FileOutputStream fos = new FileOutputStream(mainPage);
-                OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-                osw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-                osw.write("<page>");
-                osw.write("<section name=\"Description\">");
-                osw.write("</section>");
-                osw.write("<pageInfo displayName=\"main.sp\">");
-                osw.write("  <userlist></userlist>");
-                osw.write("  <pageName>Main</pageName>");
-                osw.write("</pageInfo>");
-                osw.write("<section name=\"See Also\"></section>");
-                osw.write("</page>");
-                osw.close();
-                createdSomething=true;
-            }
-
-            *******************/
+            NGPageIndex.initIndex();
         }
 
         //reinitialize the server with these settings
@@ -484,6 +447,74 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
                 default:
                     w.write(c);
                     continue;
+            }
+        }
+    }
+
+
+    private class ConfigTokenRetriever implements TemplateTokenRetriever {
+        String go;
+
+        ConfigTokenRetriever(String _go) {
+            go = _go;
+        }
+
+        @Override
+        public void writeTokenValue(Writer out, String tokenName) throws Exception {
+
+            Exception failure = NGPageIndex.initFailureException();
+
+            if ("exceptionMsg".equals(tokenName)) {
+                writeHtml(out, failure.toString());
+            }
+            else if ("exceptionTrace".equals(tokenName)) {
+                failure.printStackTrace(new PrintWriter(out));
+            }
+            else if ("go".equals(tokenName)) {
+                writeHtml(out, go);
+            }
+            else if (tokenName.startsWith("param ")) {
+                //must be "param name" where name is the name of a param
+                String paramName = tokenName.substring(6).trim();
+                String paramValue = ConfigFile.getProperty(paramName);
+                if (paramValue==null) {
+                    out.write("<i>null value found</i>");
+                }
+                else if (paramValue.length()==0) {
+                    out.write("<i>zero length value found</i>");
+                }
+                else {
+                    writeHtml(out, paramValue);
+                }
+            }
+            else if (tokenName.startsWith("pathtest ")) {
+                //must be "param name" where name is the name of a config parameter
+                String paramName = tokenName.substring(9).trim();
+                String paramValue = ConfigFile.getProperty(paramName);
+                if (paramValue==null) {
+                    out.write("<img src=\"../assets/images/redcircle.jpg\" width=\"10px\" height=\"10px\"><i>null value found</i>");
+                }
+                else if (paramValue.length()==0) {
+                    out.write("<img src=\"../assets/images/redcircle.jpg\" width=\"10px\" height=\"10px\"><i>zero length value found</i>");
+                }
+                else {
+                    File thisPath = new File(paramValue);
+                    if (!thisPath.exists()) {
+                        out.write("<img src=\"../assets/images/redcircle.jpg\" width=\"10px\" height=\"10px\">");
+                        writeHtml(out, paramValue);
+                        out.write("<br/><i>This path does not exist on this server.</i>");
+                    }
+                    else {
+                        out.write("<img src=\"../assets/images/greencircle.jpg\" width=\"10px\" height=\"10px\">");
+                        writeHtml(out, paramValue);
+                        out.write("<br/><i>This path exists on this server.</i>");
+                    }
+                }
+            }
+            else {
+                out.write("##(");
+                writeHtml(out, tokenName);
+                out.write(")##");
             }
         }
     }

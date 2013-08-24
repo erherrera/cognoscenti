@@ -253,7 +253,7 @@ public class AccountController extends BaseController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/$/account_process.htm", method = RequestMethod.GET)
+    @RequestMapping(value = "/{accountId}/$/accountListProjects.htm", method = RequestMethod.GET)
     public ModelAndView showAccountTaskTab(@PathVariable String accountId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
@@ -268,7 +268,7 @@ public class AccountController extends BaseController {
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(ngb);
 
-            modelAndView = new ModelAndView("account_projects");
+            modelAndView = new ModelAndView("accountListProjects");
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("headerType", "account");
             request.setAttribute("tabId", "Account Projects");
@@ -279,6 +279,32 @@ public class AccountController extends BaseController {
             throw new NGException("nugen.operation.fail.account.process.page", new Object[]{accountId} , ex);
         }
         return modelAndView;
+    }
+
+    @RequestMapping(value = "/{accountId}/$/accountCreateProject.htm", method = RequestMethod.GET)
+    public ModelAndView accountCreateProject(@PathVariable String accountId,
+            HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            if(!ar.isLoggedIn()){
+                return redirectToLoginView(ar, "message.loginalert.see.page",null);
+            }
+
+            NGPageIndex.assertBook(accountId);
+            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
+            ar.setPageAccessLevels(ngb);
+
+            request.setAttribute("realRequestURL", ar.getRequestURL());
+            request.setAttribute("headerType", "account");
+            request.setAttribute("tabId", "Account Projects");
+            request.setAttribute("accountId", accountId);
+            request.setAttribute("title", ngb.getFullName());
+            request.setAttribute("pageTitle", ngb.getFullName());
+            return new ModelAndView("accountCreateProject");
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.account.process.page", new Object[]{accountId} , ex);
+        }
     }
 
     @RequestMapping(value = "/{accountId}/$/account_attachment.htm", method = RequestMethod.GET)

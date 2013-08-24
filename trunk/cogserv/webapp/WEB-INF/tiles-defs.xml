@@ -349,9 +349,13 @@
         <put-attribute name="title" value="Account" />
         <put-attribute name="body" value="/spring/jsp/UserAccountHome.jsp" />
     </definition>
-    <definition name="account_projects" extends="baseLayout">
+    <definition name="accountListProjects" extends="baseLayout">
         <put-attribute name="title" value="account" />
-        <put-attribute name="body" value="/spring/jsp/account_projects.jsp" />
+        <put-attribute name="body" value="/spring/jsp/accountListProjects.jsp" />
+    </definition>
+    <definition name="accountCreateProject" extends="baseLayout">
+        <put-attribute name="title" value="account" />
+        <put-attribute name="body" value="/spring/jsp/accountCreateProject.jsp" />
     </definition>
     <definition name="accountDocumentPage" extends="baseLayout">
         <put-attribute name="title" value="Attachments" />
@@ -403,6 +407,11 @@
     <definition name="UserAccounts" extends="baseLayout">
         <put-attribute name="title" value="User Accounts" />
         <put-attribute name="body" value="/spring/jsp/UserAccounts.jsp" />
+    </definition>
+
+    <definition name="UserCreateProject" extends="baseLayout">
+        <put-attribute name="title" value="User Create Project" />
+        <put-attribute name="body" value="/spring/jsp/UserCreateProject.jsp" />
     </definition>
 
     <definition name="account_history" extends="baseLayout">

@@ -85,6 +85,16 @@ public class UserController extends BaseController {
         return new ModelAndView("Warning");
     }
 
+    private List<NGBook> findAllMemberAccounts(UserProfile up) throws Exception {
+        List<NGBook> memberOfAccounts=new ArrayList<NGBook>();
+        for (NGBook aBook : NGBook.getAllAccounts()){
+            if (aBook.primaryOrSecondaryPermission(up)) {
+                memberOfAccounts.add(aBook);
+            }
+        }
+        return memberOfAccounts;
+    }
+
 
     @RequestMapping(value = "/{userKey}/userProfile.htm", method = RequestMethod.GET)
     public ModelAndView loadProfile(@PathVariable String userKey,
@@ -146,7 +156,7 @@ public class UserController extends BaseController {
             request.setAttribute("retPath",ar.retPath);
             request.setAttribute("subTabId", "nugen.userprojects.subtab.watched.project");
 
-            ModelAndView modelAndView = createModelAndView(ar, userBeingViewed, null, "Projects", "WatchedProjects");
+            ModelAndView modelAndView = createModelAndView(ar, userBeingViewed, "Projects", "WatchedProjects");
             modelAndView.addObject( "messages", context );
 
             return modelAndView;
@@ -173,7 +183,7 @@ public class UserController extends BaseController {
             request.setAttribute("retPath",ar.retPath);
             request.setAttribute("subTabId", "nugen.userprojects.subtab.notified.project");
 
-            ModelAndView modelAndView = createModelAndView(ar, userBeingViewed, null, "Projects", "NotifiedProjects");
+            ModelAndView modelAndView = createModelAndView(ar, userBeingViewed, "Projects", "NotifiedProjects");
             modelAndView.addObject( "messages", context );
 
             return modelAndView;
@@ -209,20 +219,12 @@ public class UserController extends BaseController {
                 }
             }
 
-            List<NGBook> memberOfAccounts = new ArrayList<NGBook>();
-            for(NGBook aBook : NGBook.getAllAccounts()) {
-                if (aBook.primaryOrSecondaryPermission(ar.getUserProfile()))
-                {
-                    memberOfAccounts.add(aBook);
-                }
-            }
-
-            request.setAttribute("bookList",memberOfAccounts);
+            request.setAttribute("bookList",findAllMemberAccounts(ar.getUserProfile()));
             request.setAttribute("book",    null);
             request.setAttribute("title",userBeingViewed.getName());
             request.setAttribute("subTabId", "nugen.userprojects.subtab.all.projects");
 
-            ModelAndView modelAndView = createModelAndView(ar, userBeingViewed, null, "Projects", "AllProjects");
+            ModelAndView modelAndView = createModelAndView(ar, userBeingViewed, "Projects", "AllProjects");
             modelAndView.addObject( "messages", context );
 
             return modelAndView;
@@ -258,20 +260,12 @@ public class UserController extends BaseController {
                 }
             }
 
-            List<NGBook> memberOfAccounts = new ArrayList<NGBook>();
-            for(NGBook aBook : NGBook.getAllAccounts()) {
-                if (aBook.primaryOrSecondaryPermission(ar.getUserProfile()))
-                {
-                    memberOfAccounts.add(aBook);
-                }
-            }
-
-            request.setAttribute("bookList",memberOfAccounts);
+            request.setAttribute("bookList",findAllMemberAccounts(ar.getUserProfile()));
             request.setAttribute("book",    null);
             request.setAttribute("title",userBeingViewed.getName());
             request.setAttribute("subTabId", "nugen.userprojects.subtab.templates");
 
-            ModelAndView modelAndView = createModelAndView(ar, userBeingViewed, null, "Projects", "Templates");
+            ModelAndView modelAndView = createModelAndView(ar, userBeingViewed, "Projects", "Templates");
             modelAndView.addObject( "messages", context );
 
             return modelAndView;
@@ -291,8 +285,7 @@ public class UserController extends BaseController {
 
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
 
-            ModelAndView modelAndView = createModelAndView(ar, userBeingViewed, null,
-                "Updates", "UserAlerts");
+            ModelAndView modelAndView = createModelAndView(ar, userBeingViewed, "Updates", "UserAlerts");
             modelAndView.addObject( "messages", context );
             request.setAttribute("title", userBeingViewed.getName());
             return modelAndView;
@@ -325,7 +318,7 @@ public class UserController extends BaseController {
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
 
             request.setAttribute("title", userBeingViewed.getName());
-            modelAndView = createModelAndView(ar, userBeingViewed, null, "Tasks", "UserActiveTasks");
+            modelAndView = createModelAndView(ar, userBeingViewed, "Tasks", "UserActiveTasks");
             modelAndView.addObject("active", "0");
             request.setAttribute("subTabId", "nugen.usertasks.subtab.active.tasks");
             return modelAndView;
@@ -347,7 +340,7 @@ public class UserController extends BaseController {
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
 
             request.setAttribute("title", userBeingViewed.getName());
-            modelAndView = createModelAndView(ar, userBeingViewed, null, "Tasks", "UserCompletedTasks");
+            modelAndView = createModelAndView(ar, userBeingViewed, "Tasks", "UserCompletedTasks");
             modelAndView.addObject("active", "1");
             request.setAttribute("subTabId", "nugen.usertasks.subtab.completed.tasks");
             return modelAndView;
@@ -369,7 +362,7 @@ public class UserController extends BaseController {
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
 
             request.setAttribute("title", userBeingViewed.getName());
-            modelAndView = createModelAndView(ar, userBeingViewed, null, "Tasks", "UserFutureTasks");
+            modelAndView = createModelAndView(ar, userBeingViewed, "Tasks", "UserFutureTasks");
             modelAndView.addObject("active", "2");
             request.setAttribute("subTabId", "nugen.usertasks.subtab.future.tasks");
             return modelAndView;
@@ -391,7 +384,7 @@ public class UserController extends BaseController {
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
 
             request.setAttribute("title", userBeingViewed.getName());
-            modelAndView = createModelAndView(ar, userBeingViewed, null, "Tasks", "UserAllTasks");
+            modelAndView = createModelAndView(ar, userBeingViewed, "Tasks", "UserAllTasks");
             modelAndView.addObject("active", "3");
             request.setAttribute("subTabId", "nugen.usertasks.subtab.all.tasks");
             return modelAndView;
@@ -405,7 +398,6 @@ public class UserController extends BaseController {
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
-        ModelAndView modelAndView = null;
         AuthRequest ar = null;
         UserProfile up = null;
         try{
@@ -431,22 +423,14 @@ public class UserController extends BaseController {
                 }
             }
 
-            List<NGBook> memberOfAccounts = new ArrayList<NGBook>();
-            for(NGBook aBook : NGBook.getAllAccounts()) {
-                if (aBook.primaryOrSecondaryPermission(ar.getUserProfile()))
-                {
-                    memberOfAccounts.add(aBook);
-                }
-            }
-
-            request.setAttribute("bookList",memberOfAccounts);
+            request.setAttribute("bookList",findAllMemberAccounts(ar.getUserProfile()));
             request.setAttribute("book",    null);
             request.setAttribute("title",   up.getName());
 
+            return createModelAndView(ar, up, "My Projects", "UserProjects");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.userproject.page", new Object[]{userKey} , ex);
         }
-        return createModelAndView(ar, up, modelAndView, "My Projects", "UserProjects");
     }
 
     @RequestMapping(value = "/handlePersonalSubscriptions.ajax", method = RequestMethod.POST)
@@ -548,11 +532,11 @@ public class UserController extends BaseController {
     }
 
     public static ModelAndView createModelAndView(AuthRequest ar,
-            UserProfile up, ModelAndView modelAndView, String tabId,
+            UserProfile up, String tabId,
             String modelAndViewName) {
 
         HttpServletRequest request = ar.req;
-        modelAndView = new ModelAndView(modelAndViewName);
+        ModelAndView modelAndView = new ModelAndView(modelAndViewName);
 
         String realRequestURL = request.getRequestURL().toString();
         request.setAttribute("realRequestURL", realRequestURL);
@@ -974,7 +958,6 @@ public class UserController extends BaseController {
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
-        ModelAndView modelAndView = null;
         AuthRequest ar = null;
         UserProfile up = null;
         try{
@@ -982,22 +965,35 @@ public class UserController extends BaseController {
             ar.assertLoggedIn("Need to log in to see a user's accounts.");
             up = UserManager.getUserProfileOrFail(userKey);
 
-            List<NGBook> memberOfAccounts=new ArrayList<NGBook>();
-
-            for (NGBook aBook : NGBook.getAllAccounts()){
-                if (aBook.primaryOrSecondaryPermission(ar.getUserProfile())) {
-                    memberOfAccounts.add(aBook);
-                }
-            }
             request.setAttribute("subTabId", "nugen.usersettings.subtab.accounts");
-            request.setAttribute("memberOfAccounts", memberOfAccounts);
+            request.setAttribute("memberOfAccounts", findAllMemberAccounts(ar.getUserProfile()));
             request.setAttribute("title", up.getName());
 
+            return createModelAndView(ar, up, "Settings", "UserAccounts");
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.useraccounts.page", new Object[]{userKey} , ex);
+        }
+    }
+
+    @RequestMapping(value = "/{userKey}/userCreateProject.htm", method = RequestMethod.GET)
+    public ModelAndView userCreateProject(@PathVariable String userKey,
+            HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            ar.assertLoggedIn("Need to log in to see a user's accounts.");
+            UserProfile up = UserManager.getUserProfileOrFail(userKey);
+
+            request.setAttribute("subTabId", "nugen.usersettings.subtab.accounts");
+            request.setAttribute("memberOfAccounts", findAllMemberAccounts(ar.getUserProfile()));
+            request.setAttribute("title", up.getName());
+
+            return createModelAndView(ar, up, "Projects", "UserCreateProject");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.useraccounts.page", new Object[]{userKey} , ex);
         }
 
-        return createModelAndView(ar, up, modelAndView, "Settings", "UserAccounts");
     }
 
     @RequestMapping(value = "/addUserId.ajax", method = RequestMethod.POST)
@@ -1234,7 +1230,7 @@ public class UserController extends BaseController {
             ar.assertLoggedIn("Need to log in to see page.");
             UserProfile up = UserManager.getUserProfileOrFail(userKey);
 
-            modelAndView = createModelAndView(ar, up, null, "Home", "ListConnections");
+            modelAndView = createModelAndView(ar, up, "Home", "ListConnections");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.list.connection.page", new Object[]{userKey} , ex);
         }
@@ -1259,7 +1255,7 @@ public class UserController extends BaseController {
             UserPage uPage = ar.getUserPage();
             uPage.getConnectionOrFail(folderId);
 
-            ModelAndView modelAndView = createModelAndView(ar, up, null, "Home", "FolderDisplay");
+            ModelAndView modelAndView = createModelAndView(ar, up, "Home", "FolderDisplay");
             String path = ar.defParam("path", "/");
             request.setAttribute("folderId", folderId);
             request.setAttribute("path", path);
@@ -1294,7 +1290,7 @@ public class UserController extends BaseController {
             String p = ar.reqParam("p");
             NGPageIndex.getProjectByKeyOrFail(p);
 
-            modelAndView = createModelAndView(ar, up, modelAndView, "Home", "BrowseConnection");
+            modelAndView = createModelAndView(ar, up, "Home", "BrowseConnection");
             request.setAttribute("folderId", folderId);
             request.setAttribute("path", path);
         }catch(Exception ex){
@@ -1315,8 +1311,7 @@ public class UserController extends BaseController {
             ar.assertLoggedIn("Need to log in to see remote folder page.");
             UserProfile up = UserManager.getUserProfileOrFail(userKey);
             String path = "/";  //debug
-            modelAndView = createModelAndView(ar, up,
-                modelAndView, "Home", "FolderDisplay");
+            modelAndView = createModelAndView(ar, up, "Home", "FolderDisplay");
             request.setAttribute("fid", folderId + path);
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.page", new Object[]{userKey}, ex);
@@ -1335,8 +1330,7 @@ public class UserController extends BaseController {
             ar.assertLoggedIn("Need to log in to see remote folder page.");
             UserProfile up = UserManager.getUserProfileOrFail(userKey);
             String path = "/";  //debug
-            modelAndView = createModelAndView(ar, up,
-                modelAndView, "Home", "FolderDisplay");
+            modelAndView = createModelAndView(ar, up, "Home", "FolderDisplay");
             request.setAttribute("fid", folderId + path);
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.page", new Object[]{userKey}, ex);
@@ -1764,7 +1758,7 @@ public class UserController extends BaseController {
                 }
             }
 
-            ModelAndView modelAndView = createModelAndView(ar, userProfile, null, "Notification Settings", "notification");
+            ModelAndView modelAndView = createModelAndView(ar, userProfile, "Notification Settings", "notification");
             modelAndView.addObject( "messages", context );
             request.setAttribute("subTabId", "nugen.usersettings.subtab.unsubscribe");
             request.setAttribute("tabId", "Settings");
@@ -1970,14 +1964,6 @@ public class UserController extends BaseController {
                 }
             }
 
-            List<NGBook> memberOfAccounts = new ArrayList<NGBook>();
-            for(NGBook aBook : NGBook.getAllAccounts()) {
-                if (aBook.primaryOrSecondaryPermission(ar.getUserProfile()))
-                {
-                    memberOfAccounts.add(aBook);
-                }
-            }
-
             request.setAttribute("subTabId", "nugen.usersettings.subtab.personal.settings");
             request.setAttribute("book",    null);
             request.setAttribute("ngpage",ngp);
@@ -1986,8 +1972,8 @@ public class UserController extends BaseController {
             request.setAttribute("username","PLEASE REPORT ISSUE #148944");
             request.setAttribute("flag","true");
             request.setAttribute("retPath",ar.retPath);
-            request.setAttribute("memberOfAccounts", memberOfAccounts);
-            return createModelAndView(ar, up, null, "Settings", "UserSettings");
+            request.setAttribute("memberOfAccounts", findAllMemberAccounts(ar.getUserProfile()));
+            return createModelAndView(ar, up, "Settings", "UserSettings");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.userprofile.page", new Object[]{userKey} , ex);
         }
@@ -2030,14 +2016,6 @@ public class UserController extends BaseController {
                 }
             }
 
-            List<NGBook> memberOfAccounts = new ArrayList<NGBook>();
-            for(NGBook aBook : NGBook.getAllAccounts()) {
-                if (aBook.primaryOrSecondaryPermission(ar.getUserProfile()))
-                {
-                    memberOfAccounts.add(aBook);
-                }
-            }
-
             request.setAttribute("subTabId", "nugen.usersettings.subtab.contacts");
             request.setAttribute("book",    null);
             request.setAttribute("ngpage",ngp);
@@ -2046,8 +2024,8 @@ public class UserController extends BaseController {
             request.setAttribute("username","PLEASE REPORT ISSUE #148944");
             request.setAttribute("flag","true");
             request.setAttribute("retPath",ar.retPath);
-            request.setAttribute("memberOfAccounts", memberOfAccounts);
-            return createModelAndView(ar, up, null, "Settings", "UserContacts");
+            request.setAttribute("memberOfAccounts", findAllMemberAccounts(ar.getUserProfile()));
+            return createModelAndView(ar, up, "Settings", "UserContacts");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.userprofile.page", new Object[]{userKey} , ex);
         }
@@ -2099,7 +2077,7 @@ public class UserController extends BaseController {
             request.setAttribute("username","PLEASE REPORT ISSUE #148944");
             request.setAttribute("flag","true");
             request.setAttribute("retPath",ar.retPath);
-            return createModelAndView(ar, up, null, "Settings", "UserConnections");
+            return createModelAndView(ar, up, "Settings", "UserConnections");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.userprofile.page", new Object[]{userKey} , ex);
         }

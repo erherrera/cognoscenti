@@ -41,9 +41,9 @@ Required parameter:
          var url="../isProjectExist.ajax?projectname="+projectName+"&book="+acct;
          var transaction = YAHOO.util.Connect.asyncRequest('POST',url, projectValidationResponse);
          return false;
-        }
+     }
 
-        var projectValidationResponse ={
+     var projectValidationResponse ={
                 success: function(o) {
                     var respText = o.responseText;
                     var json = eval('(' + respText+')');
@@ -75,21 +75,21 @@ Required parameter:
 <body class="yui-skin-sam">
 
 
-<div class="pageHeading">Account Projects</div>
-<div class="pageSubHeading">From here you can create and manage projects.</div>
+<div class="pageHeading">Create Project in this Account</div>
+<div class="pageSubHeading"></div>
 
 <div class="generalContent">
    <form name="projectform" action="createprojectFromTemplate.form" method="post" autocomplete="off">
         <table class="popups">
            <tr><td style="height:30px"></td></tr>
            <tr>
-                <td class="gridTableColummHeader_2 bigHeading">Create New Project:</td>
+                <td class="gridTableColummHeader_2 bigHeading">New Project Name:</td>
                 <td style="width:20px;"></td>
                 <td>
                     <table cellpadding="0" cellspacing="0">
                        <tr>
                            <td class="createInput" style="padding:0px;">
-                               <input type="text" class="inputCreateButton" name="projectname" id="projectname" value='<fmt:message key="nugen.project.projectname.textbox.text"/>' onKeyup="updateVal();" onfocus="ClearForm();" onblur="addvalue();" onclick="expandDiv('assignTask')" />
+                               <input type="text" class="inputCreateButton" name="projectname" id="projectname" value='<fmt:message key="nugen.project.projectname.textbox.text"/>' onKeyup="updateVal();" onfocus="ClearForm();" onblur="addvalue();" onclick="" />
                            </td>
                            <td class="createButton" onclick="submitForm();">&nbsp;</td>
                        </tr>
@@ -98,7 +98,7 @@ Required parameter:
             </tr>
             <tr>
                 <td colspan="3">
-                <table id="assignTask" style="display:none">
+                <table id="assignTask">
                     <tr><td width="148" class="gridTableColummHeader_2" style="height:20px"></td></tr>
                     <tr>
                         <td width="148" class="gridTableColummHeader_2">Select Template:</td>
@@ -145,10 +145,10 @@ Required parameter:
                <td width="148" class="gridTableColummHeader_2"></td>
                <td width="39" style="width:20px;"></td>
                <td style="cursor:pointer">
-                <span id="showDiv" style="display:inline" onclick="setVisibility('assignTask')">
+                <span id="showDiv" style="display:inline" onclick="">
                     <img src="<%=ar.retPath %>/assets/createSeperatorDown.gif" width="398" height="13"
                     title="Expand" alt="" /></span>
-                <span id="hideDiv" style="display:none" onclick="setVisibility('assignTask')">
+                <span id="hideDiv" style="display:none" onclick="">
                     <img src="<%=ar.retPath %>/assets/createSeperatorUp.gif" width="398" height="13"
                     title="Collapse" alt="" /></span>
                </td>
@@ -156,50 +156,7 @@ Required parameter:
        </table>
    </form>
 
-   <div class="generalHeadingBorderLess">List of Projects</div>
-   <div id="paging"></div>
-    <div id="container">
-    <table id="pagelist">
-    <thead>
-        <tr>
-            <th>No</th>
-            <th>Project Name</th>
-            <th>Last Modified</th>
-            <th>Comment</th>
-            <th>Time Period</th>
-        </tr>
-    </thead>
-    <tbody>
-    <%
-    int sno=0;
-    for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInAccount(accountKey))
-    {
-        sno++;
-        String linkAddr = ar.retPath + "t/" +ngpi.pageBookKey+"/"+ngpi.containerKey + "/projectHome.htm";
-    %>
-        <tr>
-            <td>
-                <%=sno%>
-            </td>
-            <td>
-                <a href="<%writeHtml(out, linkAddr);%>" title="navigate to the page"><%writeHtml(out, ngpi.containerName);%></a>
-            </td>
-            <td>
-                <%SectionUtil.nicePrintTime(out, ngpi.lastChange, ar.nowTime);%>
-            </td>
-            <td></td>
-            <td style='display:none'><%= (ar.nowTime - ngpi.lastChange)/1000%></td>
-        </tr>
-<%
-    }
-
-%>
-        </tbody>
-   </table>
-   </div>
-
-</div>
-   <script language="javascript">
+<script language="javascript">
       initCal();
 </script>
 <script type="text/javascript">

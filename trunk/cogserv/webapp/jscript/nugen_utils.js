@@ -86,9 +86,9 @@ TabRef = function(href,name,ref){
              }else if(headerType == "account") {
                   arrayOfTabs = [
                         new TabRef(retPath+"t/"+accountId+"/$/public.htm","Account Notes","accountSubMenu1"),
-                        new TabRef(retPath+"t/"+accountId+"/$/account_process.htm","Account Projects",""),
-                        new TabRef(retPath+"t/"+accountId+"/$/account_attachment.htm","Account Documents","accountSubMenu2"),
-                        new TabRef(retPath+"t/"+accountId+"/$/account_settings.htm","Account Settings","accountSubMenu3")
+                        new TabRef(retPath+"t/"+accountId+"/$/accountListProjects.htm","Account Projects","accountSubMenu2"),
+                        new TabRef(retPath+"t/"+accountId+"/$/account_attachment.htm","Account Documents","accountSubMenu3"),
+                        new TabRef(retPath+"t/"+accountId+"/$/account_settings.htm","Account Settings","accountSubMenu4")
                    ];
              }else if(headerType == "blank") {
                         arrayOfTabs = [new TabRef(retPath+"t/"+book+"/"+pageId+"/projectHome.htm","Project","")
@@ -153,29 +153,32 @@ TabRef = function(href,name,ref){
 
     var arrayOfSubMenu=0;var arrayOfMainMenu=0;
     if(headerType == "account") {
-      var arrayOfTabs1 = [new Tab(retPath+"t/"+accountId+"/$"+"/public.htm","Public Notes"),
-                      new Tab(retPath+"t/"+accountId+"/$"+"/member.htm","Member Notes"),
-                      new Tab(retPath+"t/"+accountId+"/$"+"/account_history.htm","Account Bulletin")
+      var accountSubMenu1 = [new Tab(retPath+"t/"+accountId+"/$/public.htm","Public Notes"),
+                      new Tab(retPath+"t/"+accountId+"/$/member.htm","Member Notes"),
+                      new Tab(retPath+"t/"+accountId+"/$/account_history.htm","Account Bulletin")
       ];
-      var arrayOfTabs2 = [new Tab(retPath+"t/"+accountId+"/$"+"/account_attachment.htm","Account Document"),
-                      new Tab(retPath+"t/"+accountId+"/$"+"/account_reminders.htm","Reminders"),
-                      new Tab(retPath+"t/"+accountId+"/$"+"/uploadDocument.htm","Upload Document"),
-                      new Tab(retPath+"t/"+accountId+"/$"+"/linkURLToProject.htm","Link URL to Account"),
-                      new Tab(retPath+"t/"+accountId+"/$"+"/emailReminder.htm","Send Email Reminder")
+      var accountSubMenu2 = [new Tab(retPath+"t/"+accountId+"/$/accountListProjects.htm","List Projects"),
+                      new Tab(retPath+"t/"+accountId+"/$/accountCreateProject.htm","Create New Project")
       ];
-
-      var arrayOfTabs3 = [new Tab(retPath+"t/"+accountId+"/$"+"/personal.htm","Personal"),
-                      new Tab(retPath+"t/"+accountId+"/$"+"/permission.htm","Permissions"),
-                      new Tab(retPath+"t/"+accountId+"/$"+"/roleRequest.htm","Role Requests") ,
-                      new Tab(retPath+"t/"+accountId+"/$"+"/admin.htm","Admin")
+      var accountSubMenu3 = [new Tab(retPath+"t/"+accountId+"/$/account_attachment.htm","Account Document"),
+                      new Tab(retPath+"t/"+accountId+"/$/account_reminders.htm","Reminders"),
+                      new Tab(retPath+"t/"+accountId+"/$/uploadDocument.htm","Upload Document"),
+                      new Tab(retPath+"t/"+accountId+"/$/linkURLToProject.htm","Link URL to Account"),
+                      new Tab(retPath+"t/"+accountId+"/$/emailReminder.htm","Send Email Reminder")
       ];
-      arrayOfSubMenu=["accountSubMenu1","accountSubMenu2","accountSubMenu3"];
-      arrayOfMainMenu =[arrayOfTabs1,arrayOfTabs2,arrayOfTabs3]
+      var accountSubMenu4 = [new Tab(retPath+"t/"+accountId+"/$/personal.htm","Personal"),
+                      new Tab(retPath+"t/"+accountId+"/$/permission.htm","Permissions"),
+                      new Tab(retPath+"t/"+accountId+"/$/roleRequest.htm","Role Requests"),
+                      new Tab(retPath+"t/"+accountId+"/$/admin.htm","Admin")
+      ];
+      arrayOfSubMenu=["accountSubMenu1","accountSubMenu2","accountSubMenu3","accountSubMenu4"];
+      arrayOfMainMenu =[accountSubMenu1, accountSubMenu2, accountSubMenu3, accountSubMenu4];
     }else if(headerType == "user"){
         var arrayOfTabs1 = [new Tab(retPath+"v/"+userKey+"/watchedProjects.htm","Watched Projects"),
             new Tab(retPath+"v/"+userKey+"/notifiedProjects.htm","Notified Projects"),
             new Tab(retPath+"v/"+userKey+"/allProjects.htm","All Projects"),
-            new Tab(retPath+"v/"+userKey+"/templates.htm","Templates")
+            new Tab(retPath+"v/"+userKey+"/templates.htm","Templates"),
+            new Tab(retPath+"v/"+userKey+"/userCreateProject.htm","Create New Project")
         ];
 
         var arrayOfTabs2 = [new Tab(retPath+"v/"+userKey+"/userActiveTasks.htm","My Active Goals"),
@@ -190,6 +193,7 @@ TabRef = function(href,name,ref){
             new Tab(retPath+"v/"+userKey+"/userAccounts.htm","Accounts"),
             new Tab(retPath+"v/"+userKey+"/notificationSettings.htm","Unsubscribe")
         ];
+
         if(isSuperAdmin=="true"){
             var arrayOfTabs4 = [new Tab(retPath+"v/"+userKey+"/emailListnerSettings.htm","Email"),
                 new Tab(retPath+"v/"+userKey+"/lastNotificationSend.htm","Last Notification Send"),
