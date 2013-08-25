@@ -24,6 +24,13 @@ public class MicroProfileMgr {
         refreshMicroProfilesHashTable();
     }
 
+    public synchronized static void clearAllStaticVars() {
+        microProfiles = new Hashtable<String, MicroProfileRecord>();
+        allProfileIds = new Vector<AddressListEntry>();
+        profileFile = null;
+    }
+
+
     public static void refreshMicroProfilesHashTable() throws Exception
     {
         microProfiles = new Hashtable<String, MicroProfileRecord>();

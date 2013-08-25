@@ -1,16 +1,11 @@
 package org.socialbiz.cog.spring;
 
-import org.socialbiz.cog.AuthDummy;
 import org.socialbiz.cog.AuthRequest;
-import org.socialbiz.cog.EmailListener;
-import org.socialbiz.cog.EmailSender;
-import org.socialbiz.cog.MicroProfileMgr;
 import org.socialbiz.cog.NGPageIndex;
-import org.socialbiz.cog.SendEmailTimerTask;
+import org.socialbiz.cog.ServerInitializer;
 import org.socialbiz.cog.util.SSLPatch;
 import java.net.URLEncoder;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +15,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 /**
 * The purpose of this class is to wrap the Spring DispatcherServlet
-* object in a way that conver the HTTPResponse parameter into a
+* object in a way that convert the HTTPResponse parameter into a
 * HttpServletResponseWithoutBug object, in order to avoid problems
 * with getting the output stream more than one time.
 *
@@ -34,7 +29,6 @@ public class SpringServletWrapper extends HttpServlet
 
     //there is only one of these created, and this is a pointer to it
     private static SpringServletWrapper instance;
-    private static boolean isInitializedOthers = false;
 
     public SpringServletWrapper()
     {
@@ -59,7 +53,7 @@ public class SpringServletWrapper extends HttpServlet
             requestAddr = ar.getCompleteURL();
 
             //test for initialized, and if not redirect to config page
-            if (!NGPageIndex.isInitialized()) {
+            if (!ServerInitializer.isRunning()) {
                 try {
                     String configDest = ar.retPath + "init/config.htm?go="
                             +URLEncoder.encode(requestAddr,"UTF-8");
@@ -69,10 +63,6 @@ public class SpringServletWrapper extends HttpServlet
                 catch (Exception e) {
                     throw new ServletException("Error while attempting to redirect to the configuration page", e);
                 }
-            }
-
-            if(!isInitializedOthers){
-                initOthers();
             }
 
             System.out.println("[Web URL: "+requestAddr+"]");
@@ -89,12 +79,12 @@ public class SpringServletWrapper extends HttpServlet
     }
 
     /**
-    * must reflect the init method to the wrapped class
+    * Initializes the entire Cognoscenti system by calling SystemInitializer
     */
     public void init(ServletConfig config)
           throws ServletException
     {
-
+        // first reflect the init method to the wrapped class
         wrappedServlet.init(config);
         try
         {
@@ -107,17 +97,15 @@ public class SpringServletWrapper extends HttpServlet
             //at any time after this point in this VM.
             SSLPatch.disableSSLCertValidation();
 
-            ServletContext sc = config.getServletContext();
-            NGPageIndex.initialize(sc);
-            AuthDummy.initializeDummyRequest( config );
-            EmailSender.initSender(sc, wrappedServlet.getWebApplicationContext());
-            EmailListener.initListener();
+            //This should initialize EVERYTHING.  Most importantly, it starts a thread
+            //that allows subsequence initializations automatically.
+            ServerInitializer.startTheServer(config, wrappedServlet.getWebApplicationContext());
         }
         catch (Exception e)
         {
             throw new ServletException("Spring Servlet Wrapper while initializing.", e);
         }
-        initOthers();
+
         //store a pointer to this object AFTER it is initialized
         instance = this;
     }
@@ -139,19 +127,5 @@ public class SpringServletWrapper extends HttpServlet
         instance.wrappedServlet.service(ar.req, ar.resp);
     }
 
-
-    public static void initOthers()//throws Exception
-    {
-        try
-        {
-            MicroProfileMgr.loadMicroProfilesInMemory();
-            SendEmailTimerTask.initEmailSender();
-            isInitializedOthers = true;
-        }catch (Exception e)
-        {
-            isInitializedOthers = false;
-            //throw new ServletException("Spring Servlet Wrapper while loading micro-profiles or SendEmailTimer.", e);
-        }
-    }
 
 }

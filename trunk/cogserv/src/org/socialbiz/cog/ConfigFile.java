@@ -71,12 +71,9 @@ public class ConfigFile {
 
             if (!configFile.exists()) {
                 // config file must exist. The server context folder is a given,
-                // there
-                // are no options about that, and the config file must exist in
-                // that folder
-                // so if there is no file there, go ahead and create one with
-                // reasonable
-                // default values
+                // there are no options about that, and the config file must exist
+                // in that folder so if there is no file there, go ahead and create
+                // one with reasonable default values
                 Properties newConfig = new Properties();
                 newConfig.put("dataFolder", sc.getRealPath("data_folder"));
                 newConfig.put("attachFolder", sc.getRealPath("attach_folder"));

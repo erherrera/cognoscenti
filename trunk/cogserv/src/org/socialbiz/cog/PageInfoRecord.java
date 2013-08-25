@@ -20,23 +20,22 @@ public class PageInfoRecord extends DOMFace
         roleList = requireChild("roleList", DOMFace.class);
         roleRequestList = requireChild("Role-Requests", DOMFace.class);
 
+        //schema migration ... all pages are required to have a book (account) key
+        //if it is missing, add it now.
+        String thisBookKey = getAttribute("book");
+        if (thisBookKey==null || thisBookKey.length()==0) {
+            setAttribute("book", NGBook.DEFAULT_BOOK_KEY);
+        }
     }
 
     /**
     * Always returns a value.  If no value has been set in the file
     * this will return the default book key.
     */
-    public String getBookKey()
-    {
-        String thisBookKey = getAttribute("book");
-        if (thisBookKey==null || thisBookKey.length()==0)
-        {
-            thisBookKey = NGBook.DEFAULT_BOOK_KEY;
-        }
-        return thisBookKey;
+    public String getBookKey() {
+        return getAttribute("book");
     }
-    public void setBookKey(String newKey)
-    {
+    public void setBookKey(String newKey) {
         setAttribute("book", newKey);
     }
 

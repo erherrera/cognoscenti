@@ -15,14 +15,13 @@ public class SendEmailTimerTask extends TimerTask {
         EmailRecordMgr.initializeEmailRecordMgr();
     }
 
-    public static void initEmailSender() throws Exception
+    public static void initEmailSender(Timer timer) throws Exception
     {
         if(sendEmailSingleton != null){
             return;
             //throw new Exception("Try to create duplicate instance of SendEmail Singleton class.");
         }
         sendEmailSingleton = new SendEmailTimerTask();
-        Timer timer = new Timer();
         timer.scheduleAtFixedRate(sendEmailSingleton, 60000, EVERY_TWO_HOURS);
     }
 

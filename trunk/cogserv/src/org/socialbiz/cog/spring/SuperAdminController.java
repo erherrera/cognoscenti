@@ -107,7 +107,8 @@ public class SuperAdminController extends BaseController {
              HttpServletResponse response)
      throws Exception {
          try {
-             AuthRequest ar = NGWebUtils.getAuthRequest(request, response, "User must be logged in as a Super admin to see the error Log.");
+             AuthRequest ar = NGWebUtils.getAuthRequest(request, response,
+                     "User must be logged in as a Super admin to see the error Log.");
              Date date = new SimpleDateFormat("MM/dd/yyyy").parse(searchByDate);
              File xmlFile=ErrorLog.getErrorFileFullPath(date);
 
@@ -132,13 +133,15 @@ public class SuperAdminController extends BaseController {
       * TODO: this is ridiculous having the user ID in the path... not needed, not used
       */
      @RequestMapping(value = "/{userKey}/errorDetails{errorId}.htm", method = RequestMethod.GET)
-     public ModelAndView errorDetailsPage(@PathVariable String errorId, @RequestParam String searchByDate,HttpServletRequest request,
+     public ModelAndView errorDetailsPage(@PathVariable String errorId,
+             @RequestParam String searchByDate,HttpServletRequest request,
              HttpServletResponse response)
      throws Exception {
 
          ModelAndView modelAndView = null;
          try{
-             AuthRequest ar=NGWebUtils.getAuthRequest(request, response, "User must be logged in as a Super admin to see the error Log.");
+             AuthRequest ar=NGWebUtils.getAuthRequest(request, response,
+                     "User must be logged in as a Super admin to see the error Log.");
              modelAndView = new ModelAndView("detailsErrorLog");
              modelAndView.addObject("errorId", errorId);
              modelAndView.addObject("errorDate", searchByDate);
@@ -155,7 +158,8 @@ public class SuperAdminController extends BaseController {
      throws Exception {
 
          try{
-             AuthRequest ar =NGWebUtils.getAuthRequest(request, response, "User must be logged in as a Super admin to see the error Log.");
+             AuthRequest ar =NGWebUtils.getAuthRequest(request, response,
+                     "User must be logged in as a Super admin to see the error Log.");
              String userComments=ar.defParam("comments", "");
 
              String searchByDate=ar.reqParam("searchByDate");

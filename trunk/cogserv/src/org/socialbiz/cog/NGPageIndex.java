@@ -86,6 +86,7 @@ public class NGPageIndex
     public boolean  isDeleted;
     public String[] admins;   //a.k.a. authors
 
+    //TODO: change this to a File object
     public String   containerPath;
     public String   containerName;    //The nicest name to use for this container
     public String   containerKey;
@@ -102,7 +103,7 @@ public class NGPageIndex
     */
     private int containerType = 0;
 
-    //use these contstants for containerType
+    //use these constants for containerType
     private static final int CONTAINER_TYPE_ACCOUNT = 1;
     //private static final int CONTAINER_TYPE_USER = 2;
     private static final int CONTAINER_TYPE_PAGE = 3;
@@ -468,16 +469,6 @@ public class NGPageIndex
     }
 
 
-
-    // 0 = nothing done yet
-    // 1 = something is attempting to initialize
-    // 2 = tried and was not able to initialize
-    // 3 = tried and succeeded in initializing
-    private static int       initMode = 0;
-
-    private static Exception initFailure = null;
-
-
     /**
     * This method must not be called by any method that is used during
     * the actual initialization itself.  This method will wait for up
@@ -486,13 +477,15 @@ public class NGPageIndex
     */
     public static boolean isInitialized()
     {
+        //if the server is currently actively being initialized, then it if probably worth
+        //waiting a few seconds instead of failing
         int countDown = 40;
-        while (initMode<2 && --countDown>0)
+        while (ServerInitializer.isActivelyStarting() && --countDown>0)
         {
-            //test every half second, and wait up to twenty seconds for the
-            //init mode to get into either 2 (failed) or 3 (succeeded)
+            //test every 1/5 second, and wait up to 8 seconds for the
+            //server to finish initializing, otherwise give up
             try {
-                Thread.sleep(500);
+                Thread.sleep(200);
             }
             catch (Exception e) {
                 countDown = 0;
@@ -500,12 +493,13 @@ public class NGPageIndex
                 //just exit loop if sleep throws exception
             }
         }
-        return (initMode==3);
+
+        return (ServerInitializer.isRunning());
     }
 
     public static Exception initFailureException()
     {
-        return initFailure;
+        return ServerInitializer.lastFailureMsg;
     }
 
     /**
@@ -518,65 +512,37 @@ public class NGPageIndex
     {
         if (!isInitialized())
         {
-            if (initFailure!=null)
+            Exception ex = initFailureException();
+            if (ex!=null)
             {
-                throw new NGException("nugen.exception.sys.not.initialize.correctly",null, initFailure);
+                throw new NGException("nugen.exception.sys.not.initialize.correctly",null, ex);
             }
             throw new ProgramLogicError("NGPageIndex has never been initialized");
         }
     }
 
 
-    public static synchronized void initialize(ServletContext sc)
+    public static synchronized void initializeInternal(ServletContext sc) throws Exception
     {
-        //set this to indicate that initializing is under way
-        initMode = 1;
+        ConfigFile.initialize(sc);
+        ConfigFile.assertConfigureCorrectInternal();
 
-        //cancel any earlier initialization
-        clearAllStaticVars();
+        UserManager.loadUpUserProfilesInMemory();
 
-        //garbage collect at this time, cleans out the heap space
-        //freeing up and defragmenting memory
-        System.gc();
+        String attachFolder = ConfigFile.getProperty("attachFolder");
+        File attachFolderFile = new File(attachFolder);
+        AttachmentVersionSimple.attachmentFolder = attachFolderFile;
 
-        try {
-
-            ConfigFile.initialize(sc);
-            ConfigFile.assertConfigureCorrectInternal();
-
-            UserManager.loadUpUserProfilesInMemory();
-
-            String attachFolder = ConfigFile.getProperty("attachFolder");
-            File attachFolderFile = new File(attachFolder);
-            AttachmentVersionSimple.attachmentFolder = attachFolderFile;
-
-            //reinitialize ... should be as good as new.
-            initIndex();
-            initFailure = null;
-            initMode = 3;
-
-            SSOFIUserManager.initSSOFI(ConfigFile.getProperty("baseURL"));
-        }
-        catch (Exception e)
-        {
-            allContainers = null;
-            keyToContainer = null;
-            initFailure = e;
-            initMode = 2;
-        }
+        //reinitialize ... should be as good as new.
+        initIndex();
+        SSOFIUserManager.initSSOFI(ConfigFile.getProperty("baseURL"));
     }
 
     public static synchronized void initIndex() throws Exception {
         if (allContainers == null) {
-            try {
-                String path = ConfigFile.getProperty("dataFolder");
-                NGPage.initDataPath(path);
-                scanAllPages();
-            }
-            catch (Exception e) {
-                initFailure = e;
-                throw e;
-            }
+            String path = ConfigFile.getProperty("dataFolder");
+            NGPage.initDataPath(path);
+            scanAllPages();
         }
     }
 
@@ -634,7 +600,6 @@ public class NGPageIndex
             }
 
             seekProjectsAndAccounts(libDirectory, allProjectFiles, allAccountFiles);
-            //seekProjects(libDirectory);
         }
 
         //now process the project files if any
@@ -649,7 +614,7 @@ public class NGPageIndex
     private static void seekProjectsAndAccounts(File folder, Vector<File> pjs, Vector<File> acts)
             throws Exception {
 
-        //only use the first ".sp" file or ".account" file in a given folder
+        //only use the first ".sp" file or ".acct" file in a given folder
         boolean foundOne = false;
 
         for (File child : folder.listFiles()) {
@@ -665,31 +630,9 @@ public class NGPageIndex
                 pjs.add(child);
                 foundOne = true;
             }
-            else if (name.endsWith(".account")) {
+            else if (name.endsWith(".acct")) {
                 acts.add(child);
                 foundOne = true;
-            }
-        }
-    }
-
-    private static void seekProjects(File folder)  throws Exception {
-
-        //only use the first ".sp" file in a given folder
-        boolean foundOne = false;
-
-        for (File child : folder.listFiles()) {
-
-            String name = child.getName();
-            if (name.endsWith(".sp")) {
-                if (!foundOne) {
-                    NGProj aProj = NGProj.readProjAbsolutePath(child);
-                    makeIndex(aProj);
-                }
-                foundOne = true;
-                continue;
-            }
-            else if (child.isDirectory()) {
-                seekProjects(child);
             }
         }
     }
@@ -1415,15 +1358,6 @@ public class NGPageIndex
 
 
 ///////////////// DEPRECATED ///////////////////////////
-
-    /**
-    * @deprecated Use getAllProjectsInAccount instead
-    */
-    public static Vector<NGPageIndex> getAllPagesInBook(String accountKey) throws Exception
-    {
-        return getAllProjectsInAccount(accountKey);
-    }
-
 
 
 }

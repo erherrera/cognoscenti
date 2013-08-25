@@ -36,7 +36,7 @@ public class EmailListener extends TimerTask{
     public static Exception threadLastCheckException = null;
 
     //expressed in milliseconds
-    private final static long EVERY_TWENTY_SECONDS = 1000*20;
+    private final static long EVERY_MINUTE = 1000*60;
 
     private static Session session = null;
 
@@ -45,6 +45,7 @@ public class EmailListener extends TimerTask{
     private AuthRequest ar;
     private static HashSet<String> alreadyProcessed = new HashSet<String>();
 
+    //TODO: this can probably be eliminated, and replaced with the PAUSE/REINIT model
     public static boolean propertiesChanged = false;
     public static long lastFolderRead;
 
@@ -59,16 +60,20 @@ public class EmailListener extends TimerTask{
      * This is an initialization routine, and should only be called once, when the
      * server starts up.  There are some error checks to make sure that this is the case.
      */
-     public static void initListener() throws Exception
+     public static void initListener(Timer timer) throws Exception
      {
-         //nothing else should create the EmailListener
-         if (singletonListener!=null)
-         {
+         singletonListener = new EmailListener();
+         String user = emailProperties.getProperty("mail.pop3.user");
+         if (user==null || user.length()==0) {
+             System.out.println("Email listener: no configuration for mail.pop3.user");
              return;
          }
-         singletonListener = new EmailListener();
-         Timer timer = new Timer();
-         timer.scheduleAtFixedRate(singletonListener, 60000, EVERY_TWENTY_SECONDS);
+         String pwd = emailProperties.getProperty("mail.pop3.password");
+         if (pwd==null || pwd.length()==0) {
+             System.out.println("Email listener: no configuration for mail.pop3.password");
+             return;
+         }
+         timer.scheduleAtFixedRate(singletonListener, 60000, EVERY_MINUTE);
      }
 
      public void run()
@@ -78,7 +83,7 @@ public class EmailListener extends TimerTask{
          {
              // start by checking the configuration, and just skip out if not configured
              // TODO: need a better way to report these configuration problem
-             //for now, just exit without a fuss
+             // for now, just exit without a fuss
              if(emailProperties == null) {
                  System.out.println("Email listener: is not configured");
                  return;
