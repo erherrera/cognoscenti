@@ -4,6 +4,7 @@
 %><%@page import="org.socialbiz.cog.NGBook"
 %><%@page import="org.socialbiz.cog.NGPage"
 %><%@page import="org.socialbiz.cog.NGPageIndex"
+%><%@page import="org.socialbiz.cog.ServerInitializer"
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.GoalRecord"
 %><%@page import="org.socialbiz.cog.UserManager"
@@ -22,29 +23,26 @@
         action = "Reinitialize Index";
     }
 
-    if (action.equals("Reinitialize Index") || action.equals("Start Email Sender"))
-    {
-        ServletContext sc = session.getServletContext();
-
+    if (action.equals("Reinitialize Index") || action.equals("Start Email Sender")) {
         ar.getSession().flushConfigCache();
-        NGPageIndex.initialize(sc);
-
-        //attempt to garbage collect when we have as few objects as possible
-        System.gc();
-
-        UserManager.reloadUserProfiles();
+        
+        // Only if the server is running, then this code will
+        // set it into paused mode, wait a few seconds, and then
+        // cause the server to be completely reinitialized.
+        if (ServerInitializer.isRunning()) {
+            ServerInitializer.pauseServer();
+            Thread.sleep(20);
+            ServerInitializer.reinitServer();
+        }
     }
-    else if (action.equals("Remove Disabled Users"))
-    {
+    else if (action.equals("Remove Disabled Users")) {
         UserManager.removeDisabledUsers();
         UserManager.reloadUserProfiles();
     }
-    else if (action.equals("Send Test Email"))
-    {
+    else if (action.equals("Send Test Email")) {
         EmailSender.sendTestEmail();
     }
-    else
-    {
+    else {
         throw new Exception ("Unrecognized command: "+action);
     }
 
@@ -55,14 +53,10 @@
 public void deleteMarkedPages()
         throws Exception
 {
-    Vector v = NGPageIndex.getDeletedContainers();
-    Enumeration e = v.elements();
-    while (e.hasMoreElements())
+    for (NGPageIndex ngpi : NGPageIndex.getDeletedContainers())
     {
-        NGPageIndex ngpi = (NGPageIndex) e.nextElement();
         File deadFile = new File(ngpi.containerPath);
-        if (deadFile.exists())
-        {
+        if (deadFile.exists()) {
             deadFile.delete();
         }
     }

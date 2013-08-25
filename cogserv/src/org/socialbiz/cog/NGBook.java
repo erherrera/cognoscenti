@@ -26,8 +26,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     // reading. Initialized by scanAllBooks() method.
     private static Hashtable<String, NGBook> keyToBook = null;
     private static Vector<NGBook> allAccounts = null;
-    private static NGBook defaultBook = null;
-    // private Vector sectionElements = null;
+
     private String address;
     private Vector<String> existingIds = null;
     private String[] displayNames;
@@ -150,7 +149,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     /**
-     * Creates the sepcial default book This should be kept in sync with above
+     * Creates the special default book This should be kept in sync with above
      * routine.
      */
     private static NGBook createBookByKey(String key, String name) throws Exception {
@@ -194,10 +193,6 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     public String getKey() {
         return key;
-    }
-
-    public boolean isDefaultBook() {
-        return (key.equals(DEFAULT_BOOK_KEY));
     }
 
     public String getName() {
@@ -270,7 +265,6 @@ public class NGBook extends ContainerCommon implements NGContainer {
     public synchronized static void clearAllStaticVars() {
         keyToBook = null;
         allAccounts = null;
-        defaultBook = null;
     }
 
     /**
@@ -321,11 +315,9 @@ public class NGBook extends ContainerCommon implements NGContainer {
         // or code on another thread that may be running.
         keyToBook = null;
         allAccounts = null;
-        defaultBook = null;
 
         Hashtable<String, NGBook> tKeyToBook = new Hashtable<String, NGBook>();
         Vector<NGBook> tAllBooks = new Vector<NGBook>();
-        NGBook tDefaultBook = null;
 
         File root = ConfigFile.getFolderOrFail(rootDirectory);
 
@@ -342,19 +334,15 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
             NGBook ngb = readBookAbsolutePath(key, child);
 
-            if (key.equals(DEFAULT_BOOK_KEY)) {
-                tDefaultBook = ngb;
-            }
-
             tAllBooks.add(ngb);
             tKeyToBook.put(key, ngb);
         }
 
         if (keyToBook != null || allAccounts != null) {
-            // this is the 'self-descruct' message. Either something in
+            // this is the 'self-destruct' message. Either something in
             // the logic above, or something on a different thread
             // has manipulated the static variables during execution.
-            // A self-descruct does not solve the problem, but it does
+            // A self-destruct does not solve the problem, but it does
             // alert the programmer / admin that the code logic is
             // somehow incorrect.
             throw new ProgramLogicError("somewhere inside "
@@ -369,15 +357,6 @@ public class NGBook extends ContainerCommon implements NGContainer {
         // now make them live
         keyToBook = tKeyToBook;
         allAccounts = tAllBooks;
-
-        // set up the default book. Done after the exposure of the indices
-        // above just in case the methods to create a book use the indices.
-        if (tDefaultBook == null) {
-            tDefaultBook = createBookByKey(DEFAULT_BOOK_KEY, "Main Book");
-            tAllBooks.add(tDefaultBook);
-            tKeyToBook.put(DEFAULT_BOOK_KEY, tDefaultBook);
-        }
-        defaultBook = tDefaultBook;
     }
 
     public static NGBook createNewAccount(String key, String name) throws Exception {

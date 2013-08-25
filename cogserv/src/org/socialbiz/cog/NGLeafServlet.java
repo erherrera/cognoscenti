@@ -109,7 +109,7 @@ public class NGLeafServlet extends javax.servlet.http.HttpServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         try {
-            if (!NGPageIndex.isInitialized()) {
+            if (!ServerInitializer.isRunning()) {
                 String go = ar.getRequestURL();
                 String configDest = ar.retPath + "init/config.htm?go="+URLEncoder.encode(go,"UTF-8");
                 resp.sendRedirect(configDest);
@@ -350,22 +350,7 @@ public class NGLeafServlet extends javax.servlet.http.HttpServlet {
     public void init(ServletConfig config)
           throws ServletException
     {
-        try
-        {
-            initializationException = null;
-            ServletContext sc = config.getServletContext();
-            NGPageIndex.initialize(sc);
-            AuthDummy.initializeDummyRequest(config);
-        }
-        catch (Exception e)
-        {
-            initializationException = e;
-            throw new ServletException("Unable to initialize the page index.", e);
-        }
-        finally
-        {
-            NGPageIndex.clearLocksHeldByThisThread();
-        }
+        //don't initialize here.  Instead, initialize in SpringServlet!
     }
 
     private void handleException(Exception e, AuthRequest ar)

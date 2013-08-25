@@ -309,7 +309,7 @@
     </definition>
     <definition name="SendNoteByEmail" extends="baseLayoutWithoutLeftPanel">
         <put-attribute name="title" value="Send Note By Email" />
-        <put-attribute name="body" value="/spring/jsp/CommentEmail.jsp" />
+        <put-attribute name="body" value="/spring/jsp/SendNoteByEmail.jsp" />
     </definition>
     <definition name="EmailAdjustment" extends="baseLayoutWithoutLeftPanel">
         <put-attribute name="title" value="Adjust Email Subscriptions" />

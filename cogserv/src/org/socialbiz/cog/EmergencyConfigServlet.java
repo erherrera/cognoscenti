@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,8 +17,14 @@ import org.workcast.streams.TemplateStreamer;
 import org.workcast.streams.TemplateTokenRetriever;
 
 /**
- * The emergency config servlet is used ONLY when the server is unable
- * to initialize itself.
+ * The emergency config servlet is used for special server states when the
+ * server is
+ * <ol>
+ *   <li> unable to initialize itself due to configuration problem</li>
+ *   <li> 'paused' off line for some administrative procedure</li>
+ *   <li> starting up</li>
+ *   <li> some administrative commands and functions</li>
+ * </ol>
  *
  * When the server starts up, it reads configuration files, and other files
  * as necessary, in order to start up.  It is possible for files to be
@@ -38,7 +43,7 @@ import org.workcast.streams.TemplateTokenRetriever;
  * be correct for the server to operate.  It is naturally possible that some
  * aspects of the server might not be available, and it is assumed that
  * that capability is controlled by some administrator function or administrator
- * user interface.  This emergeny config page is used when the server fails
+ * user interface.  This emergency config page is used when the server fails
  * to initialize itself, and can run without any assumptions about the
  * rest of the server running.
  *
@@ -79,20 +84,39 @@ import org.workcast.streams.TemplateTokenRetriever;
 @SuppressWarnings("serial")
 public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
 
-        //
+
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            resp = new HttpServletResponseWithoutBug(resp);
+            String cmd = req.getParameter("cmd");
+            if (cmd!=null && "admin".equals(cmd)) {
+                //need to restrict this to logged in person who is an admin.....
+                displayMsgPage(req, resp, new Exception(), "Admin.htm");
+                return;
+            }
 
             String go = req.getParameter("go");
-
             if (go==null) {
                 //accessing without a go parameter might be an attempt to crawl all the pages
                 //and this is simply an error.
-                throw new ProgramLogicError("Emergency config page needs a 'go' parameter, none found.");
+                displayMsgPage(req, resp, new Exception("Problem with this request: URL must have a 'go' parameter"), "Error.htm");
+                return;
             }
 
-            if (NGPageIndex.isInitialized()) {
+            if (ServerInitializer.serverInitState == ServerInitializer.STATE_PAUSED) {
+                displayMsgPage(req, resp, new Exception(), "Paused.htm");
+                return;
+            }
+            if (ServerInitializer.serverInitState == ServerInitializer.STATE_TESTING) {
+                displayMsgPage(req, resp, new Exception(), "Testing.htm");
+                return;
+            }
+            if (ServerInitializer.serverInitState == ServerInitializer.STATE_FAILED) {
+                displayConfigPage(req, resp);
+                return;
+            }
 
+            if (ServerInitializer.isRunning()) {
                 //this is the case that possibly the server was just now initialized, and now it has become
                 //initialized since the browser was directed here, so redirect back to where you came from.
                 //It is also possible that someone bookmarked the config page, and attempting to reach it
@@ -100,11 +124,6 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
                 resp.sendRedirect(go);
                 return;
             }
-
-            resp = new HttpServletResponseWithoutBug(resp);
-
-            displayConfigPage(req, resp);
-
         }
         catch (Exception e) {
             handleException(e, req, resp);
@@ -126,13 +145,7 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
 
             resp = new HttpServletResponseWithoutBug(resp);
 
-            if (!NGPageIndex.isInitialized()) {
-
-                //this is the case that possibly the server was just now initialized, and now it has become
-                //initialized since the browser was directed here, so redirect back to where you came from.
-                //Very important ... do NOT save any configuration information when server initialized.
-                handleFormPost(req, resp);
-            }
+            handleFormPost(req, resp);
 
             resp.sendRedirect(go);
 
@@ -156,17 +169,8 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
 
     private void handleException(Exception e, HttpServletRequest req, HttpServletResponse resp) {
         try {
-            Writer out = resp.getWriter();
-            resp.setContentType("text/html;charset=UTF-8");
-            out.write("<html><body><ul><li>Exception: ");
-            writeHtml(out, e.toString());
-            out.write("</li></ul>\n");
-            out.write("<hr/>\n");
-            out.write("<a href=\"../main.jsp\" title=\"Access the main page\">Main</a>\n");
-            out.write("<hr/>\n<pre>");
-            e.printStackTrace(new PrintWriter(new HTMLWriter(out)));
-            out.write("</pre></body></html>\n");
-            out.flush();
+            displayMsgPage(req, resp, e, "Error.htm");
+            return;
         } catch (Exception eeeee) {
             // nothing we can do here...
         }
@@ -184,127 +188,34 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
         resp.setContentType("text/html;charset=UTF-8");
 
         String go = req.getParameter("go");
-        ConfigTokenRetriever ctr = new ConfigTokenRetriever(go);
+        ConfigTokenRetriever ctr = new ConfigTokenRetriever(go, NGPageIndex.initFailureException());
 
         File templateFile = ConfigFile.getFileFromRoot("init/InitErrorDisplay.htm");
         TemplateStreamer.streamTemplate(out, templateFile, "UTF-8", ctr);
 
-/**
-        //we know that the server did not initialize, and here is why
-        Exception failure = NGPageIndex.initFailureException();
-        String initFailure =failure.toString();
-        StringBuffer mainMessage = new StringBuffer();
+        out.flush();
+    }
 
-        String dataFolder = ConfigFile.getProperty("dataFolder");
-        String attachFolder = ConfigFile.getProperty("attachFolder");
-        String userFolder = ConfigFile.getProperty("userFolder");
-        String pageNotification  = getOrDefault(req,"pageNotification");
-        String PageNotifChecked = "";
-        if (pageNotification!=null && "true".equals(pageNotification))
-        {
-            PageNotifChecked = " checked=\"checked\"";
+    /**
+    * This method needs to display the page without requiring any other service from the system
+    * It does assume that the ConfigFile class is working properly.
+    * There should be no fancy embellishments to the page, just very plain config page.
+    */
+    private void displayMsgPage(HttpServletRequest req, HttpServletResponse resp,
+            Exception msg, String pageName) throws Exception {
+
+        Writer out = resp.getWriter();
+        resp.setContentType("text/html;charset=UTF-8");
+
+        String go = req.getParameter("go");
+        if (go==null) {
+            go = req.getRequestURL().toString();
         }
+        ConfigTokenRetriever ctr = new ConfigTokenRetriever(go, msg);
 
-        String dataFolderMsg = getFolderMessage("dataFolder", dataFolder);
-        String attachFolderMsg = getFolderMessage("attachFolder", attachFolder);
-        String userFolderMsg = getFolderMessage("userFolder", userFolder);
+        File templateFile = ConfigFile.getFileFromRoot("init/"+pageName);
+        TemplateStreamer.streamTemplate(out, templateFile, "UTF-8", ctr);
 
-        if (mainMessage.length() == 0) {
-            mainMessage.append("This page displayed for unknown reason - Program logic error.");
-        }
-
-        out.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n");
-        out.write("<html>\n");
-        out.write("<head>\n");
-        out.write("<title>Initial Configuration Page</title>\n");
-        out.write("</head>\n");
-        out.write("<body>\n");
-        out.write("<h3>Initial Configuration Page</h3>\n");
-        out.write("<table border=\"0\" cellpadding=\"6\" cellspacing=\"0\">\n");
-        out.write("<tr>\n");
-        out.write("    <td alight=\"left\">Server Initialization Message<br/>\n");
-        out.write("    <font class=\"arialfonts\"> ");
-        writeHtml(out, initFailure);
-        out.write(" </font></td>\n");
-        out.write("</tr>\n");
-        out.write("</table>\n");
-        out.write("\n");
-        out.write("<table border=\"0\" cellpadding=\"6\" cellspacing=\"0\">\n");
-        out.write("<form action=\"configAction.htm\" method=\"post\" name=\"loginForm\">\n");
-        out.write("<input type=\"hidden\" name=\"encodingGuard\" value=\"");
-        writeHtml(out, "\u6771\u4eac");
-        out.write("\"/>\n");
-        out.write("<input type=\"hidden\" name=\"go\" value=\"");
-        writeHtml(out, go);
-        out.write("\">\n");
-        out.write("\n");
-        out.write("<tr>\n");
-        out.write("    <td><font class=\"arialfonts\">Data Folder</font></td>\n");
-        out.write("    <td><b>&nbsp;:&nbsp;</b></td>\n");
-        out.write("    <td><input type=\"text\" name=\"dataFolder\" value=\"");
-        writeHtml(out, dataFolder);
-        out.write("\" size=\"50\"></td>\n");
-        out.write("</tr>\n");
-        out.write("<tr>\n");
-        out.write("    <td colspan=\"3\"><font color=\"red\">");
-        writeHtml(out, dataFolderMsg);
-        out.write("</font></td>\n");
-        out.write("</tr>\n");
-        out.write("<tr>\n");
-        out.write("    <td><font class=\"arialfonts\">Attachment Folder</font></td>\n");
-        out.write("    <td><b>&nbsp;:&nbsp;</b></td>\n");
-        out.write("    <td><input type=\"text\" name=\"attachFolder\" value=\"");
-        writeHtml(out, attachFolder);
-        out.write("\" size=\"50\"></td>\n");
-        out.write("</tr>\n");
-        out.write("<tr>\n");
-        out.write("    <td colspan=\"3\"><font color=\"red\">");
-        writeHtml(out, attachFolderMsg);
-        out.write("</font></td>\n");
-        out.write("</tr>\n");
-        out.write("<tr>\n");
-        out.write("    <td><font class=\"arialfonts\">User Folder</font></td>\n");
-        out.write("    <td><b>&nbsp;:&nbsp;</b></td>\n");
-        out.write("    <td><input type=\"text\" name=\"userFolder\" value=\"");
-        writeHtml(out, userFolder);
-        out.write("\" size=\"50\"></td>\n");
-        out.write("</tr>\n");
-        out.write("<tr>\n");
-        out.write("    <td colspan=\"3\"><font color=\"red\">");
-        writeHtml(out, userFolderMsg);
-        out.write("</font></td>\n");
-        out.write("</tr>\n");
-        out.write("<tr>\n");
-        out.write("    <td><font class=\"arialfonts\">Auto Refresh</font></td>\n");
-        out.write("    <td><b>&nbsp;:&nbsp;</b></td>\n");
-        out.write("    <td><input type=\"checkbox\" name=\"pageNotification\" value=\"true\"");
-        out.write(PageNotifChecked);
-        out.write("></td>\n");
-        out.write("</tr>\n");
-
-        out.write("<tr>\n");
-        out.write("    <td colspan=\"3\" align=\"center\">\n");
-        out.write("<table border=\"0\" cellpadding=\"2\" cellspacing=\"0\">\n");
-        out.write("<tr valign=\"center\" align=\"center\"><td class=core-button-border>\n");
-        out.write("<input class=\"core-button\" name=\"option\" type=\"submit\" value=\"Reinitialize Without Changing Configuration\">\n");
-        out.write("<input class=\"core-button\" name=\"option\" type=\"submit\" value=\"Update Configuration\">\n");
-        out.write("</td>\n");
-        out.write("</tr>\n");
-        out.write("</table>\n");
-        out.write("\n");
-        out.write("</form>\n");
-        out.write("\n");
-        out.write("</td></tr>\n");
-        out.write("</table>\n");
-        if (failure != null) {
-            out.write("<pre>\n");
-            failure.printStackTrace(new PrintWriter(new HTMLWriter(out)));
-            out.write("</pre>\n");
-        }
-
-        out.write("</body>\n");
-        out.write("</html>\n");
-        ***/
         out.flush();
     }
 
@@ -319,24 +230,6 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
     }
 
 
-    private String getFolderMessage(String folderName, String folderValue)
-    {
-        if (folderValue == null || folderValue.length()== 0)
-        {
-            return folderName + " setting has not been set yet.  Please set to the path of that folder.";
-        }
-
-        File testFile = new File(folderValue);
-        if (!testFile.exists()) {
-            return folderName+" ("+folderValue +") does not exist.";
-        }
-
-        if (!testFile.isDirectory()) {
-            return folderName+" ("+folderValue +") is a file not a directory.";
-        }
-        return "";
-    }
-
     private static synchronized void handleFormPost(HttpServletRequest req, HttpServletResponse resp) throws Exception
     {
         // IMPORTANT:
@@ -347,59 +240,35 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
         // can break in.   Actually, it works only when the server is not initialized, which is presumably
         // because the configuration is incorrect.
 
-        if (NGPageIndex.isInitialized()) {
-            //if server was initialized while waiting to get the synchronize lock
-            //then just return without updating anything
-            return;
-        }
         String option = req.getParameter("option");
         if (option == null)
         {
             throw new ProgramLogicError("Post to config servlet must have an option parameter");
         }
 
-        String dataFolder    = getOrDefault(req,"dataFolder");
-        String attachFolder  = getOrDefault(req,"attachFolder");
-        String userFolder    = getOrDefault(req,"userFolder");
-        String pageNotification  = getOrDefault(req,"pageNotification");
-        if (pageNotification==null || !"true".equals(pageNotification))
-        {
-            pageNotification = "false";
+        if (option.equals("Pause the Server")) {
+            if (ServerInitializer.isRunning()) {
+                ServerInitializer.pauseServer();
+            }
+            return;
         }
-
-
-        // make sure to append "/" at the end of the path.
-        dataFolder = endStringWithBS(dataFolder);
-        attachFolder = endStringWithBS(attachFolder);
-
-        if (option.startsWith("Update"))
-        {
-            ConfigFile.setProperty("dataFolder",    dataFolder);
-            ConfigFile.setProperty("attachFolder",  attachFolder);
-            ConfigFile.setProperty("userFolder",    userFolder);
-            ConfigFile.setProperty("pageNotification",pageNotification);
-
-            //these settings no longer needed so clear them out in case any are left around
-            ConfigFile.setProperty("cvsEnabled",    null);
-            ConfigFile.setProperty("cvsConnectStr", null);
-            ConfigFile.setProperty("cvsPwd",        null);
-
-            ConfigFile.save();
+        if (option.equals("Restart the Server")) {
+            if (ServerInitializer.serverInitState == ServerInitializer.STATE_PAUSED) {
+                ServerInitializer.reinitServer();
+            }
+            return;
         }
+        if (option.equals("Reinitialize Server")) {
 
-        resp.setContentType("text/html;charset=UTF-8");
+            if (ServerInitializer.isRunning()) {
+                ServerInitializer.pauseServer();
+                Thread.sleep(3000);
+            }
 
-        //initialize the data folder file as necessary
-        File dataFolderFile = new File(dataFolder);
-        if (dataFolderFile.exists())
-        {
-            //initialize important variables and index
-            NGPageIndex.initIndex();
+            //reinitialize the server with these settings
+            ServerInitializer.reinitServer();
+            return;
         }
-
-        //reinitialize the server with these settings
-        ServletContext sc = req.getSession().getServletContext();
-        NGPageIndex.initialize(sc);
     }
 
 
@@ -454,24 +323,36 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
 
     private class ConfigTokenRetriever implements TemplateTokenRetriever {
         String go;
+        Exception ex;
 
-        ConfigTokenRetriever(String _go) {
+        ConfigTokenRetriever(String _go, Exception _e) {
             go = _go;
+            ex = _e;
         }
 
         @Override
         public void writeTokenValue(Writer out, String tokenName) throws Exception {
 
-            Exception failure = NGPageIndex.initFailureException();
-
             if ("exceptionMsg".equals(tokenName)) {
-                writeHtml(out, failure.toString());
+                Throwable t = ex;
+                out.write("\r");  //just white space
+                while (t!=null) {
+                    writeHtml(out, ex.toString());
+                    out.write("\r");  //just white space
+                    t = ex.getCause();
+                }
             }
             else if ("exceptionTrace".equals(tokenName)) {
-                failure.printStackTrace(new PrintWriter(out));
+                ex.printStackTrace(new PrintWriter(out));
+            }
+            else if ("serverState".equals(tokenName)) {
+                writeHtml(out, ServerInitializer.getServerStateString());
             }
             else if ("go".equals(tokenName)) {
                 writeHtml(out, go);
+            }
+            else if ("msg".equals(tokenName)) {
+                writeHtml(out, ex.toString());
             }
             else if (tokenName.startsWith("param ")) {
                 //must be "param name" where name is the name of a param
@@ -492,22 +373,41 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
                 String paramName = tokenName.substring(9).trim();
                 String paramValue = ConfigFile.getProperty(paramName);
                 if (paramValue==null) {
-                    out.write("<img src=\"../assets/images/redcircle.jpg\" width=\"10px\" height=\"10px\"><i>null value found</i>");
+                    out.write("<i>null value found</i>");
                 }
                 else if (paramValue.length()==0) {
-                    out.write("<img src=\"../assets/images/redcircle.jpg\" width=\"10px\" height=\"10px\"><i>zero length value found</i>");
+                    out.write("<i>zero length value found</i>");
                 }
                 else {
                     File thisPath = new File(paramValue);
                     if (!thisPath.exists()) {
-                        out.write("<img src=\"../assets/images/redcircle.jpg\" width=\"10px\" height=\"10px\">");
                         writeHtml(out, paramValue);
                         out.write("<br/><i>This path does not exist on this server.</i>");
                     }
                     else {
-                        out.write("<img src=\"../assets/images/greencircle.jpg\" width=\"10px\" height=\"10px\">");
                         writeHtml(out, paramValue);
                         out.write("<br/><i>This path exists on this server.</i>");
+                    }
+                }
+            }
+            else if (tokenName.startsWith("color ")) {
+                //must be "color name" where name is the name of a config parameter
+                //writes out 'red' or 'green' to indicate the color of the image to use
+                String paramName = tokenName.substring(6).trim();
+                String paramValue = ConfigFile.getProperty(paramName);
+                if (paramValue==null) {
+                    out.write("red");
+                }
+                else if (paramValue.length()==0) {
+                    out.write("red");
+                }
+                else {
+                    File thisPath = new File(paramValue);
+                    if (!thisPath.exists()) {
+                        out.write("red");
+                    }
+                    else {
+                        out.write("green");
                     }
                 }
             }

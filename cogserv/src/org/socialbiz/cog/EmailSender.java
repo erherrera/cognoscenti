@@ -45,6 +45,7 @@ import org.springframework.context.ApplicationContext;
  */
 public class EmailSender extends TimerTask {
     private static EmailSender singletonSender = null;
+    private static SendEmailThread sendEmailThread = null;
     private static ApplicationContext resourceBundle;
     private static Properties emailProperties = new Properties();
 
@@ -73,21 +74,6 @@ public class EmailSender extends TimerTask {
      */
     public static Exception threadLastMsgException = null;
 
-    @SuppressWarnings("unused")
-    private static SendEmailThread sendEmailThread = null;
-
-    /**
-     * @deprecated
-     */
-    public static void quickEmail(AddressListEntry ale, String from,
-            String subject, String emailBody) throws Exception {
-        String address = ale.getEmail();
-        if (address == null || address.length() == 0) {
-            throw new NGException("nugen.exception.unable.to.send.email",
-                    new Object[] { ale.getName() });
-        }
-        quickEmail(new OptOutAddr(ale), from, subject, emailBody);
-    }
 
     /**
      * quickEmail - Send a email to a single email address (as an
@@ -112,7 +98,6 @@ public class EmailSender extends TimerTask {
     private EmailSender() throws Exception {
         refreshProperties();
         assertEmailConfigOK();
-        sendEmailThread = new SendEmailThread();
     }
 
     private static void refreshProperties() throws Exception {
@@ -140,7 +125,7 @@ public class EmailSender extends TimerTask {
      * server starts up. There are some error checks to make sure that this is
      * the case.
      */
-    public static void initSender(ServletContext sc,
+    public static void initSender(Timer timer, ServletContext sc,
             ApplicationContext _resourceBundle) throws Exception {
         resourceBundle = _resourceBundle;
         // nothing else should create the EmailSender
@@ -161,7 +146,6 @@ public class EmailSender extends TimerTask {
         // shows that email is overdue ... then it sends the email. As long as
         // the server is up, the mail should
         // always be sent within 10 minutes of the time it was scheduled to go.
-        Timer timer = new Timer();
 
         // second parameter is the "delay" of 60 seconds. The first mailing will
         // be tested one minute
@@ -169,6 +153,10 @@ public class EmailSender extends TimerTask {
         // email fails, then it will
         // try again 20 minutes later, and every 20 minutes until it succeeds.
         timer.scheduleAtFixedRate(singletonSender, 60000, EVERY_TWENTY_MINUTES);
+
+        //check if anything needs to be sent every 10 seconds
+        sendEmailThread = new SendEmailThread();
+        timer.scheduleAtFixedRate(sendEmailThread, 60000, 10000);
     }
 
     // This method must be called regularly and frequently, and email is only
@@ -267,11 +255,6 @@ public class EmailSender extends TimerTask {
 
             mailSession.setDebug(Boolean.valueOf(getProperty("mail.debug"))
                     .booleanValue());
-
-            //someone suggested this for SMTPS
-            //mailSession.addProvider(new Provider(Provider.Type.Transport, "smtps", "com.sun.mail.smtp.SMTPSSLTransport", "", ""));
-
-
 
             transport = mailSession.getTransport();
             transport.connect();
@@ -1255,4 +1238,20 @@ public class EmailSender extends TimerTask {
             return ;
         }
     }
+
+
+    /**
+     * @deprecated
+     */
+    public static void quickEmail(AddressListEntry ale, String from,
+            String subject, String emailBody) throws Exception {
+        String address = ale.getEmail();
+        if (address == null || address.length() == 0) {
+            throw new NGException("nugen.exception.unable.to.send.email",
+                    new Object[] { ale.getName() });
+        }
+        quickEmail(new OptOutAddr(ale), from, subject, emailBody);
+    }
+
+
 }
