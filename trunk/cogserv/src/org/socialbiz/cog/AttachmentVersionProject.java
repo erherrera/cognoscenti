@@ -12,7 +12,7 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 /**
 * A project folder file versioning system just represents multiple files
 * in a file system.  The primary version (the latest version) is kept directly
-* in the project folder using the name of the attachment.  Previous version are
+* in the project folder using the name of the attachment.  All version are
 * stored in a subfolder named ".cog". and are named as the internal ID and
 * appending the version number to that ID.
 * For example the following might exist in the file system:
@@ -22,6 +22,7 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 *     great-cars/.cog/9987-2.xls
 *     great-cars/.cog/9987-3.xls
 *     great-cars/.cog/9987-4.xls
+*     great-cars/.cog/9987-5.xls
 *
 * In this case, the project folder (container) is "great-cars"
 * The attachment id is "9987" which is unique within the container.
@@ -30,14 +31,19 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 * The drawback of the project versioning system is obvious: all versions of all
 * files are in the file system at the same time, taking up space.
 * Also, the files are all stored local to one system.
-* The advantage, however, is that it does not depend upon fancy code
+* The advantage, however, is that it does not depend upon complex code
 * to unpack or otherwise manipulate things to access the versions.
 * Simply find the version by name, and stream it out.  Very fast.
 *
 * Disks are cheap, and if your documents are mostly binary, then there is
 * little need to use a differencing algorithm to store more efficiently.
 *
-* The current version file does not have a version number modifier.
+* The current version file is duplicated: it is both in the version folder
+* and it is also with the access name in the main folder.  First reason
+* is to enable accurate detection of changes when a person is editing directly.
+* Second, if the file is deleted, the display copy is removed, but the
+* versioned copy is still there for accessing deleted documents.  If user
+* is editing directly, the former version is preserved this way.
 *
 * Date and time of the version is taken directly from the file system date.
 *
@@ -45,12 +51,11 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 * you would get in a real versioning system.  Might think about adding another
 * structure in the .cog folder to track that.
 */
-public class AttachmentVersionProject implements AttachmentVersion
-{
+public class AttachmentVersionProject implements AttachmentVersion {
     private File      actualFile;
     private int       number;
     private boolean   readOnly;
-    public  boolean   isLatest;    //NOT in the cog subfolder
+    public  boolean   isInMainFolder;    //DUPLICATED in the cog subfolder
 
     /**
     * This is the static method that will search the file system for all of the attachments
@@ -60,8 +65,7 @@ public class AttachmentVersionProject implements AttachmentVersion
     * the versions in their way.
     */
     public static List<AttachmentVersion> getProjectVersions(File projectfolder,  String attachName,
-        String attachmentId) throws Exception
-    {
+            String attachmentId) throws Exception  {
         if (projectfolder==null)
         {
             throw new ProgramLogicError("null project folder sent to getProjectVersions");
@@ -83,6 +87,7 @@ public class AttachmentVersionProject implements AttachmentVersion
 
         File cogfolder = new File(projectfolder, ".cog");
         int highestVersionSeen = 0;
+        File highestVersionFile = null;
 
         if (cogfolder.exists())
         {
@@ -118,18 +123,24 @@ public class AttachmentVersionProject implements AttachmentVersion
                     }
                     if (ver>highestVersionSeen) {
                         highestVersionSeen = ver;
+                        highestVersionFile = testFile;
                     }
                     list.add(new AttachmentVersionProject(testFile, ver, true, false));
                 }
             }
         }
 
+        //This is needed only if there have been recent edits to the display copy
+        //this is detected by comparing lengths
         for (File testFile : projectfolder.listFiles())
         {
             String testName = testFile.getName();
             if (attachName.equalsIgnoreCase(testName))
             {
-                list.add(new AttachmentVersionProject(testFile, highestVersionSeen+1, true, true));
+                //only add to the list of versions if it is a different length
+                if (highestVersionFile==null || highestVersionFile.length()!=testFile.length()) {
+                    list.add(new AttachmentVersionProject(testFile, highestVersionSeen+1, true, true));
+                }
                 break;
             }
         }
@@ -146,35 +157,38 @@ public class AttachmentVersionProject implements AttachmentVersion
     * what version a file is.
     */
     public synchronized static AttachmentVersionProject getNewProjectVersion(File projectFolder,
-        String attachName, String attachmentId, InputStream contents) throws Exception
-    {
+            String attachName, String attachmentId, InputStream contents) throws Exception {
         File cogFolder = new File(projectFolder,".cog");
         File currentFile = new File(projectFolder, attachName);
+        if (!cogFolder.exists()) {
+            cogFolder.mkdir();
+        }
 
-        //First, create a temporary file in the cog directory, and copy the contents of the
-        //current version to it
         int dotPos = attachName.lastIndexOf(".");
         String fileExtension = "";
         if (dotPos>0) {
             fileExtension = attachName.substring(dotPos);
         }
 
-        File tempCogFile = null;
-        if (currentFile.exists()) {
-            if (!cogFolder.exists()) {
-                cogFolder.mkdir();
-            }
-
-            tempCogFile = File.createTempFile("~newV_"+attachmentId, fileExtension, cogFolder);
-            copyFileContents(currentFile, tempCogFile);
-        }
-
-
-        //Second, lets copy the new contents here, so that there is no blocking while in the synchronized
+        //First, lets copy the new contents here, so that there is no blocking while in the synchronized
         //block.  Create a local file in the attachments folds, and copy the file there, so that
         //later the rename will be very fast.
         File tempFile = File.createTempFile("~newM_"+attachmentId, fileExtension, projectFolder);
         streamContentsToFile(contents, tempFile);
+
+        //Second, make a copy of this in the cog directory.
+
+        File tempCogFile = File.createTempFile("~newV_"+attachmentId, fileExtension, cogFolder);
+        copyFileContents(tempFile, tempCogFile);
+
+        //Third, check to see if the local copy in the project file has been modified,
+        //if so, make a copy of that in the cog directory -- just INCASE it is needed
+        File specialCogFile = null;
+        if (currentFile.exists()) {
+            specialCogFile = File.createTempFile("~newS_"+attachmentId, fileExtension, cogFolder);
+            copyFileContents(currentFile, specialCogFile);
+        }
+
 
         //Next, search through the directory, find the version number that is next available
         //in the cog folder, and rename the file to that version number, and then rename the
@@ -182,45 +196,58 @@ public class AttachmentVersionProject implements AttachmentVersion
         //to avoid the problem with two threads claiming the same version number.
         synchronized(AttachmentVersionProject.class)
         {
-            //first, see what versions exist
+            //first, see what versions exist, and get the latest
             List<AttachmentVersion> list = getProjectVersions(projectFolder, attachName, attachmentId);
 
             int newSubVersion = 1;
-            for (AttachmentVersion av : list)
-            {
-                if (((AttachmentVersionProject)av).isLatest) {
-                    continue;   //skip the latest
-                }
+            for (AttachmentVersion av : list) {
                 int thisVer = av.getNumber();
-                if (thisVer>=newSubVersion)
-                {
+                if (((AttachmentVersionProject)av).isInMainFolder) {
+                    //should never happen, but test to be sure
+                    if (specialCogFile==null)  {
+                        throw new Exception("Consistency problem: found a modified version in "
+                                +"the project folder, but the file did not exist and was not copied: "
+                                +currentFile);
+                    }
+                    //rename the special copy to have the right version number
+                    String specialVerFileName = "att"+attachmentId+"-"+thisVer+fileExtension;
+                    File specialVerFile = new File(cogFolder, specialVerFileName);
+                    if (!specialCogFile.renameTo(specialVerFile)) {
+                        throw new NGException("nugen.exception.unable.to.rename.temp.file",
+                            new Object[]{specialCogFile,specialVerFile});
+                    }
+                    specialCogFile = null;
+                }
+                if (thisVer>=newSubVersion) {
                     newSubVersion = thisVer+1;
                 }
             }
 
-            if (tempCogFile!=null)
-            {
-                //if there had been a current file to back up, then this will be non-null
-                String newSubFileName = "att"+attachmentId+"-"+newSubVersion+fileExtension;
-                File newCogFile = new File(cogFolder, newSubFileName);
-                if (!tempCogFile.renameTo(newCogFile))
-                {
-                    throw new NGException("nugen.exception.unable.to.rename.temp.file",new Object[]{tempCogFile,newCogFile});
-                }
-                newCogFile.setLastModified(currentFile.lastModified());
+            //rename the file in the cog folder to have the right version id
+            String newSubFileName = "att"+attachmentId+"-"+newSubVersion+fileExtension;
+            File newCogFile = new File(cogFolder, newSubFileName);
+            if (!tempCogFile.renameTo(newCogFile)) {
+                throw new NGException("nugen.exception.unable.to.rename.temp.file",
+                        new Object[]{tempCogFile,newCogFile});
+            }
+
+            if (currentFile.exists()) {
                 currentFile.delete();
             }
-            if (!tempFile.renameTo(currentFile))
-            {
-                throw new NGException("nugen.exception.unable.to.rename.temp.file",new Object[]{tempFile,currentFile});
+            //clean up that special copy made 'just in case'
+            if (specialCogFile!=null && specialCogFile.exists()){
+                specialCogFile.delete();
+            }
+            if (!tempFile.renameTo(currentFile)) {
+                throw new NGException("nugen.exception.unable.to.rename.temp.file",
+                        new Object[]{tempFile,currentFile});
             }
             return new AttachmentVersionProject(currentFile, newSubVersion+1, false, true);
         }
     }
 
 
-    protected static void copyFileContents(File source, File dest)  throws Exception
-    {
+    protected static void copyFileContents(File source, File dest)  throws Exception {
         if (!source.exists())
         {
             throw new Exception("copyFileContents - The source file for copying does not exist: ("+source.toString()+")");
@@ -230,8 +257,7 @@ public class AttachmentVersionProject implements AttachmentVersion
         fis.close();
     }
 
-    protected static void streamContentsToFile(InputStream source, File dest)  throws Exception
-    {
+    protected static void streamContentsToFile(InputStream source, File dest)  throws Exception {
         FileOutputStream fos = new FileOutputStream(dest);
         byte[] buf = new byte[2048];
         int amtRead = source.read(buf);
@@ -246,22 +272,23 @@ public class AttachmentVersionProject implements AttachmentVersion
     /**
     * Use the public static methods above to construct the file.
     */
-    public AttachmentVersionProject(File versionFile, int newNumber, boolean isReadOnly, boolean theLatest)
-    {
+    public AttachmentVersionProject(File versionFile, int newNumber, boolean isReadOnly, boolean theLatest) {
         actualFile = versionFile;
         number = newNumber;
         readOnly = isReadOnly;
-        isLatest = theLatest;
+        isInMainFolder = theLatest;
     }
 
-    public int getNumber()
-    {
+    public int getNumber() {
         return number;
     }
 
-    public long getCreatedDate()
-    {
+    public long getCreatedDate() {
         return actualFile.lastModified();
+    }
+
+    public long getFileSize() {
+        return actualFile.length();
     }
 
     /**
@@ -269,24 +296,24 @@ public class AttachmentVersionProject implements AttachmentVersion
     * But when you ask for a new version, you get a writeable
     * version object.
     */
-    public boolean isReadOnly()
-    {
+    public boolean isReadOnly() {
         return readOnly;
     }
 
-    public File getLocalFile()
-    {
+    public boolean isModified() {
+        return isInMainFolder;
+    }
+
+    public File getLocalFile() {
         return actualFile;
     }
 
-    public void commitLocalFile()
-    {
+    public void commitLocalFile() {
         //for the file system implementation, nothing needs to be done because all
         //of the versions are simply files in the local folder.
     }
 
-    public void releaseLocalFile()
-    {
+    public void releaseLocalFile() {
         //for the file system implementation, nothing needs to be done because all
         //of the versions are simply files in the local folder.
     }

@@ -1,6 +1,23 @@
 /*
- * Thumbnail.java (requires Java 1.2+)
+ * Copyright 2013 Keith D Swenson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.package org.socialbiz.cog;
+ *
+ * Contributors Include: Shamim Quader, Sameer Pradhan, Kumar Raja, Jim Farris,
+ * Sandia Yang, CY Chen, Rajiv Onat, Neal Wang, Dennis Tam, Shikha Srivastava,
+ * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
+
 package org.socialbiz.cog;
 
 import java.io.ByteArrayInputStream;
@@ -35,8 +52,6 @@ public class NGPage extends ContainerCommon implements NGContainer
     public String address;
     protected String[] displayNames;
     protected Vector<NGSection> sectionElements = null;
-    boolean hasNonDefaultAccount = false;
-    boolean accountChanged = false;
     protected NGBook account;
     protected Vector<String> existingIds = null;
 
@@ -79,16 +94,14 @@ public class NGPage extends ContainerCommon implements NGContainer
         pageInfo = requireChild("pageInfo", PageInfoRecord.class);
 
         displayNames = pageInfo.getPageNames();
-        String accountKey = pageInfo.getBookKey();
-        if (accountKey==null || "main".equals(accountKey))
-        {
-            //schema migration, move off the old account 'main'
-            accountKey = "mainbook";
-            pageInfo.setBookKey(accountKey);
-        }
 
-        hasNonDefaultAccount = (accountKey!=null && accountKey.length()>0);
-        account = NGBook.readBookByKey(accountKey);
+        //When creating a NGPage for the first time, there is a period of time
+        //that it has no account key.  account==null is the result.
+        String accountKey = pageInfo.getBookKey();
+        boolean hasNonDefaultAccount = (accountKey!=null && accountKey.length()>0);
+        if (hasNonDefaultAccount) {
+            account = NGBook.readBookByKey(accountKey);
+        }
 
         NGSection mAtt = getRequiredSection("Attachments");
         SectionAttachments.assureSchemaMigration(mAtt, this);
@@ -303,6 +316,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         else {
             newPage = new NGProj(newFilePath, newDoc);
         }
+        newPage.setAccount(ngb);
 
         //make the current user the author, and member, of the new page
         newPage.addMemberToRole("Administrators", ar.getBestUserId());
@@ -403,7 +417,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         try {
             setLastModify(ar);
             save();
-            if (hasNonDefaultAccount) {
+            if (account!=null) {
                 account.saveFile(ar, comment);
             }
 
@@ -418,7 +432,7 @@ public class NGPage extends ContainerCommon implements NGContainer
 
         }
         catch (Exception e) {
-            throw new NGException("nugen.exception.unable.to.write.file", 
+            throw new NGException("nugen.exception.unable.to.write.file",
                     new Object[] { address }, e);
         }
     }
@@ -849,19 +863,11 @@ public class NGPage extends ContainerCommon implements NGContainer
 
     public void setAccount(NGBook ngb)
     {
-        if (ngb==null)
-        {
-            pageInfo.setBookKey(null);
-            account = null;
-            hasNonDefaultAccount = false;
-            throw new RuntimeException("Should not be using the 'default account' concept any more, this exception is checking to see if it ever happens");
+        if (ngb==null) {
+            throw new RuntimeException("setAccount called with null parameter.   Should not be using the 'default account' concept any more, this exception is checking to see if it ever happens");
         }
-        else
-        {
-            pageInfo.setBookKey(ngb.getKey());
-            hasNonDefaultAccount = true;
-            account = ngb;
-        }
+        pageInfo.setBookKey(ngb.getKey());
+        account = ngb;
     }
 
 
@@ -1242,7 +1248,6 @@ public class NGPage extends ContainerCommon implements NGContainer
 
 
     public String getAddress() throws Exception {
-        // TODO Auto-generated method stub
         return address;
     }
 

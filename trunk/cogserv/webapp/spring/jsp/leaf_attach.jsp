@@ -253,7 +253,7 @@
                                         break;
                                     case 3:
                                         if(oRecord.getData("ftype") != 'URL'){
-                                            window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/fileVersion.htm?aid="+aid;
+                                            window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/fileVersions.htm?aid="+aid;
                                         }
                                         break;
                                 }

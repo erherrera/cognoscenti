@@ -623,7 +623,7 @@ public class UploadFileController extends BaseController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/fileVersion.htm", method = RequestMethod.GET)
+    @RequestMapping(value = "/{accountId}/{pageId}/fileVersions.htm", method = RequestMethod.GET)
     protected ModelAndView getFileVersion(@PathVariable String accountId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
@@ -643,7 +643,7 @@ public class UploadFileController extends BaseController {
                 return needAccessView(request, "nugen.attachment.file.version.memberlogin");
             }
 
-            modelAndView = createNamedView(accountId, pageId, ar, "file_version", "Project Documents");
+            modelAndView = createNamedView(accountId, pageId, ar, "fileVersions", "Project Documents");
             request.setAttribute("subTabId", "nugen.projectdocument.subtab.fileversions");
             request.setAttribute("aid",ar.reqParam("aid"));
             request.setAttribute("realRequestURL", ar.getRequestURL());

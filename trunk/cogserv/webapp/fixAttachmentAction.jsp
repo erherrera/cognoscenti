@@ -9,6 +9,7 @@
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.UserProfile"
 %><%@page import="org.socialbiz.cog.UtilityMethods"
+%><%@page import="org.socialbiz.cog.AttachmentVersion"
 %><%@page import="java.io.File"
 %><%@page import="java.net.URLEncoder"
 %><%@page import="java.util.Enumeration"
@@ -36,9 +37,9 @@
         att.setType("FILE");
         AttachmentVersion aVer = att.getLatestVersion(ngp);
         if (aVer!=null) {
-	        File curFile = aVer.getLocalFile();
-	        att.setAttachTime(curFile.lastModified());
-	        att.setModifiedDate(curFile.lastModified());
+            File curFile = aVer.getLocalFile();
+            att.setAttachTime(curFile.lastModified());
+            att.setModifiedDate(curFile.lastModified());
         }
         att.setModifiedBy(ar.getBestUserId());
     }

@@ -81,8 +81,8 @@ Required Parameters:
 
 <!-- D&D Tree View BEGIN -->
 
-<script type="text/javascript" language="javascript" src="<%=ar.baseURL%>jscript/jquery.ui.js"></script>
-<script type="text/javascript" language="javascript" src="<%=ar.baseURL%>jscript/jquery-plugin-treeview.js"></script>
+<script type="text/javascript" src="<%=ar.baseURL%>jscript/jquery.ui.js"></script>
+<script type="text/javascript" src="<%=ar.baseURL%>jscript/jquery-plugin-treeview.js"></script>
 
 <link rel="stylesheet" href="<%=ar.baseURL%>css/jquery.treeview.css" type="text/css" />
 
@@ -91,12 +91,12 @@ Required Parameters:
 
 <!-- GWT JAVA SCRIPT BEGIN -->
 
-   <script type="text/javascript" language="javascript" src="<%=cpath%>/bewebapp/bewebapp.nocache.js"></script>
+   <script type="text/javascript" src="<%=cpath%>/bewebapp/bewebapp.nocache.js"></script>
 
 <!-- GWT JAVA SCRIPT END-->
 
 
-<script type="text/javascript" language="javascript">
+<script type="text/javascript">
     var isfreezed = '<%=ngp.isFrozen() %>';
     var buttonIndex;
     var flag=false;
@@ -247,7 +247,7 @@ Required Parameters:
         var matchkey = document.getElementById('projectName').value;
         if(matchkey.length >3){
         removeAllOptions(document.createTaskForm.projectNames);
-        var bookKey = '<%= ngb.key %>';
+        var bookKey = '<%= ngb.getKey() %>';
         var postURL = "<%=request.getContextPath()%>/t/getProjectNames.ajax?book="+bookKey+"&matchkey="+matchkey;
         var transaction = YAHOO.util.Connect.asyncRequest('POST', postURL, searchProjectNamesResult);
         }
@@ -521,7 +521,7 @@ function reOrderIndex(id){
       showHideReOrder("none");
       var indexString = getNodeOrders(id);
       var pageId='<%=pageId%>';
-      var bookKey = '<%= ngb.key %>';
+      var bookKey = '<%= ngb.getKey() %>';
       var servletURL = '<%=ar.retPath%>'+"t/"+bookKey+"/"+pageId+"/setOrderTasks.ajax?indexString="+indexString;
       YAHOO.util.Connect.asyncRequest("POST",servletURL, connectionCallback);
 

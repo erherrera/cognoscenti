@@ -16,7 +16,7 @@ Required parameter:
     String emailId  = ar.reqParam("emailId");
 
     NGPage ngp = NGPageIndex.getProjectByKeyOrFail(containerId);
-    String go = ar.baseURL+"t/"+ngp.getAccount().key+"/"+ngp.getKey()+"/history.htm";
+    String go = ar.baseURL+"t/"+ngp.getAccount().getKey()+"/"+ngp.getKey()+"/history.htm";
 
 %>
 
@@ -34,7 +34,7 @@ Required parameter:
     }
 
     function gotoproject(){
-        window.location = "<%=ar.baseURL %>t/<%ar.writeHtml(ngp.getAccount().key);%>/<%ar.writeHtml(ngp.getKey());%>/public.htm";
+        window.location = "<%=ar.baseURL %>t/<%ar.writeHtml(ngp.getAccount().getKey());%>/<%ar.writeHtml(ngp.getKey());%>/public.htm";
     }
     function gotoAdd(){
         window.location = "<%=ar.baseURL %>t/EmailLoginForm.htm?go=<%ar.writeURLData(ar.getCompleteURL());%>";

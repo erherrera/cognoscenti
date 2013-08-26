@@ -295,7 +295,7 @@ public class ResourceBook implements NGResource
         DOMUtils.setSchemAttribute(element_root, schema);
 
         Hashtable<String, String> pageList = new Hashtable<String, String>();
-        for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInAccount(ngb.key))
+        for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInAccount(ngb.getKey()))
         {
             NGPageIndex.clearLocksHeldByThisThread();
 

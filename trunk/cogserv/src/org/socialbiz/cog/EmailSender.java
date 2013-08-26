@@ -181,7 +181,7 @@ public class EmailSender extends TimerTask {
      * What it then does is calculate the next due date. If it is currently
      * after the due date, then the sendDailyDigest is sent.
      *
-     * The duedate is calculated as the next occurrance of 3am after the time
+     * The duedate is calculated as the next occurrence of 3am after the time
      * sent in.
      *
      * ~3 hours is added to the last time email was sent and then the next
@@ -205,12 +205,15 @@ public class EmailSender extends TimerTask {
      * next time, then it will be sent on schedule.
      */
     public void checkAndSendDailyDigest() throws Exception {
-        long lastNotificationSentTime = SuperAdminLogFile
-                .getLastNotificationSentTime();
+        long lastNotificationSentTime = SuperAdminLogFile.getLastNotificationSentTime();
         long nextScheduledTime = getNextTime(lastNotificationSentTime + 10000000);
         threadLastCheckTime = System.currentTimeMillis();
         if (threadLastCheckTime > nextScheduledTime) {
+            System.out.println("EmailSender: Checked and decided to send the daily digest");
             sendDailyDigest();
+        }
+        else {
+            System.out.println("EmailSender: Checked and decided NOT to send the daily digest");
         }
         //only call this when you are sure you are not holding on to any containers
         NGPageIndex.clearLocksHeldByThisThread();
@@ -232,15 +235,12 @@ public class EmailSender extends TimerTask {
             // not
             // lost during the processing.
             long processingStartTime = System.currentTimeMillis();
-            long lastNotificationSentTime = SuperAdminLogFile
-                    .getLastNotificationSentTime();
+            long lastNotificationSentTime = SuperAdminLogFile.getLastNotificationSentTime();
 
             debugEvidence.write("\n<li>Previous send time: ");
-            SectionUtil.nicePrintDateAndTime(debugEvidence,
-                    lastNotificationSentTime);
+            SectionUtil.nicePrintDateAndTime(debugEvidence,lastNotificationSentTime);
             debugEvidence.write("</li>\n<li>Email being sent at: ");
-            SectionUtil
-                    .nicePrintDateAndTime(debugEvidence, processingStartTime);
+            SectionUtil.nicePrintDateAndTime(debugEvidence, processingStartTime);
             debugEvidence.write("</li>");
 
             assertEmailConfigOK();

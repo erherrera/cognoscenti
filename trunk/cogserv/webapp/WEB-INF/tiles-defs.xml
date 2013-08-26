@@ -294,7 +294,7 @@
         <put-attribute name="body" value="/spring/jsp/editAttachmentDetail.jsp" />
     </definition>
 
-    <definition name="file_version" extends="baseLayout">
+    <definition name="fileVersions" extends="baseLayout">
         <put-attribute name="title" value="File version list" />
         <put-attribute name="body" value="/spring/jsp/fileVersions.jsp" />
     </definition>

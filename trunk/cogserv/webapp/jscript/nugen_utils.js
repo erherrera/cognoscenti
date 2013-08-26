@@ -360,7 +360,7 @@ TabRef = function(href,name,ref){
         }else{
             first_tab=tab0_edit_attachments;
             arrayOfTabs = [new Tab(retPath+"t/"+book+"/"+pageId+"/editDocumentForm.htm?aid="+aid,tab0_edit_attachments),
-                new Tab(retPath+"t/"+book+"/"+pageId+"/fileVersion.htm?aid="+aid,tab1_edit_attachments)
+                new Tab(retPath+"t/"+book+"/"+pageId+"/fileVersions.htm?aid="+aid,tab1_edit_attachments)
             ];
         }
         for(var  i=0;i<arrayOfTabs.length ;i++){
@@ -764,7 +764,7 @@ var formSubmitResponse ={
     }else{
         first_tab=tab0_edit_attachments;
         arrayOfTabs = [new Tab(retPath+"t"+"/"+accountId+"/$/editDocumentForm.htm?aid="+aid,tab0_edit_attachments),
-            new Tab(retPath+"t"+"/"+accountId+"/$/fileVersion.htm?aid="+aid,tab1_edit_attachments)];
+            new Tab(retPath+"t"+"/"+accountId+"/$/fileVersions.htm?aid="+aid,tab1_edit_attachments)];
     }
 
     for(var  i=0;i<arrayOfTabs.length ;i++){
