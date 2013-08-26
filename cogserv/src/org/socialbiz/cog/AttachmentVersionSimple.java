@@ -192,14 +192,16 @@ public class AttachmentVersionSimple implements AttachmentVersion
         readOnly = isReadOnly;
     }
 
-    public int getNumber()
-    {
+    public int getNumber() {
         return number;
     }
 
-    public long getCreatedDate()
-    {
+    public long getCreatedDate() {
         return actualFile.lastModified();
+    }
+
+    public long getFileSize() {
+        return actualFile.length();
     }
 
     /**
@@ -207,18 +209,21 @@ public class AttachmentVersionSimple implements AttachmentVersion
     * But when you ask for a new version, you get a writeable
     * version object.
     */
-    public boolean isReadOnly()
-    {
+    public boolean isReadOnly() {
         return readOnly;
     }
 
-    public File getLocalFile()
-    {
+    public boolean isModified() {
+        //this type of storage does not allow for locally modified files
+        return false;
+    }
+
+
+    public File getLocalFile() {
         return actualFile;
     }
 
-    public void commitLocalFile()
-    {
+    public void commitLocalFile() {
         //for the file system implementation, nothing needs to be done because all
         //of the versions are simply files in the local folder.
     }

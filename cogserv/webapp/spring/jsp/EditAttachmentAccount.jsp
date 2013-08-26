@@ -111,7 +111,7 @@ Required parameters:
                     {key:"timePeriod",label:"timePeriod",sortable:true, resizeable:true,hidden:true}
                     ];
 
-                var myDataSource = new YAHOO.util.DataSource(YAHOO.util.Dom.get("pagelist"));
+                var myDataSource = new YAHOO.util.DataSource(YAHOO.util.Dom.get("attachVersionTable"));
                 myDataSource.responseType = YAHOO.util.DataSource.TYPE_HTMLTABLE;
                 myDataSource.responseSchema = {
                     fields: [

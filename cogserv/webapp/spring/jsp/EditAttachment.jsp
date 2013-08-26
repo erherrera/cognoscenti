@@ -15,7 +15,7 @@ Required parameters:
     String aid      = ar.reqParam("aid");
 
 %>
-    <Script>
+    <script>
         function trim(s) {
             var temp = s;
             return temp.replace(/^s+/,'').replace(/s+$/,'');
@@ -99,7 +99,7 @@ Required parameters:
                  </script>
 
                  <input type="hidden" name="aid" id="aid" value="<%ar.writeHtml(aid); %>"/>
-</body>
+
 
     <script type="text/javascript">
         YAHOO.util.Event.addListener(window, "load", function()
@@ -107,21 +107,21 @@ Required parameters:
 
             YAHOO.example.EnhanceFromMarkup = function()
             {
-                var myColumnDefs = [
+                var vlistColumnDefs = [
                     {key:"version",label:"Version",sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
-                    //{key:"author",label:"Author",sortable:true,resizeable:true},
                     {key:"modifiedDate",label:"Modified Date",sortable:true,resizeable:true},
+                    {key:"fileSize",label:"File Size",sortable:true,resizeable:true},
                     {key:"timePeriod",label:"timePeriod",sortable:true, resizeable:true,hidden:true}
                     ];
 
-                var myDataSource = new YAHOO.util.DataSource(YAHOO.util.Dom.get("pagelist"));
-                myDataSource.responseType = YAHOO.util.DataSource.TYPE_HTMLTABLE;
-                myDataSource.responseSchema = {
+                var vlistDataSource = new YAHOO.util.DataSource(YAHOO.util.Dom.get("attachVersionTable"));
+                vlistDataSource.responseType = YAHOO.util.DataSource.TYPE_HTMLTABLE;
+                vlistDataSource.responseSchema = {
                     fields: [
                             {key:"version"},
-                            //{key:"author"},
                             {key:"modifiedDate"},
-                            {key:"timePeriod" , parser:YAHOO.util.DataSource.parseNumber}]
+                            {key:"fileSize"},
+                            {key:"timePeriod", parser:YAHOO.util.DataSource.parseNumber}]
                 };
 
                 var oConfigs = {
@@ -131,8 +131,7 @@ Required parameters:
                     initialRequest: "results=999999"
                 };
 
-
-                var myDataTable = new YAHOO.widget.DataTable("listofpagesdiv", myColumnDefs, myDataSource, oConfigs,
+                var myDataTable = new YAHOO.widget.DataTable("attachVersionList", vlistColumnDefs, vlistDataSource, oConfigs,
                 {caption:"",sortedBy:{key:"version",dir:"modifiedDate"}});
 
                 return {

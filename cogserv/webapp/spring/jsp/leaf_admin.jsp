@@ -175,7 +175,7 @@ String thisPageAddress = ar.getResourceURL(ngp,"admin.htm");
                             value="%E6%9D%B1%E4%BA%AC" />
         <%
             for (int i = 1; i < names.length; i++) {
-                String delLink = ar.retPath+"t/"+ngp.getAccount().key+"/"+ngp.getKey()
+                String delLink = ar.retPath+"t/"+ngp.getAccount().getKey()+"/"+ngp.getKey()
                     + "/deletePreviousProjectName.htm?action=delName&p="
                     + URLEncoder.encode(pageFullName, "UTF-8")
                     + "&oldName="

@@ -47,7 +47,7 @@
     }
     else if (key.equals("/"))
     {
-        ngb = NGPageIndex.getAccountByKeyOrFail(NGBook.DEFAULT_BOOK_KEY);
+        throw new Exception("Setting default book no longer allowed");
     }
     else
     {

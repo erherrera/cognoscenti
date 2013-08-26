@@ -31,11 +31,23 @@ public interface AttachmentVersion
     public long getCreatedDate();
 
     /**
+    * Returns the size in bytes of this version.
+    */
+    public long getFileSize();
+
+    /**
     * Generally an old, historical versions are read only.
     * But when you ask for a new version, you get a writeable
     * version object.
     */
     public boolean isReadOnly();
+
+    /**
+    * Indicataes that the document has been modified, and those modifications
+    * have not been saved yet.  Use commitLocalFile in order to save them permanently
+    * in the version stream.
+    */
+    public boolean isModified();
 
     /**
     * Retrieves the version (if necessary) and returns a File object that points to

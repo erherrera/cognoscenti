@@ -293,7 +293,7 @@ Optional Parameters:
     {
 
         List <NoteRecord> notes = ngp.getVisibleNotes(ar,displayLevel);
-        Vector nl = new Vector();
+        Vector<NoteRecord> nl = new Vector<NoteRecord>();
         boolean canCreate = false;
         ar.write("\n<div class=\"leafLetArea\"> ");
 
@@ -317,16 +317,15 @@ Optional Parameters:
     {
 
         List <NoteRecord> notes = ngp.getDeletedNotes(ar);
-        Vector nl = new Vector();
+        Vector<NoteRecord> nl = new Vector<NoteRecord>();
         boolean canCreate = false;
         ar.write("\n<div class=\"leafLetArea\"> ");
 
         nl.addAll(notes);
         NoteRecord.sortCommentsByPinOrder(nl);
         firstLeafLet = true;
-        for (Iterator<NoteRecord> iterator1 = nl.iterator(); iterator1.hasNext();)
+        for (NoteRecord noteRec : nl)
         {
-            NoteRecord noteRec = (NoteRecord) iterator1.next();
             displayNewLeafletUI(ar,noteRec, count++,ngp);
             firstLeafLet = false;
             ar.flush();
@@ -341,7 +340,7 @@ Optional Parameters:
     {
 
         List <NoteRecord> notes = ngp.getDraftNotes(ar);
-        Vector nl = new Vector();
+        Vector<NoteRecord> nl = new Vector<NoteRecord>();
         boolean canCreate = false;
         ar.write("\n<div class=\"leafLetArea\"> ");
 
@@ -1170,16 +1169,16 @@ Optional Parameters:
     throws Exception
     {
         String qs = "";
-        Enumeration en = req.getParameterNames();
+        Enumeration<String> en = req.getParameterNames();
         if(en.hasMoreElements()){
-        qs = "?";
+            qs = "?";
         }
         for (int i=0; en.hasMoreElements(); i++)
         {
-        String key = (String)en.nextElement();
-        String value = req.getParameter(key);
-        if (value == null) value = "";
-        qs = qs + ((i>0)? "&" : "") + key + "=" + SectionUtil.encodeURLData(value);
+	        String key = (String)en.nextElement();
+	        String value = req.getParameter(key);
+	        if (value == null) value = "";
+	        qs = qs + ((i>0)? "&" : "") + key + "=" + SectionUtil.encodeURLData(value);
         }
         return qs;
     }

@@ -252,7 +252,7 @@ Required Parameters:
         var matchkey = document.getElementById('projectName').value;
         if(matchkey.length >3){
         removeAllOptions(document.createTaskForm.projectNames);
-        var bookKey = '<%= ngb.key %>';
+        var bookKey = '<%= ngb.getKey() %>';
         var postURL = "<%=request.getContextPath()%>/t/getProjectNames.ajax?book="+bookKey+"&matchkey="+matchkey;
         var transaction = YAHOO.util.Connect.asyncRequest('POST', postURL, searchProjectNamesResult);
         }
@@ -663,7 +663,7 @@ function reOrderIndex(id){
       showHideReOrder("none");
       var indexString = getNodeOrders(id);
       var pageId='<%=pageId%>';
-      var bookKey = '<%= ngb.key %>';
+      var bookKey = '<%= ngb.getKey() %>';
       var servletURL = '<%=ar.retPath%>'+"t/"+bookKey+"/"+pageId+"/setOrderTasks.ajax?indexString="+indexString;
       YAHOO.util.Connect.asyncRequest("POST",servletURL, connectionCallback);
 
@@ -863,7 +863,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().key);
+        ar.writeHtml(ngp.getAccount().getKey());
         ar.write("\');\" title=\"View details and modify activity state\">");
 
         ar.write("<b>Reassign</b>");
@@ -878,7 +878,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().key);
+        ar.writeHtml(ngp.getAccount().getKey());
 
         ar.write("')\"");
         ar.write(">");
@@ -894,7 +894,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().key);
+        ar.writeHtml(ngp.getAccount().getKey());
         ar.write("\','Start Offer','");
         ar.writeHtml(String.valueOf(index));
         ar.write("');\"");
@@ -916,7 +916,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().key);
+        ar.writeHtml(ngp.getAccount().getKey());
         ar.write("\','Mark Accepted','");
         ar.writeHtml(String.valueOf(index));
         ar.write("');\"");
@@ -939,7 +939,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().key);
+        ar.writeHtml(ngp.getAccount().getKey());
         ar.write("\','Complete Activity','");
         ar.writeHtml(String.valueOf(index));
         ar.write("');\"");
@@ -961,7 +961,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().key);
+        ar.writeHtml(ngp.getAccount().getKey());
 
         ar.write("\','Approve','");
         ar.writeHtml(String.valueOf(index));
@@ -987,7 +987,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().key);
+        ar.writeHtml(ngp.getAccount().getKey());
 
         ar.write("\','Reject','");
         ar.writeHtml(String.valueOf(index));

@@ -30,11 +30,9 @@ public class NGBook extends ContainerCommon implements NGContainer {
     private String address;
     private Vector<String> existingIds = null;
     private String[] displayNames;
-    // there will be a book with a special name: mainbook.book
-    public static final String DEFAULT_BOOK_KEY = "mainbook";
-    BookInfoRecord bookInfoRecord;
-    NGRole memberRole;
-    NGRole ownerRole;
+    private BookInfoRecord bookInfoRecord;
+    private NGRole memberRole;
+    private NGRole ownerRole;
 
     public NGBook(File path, Document newDoc, String nKey) throws Exception {
         super(path, newDoc);

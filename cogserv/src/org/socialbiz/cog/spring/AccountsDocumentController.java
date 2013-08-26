@@ -394,7 +394,7 @@ public class AccountsDocumentController extends BaseController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/$/fileVersion.htm", method = RequestMethod.GET)
+    @RequestMapping(value = "/{accountId}/$/fileVersions.htm", method = RequestMethod.GET)
     protected ModelAndView getFileVersion(@PathVariable String accountId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
 

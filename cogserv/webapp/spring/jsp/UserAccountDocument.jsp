@@ -29,7 +29,7 @@ function test(id1,id2,id3){
         document.getElementById(id1).style.display = "none";
         document.getElementById(id2).style.display = "block";
         document.getElementById(id3).style.display = "none";
-    }  
+    }
 </script>
 <link rel="stylesheet" type="text/css" href="<%=ar.baseURL%>yui/build/container/assets/skins/sam/container.css">
 <script type="text/javascript" src="<%=ar.baseURL%>yui/build/yahoo-dom-event/yahoo-dom-event.js"></script>
@@ -193,13 +193,13 @@ function test(id1,id2,id3){
                                             break;
                                      case 3:
                                             if(oRecord.getData("ftype") != 'URL'){
-                                                window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/$/fileVersion.htm?aid="+aid;
+                                                window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/$/fileVersions.htm?aid="+aid;
                                             }
                                             break;
-                                            
-                                } 
-                            }else if(task.groupIndex==1){              
-                                switch(task.index) {                
+
+                                }
+                            }else if(task.groupIndex==1){
+                                switch(task.index) {
                                      case 0:
                                             getRenameForm(aid , attachmentName);
                                            break;
@@ -250,25 +250,25 @@ function test(id1,id2,id3){
                 myContextMenu.clickEvent.subscribe(onContextMenuClick, myDataTable);
 
                 myContextMenu.beforeShowEvent.subscribe(onMenuBeforeShow, myContextMenu, true);
-                
-                myDataTable.subscribe("cellMouseoverEvent", function(oArgs){ 
+
+                myDataTable.subscribe("cellMouseoverEvent", function(oArgs){
                  var oRecord = this.getRecord(oArgs.target);
                  var column = this.getColumn(oArgs.target);
                  if(column.key != "attachmentName"){
                     return false;
-                 }                 
+                 }
                  document.getElementById(oRecord.getData("aid")).style.display="";
-                }); 
-                
-                myDataTable.subscribe("rowMouseoverEvent", function(oArgs){myDataTable.unselectAllCells();}); 
-              
-                myDataTable.subscribe("cellMouseoutEvent", function(oArgs){ 
+                });
+
+                myDataTable.subscribe("rowMouseoverEvent", function(oArgs){myDataTable.unselectAllCells();});
+
+                myDataTable.subscribe("cellMouseoutEvent", function(oArgs){
                     var oRecord = this.getRecord(oArgs.target);
                     document.getElementById(oRecord.getData("aid")).style.display="none";
                     myDataTable.hideColumn("Actions");
-                }); 
-                          
-                 myDataTable.subscribe("cellClickEvent", function(oArgs){ 
+                });
+
+                 myDataTable.subscribe("cellClickEvent", function(oArgs){
                  var oRecord = this.getRecord(oArgs.target);
                  var column = this.getColumn(oArgs.target);
                  if(column.key == "attachmentName"){
@@ -279,7 +279,7 @@ function test(id1,id2,id3){
                     myDataTable.selectCell(oArgs.target);
                     myContextMenu.show();
                  }
-                }); 
+                });
 
                 function onMenuBeforeShow(p_sType, p_sArgs, p_oMenu) {
                     var eRow = myDataTable.getTrEl(this.contextEventTarget);
@@ -305,7 +305,7 @@ function test(id1,id2,id3){
                             myContextMenu.getItems()[8].cfg.setProperty("disabled", false);
                         }
                   }
-                
+
 
 
                 return {
@@ -322,7 +322,7 @@ function test(id1,id2,id3){
                         + '"  title=\"Access the content of this document\" onclick=\"return false\">'
                         + oRecord.getData("attachmentName") + '</a>';
                         */
-                        
+
                         var href = '';
             var onclick = '';
             if(oRecord.getData("ftype")=='URL'){
@@ -335,9 +335,9 @@ function test(id1,id2,id3){
             }
             elCell.innerHTML = '<a id="downloadLink'+oRecord.getData("downloadLinkCount")
                  + '" href="'+href+'"  title=\"Access the content of this document\" onclick=\"'+onclick+'\">'
-                 +'<img src="<%=ar.baseURL%>assets/iconDownload.png"/>'         
+                 +'<img src="<%=ar.baseURL%>assets/iconDownload.png"/>'
                  + oRecord.getData("attachmentName") + '</a>';
-                        
+
         };
 
     </script>
