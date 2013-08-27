@@ -354,9 +354,9 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
                 Throwable t = ex;
                 out.write("\r");  //just white space
                 while (t!=null) {
-                    writeHtml(out, ex.toString());
+                    writeHtml(out, t.toString());
                     out.write("\r");  //just white space
-                    t = ex.getCause();
+                    t = t.getCause();
                 }
             }
             else if ("exceptionTrace".equals(tokenName)) {

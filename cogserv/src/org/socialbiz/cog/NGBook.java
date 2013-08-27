@@ -26,6 +26,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     // reading. Initialized by scanAllBooks() method.
     private static Hashtable<String, NGBook> keyToBook = null;
     private static Vector<NGBook> allAccounts = null;
+    private static NGBook defaultAccount;
 
     private String address;
     private Vector<String> existingIds = null;
@@ -319,9 +320,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
         File root = ConfigFile.getFolderOrFail(rootDirectory);
 
-        File[] children = root.listFiles();
-        for (int i = 0; i < children.length; i++) {
-            File child = children[i];
+        for (File child : root.listFiles()) {
             String fileName = child.getName();
             if (!fileName.endsWith(".book")) {
                 // ignore all files except those that end in .book
@@ -355,6 +354,16 @@ public class NGBook extends ContainerCommon implements NGContainer {
         // now make them live
         keyToBook = tKeyToBook;
         allAccounts = tAllBooks;
+
+        //now figure out the default account needed for migrating early pages
+        //the only valid default account in the past was 'mainbook' and any server
+        //that requires a default account should have one with this key.
+        //otherwise, the server should not need a default account.
+        defaultAccount = tKeyToBook.get("mainbook");
+    }
+
+    public static NGBook getDefaultAccount() {
+        return defaultAccount;
     }
 
     public static NGBook createNewAccount(String key, String name) throws Exception {
