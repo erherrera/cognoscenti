@@ -8,7 +8,7 @@
 %><%@page import="org.socialbiz.cog.NGRole"
 %><%@page import="org.socialbiz.cog.UserProfile"
 %><%@page import="org.socialbiz.cog.UtilityMethods"
-%><%@page import="org.socialbiz.cog.spring.MainTabsViewController"
+%><%@page import="org.socialbiz.cog.spring.MainTabsViewControler"
 %><%@page import="java.net.URLEncoder"
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
@@ -187,7 +187,7 @@ Optional Parameter:
                 </div>
                 <div>
                     <br><br><br>
-                <%MainTabsViewController.writeNoteAttachmentEmailBody(ar, ngp, cr, true, sampleUser, note,
+                <%MainTabsViewControler.writeNoteAttachmentEmailBody(ar, ngp, cr, true, sampleUser, note,
                     includeBody, NGWebUtils.getSelectedAttachments(ar, ngp));%>
                 </div>
             </form>
