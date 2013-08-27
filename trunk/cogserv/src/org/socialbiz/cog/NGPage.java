@@ -100,7 +100,24 @@ public class NGPage extends ContainerCommon implements NGContainer
         String accountKey = pageInfo.getBookKey();
         boolean hasNonDefaultAccount = (accountKey!=null && accountKey.length()>0);
         if (hasNonDefaultAccount) {
+            //schema migration, at one time the default account was "main"
+            //but later changed to "mainbook".  Only one server still has this
+            //problem.  Time to fix that server and remove this code.
+            if ("main".equals(accountKey)) {
+                accountKey = "mainbook";
+                pageInfo.setBookKey(accountKey);
+            }
             account = NGBook.readBookByKey(accountKey);
+        }
+        else {
+            //this is schema migration for very old project files from a time that the server did
+            //not set account keys in all cases.  The only valid default account is "mainbook"
+            //If no account with that name, this might return null, but that will be OK
+            //when creating pages for the first time.
+            account = NGBook.getDefaultAccount();
+            if (account!=null) {
+                pageInfo.setBookKey(account.getKey());
+            }
         }
 
         NGSection mAtt = getRequiredSection("Attachments");

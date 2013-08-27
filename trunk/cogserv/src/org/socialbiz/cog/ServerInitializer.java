@@ -20,12 +20,11 @@
 
 package org.socialbiz.cog;
 
+import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
-
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -192,9 +191,16 @@ public class ServerInitializer extends TimerTask {
             //freeing up and defragmenting memory
             System.gc();
 
-            //TODO: move this routine to this class
-            NGPageIndex.initializeInternal(sc);
+            ConfigFile.initialize(sc);
+            ConfigFile.assertConfigureCorrectInternal();
+
             AuthDummy.initializeDummyRequest( config );
+            UserManager.loadUpUserProfilesInMemory();
+            String attachFolder = ConfigFile.getProperty("attachFolder");
+            File attachFolderFile = new File(attachFolder);
+            AttachmentVersionSimple.attachmentFolder = attachFolderFile;
+            NGPageIndex.initIndex();
+            SSOFIUserManager.initSSOFI(ConfigFile.getProperty("baseURL"));
             MicroProfileMgr.loadMicroProfilesInMemory();
             EmailSender.initSender(timerForOtherTasks, sc, resourceBundle);
             SendEmailTimerTask.initEmailSender(timerForOtherTasks);
