@@ -56,24 +56,24 @@ public class ProcessController extends BaseController {
     public static final String REMOTE_PROJECT = "Remote_project";
     public static final String LOCAL_PROJECT = "Local_Project";
 
-    @RequestMapping(value = "/{account}/{pageId}/CreateTask.form", method = RequestMethod.POST)
-    public ModelAndView createTask(@PathVariable String account, @PathVariable String pageId,
+    @RequestMapping(value = "/{accountId}/{pageId}/CreateTask.form", method = RequestMethod.POST)
+    public ModelAndView createTask(@PathVariable String accountId, @PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
             ar.assertLoggedIn("Must be logged in to create a task.");
-            NGPageIndex.assertBook(account);
 
             // call a method for creating new task
-            taskActionCreate(ar, pageId, request, null);
+            taskActionCreate(ar, ngp, request, null);
 
             String assignto= ar.defParam("assignto", "");
             NGWebUtils.updateUserContactAndSaveUserPage(ar, "Add",assignto);
 
             return redirectBrowser(ar,PROCESS_HTML);
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.create.task", new Object[]{pageId,account} , ex);
+            throw new NGException("nugen.operation.fail.project.create.task", new Object[]{pageId,accountId} , ex);
         }
     }
 
@@ -99,18 +99,18 @@ public class ProcessController extends BaseController {
         return assignessEmail;
     }
 
-    @RequestMapping(value = "/{account}/{pageId}/createSubTask.form", method = RequestMethod.POST)
-    public ModelAndView createSubTask(@PathVariable String account,
+    @RequestMapping(value = "/{accountId}/{pageId}/createSubTask.form", method = RequestMethod.POST)
+    public ModelAndView createSubTask(@PathVariable String accountId,
             @PathVariable String pageId, @RequestParam String taskId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
             ar.assertLoggedIn("Must be logged in to manipulate tasks.");
-            NGPageIndex.assertBook(account);
 
             //TODO: taskId should really be parentTaskId
-            taskActionCreate(ar, pageId, request, taskId);
+            taskActionCreate(ar, ngp, request, taskId);
 
             String assignto= ar.defParam("assignto", "");
             NGWebUtils.updateUserContactAndSaveUserPage(ar, "Add",assignto);
@@ -119,46 +119,38 @@ public class ProcessController extends BaseController {
             return new ModelAndView(new RedirectView(go));
 
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.create.sub.task", new Object[]{pageId,account} , ex);
+            throw new NGException("nugen.operation.fail.project.create.sub.task", new Object[]{pageId,accountId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{account}/{pageId}/subtask.htm", method = RequestMethod.GET)
+    @RequestMapping(value = "/{accountId}/{pageId}/subtask.htm", method = RequestMethod.GET)
     public ModelAndView showSubTask(@PathVariable
-    String account, @PathVariable
+    String accountId, @PathVariable
     String pageId, @RequestParam
     String taskId, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
             ar.assertLoggedIn("Must be logged in to open a sub task");
-            NGPageIndex.assertBook(account);
 
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-
-            modelAndView = new ModelAndView("subtask");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute(BOOK_ATT, account);
             request.setAttribute("tabId", PROJECT_TASKS);
-            request.setAttribute("pageId", pageId);
             request.setAttribute("taskId", taskId);
             request.setAttribute("title", " : " + nGPage.getFullName());
+            return new ModelAndView("subtask");
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.create.task.page", new Object[]{pageId,account} , ex);
+            throw new NGException("nugen.operation.fail.project.create.task.page", new Object[]{pageId,accountId} , ex);
         }
-        return modelAndView;
     }
 
-    private void taskActionUpdate(AuthRequest ar, String pageId,
-            HttpServletRequest request, String parentTaskId)
+    private void taskActionUpdate(AuthRequest ar, NGPage ngp, String parentTaskId)
             throws Exception
     {
        // final boolean updateTask =  true;
-        NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
         ar.setPageAccessLevels(ngp);
         ar.assertMember("Must be a member of a project to manipulate tasks.");
-        ar.assertContainerFrozen(ngp);
+        ar.assertNotFrozen(ngp);
 
         UserProfile userProfile = ar.getUserProfile();
 
@@ -213,14 +205,13 @@ public class ProcessController extends BaseController {
     }
 
 
-    private void taskActionCreate(AuthRequest ar, String pageId,
+    private void taskActionCreate(AuthRequest ar, NGPage ngp,
             HttpServletRequest request, String parentTaskId)
             throws Exception
     {
-        NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
         ar.setPageAccessLevels(ngp);
         ar.assertMember("Must be a member of a project to manipulate tasks.");
-        ar.assertContainerFrozen(ngp);
+        ar.assertNotFrozen(ngp);
 
         UserProfile userProfile = ar.getUserProfile();
 
@@ -299,76 +290,63 @@ public class ProcessController extends BaseController {
     }
 
 
-    @RequestMapping(value = "/{account}/{pageId}/task{taskId}.htm", method = RequestMethod.GET)
-    public ModelAndView displayTask(@PathVariable String account,
+    @RequestMapping(value = "/{accountId}/{pageId}/task{taskId}.htm", method = RequestMethod.GET)
+    public ModelAndView displayTask(@PathVariable String accountId,
         @PathVariable String pageId,  @PathVariable String taskId,
         HttpServletRequest request,   HttpServletResponse response)
             throws Exception
     {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPageIndex.assertBook(account);
-            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
 
             GoalRecord task = ngp.getGoalOrFail(taskId);
             boolean canAccessGoal = AccessControl.canAccessGoal(ar, ngp, task);
 
             if(!canAccessGoal){
                 if(!ar.isLoggedIn()){
-                    request.setAttribute("property_msg_key", "message.login.to.see.task.detail");
-                }else if(!ar.isMember()){
-                    request.setAttribute("property_msg_key", "nugen.process.edit.task.memberlogin");
+                    return showWarningView(ar, "message.login.to.see.task.detail");
                 }
-                modelAndView = new ModelAndView("Warning");
+                if(!ar.isMember()){
+                    return showWarningView(ar, "nugen.process.edit.task.memberlogin");
+                }
+                throw new Exception("Program Logic Error: logged in member should be able to see task.");
+            }
+
+            ModelAndView modelAndView = null;
+            if(!ar.isLoggedIn()){
+                modelAndView=new ModelAndView("displayTaskInfo");
             }else{
-                if(!ar.isLoggedIn()){
-                    modelAndView=new ModelAndView("displayTaskInfo");
-                }else{
-                    modelAndView=new ModelAndView("editprocess");
-                    List<NGBook> memberOfAccounts = new ArrayList<NGBook>();
-                    for(NGBook aBook : NGBook.getAllAccounts()) {
-                        if (aBook.primaryOrSecondaryPermission(ar.getUserProfile())) {
-                            memberOfAccounts.add(aBook);
-                        }
+                modelAndView=new ModelAndView("editprocess");
+                List<NGBook> memberOfAccounts = new ArrayList<NGBook>();
+                for(NGBook aBook : NGBook.getAllAccounts()) {
+                    if (aBook.primaryOrSecondaryPermission(ar.getUserProfile())) {
+                        memberOfAccounts.add(aBook);
                     }
-                    request.setAttribute("bookList",memberOfAccounts);
                 }
+                request.setAttribute("bookList",memberOfAccounts);
             }
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute(BOOK_ATT, account);
             request.setAttribute("tabId", PROJECT_TASKS);
-            request.setAttribute("pageId", pageId);
             request.setAttribute("taskId", taskId);
+            return modelAndView;
 
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.edit.task.page", new Object[]{pageId,account} , ex);
+            throw new NGException("nugen.operation.fail.project.edit.task.page", new Object[]{pageId,accountId} , ex);
         }
-        return modelAndView;
     }
 
-    @RequestMapping(value = "/{account}/{pageId}/updateTaskStatus.ajax", method = RequestMethod.POST)
-    public void handleActivityUpdates(@PathVariable String account, @PathVariable String pageId,@RequestParam String pId,
+    @RequestMapping(value = "/{accountId}/{pageId}/updateTaskStatus.ajax", method = RequestMethod.POST)
+    public void handleActivityUpdates(@PathVariable String accountId, @PathVariable String pageId,@RequestParam String pId,
                 HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         System.out.println("updateTaskStatus.ajax -- START");
         AuthRequest ar = null;
         try{
             ar = AuthRequest.getOrCreate(request, response);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
             ar.assertLoggedIn("Can't edit a work item.");
-            NGPageIndex.assertBook(account);
-
-            NGPage ngp=null;
-
-            //TODO: this is really sloppy, two different parameters used for same thing!
-            if(pId.equals(null)){
-                ngp = (NGPage) NGPageIndex.getContainerByKeyOrFail(pageId);
-            }else{
-                ngp = (NGPage) NGPageIndex.getContainerByKeyOrFail(pId);
-            }
-            ar.setPageAccessLevels(ngp);
             ar.assertMember("Must be a member of a project to update tasks.");
 
             String id = ar.reqParam("id");
@@ -431,51 +409,39 @@ public class ProcessController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{account}/{pageId}/reassignTask.htm", method = RequestMethod.GET)
-    public ModelAndView showReassignTask(@PathVariable
-    String account, @PathVariable
-    String pageId, HttpServletRequest request, HttpServletResponse response)
+    @RequestMapping(value = "/{accountId}/{pageId}/reassignTask.htm", method = RequestMethod.GET)
+    public ModelAndView showReassignTask(@PathVariable String accountId,
+            @PathVariable String pageId, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             ar.assertLoggedIn("Must be logged in to reassign task.");
-            NGPageIndex.assertBook(account);
-
-            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
             ar.assertMember("Must be a member of a project to reassign tasks.");
 
             String taskId = ar.reqParam("taskid");
             GoalRecord task = ngp.getGoalOrFail(taskId);
 
-            modelAndView = new ModelAndView("reassigntask");
-
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("task", task);
-            request.setAttribute(BOOK_ATT, account);
             request.setAttribute("tabId", PROJECT_TASKS);
-            request.setAttribute("pageId", pageId);
+            return new ModelAndView("reassigntask");
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.reassign.task.page", new Object[]{pageId,account} , ex);
+            throw new NGException("nugen.operation.fail.project.reassign.task.page",
+                    new Object[]{pageId,accountId} , ex);
         }
-        return modelAndView;
     }
 
-    @RequestMapping(value = "/{account}/{pageId}/reassignTaskSubmit.form", method = RequestMethod.POST)
-    public ModelAndView reassignTask(@PathVariable
-    String account, @PathVariable
-    String pageId, HttpServletRequest request, HttpServletResponse response)
+    @RequestMapping(value = "/{accountId}/{pageId}/reassignTaskSubmit.form", method = RequestMethod.POST)
+    public ModelAndView reassignTask(@PathVariable String accountId,
+            @PathVariable String pageId, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             ar.assertLoggedIn("Must be logged in to reassign task.");
-            NGPageIndex.assertBook(account);
-
-            NGPage ngp =  (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
             ar.assertMember("Must be a member of a project to reassign tasks.");
-            ar.assertContainerFrozen(ngp);
+            ar.assertNotFrozen(ngp);
 
             String taskId = ar.reqParam("taskid");
             GoalRecord task = ngp.getGoalOrFail(taskId);
@@ -513,27 +479,27 @@ public class ProcessController extends BaseController {
 
             return redirectBrowser(ar,go);
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.reassign.task", new Object[]{pageId,account} , ex);
+            throw new NGException("nugen.operation.fail.project.reassign.task",
+                    new Object[]{pageId,accountId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{account}/{pageId}/updateTask.form", method = RequestMethod.POST)
-    public ModelAndView updateTask(@PathVariable
-    String account, @PathVariable
-    String pageId, @RequestParam
-    String taskId,HttpServletRequest request, HttpServletResponse response)
+    @RequestMapping(value = "/{accountId}/{pageId}/updateTask.form", method = RequestMethod.POST)
+    public ModelAndView updateTask(@PathVariable String accountId,
+            @PathVariable String pageId,
+            @RequestParam String taskId,HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             ar.assertLoggedIn("Must be logged in to update task.");
-            NGPageIndex.assertBook(account);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
             String go = ar.reqParam("go");
 
-            taskActionUpdate(ar, pageId, request, taskId);
+            taskActionUpdate(ar, ngp, taskId);
 
             return redirectBrowser(ar,go);
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.update.task", new Object[]{pageId,account} , ex);
+            throw new NGException("nugen.operation.fail.project.update.task", new Object[]{pageId,accountId} , ex);
         }
     }
 
@@ -611,7 +577,7 @@ public class ProcessController extends BaseController {
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
             ar.setPageAccessLevels(ngp);
             ar.assertMember("Must be a member of a project to manipulate tasks.");
-            ar.assertContainerFrozen(ngp);
+            ar.assertNotFrozen(ngp);
 
             String accomp=ar.defParam("accomp", "");
             String status=ar.defParam("status", "");

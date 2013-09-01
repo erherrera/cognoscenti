@@ -88,7 +88,7 @@ public class UserPage extends ContainerCommon
     public void saveUserPage(AuthRequest ar, String comment) throws Exception {
         saveFile(ar,comment);
     }
-    
+
     public void saveFile(AuthRequest ar, String comment) throws Exception {
         setLastModify(ar);
         save();
@@ -172,7 +172,7 @@ public class UserPage extends ContainerCommon
 
         for (ProfileRequest pr : nl) {
             if (pr.getTimestamp() < timeout) {
-                //request has been timed out, so get rid of it.
+                //request has been timed out, so ignore it and get rid of it.
                 removeChild(pr);
             }
             else {
@@ -195,12 +195,20 @@ public class UserPage extends ContainerCommon
     }
 
     public void removeProfileRequest(String id) throws Exception {
-        Vector<ProfileRequest> nl = getProfileRequests();
-        for (ProfileRequest tEle : nl) {
-            if (id.equals(tEle.getAttribute("id"))) {
-                removeChild(tEle);
+        for (ProfileRequest profi : getProfileRequests()) {
+            if (id.equals(profi.getAttribute("id"))) {
+                removeChild(profi);
             }
         }
+    }
+
+    public ProfileRequest findProfileRequest(String id) throws Exception {
+        for (ProfileRequest profi : getProfileRequests()) {
+            if (id.equals(profi.getAttribute("id"))) {
+                return profi;
+            }
+        }
+        return null;
     }
 
     private String createMagicNumber(String fourNumberId)

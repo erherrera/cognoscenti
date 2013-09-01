@@ -6,10 +6,15 @@
 %><%
     String property_msg_key = ar.reqParam("property_msg_key");
     UserProfile uProf = null;
-    String pageId = ar.reqParam("pageId");
-    NGPage ngp = (NGPage) NGPageIndex.getContainerByKeyOrFail(pageId);
-    String isPersonalTab = "no";
-    String pageTitle = ngp.getFullName();
+    String pageId = ar.defParam("pageId", null);
+
+    //Note: this page must handle the case that the project does not exist,
+    //because that may be part of the warning.
+    NGPage ngp = null;
+    if (pageId!=null) {
+        ngp = (NGPage) NGPageIndex.getContainerByKey(pageId);
+    }
+    boolean isPersonalTab = false;
 %>
 <body class="yui-skin-sam">
     <div class="generalArea">
@@ -23,7 +28,7 @@
             <br /><br />
     <%
         //for now two objects for UserProfile is created one will be removed soon
-        if(ar.isLoggedIn()){
+        if(ar.isLoggedIn() && ngp!=null){
             String roleName2 = ar.defParam("roleName", null);
             if (roleName2!=null) {
                 NGRole role = ngp.getRole("Members");

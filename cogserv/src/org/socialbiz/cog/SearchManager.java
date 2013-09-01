@@ -46,6 +46,34 @@ public class SearchManager {
                 String projectName = ngp.getFullName();
                 String accountName = ngp.getAccount().getFullName();
 
+                //add a record for the project as a whole
+                {
+                    Document doc = new Document();
+                    doc.add(new Field("containerType", "Project", TextField.TYPE_STORED));
+                    doc.add(new Field("PAGEKEY", projectKey, TextField.TYPE_STORED));
+                    doc.add(new Field("PAGENAME", projectName, TextField.TYPE_STORED));
+                    doc.add(new Field("ACCTNAME", accountName, TextField.TYPE_STORED));
+                    doc.add(new Field("NOTEID", "$", TextField.TYPE_STORED));
+                    doc.add(new Field("LASTMODIFIEDTIME", Long.toString(ngp.getLastModifyTime()), TextField.TYPE_STORED));
+                    doc.add(new Field("LASTMODIFIEDUSER", ngp.getLastModifyUser(), TextField.TYPE_STORED));
+                    StringBuffer bodyStuff = new StringBuffer();
+                    bodyStuff.append(ngp.getFullName());
+                    bodyStuff.append("\n");
+                    for (GoalRecord goal : ngp.getAllGoals()) {
+                        //put each goal in
+                        bodyStuff.append(goal.getSynopsis());
+                        bodyStuff.append("\n");
+                    }
+                    // put the name in a few times to increase those scores
+                    bodyStuff.append(ngp.getFullName());
+                    bodyStuff.append("\n");
+                    bodyStuff.append(ngp.getFullName());
+                    doc.add(new Field("BODY", bodyStuff.toString(), TextField.TYPE_STORED));
+                    iWriter.addDocument(doc);
+                }
+
+
+
                 for (NoteRecord note : ngp.getAllNotes()) {
                     Document doc = new Document();
                     doc.add(new Field("containerType", "Project", TextField.TYPE_STORED));
@@ -85,21 +113,33 @@ public class SearchManager {
             Document hitDoc = isearcher.doc(hits[i].doc);
             String key = hitDoc.get("PAGEKEY");
             String noteId = hitDoc.get("NOTEID");
+            String linkAddr = null;
+            String noteSubject = null;
 
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(key);
-            NoteRecord note = ngp.getNoteOrFail(noteId);
 
-            if (note.getVisibility()==SectionDef.PUBLIC_ACCESS) {
-                //ok to access public note
-            }
-            else if (!isLoggedIn) {
-                continue;   //don't include this result if not logged in
-            }
-            else if (ngp.primaryOrSecondaryPermission(up)) {
-                //OK no problem, user is a member or admin
+            if ("$".equals(noteId)) {
+                //this is the case of the entire page search record
+                linkAddr = ar.getResourceURL(ngp, "public.htm");
+                noteSubject = "Project: "+ngp.getFullName();
             }
             else {
-                continue; //no access to non members
+                NoteRecord note = ngp.getNoteOrFail(noteId);
+
+                if (note.getVisibility()==SectionDef.PUBLIC_ACCESS) {
+                    //ok to access public note
+                }
+                else if (!isLoggedIn) {
+                    continue;   //don't include this result if not logged in
+                }
+                else if (ngp.primaryOrSecondaryPermission(up)) {
+                    //OK no problem, user is a member or admin
+                }
+                else {
+                    continue; //no access to non members
+                }
+                noteSubject = note.getSubject();
+                linkAddr = ar.getResourceURL(ngp, note);
             }
 
 
@@ -107,8 +147,8 @@ public class SearchManager {
             sr.setPageName(hitDoc.get("PAGENAME"));
             sr.setPageKey(key);
             sr.setBookName(hitDoc.get("ACCTNAME"));
-            sr.setNoteSubject(note.getSubject());
-            sr.setPageLink(ar.getResourceURL(ngp, note));
+            sr.setNoteSubject(noteSubject);
+            sr.setPageLink(linkAddr);
             sr.setTimePeriod("8888");
             sr.setUserLink("bogus user link");
             sr.setLastModifiedTime(DOMFace.safeConvertLong(hitDoc.get("LASTMODIFIEDTIME")));

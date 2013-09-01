@@ -48,7 +48,7 @@
 <%@page import="org.socialbiz.cog.NGBook"%>
 <tr><td style="height:10px;"></td></tr>
 <tr>
-    <% if("yes".equalsIgnoreCase(isPersonalTab)){ %>
+    <% if(isPersonalTab){ %>
         <td valign="top" width="60%">
             <div class="pageRedHeading2"><%ar.writeHtml(roleName);%>:</div>
             <%ar.writeHtml(roleDescription);%><br><br>
@@ -63,7 +63,7 @@
                 <input type="button" name="action" class="inputBtn" value="<fmt:message key='nugen.button.projectsetting.leaverole'/>" onclick="return leaveRole(<%ar.writeQuote4JS(ngp.getKey());%>,'leave_role','<%=ar.retPath %>',<%ar.writeQuote4JS(roleName); %>,<% ar.writeQuote4JS(String.valueOf(ngp.isFrozen())); %>)">
             </div>
             <div id="div_<%ar.writeHtml(roleName);%>_off" style="<%ar.writeHtml(joinRole); %>">
-                <% if("yes".equalsIgnoreCase(isPersonalTab)){ %>
+                <% if(isPersonalTab){ %>
                     <%
 
                     NGRole adminRole = ngp.getSecondaryRole();
@@ -91,14 +91,14 @@
                 <%} %>
             </div>
             <div id="div_<%ar.writeHtml(roleName);%>_pending" style="<%ar.writeHtml(pending); %>">
-                <% if("yes".equalsIgnoreCase(isPersonalTab)){ %>
+                <% if(isPersonalTab){ %>
                 Your request is pending...<br><br><input type="button" name="action"  class="inputBtn" value="<fmt:message key='nugen.button.projectsetting.cancelrequest'/>" onclick="return cancelRoleRequest(<%ar.writeQuote4JS(roleName );%>);">
                 <%}else{%>
                 <I>*Your request to <B>Join Project</B> is pending...</I>
                 <%} %>
             </div>
             <div id="div_<%ar.writeHtml(roleName);%>_reject" style="<%ar.writeHtml(rejected); %>">
-                <% if("yes".equalsIgnoreCase(isPersonalTab)){ %>
+                <% if(isPersonalTab){ %>
                 Your request has been rejected.<br/><br>
                 <div id="div_<%ar.writeHtml(roleName);%>_reason">
                     <B>Reason of Rejection:</B><br>
@@ -115,7 +115,7 @@
             </div>
         </td>
         </tr>
-        <% if("yes".equalsIgnoreCase(isPersonalTab)){ %>
+        <% if(isPersonalTab){ %>
         <tr><td style="height:10px;"></td></tr>
         <tr><td colspan="3" class="horizontalSeperatorGray"></td></tr>
         <%} %>
@@ -169,7 +169,7 @@
                             '</table>'+
                         '</div>'+
                         '</div>';
-                        <% if("yes".equalsIgnoreCase(isPersonalTab)){ %>
+                        <% if(isPersonalTab){ %>
                         createPanel("Request to Join Role",body,"550px");
                         <%}else{%>
                         createPanel("Request to Join Project",body,"550px");

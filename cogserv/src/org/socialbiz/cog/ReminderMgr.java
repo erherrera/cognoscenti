@@ -46,36 +46,29 @@ public class ReminderMgr extends DOMFace
         }
         return result;
     }
-    public ReminderRecord findReminderByID(String id)
-        throws Exception
-    {
+
+    public ReminderRecord findReminderByID(String id) throws Exception {
         Vector<ReminderRecord> v = getAllReminders();
         Enumeration<ReminderRecord> e = v.elements();
-        while (e.hasMoreElements())
-        {
+        while (e.hasMoreElements()) {
             ReminderRecord rRec = e.nextElement();
-            if (id.equals(rRec.getId()))
-            {
+            if (id.equals(rRec.getId())) {
                 return rRec;
             }
         }
         return null;
     }
-    
-    public ReminderRecord findReminderByIDOrFail(String id) throws Exception {
 
-        ReminderRecord ret =  findReminderByID( id );        
-        if (ret==null)
-        {
+    public ReminderRecord findReminderByIDOrFail(String id) throws Exception {
+        ReminderRecord ret =  findReminderByID( id );
+        if (ret==null) {
             throw new NGException("nugen.exception.reminder.not.found",new Object[]{id});
         }
         return ret;
     }
 
-    public ReminderRecord createReminder(String id)
-        throws Exception
-    {
-        return (ReminderRecord) createChildWithID("reminder",
+    public ReminderRecord createReminder(String id) throws Exception {
+        return createChildWithID("reminder",
             ReminderRecord.class, "id", id);
     }
 

@@ -85,11 +85,6 @@
     </definition>
 
 
-    <definition name="private" extends="baseLayout">
-        <put-attribute name="title" value="Private" />
-        <put-attribute name="body" value="/spring/jsp/leaf_private.jsp" />
-    </definition>
-
     <definition name="leaf_admin" extends="baseLayout">
         <put-attribute name="title" value="Admin" />
         <put-attribute name="body" value="/spring/jsp/leaf_admin.jsp" />
@@ -156,7 +151,7 @@
         <put-attribute name="body" value="/spring/jsp/attachment_forms.jsp" />
     </definition>
 
-    <definition name="reminder_email" extends="baseLayout">
+    <definition name="ReminderEmail" extends="baseLayout">
         <put-attribute name="title" value="Send Email Reminder" />
         <put-attribute name="body" value="/spring/jsp/ReminderEmail.jsp" />
     </definition>
@@ -341,6 +336,10 @@
         <put-attribute name="title" value="Personal" />
         <put-attribute name="body" value="/spring/jsp/leaf_personal.jsp" />
     </definition>
+    <definition name="leaf_streamingLinks" extends="projectBaseLayout">
+        <put-attribute name="title" value="Streaming Links" />
+        <put-attribute name="body" value="/spring/jsp/leaf_streamingLinks.jsp" />
+    </definition>
     <definition name="account_personal" extends="baseLayout">
         <put-attribute name="title" value="Personal" />
         <put-attribute name="body" value="/spring/jsp/leaf_account_personal.jsp" />
@@ -498,11 +497,6 @@
         <put-attribute name="body" value="/spring/jsp/CreateProjectFromTask.jsp" />
     </definition>
 
-    <definition name="leaf_googleDocs" extends="baseLayout">
-        <put-attribute name="title" value="Google docs" />
-        <put-attribute name="body" value="/spring/jsp/leaf_googleDocs.jsp" />
-    </definition>
-
     <definition name="exportPDF" extends="baseLayoutWithoutLeftPanel">
         <put-attribute name="title" value="Export PDF" />
         <put-attribute name="body" value="/spring/jsp/exportPDF.jsp" />
@@ -513,20 +507,6 @@
         <put-attribute name="body" value="/spring/jsp/SyncAttachment.jsp" />
     </definition>
 
-
-    <definition name="AppHome" template="/spring/tiles/baseLayoutWithoutLeftPanel.jsp">
-        <put-attribute name="title" value="Template" />
-        <put-attribute name="header" value="/spring/tiles/header.jsp" />
-        <put-attribute name="body" value="/appui/appHome.jsp" />
-        <put-attribute name="footer" value="/spring/tiles/footer.jsp" />
-    </definition>
-
-    <definition name="DisplayStartProcessForm" template="/spring/tiles/baseLayoutWithoutLeftPanel.jsp">
-        <put-attribute name="title" value="Template" />
-        <put-attribute name="header" value="/spring/tiles/header.jsp" />
-        <put-attribute name="body" value="/appui/startProcess.jsp" />
-        <put-attribute name="footer" value="/spring/tiles/footer.jsp" />
-    </definition>
 
     <definition name="LinkDocFromRepositoryForm" extends="baseLayout">
         <put-attribute name="title" value="Attach Document"/>
@@ -622,6 +602,21 @@
     <definition name="Warning" extends="projectBaseLayout">
         <put-attribute name="title" value="Warning" />
         <put-attribute name="body" value="/spring/jsp/Warning.jsp" />
+    </definition>
+
+    <definition name="requiredName" extends="baseLayoutWithoutLeftPanel">
+        <put-attribute name="title" value="Warning" />
+        <put-attribute name="body" value="/spring/jsp/requiredName.jsp" />
+    </definition>
+
+    <definition name="requiredEmail" extends="baseLayoutWithoutLeftPanel">
+        <put-attribute name="title" value="Warning" />
+        <put-attribute name="body" value="/spring/jsp/requiredEmail.jsp" />
+    </definition>
+
+    <definition name="DisplayException" extends="projectBaseLayout">
+        <put-attribute name="title" value="Display Exception" />
+        <put-attribute name="body" value="/spring/jsp/DisplayException.jsp" />
     </definition>
 
     <definition name="confirmedAddIdView" extends="baseLayout">
@@ -726,7 +721,7 @@
         <put-attribute name="body" value="/spring/jsp/UserSettings.jsp" />
     </definition>
 
-    <definition name="displayTaskInfo" extends="projectBaseLayout">
+    <definition name="displayTaskInfo" extends="baseLayoutWithoutLeftPanel">
         <put-attribute name="title" value="Process" />
         <put-attribute name="body" value="/spring/jsp/displayTaskInfo.jsp" />
     </definition>

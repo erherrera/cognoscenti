@@ -213,7 +213,8 @@ TabRef = function(href,name,ref){
         var arrayOfTabs1 = [new Tab(retPath+"t/"+book+"/"+pageId+"/public.htm","Public Notes"),
                            new Tab(retPath+"t/"+book+"/"+pageId+"/member.htm","Member Notes"),
                            new Tab(retPath+"t/"+book+"/"+pageId+"/deletedNotes.htm","Deleted Notes"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/draftNotes.htm","Draft Notes")
+                           new Tab(retPath+"t/"+book+"/"+pageId+"/draftNotes.htm","Draft Notes"),
+                           new Tab(retPath+"t/"+book+"/"+pageId+"/exportPDF.htm","Generate PDF")
         ];
 
         if(serverMode == "Development"){
@@ -230,6 +231,7 @@ TabRef = function(href,name,ref){
                         new Tab(retPath+"t/"+book+"/"+pageId+"/projectFutureTasks.htm","Future Goals"),
                         new Tab(retPath+"t/"+book+"/"+pageId+"/projectAllTasks.htm","All Goals"),
                         new Tab(retPath+"t/"+book+"/"+pageId+"/statusReport.htm","Status Report")
+                        //new Tab(retPath+"t/"+book+"/"+pageId+"/ganttchart.htm","Gantt Chart")
             ];
         }
 
@@ -244,7 +246,8 @@ TabRef = function(href,name,ref){
                            new Tab(retPath+"t/"+book+"/"+pageId+"/permission.htm","Permissions"),
                            new Tab(retPath+"t/"+book+"/"+pageId+"/roleRequest.htm","Role Requests") ,
                            new Tab(retPath+"t/"+book+"/"+pageId+"/admin.htm","Admin" ),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/emailrecords.htm","Email Records")
+                           new Tab(retPath+"t/"+book+"/"+pageId+"/emailrecords.htm","Email Records"),
+                           new Tab(retPath+"t/"+book+"/"+pageId+"/streamingLinks.htm","Streaming Links")
           ];
           arrayOfSubMenu=["ddsubmenu1","ddsubmenu2","ddsubmenu3","ddsubmenu4"];
           arrayOfMainMenu =[arrayOfTabs1,arrayOfTabs2,arrayOfTabs3,arrayOfTabs4]

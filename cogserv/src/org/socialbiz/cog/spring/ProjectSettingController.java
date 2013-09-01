@@ -91,7 +91,6 @@ public class ProjectSettingController extends BaseController {
             }else{
                 modelAndView=new ModelAndView("roleRequest");
                 modelAndView.addObject("page", nGPage);
-                modelAndView.addObject("tanent", nGBook);
                 request.setAttribute("subTabId", "nugen.projectsettings.subtab.role.request");
             }
             request.setAttribute("realRequestURL", ar.getRequestURL());
@@ -126,7 +125,7 @@ public class ProjectSettingController extends BaseController {
             NGContainer ngp = NGPageIndex.getContainerByKeyOrFail(pageId);
             ar.setPageAccessLevels(ngp);
             ar.assertMember("Unable to modify roles.");
-            ar.assertContainerFrozen(ngp);
+            ar.assertNotFrozen(ngp);
 
             NGRole role = ngp.getRole(r);
             if (role==null)

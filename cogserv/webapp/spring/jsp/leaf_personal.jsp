@@ -13,11 +13,6 @@
 
 <div class="content tab01">
     <div style="height:20px">&nbsp;</div>
-    <div class="generalHeading">Email Access</div>
-    <div class="generalContent">
-    Email Address: <% ar.writeHtml(EmailListener.getEmailProperties().getProperty("mail.smtp.from")); %><br/>
-    Token:  [cog:<% ar.writeHtml(ngp.getKey()); %>] - include this in the subject to address this project.
-    </div>
     <div class="generalHeading">Watch project</div>
     <div class="generalContent">
     <%
@@ -228,7 +223,7 @@
       <div class="generalContent">
           <table width="100%" border="0">
           <%
-          String isPersonalTab = "yes";
+          boolean isPersonalTab = true;
           UserProfile up = ar.getUserProfile();
           String roleMember = up.getUniversalId();
           if(roles!=null){

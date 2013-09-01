@@ -18,6 +18,12 @@ Parameter used :
     8. accountId    : This is key of an account, used here to get details of an Account (NGBook).
 
 */
+%><%!
+    String pageTitle = null;
+    String go="";
+    String trncatePageTitle=null;
+%><%
+
     String pageTitle = (String)request.getAttribute("pageTitle");
     String userKey = (String)request.getAttribute("userKey");
 
@@ -35,16 +41,8 @@ Parameter used :
         serverMode = "Production";
     }
 
-
-%><%!
-    String pageTitle = null;
-    String go="";
-    String trncatePageTitle=null;
-%><%
     ar.assertNotPost();
-
     String deletedWarning = "";
-
 
     if(userKey != null){
         userKey = URLEncoder.encode(userKey);
@@ -56,17 +54,19 @@ Parameter used :
     NGContainer ngp =null;
     NGBook ngb=null;
     if(pageTitle == null && pageId != null){
-        ngp  = NGPageIndex.getContainerByKeyOrFail(pageId);
-        ar.setPageAccessLevels(ngp);
-        pageTitle = ngp.getFullName();
-
-        if(ngp instanceof NGPage) {
-            ngb = ((NGPage)ngp).getAccount();
-        }
+        ngp  = NGPageIndex.getContainerByKey(pageId);
     }
 
     if (ngp!=null)
     {
+        ar.setPageAccessLevels(ngp);
+        pageTitle = ngp.getFullName();
+        if(ngp instanceof NGPage) {
+            ngb = ((NGPage)ngp).getAccount();
+        }
+        else if(ngp instanceof NGBook) {
+            ngb = ((NGBook)ngp);
+        }
         if (ngp.isDeleted())
         {
             deletedWarning = "<img src=\""+ar.retPath+"deletedLink.gif\"> (DELETED)";
@@ -290,7 +290,7 @@ Parameter used :
         <link href="<%=ar.retPath%>css/ie7styles.css" rel="styleSheet" type="text/css" media="screen" />
     <![endif]-->
 
-     <% if ((ngp != null && !headerType.equals("account"))  || (headerType.equals("user")) )
+     <% if ((!headerType.equals("account"))  || (headerType.equals("user")) )
          {
         %>
     <script>
@@ -386,8 +386,6 @@ Parameter used :
                 <%
                     if(ar.isLoggedIn())
                     {
-                        if (ngp != null || ((headerType.equals("user")||headerType.equals("account")) ) )
-                        {
                         uProf = ar.getUserProfile();
                 %>
                         <li><a href="<%=ar.retPath%>v/<%ar.writeHtml(uProf.getKey());%>/watchedProjects.htm"
@@ -401,37 +399,14 @@ Parameter used :
                         <li>|</li>
                         <li><a href="<%=ar.retPath%>v/<%ar.writeHtml(uProf.getKey());%>/userProfile.htm?active=1"
                                 title="Profile for the logged in user">Settings</a></li>
-                        <%
-                            if(ar.isSuperAdmin()){
-                         %>
-                        <li>|</li>
-                        <li><a href="<%=ar.retPath%>v/<%ar.writeHtml(uProf.getKey());%>/emailListnerSettings.htm" title="Administration">Administration</a></li>
+                        <%if(ar.isSuperAdmin()){ %>
+                            <li>|</li>
+                            <li><a href="<%=ar.retPath%>v/<%ar.writeHtml(uProf.getKey());%>/emailListnerSettings.htm" title="Administration">Administration</a></li>
                         <%} %>
                         <li>|</li>
                         <li class="text last"><a href="<%=ar.retPath%>t/LogoutAction.htm?go=<%ar.writeURLData(currentPageURL);%>">Log Out</a></li>
-                <%
-                        }  else if(ngp != null ||(headerType!=null && headerType.equals("otherUser"))){ %>
-                            <li><a href="#" onclick="getSourceCode();">Validate HTML</a></li>
-                            <li>|</li>
-                            <li><a href="<%=ar.retPath%>v/<%ar.writeHtml(uProf.getKey());%>/watchedProjects.htm" title="Projects for the logged in user">Projects</a></li>
-                            <li>|</li>
-                            <li><a href="<%=ar.retPath%>v/<%ar.writeHtml(uProf.getKey());%>/userAlerts.htm" title="Updates for the logged in user">Updates</a></li>
-                            <li>|</li>
-                            <li><a href="<%=ar.retPath%>v/<%ar.writeHtml(uProf.getKey());%>/userActiveTasks.htm" title="Goals for the logged in user">Goals</a></li>
-                            <li>|</li>
-                            <li><a href="<%=ar.retPath%>v/<%ar.writeHtml(uProf.getKey());%>/userProfile.htm?active=1" title="Profile for the logged in user">Settings</a></li>
-
-
-                           <%
-                           if(ar.isSuperAdmin()){
-                           %>
-                            <li>|</li>
-                            <li><a href="<%=ar.retPath%>v/<%ar.writeHtml(uProf.getKey());%>/emailListnerSettings.htm" title="Administration">Administration</a></li>
-                            <%} %>
-                            <li>|</li>
-                            <li class="text last"><a href="<%=ar.retPath%>t/LogoutAction.htm?go=<%ar.writeURLData(currentPageURL);%>">Log Out</a></li>
-                  <%    }
-                   }
+               <%
+                  }
                   else
                   {
                %>
@@ -439,7 +414,7 @@ Parameter used :
                                 title="Initial Introduction Page">Welcome Page</a></li>
                         <li>|</li>
                         <li class="text last"><a href="<%=ar.retPath%>t/EmailLoginForm.htm?go=<%ar.writeURLData(currentPageURL);%>">Log in</a></li>
-              <%
+               <%
                   }
                %>
             </ul>
@@ -448,30 +423,21 @@ Parameter used :
         if (ar.isLoggedIn())
         {
             UserProfile uProf1 = ar.getUserProfile();
-            if((uProf1.getPreferredEmail()!=null)&&(uProf1.getPreferredEmail()!=""))
-            {
-          %>
-          <div id="welcomeMessage">
-            Welcome, <%uProf1.writeLink(ar); %><img id="logoFujitsu" src="<%=ar.retPath%>assets/logo_fujitsu.gif" alt="Fujitsu" width="86" height="38" />
-          </div>
-          <%
-            }
-            else
-            {
-          %>
+            %>
             <div id="welcomeMessage">
-              <img id="logoFujitsu" src="<%=ar.retPath%>assets/logo_fujitsu.gif" alt="Fujitsu" width="86" height="38" />
+                Welcome, <%uProf1.writeLink(ar); %>
+                <img id="logoFujitsu" src="<%=ar.retPath%>assets/logo_fujitsu.gif" alt="Fujitsu" width="86" height="38" />
             </div>
             <%
-          }
         }
         else
         {
-        %>
-          <div id="welcomeMessage">
-            <img id="logoFujitsu" src="<%=ar.retPath%>assets/logo_fujitsu.gif" alt="Fujitsu" width="86" height="38" />
-          </div>
-          <%
+            %>
+            <div id="welcomeMessage">
+                Not logged in
+                <img id="logoFujitsu" src="<%=ar.retPath%>assets/logo_fujitsu.gif" alt="Fujitsu" width="86" height="38" />
+            </div>
+            <%
         }
         %>
     </div>
@@ -515,11 +481,11 @@ Parameter used :
 
     </div>
 
-       <script type="text/javascript">
-       createSubLinks();
-       </script>
+<script type="text/javascript">
+   createSubLinks();
+</script>
 
-    <!-- End mainNavigation -->
+<!-- End mainNavigation -->
 
 <form id="validate" action="<%=ar.retPath%>t/validateHtml.validate" method="post">
 <textarea id="output" name="output" rows="50" cols="70" style="display:none"></textarea>

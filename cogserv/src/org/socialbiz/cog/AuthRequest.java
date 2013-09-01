@@ -759,9 +759,24 @@ public class AuthRequest
     * This will only last for the session and is lost when session times out.
     *
     * This privilege is extended even to requests that are not authenticated.
-    * Presumably, some special licence value has been passed in the URL to
-    * enable this special access.  The AuthRequest does not determine how
-    * such access was given, it just records this for future use.
+    * Here is how it works:
+    *
+    * (0) A resource is associated with a unique key
+    * (1) a URL is constructed that is designed to give special access, such
+    *     as a URL to be embedded into an email message that is sent to people
+    *     who need to access a particular page.  Receipt of the email message
+    *     is enough to be assured that the right person has the link (even though
+    *     that person could forward the mail, giving others the same privilege.
+    *     That URL has a "magic number" in it which unlocks the capability.
+    * (2) When the user accesses the page with the magic number, the controller
+    *     looks for the magic number, and identifies whether the number is valid
+    *     for the resource, and also determines the unique key
+    * (3) If the magic number is valid, then the session is marked with the unique
+    *     key of the resource in question.  Further URLs do not need to carry
+    *     the magic number.
+    * (4) The controller then determines if the current request has enough access
+    *     (4a) is the user logged in and whether user has sufficient rights
+    *     (4b) whether hasSpecialSessionAccess(unique key) is true
     */
     public void setSpecialSessionAccess(String uniqueAccessMode)
     {
@@ -1434,12 +1449,8 @@ public class AuthRequest
     */
     public String getRelPathFromCtx() throws Exception
     {
-        String relPath = "";
-
-        if (req == null)
-        {
+        if (req == null) {
             return "";
-//            throw new ProgramLogicError("getRelPathFromCtx requires a non-null req member");
         }
 
         String pageUrl = req.getRequestURL().toString();
@@ -1447,11 +1458,10 @@ public class AuthRequest
         int contextPos = pageUrl.indexOf(context);
         if (contextPos == -1) {
             return "";
-//            throw new ProgramLogicError("getRelPathFromCtx was not able to find the application context ('"+
-//                   context+"') in the path: "+pageUrl);
         }
 
 
+        String relPath = "";
         String strOfIntrest = pageUrl.substring(contextPos + context.length());
         for (int i=0; i<strOfIntrest.length(); i++) {
             char c = strOfIntrest.charAt(i);
@@ -1665,7 +1675,7 @@ public class AuthRequest
         return result;
     }
 
-    public void assertContainerFrozen(NGContainer ngc)
+    public void assertNotFrozen(NGContainer ngc)
     throws Exception
     {
         if (ngc==null)
@@ -1704,20 +1714,6 @@ public class AuthRequest
         //this is the default when no project context found
         return "theme/blue/";
     }
-
-    /**
-    * Different users/projects/accounts can have different logos at the top
-    * Returns the name of the file
-    public String getAccountLogo()
-    {
-        if (ngp==null || !(ngp instanceof NGPage)) {
-            //this is the default when no setting project context found
-            return "logo_interstage.gif";
-        }
-        return ((NGPage)ngp).getProjectLogo();
-    }
-    */
-
 
     //it removes whitespace from string and filters extended ASCII letters (above 127) too.
     public static String removeWhiteSpace(String str){

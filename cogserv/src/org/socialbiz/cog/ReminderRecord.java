@@ -1,5 +1,9 @@
 package org.socialbiz.cog;
 
+import java.io.StringWriter;
+import java.util.Vector;
+
+import org.socialbiz.cog.spring.NGWebUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 
@@ -176,7 +180,7 @@ public class ReminderRecord extends DOMFace
         }
         return sendNotification;
     }
-    
+
     public void createHistory(AuthRequest ar, NGPage ngp, int event,
         String comment) throws Exception
     {
@@ -184,4 +188,82 @@ public class ReminderRecord extends DOMFace
             HistoryRecord.CONTEXT_TYPE_DOCUMENT,
             getModifiedDate(), event, ar, comment);
     }
+
+
+    public void writeReminderEmailBody(AuthRequest ar, NGContainer ngp) throws Exception {
+        String userName = getModifiedBy();
+        AddressListEntry ale = new AddressListEntry(userName);
+
+        ar.write("<table>");
+        ar.write("<tr><td>From:</td><td>");
+        ale.writeLink(ar);
+        ar.write("</td></tr>\n<tr><td>Subject:</td><td>");
+        ar.writeHtml(getSubject());
+        ar.write("</td></tr>\n<tr><td>Project: </td><td>");
+        ngp.writeContainerLink(ar, 100);
+        ar.write("</td></tr>\n</table>\n<hr/>\n");
+        ar.write("\n<p>You have been invited by ");
+        ale.writeLink(ar);
+        ar.write(" to upload a file so that it can ");
+        ar.write("be shared (in a controlled manner) with others on ");
+        ar.write("the project \"");
+        ar.writeHtml(ngp.getFullName());
+        ar.write("\". Uploading the file will stop the email reminders. </p>");
+        ar.write("\n<p><b>Instructions:</b> ");
+        ar.writeHtml(getInstructions());
+        ar.write("</p>");
+        ar.write("\n<p>Click on the following link or cut and paste the URL into a ");
+        ar.write("web browser to access the page for uploading the file:</p>");
+        ar.write("\n<p><a href=\"");
+        ar.write(ar.baseURL);
+        ar.write(ar.getResourceURL(ngp, ""));
+        ar.write("remindAttachment.htm?");
+        ar.write(AccessControl.getAccessReminderParams(ngp, this));
+        ar.write("&rid=");
+        ar.writeURLData(getId());
+        ar.write("\">");
+
+        ar.write(ar.baseURL);
+        ar.write(ar.getResourceURL(ngp, ""));
+        ar.write("remindAttachment.htm?");
+        ar.write(AccessControl.getAccessReminderParams(ngp, this));
+        ar.write("&rid=");
+        ar.writeURLData(getId());
+
+        ar.write("</a>");
+        ar.write("</p>");
+        ar.write("\n<p><b>Description of File:</b> ");
+        ar.writeHtml(getFileDesc());
+        ar.write("</p>");
+        ar.write("\n<p>Thank you.</p>");
+        ar.write("\n<hr/>");
+    }
+
+
+    public static void reminderEmail(AuthRequest ar, String pageId,String reminderId,
+            String emailto, NGContainer ngp) throws Exception {
+
+        ReminderMgr rMgr = ngp.getReminderMgr();
+        ReminderRecord rRec = rMgr.findReminderByIDOrFail(reminderId);
+        String subject = "Reminder to Upload: " + rRec.getSubject();
+        Vector<AddressListEntry> addressList = AddressListEntry.parseEmailList(emailto);
+        for (AddressListEntry ale : addressList) {
+            OptOutAddr ooa = new OptOutAddr(ale);
+            StringWriter bodyWriter = new StringWriter();
+            AuthRequest clone = new AuthDummy(ar.getUserProfile(), bodyWriter);
+            clone.write("<html><body>");
+            rRec.writeReminderEmailBody(clone, ngp);
+            NGWebUtils.standardEmailFooter(clone, ar.getUserProfile(), ooa, ngp);
+            clone.write("</body></html>");
+            EmailSender.containerEmail(ooa, ngp, subject, bodyWriter.toString(), null, new Vector<String>());
+        }
+        if (ngp instanceof NGPage) {
+            HistoryRecord.createHistoryRecord(ngp, reminderId,
+                    HistoryRecord.CONTEXT_TYPE_DOCUMENT, ar.nowTime,
+                    HistoryRecord.EVENT_DOC_UPDATED, ar, "Reminder Emailed to "
+                            + emailto);
+        }
+        ngp.saveContent(ar, "sending reminder email");
+    }
+
 }

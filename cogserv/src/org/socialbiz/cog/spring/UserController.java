@@ -1809,7 +1809,7 @@ public class UserController extends BaseController {
             HttpServletResponse response) throws Exception {
 
         try{
-            AuthRequest ar =  AuthRequest.getOrCreate(request, response);//NGWebUtils.getAuthRequest(request, response, "Can not update notification settings.");
+            AuthRequest ar =  AuthRequest.getOrCreate(request, response);
             if(!ar.hasSpecialSessionAccess("Notifications:"+userKey)){
                 ar.assertLoggedIn("Can not update notification settings.");
             }
@@ -1893,7 +1893,7 @@ public class UserController extends BaseController {
 
             return modelAndView;
         }catch(Exception ex){
-            throw new Exception("Exception");
+            throw new Exception("Unable to unsubscribe member", ex);
         }
     }
 
