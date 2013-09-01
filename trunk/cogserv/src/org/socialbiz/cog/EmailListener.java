@@ -416,7 +416,7 @@ public class EmailListener extends TimerTask{
 
     private void createDocumentRecord(NGPage ngp,InputStream is,String fileName,String fromAdd) throws Exception {
         try{
-            ar.assertContainerFrozen(ngp);
+            ar.assertNotFrozen(ngp);
             ar.setPageAccessLevels(ngp);
             String fileExtension = fileName.substring(fileName.indexOf("."));
 

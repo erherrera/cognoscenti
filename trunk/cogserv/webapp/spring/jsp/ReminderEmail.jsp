@@ -13,7 +13,6 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%@page import="org.socialbiz.cog.spring.ReminderEmailHelper"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%
 /*
@@ -77,7 +76,7 @@ Required parameter:
                 </tr>
                 <tr>
                     <td></td>
-                    <td><%ReminderEmailHelper.writeReminderEmailBody(ar, ngp, rRec);%></td>
+                    <td><%rRec.writeReminderEmailBody(ar, ngp);%></td>
                 </tr>
             </table>
         </form>

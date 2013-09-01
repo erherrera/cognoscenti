@@ -161,7 +161,7 @@ Required parameter:
     <script type="text/javascript" language="javascript" src="<%=ar.baseURL%>jscript/jquery.js"></script>
     <script type="text/javascript" language="javascript" src="<%=ar.baseURL%>jscript/tabs.js"></script>
 
-    <script>
+    <!--script>
         var specialSubTab = '<fmt:message key="${requestScope.subTabId}"/>';
 
         var tab0_settings = '<fmt:message key="nugen.projectsettings.subtab.personal"/>';
@@ -171,7 +171,7 @@ Required parameter:
         var tab4_settings = '<fmt:message key="nugen.projectsettings.subtab.emailRecords"/>';
         var retPath ='<%=ar.retPath%>';
 
-    </script>
+    </script-->
 
 </head>
 <body class="yui-skin-sam">

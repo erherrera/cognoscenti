@@ -33,7 +33,6 @@ import org.socialbiz.cog.dms.FolderAccessHelper;
 import org.socialbiz.cog.dms.ResourceEntity;
 import org.socialbiz.cog.spring.AttachmentHelper;
 import org.socialbiz.cog.spring.NGWebUtils;
-import org.socialbiz.cog.spring.ReminderEmailHelper;
 
 @Controller
 public class UploadFileController extends BaseController {
@@ -53,11 +52,10 @@ public class UploadFileController extends BaseController {
         binder.registerCustomEditor(byte[].class,new ByteArrayMultipartFileEditor());
     }
 
-    private ModelAndView needAccessView(HttpServletRequest request, String why) {
-        request.setAttribute("property_msg_key", why);
-        return new ModelAndView("Warning");
+    private ModelAndView displayException(HttpServletRequest request, Exception extd) {
+        request.setAttribute("display_exception", extd);
+        return new ModelAndView("DisplayException");
     }
-
 
     @RequestMapping(value = "/{accountId}/{pageId}/upload.form", method = RequestMethod.POST)
     protected ModelAndView uploadFile(  @PathVariable String accountId,
@@ -69,11 +67,10 @@ public class UploadFileController extends BaseController {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp = getAccountProjectOrFail(accountId, pageId);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
             //Handling special case for Multipart request
             ar.req = request;
 
-            ar.setPageAccessLevels(ngp);
             ReminderRecord reminderRecord = null;
 
             boolean requestFromReminder = false;
@@ -92,7 +89,7 @@ public class UploadFileController extends BaseController {
                 ar.assertLoggedIn(ar.getMessageFromPropertyFile("message.can.not.upload.attachment", null));
             }
 
-            ar.assertContainerFrozen(ngp);
+            ar.assertNotFrozen(ngp);
             request.setCharacterEncoding("UTF-8");
 
             if (file.getSize() == 0) {
@@ -139,9 +136,8 @@ public class UploadFileController extends BaseController {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.can.not.send.email");
-            NGPage ngp = getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
-            ar.assertContainerFrozen(ngp);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
+            ar.assertNotFrozen(ngp);
 
             String comment = ar.reqParam("comment");
             String pname = ar.defParam("pname", "");
@@ -180,10 +176,8 @@ public class UploadFileController extends BaseController {
             throws Exception {
         ModelAndView modelAndView = null;
         try{
-            //AuthRequest ar = getLoggedInAuthRequest(request, response, "message.can.not.send.email.reminder");
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
 
             if(!ar.isLoggedIn()){
                 request.setAttribute("property_msg_key", "nugen.project.send.email.reminder.login.msg");
@@ -192,7 +186,7 @@ public class UploadFileController extends BaseController {
                 request.setAttribute("property_msg_key", "nugen.attachment.send.email.reminder.memberlogin");
                 modelAndView = createNamedView(accountId, pageId, ar, "Warning","Project Documents");
             }else{
-                modelAndView = createNamedView(accountId, pageId, ar, "reminder_email","Project Documents");
+                modelAndView = createNamedView(accountId, pageId, ar, "ReminderEmail","Project Documents");
                 request.setAttribute("isNewUpload", "yes");
             }
             request.setAttribute("realRequestURL", ar.getRequestURL());
@@ -211,12 +205,11 @@ public class UploadFileController extends BaseController {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.can.not.resend.email.reminder");
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
 
             String reminderId = ar.reqParam("rid");
             String emailto = ar.defParam("emailto", null);
-            ReminderEmailHelper.reminderEmail(ar, pageId, reminderId, emailto, ngp);
+            ReminderRecord.reminderEmail(ar, pageId, reminderId, emailto, ngp);
 
             modelAndView = createRedirectView(ar, "reminders.htm");
         }catch(Exception ex){
@@ -235,12 +228,11 @@ public class UploadFileController extends BaseController {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.must.be.login.to.perform.action");
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
             //Handling special case for Multipart request
             ar.req = request;
 
-            ar.setPageAccessLevels(ngp);
-            ar.assertContainerFrozen(ngp);
+            ar.assertNotFrozen(ngp);
 
             String action = ar.defParam("actionType", "");
             if(action.equals("Unlink"))
@@ -266,9 +258,8 @@ public class UploadFileController extends BaseController {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.can.not.create.link.url");
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
-            ar.assertContainerFrozen(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
+            ar.assertNotFrozen(ngp);
 
             String visibility = ar.reqParam("visibility");
 
@@ -316,21 +307,18 @@ public class UploadFileController extends BaseController {
             HttpServletResponse response) throws Exception {
         ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
 
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.upload.doc.login.msg");
+                return showWarningView(ar, "nugen.project.upload.doc.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.attachment.uploadattachment.memberlogin");
+                return showWarningView(ar, "nugen.attachment.uploadattachment.memberlogin");
             }
             if(ngp.isFrozen()){
-                return needAccessView(request, "nugen.generatInfo.Frozen");
+                return showWarningView(ar, "nugen.generatInfo.Frozen");
             }
 
             modelAndView = createNamedView(accountId, pageId, ar, "addDocument","Project Documents");
@@ -350,21 +338,18 @@ public class UploadFileController extends BaseController {
             HttpServletResponse response) throws Exception {
         ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
 
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.upload.doc.login.msg");
+                return showWarningView(ar, "nugen.project.upload.doc.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.attachment.uploadattachment.memberlogin");
+                return showWarningView(ar, "nugen.attachment.uploadattachment.memberlogin");
             }
             if(ngp.isFrozen()){
-                return needAccessView(request, "nugen.generatInfo.Frozen");
+                return showWarningView(ar, "nugen.generatInfo.Frozen");
             }
 
             modelAndView = createNamedView(accountId, pageId, ar, "uploadDocumentForm","Project Documents");
@@ -384,25 +369,23 @@ public class UploadFileController extends BaseController {
             HttpServletResponse response) throws Exception {
         ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
 
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.upload.revised.doc.login.msg");
+                return showWarningView(ar, "nugen.project.upload.revised.doc.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.attachment.uploadattachment.memberlogin");
+                return showWarningView(ar, "nugen.attachment.uploadattachment.memberlogin");
             }
             if(ngp.isFrozen()){
-                return needAccessView(request, "nugen.generatInfo.Frozen");
+                return showWarningView(ar, "nugen.generatInfo.Frozen");
             }
+            String aid = ar.reqParam("aid");
+            ngp.findAttachmentByIDOrFail(aid);
 
             modelAndView = createNamedView(accountId, pageId, ar, "UploadRevisedDocument","Project Documents");
-            String aid = ar.reqParam("aid");
             ar.req.setAttribute("aid", aid);
             request.setAttribute("subTabId", "nugen.projecthome.subtab.upload.document");
             request.setAttribute("isNewUpload", "yes");
@@ -422,21 +405,18 @@ public class UploadFileController extends BaseController {
             HttpServletResponse response) throws Exception {
         ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
 
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.link.url.login.msg");
+                return showWarningView(ar, "nugen.project.link.url.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.attachment.linkurltoproject.memberlogin");
+                return showWarningView(ar, "nugen.attachment.linkurltoproject.memberlogin");
             }
             if(ngp.isFrozen()){
-                return needAccessView(request, "nugen.generatInfo.Frozen");
+                return showWarningView(ar, "nugen.generatInfo.Frozen");
             }
 
             modelAndView = createNamedView(accountId, pageId, ar, "createLinkUrlProjectForm", "Project Documents");
@@ -456,21 +436,18 @@ public class UploadFileController extends BaseController {
             HttpServletResponse response) throws Exception {
         ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
 
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.upload.email.reminder.login.msg");
+                return showWarningView(ar, "nugen.project.upload.email.reminder.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.attachment.emailreminders.memberlogin");
+                return showWarningView(ar, "nugen.attachment.emailreminders.memberlogin");
             }
             if(ngp.isFrozen()){
-                return needAccessView(request, "nugen.generatInfo.Frozen");
+                return showWarningView(ar, "nugen.generatInfo.Frozen");
             }
 
             modelAndView = createNamedView(accountId, pageId, ar, "emailreminder_form", "Project Documents");
@@ -491,21 +468,18 @@ public class UploadFileController extends BaseController {
             HttpServletResponse response) throws Exception {
             ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
 
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.link.doc.to.project.login.msg");
+                return showWarningView(ar, "nugen.project.link.doc.to.project.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.attachment.linkattachmenttoproject.memberlogin");
+                return showWarningView(ar, "nugen.attachment.linkattachmenttoproject.memberlogin");
             }
             if(ngp.isFrozen()){
-                return needAccessView(request, "nugen.generatInfo.Frozen");
+                return showWarningView(ar, "nugen.generatInfo.Frozen");
             }
 
             String symbol = ar.reqParam("symbol");
@@ -526,13 +500,10 @@ public class UploadFileController extends BaseController {
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.can.not.create.attachment");
             ar.req = request;
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
-            ar.assertContainerFrozen(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
+            ar.assertNotFrozen(ngp);
             ar.assertMember("Unable to create attachments.");
 
             String action   = ar.reqParam("action");
@@ -574,10 +545,8 @@ public class UploadFileController extends BaseController {
             HttpServletResponse response) throws Exception {
         ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.can.not.display.repository.folder");
-            getAccountProjectOrFail(accountId, pageId);
+            registerRequiredProject(ar, accountId, pageId);
 
             modelAndView = createNamedView(accountId, pageId, ar, "FolderDisplay", "Project Documents");
             request.setAttribute("fid",ar.defParam("fid",null));
@@ -594,26 +563,25 @@ public class UploadFileController extends BaseController {
             HttpServletResponse response) throws Exception {
         ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
 
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.edit.doc.login.msg");
+                return showWarningView(ar, "nugen.project.edit.doc.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.attachment.edit.doc.memberlogin");
+                return showWarningView(ar, "nugen.attachment.edit.doc.memberlogin");
             }
             if(ngp.isFrozen()){
-                return needAccessView(request, "nugen.generatInfo.Frozen");
+                return showWarningView(ar, "nugen.generatInfo.Frozen");
             }
+            String aid = ar.reqParam("aid");
+            ngp.findAttachmentByIDOrFail(aid);
 
             modelAndView = createNamedView(accountId, pageId, ar, "edit_document_form", "Project Documents");
             request.setAttribute("subTabId", "nugen.projectdocument.subtab.attachmentdetails");
-            request.setAttribute("aid",ar.reqParam("aid"));
+            request.setAttribute("aid",aid);
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("title", ngp.getFullName());
 
@@ -629,23 +597,22 @@ public class UploadFileController extends BaseController {
             HttpServletResponse response) throws Exception {
         ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
 
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.file.version.login.msg");
+                return showWarningView(ar, "nugen.project.file.version.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.attachment.file.version.memberlogin");
+                return showWarningView(ar, "nugen.attachment.file.version.memberlogin");
             }
+            String aid = ar.reqParam("aid");
+            ngp.findAttachmentByIDOrFail(aid);
 
             modelAndView = createNamedView(accountId, pageId, ar, "fileVersions", "Project Documents");
             request.setAttribute("subTabId", "nugen.projectdocument.subtab.fileversions");
-            request.setAttribute("aid",ar.reqParam("aid"));
+            request.setAttribute("aid",aid);
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("title",ngp.getFullName());
 
@@ -687,37 +654,34 @@ public class UploadFileController extends BaseController {
      protected ModelAndView remindAttachment(@PathVariable String accountId,
                 @PathVariable String pageId, HttpServletRequest request,
                 HttpServletResponse response) throws Exception {
-        ModelAndView modelAndView = null;
+        AuthRequest ar = AuthRequest.getOrCreate(request, response);
         try{
-            AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
             ar.setPageAccessLevels(ngp);
 
-            boolean canAccessReminder = false;
-            String rid = ar.defParam("rid", null);
-            if(rid != null){
-                ReminderMgr mgr = ngp.getReminderMgr();
-                ReminderRecord reminderRecord = mgr.findReminderByIDOrFail(rid);
-                canAccessReminder = AccessControl.canAccessReminder(ar, ngp, reminderRecord);
-            }
-
-            if(!canAccessReminder){
-                if(!ar.isLoggedIn()){
-                    request.setAttribute("property_msg_key", "nugen.project.remind.doc.login.msg");
-                }else if(!ar.isMember()){
-                    request.setAttribute("property_msg_key", "nugen.attachment.remind.doc.memberlogin");
-                }
-                modelAndView = createNamedView(accountId, pageId, ar, "Warning", "Project Documents");
-            }else{
-                modelAndView = createNamedView(accountId, pageId, ar, "remind_attachment", "Project Documents");
+            String rid = ar.reqParam("rid");
+            ReminderMgr mgr = ngp.getReminderMgr();
+            ReminderRecord reminderRecord = mgr.findReminderByIDOrFail(rid);
+            if (AccessControl.canAccessReminder(ar, ngp, reminderRecord)) {
                 request.setAttribute("subTabId", "nugen.projecthome.subtab.upload.document");
+                return createNamedView(accountId, pageId, ar, "remind_attachment", "Project Documents");
             }
 
+            if(!ar.isLoggedIn()){
+                request.setAttribute("property_msg_key", "nugen.project.remind.doc.login.msg");
+            }else if(!ar.isMember()){
+                request.setAttribute("property_msg_key", "nugen.attachment.remind.doc.memberlogin");
+            }else {
+                //basically, the reminder should have been display, and we have no idea now why not
+                throw new Exception("Program Logic Error ... something is wrong with the canAccessReminder method");
+            }
+            return createNamedView(accountId, pageId, ar, "Warning", "Project Documents");
 
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.reminder.attachment.page", new Object[]{pageId,accountId} , ex);
+            Exception extd = new NGException("nugen.operation.fail.project.reminder.attachment.page",
+                    new Object[]{pageId,accountId} , ex);
+            return displayException(request, extd);
         }
-        return modelAndView;
      }
 
      @RequestMapping(value = "/{accountId}/{pageId}/sendDocsByEmail.htm", method = RequestMethod.GET)
@@ -727,7 +691,7 @@ public class UploadFileController extends BaseController {
 
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.can.not.send.docs.by.email");
-            getAccountProjectOrFail(accountId, pageId);
+            registerRequiredProject(ar, accountId, pageId);
 
             String oid = ar.reqParam("oid");
             response.sendRedirect(ar.retPath+"t/sendNoteByEmail.htm?p="+pageId+"&oid="+oid+"&encodingGuard=%E6%9D%B1%E4%BA%AC");
@@ -738,18 +702,18 @@ public class UploadFileController extends BaseController {
 
 
     /**
-    * @deprecated URL pattern, use docinfo####.htm instead
+    * deprecated URL pattern, use docinfo####.htm instead
     * This remains incase someone had recorded some URLs
     * deprecated MAy 15, 2011, remove this about a year later
-    */
-    @RequestMapping(value = "/{accountId}/{pageId}/downloadDocument.htm", method = RequestMethod.GET)
+    *
+    RequestMapping(value = "/{accountId}/{pageId}/downloadDocument.htm", method = RequestMethod.GET)
     protected ModelAndView getDownloadDocumentPage(@PathVariable String accountId,
              @PathVariable String pageId, HttpServletRequest request,
              HttpServletResponse response) throws Exception
     {
         AuthRequest ar = getLoggedInAuthRequest(request, response, "message.must.be.login.to.open.page");
         return docInfoView(accountId, pageId, ar.reqParam("aid"), request, response);
-    }
+    }*/
 
 
     @RequestMapping(value = "/{accountId}/{pageId}/docinfo{docId}.htm", method = RequestMethod.GET)
@@ -759,7 +723,8 @@ public class UploadFileController extends BaseController {
     {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            getAccountProjectOrFail(accountId, pageId);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
+            ngp.findAttachmentByIDOrFail(docId);
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("subTabId", "nugen.projectdocument.subtab.attachmentdetails");
@@ -789,8 +754,6 @@ public class UploadFileController extends BaseController {
            paramMap.put("description", attachment.getComment());
            paramMap.put("permission", String.valueOf(attachment.getVisibility()));
            paramMap.put("accessName", attachment.getDisplayName());
-
-
            responseText = paramMap.toString();
        }
        catch (Exception ex) {
@@ -809,19 +772,17 @@ public class UploadFileController extends BaseController {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            getAccountProjectOrFail(accountId, pageId);
-            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
 
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.create.copy.login.msg");
+                return showWarningView(ar, "nugen.project.create.copy.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.attachment.createcopy.memberlogin");
+                return showWarningView(ar, "nugen.attachment.createcopy.memberlogin");
             }
             if(ngp.isFrozen()){
-                return needAccessView(request, "nugen.generatInfo.Frozen");
+                return showWarningView(ar, "nugen.generatInfo.Frozen");
             }
 
 
@@ -921,15 +882,14 @@ public class UploadFileController extends BaseController {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
 
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.send.email.reminder.login.msg");
+                return showWarningView(ar, "nugen.project.send.email.reminder.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.attachment.send.email.reminder.memberlogin");
+                return showWarningView(ar, "nugen.attachment.send.email.reminder.memberlogin");
             }
 
             modelAndView = createNamedView(accountId, pageId, ar, "viewReminder","Project Documents");

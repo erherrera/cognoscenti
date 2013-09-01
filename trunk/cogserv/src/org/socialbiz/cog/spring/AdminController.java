@@ -46,7 +46,7 @@ public class AdminController extends BaseController {
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(project);
             ar.setPageAccessLevels(ngp);
             ar.assertAuthor("Unable to change the name of this page.");
-            ar.assertContainerFrozen(ngp);
+            ar.assertNotFrozen(ngp);
 
             ProcessRecord process = ngp.getProcess();
             process.setSynopsis(ar.reqParam("goal"));
@@ -466,7 +466,7 @@ public class AdminController extends BaseController {
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
             ar.setPageAccessLevels(ngp);
             ar.assertAuthor("Unable to change the name of this page.");
-            ar.assertContainerFrozen(ngp);
+            ar.assertNotFrozen(ngp);
 
             String symbol = ar.defParam("symbol", null);
             String action = ar.reqParam("action");

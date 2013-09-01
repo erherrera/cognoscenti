@@ -5,9 +5,6 @@
 %><%
     String title=(String)request.getAttribute("title");
 
-    //currently you can choose the theme for the site by changing the
-    //path below.  This changes the entire site.  Later this will be
-    //user controlled & account controlled.
     String themePath = ar.getThemePath();
 
 %>

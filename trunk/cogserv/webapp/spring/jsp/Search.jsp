@@ -33,17 +33,6 @@ Optional Parameter:
 
     boolean isGlobalScope = false;
 
-    if(b.equals("All Books"))
-    {
-        isGlobalScope = true;
-        ngb = NGPageIndex.getAccountByKeyOrFail("mainbook");
-    }
-    else
-    {
-        //throws an exception if the book can not be found
-        ngb = NGPageIndex.getAccountByKeyOrFail(b);
-    }
-
     String servletURL = ar.baseURL + "servlet/DataFeedServlet?op=SEARCH&qs="
                        + URLEncoder.encode(qs, "UTF-8") + "&b="
                        + URLEncoder.encode(b,"UTF-8")  + "&pf="

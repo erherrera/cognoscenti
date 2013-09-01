@@ -161,7 +161,7 @@ public class RemoteLinkController extends BaseController {
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
             ar.setPageAccessLevels(ngp);
             ar.assertMember("Unable to Synchronize attachments.");
-            ar.assertContainerFrozen(ngp);
+            ar.assertNotFrozen(ngp);
 
             while (sElements.hasMoreElements())
             {

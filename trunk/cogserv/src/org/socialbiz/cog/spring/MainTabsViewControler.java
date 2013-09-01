@@ -30,11 +30,13 @@ import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.OptOutAddr;
 import org.socialbiz.cog.OptOutDirectAddress;
+import org.socialbiz.cog.ProfileRequest;
 import org.socialbiz.cog.SearchResultRecord;
 import org.socialbiz.cog.SectionAttachments;
 import org.socialbiz.cog.SectionDef;
 import org.socialbiz.cog.SectionUtil;
 import org.socialbiz.cog.UserManager;
+import org.socialbiz.cog.UserPage;
 import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.WikiConverter;
@@ -63,12 +65,6 @@ public class MainTabsViewControler extends BaseController {
     }
 
 
-    private ModelAndView needAccessView(HttpServletRequest request, String why) {
-        request.setAttribute("property_msg_key", why);
-        return new ModelAndView("Warning");
-    }
-
-
     @RequestMapping(value = "/{accountId}/{pageId}/projectHome.htm", method = RequestMethod.GET)
     public ModelAndView showProjectHomeTab(@PathVariable String accountId,@PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
@@ -78,19 +74,15 @@ public class MainTabsViewControler extends BaseController {
     }
 
     @RequestMapping(value = "/{accountId}/{pageId}/public.htm", method = RequestMethod.GET)
-    public ModelAndView showPublicTab(@PathVariable String accountId,@PathVariable String pageId,
+    public ModelAndView public_htm(@PathVariable String accountId,@PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
         ModelAndView modelAndView = null;
 
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPageIndex.assertBook(accountId);
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(nGPage);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
             modelAndView=new ModelAndView("public");
             request.setAttribute("realRequestURL", ar.getRequestURL());
@@ -99,142 +91,88 @@ public class MainTabsViewControler extends BaseController {
             request.setAttribute("visibility_value", "1");
             request.setAttribute("title", nGPage.getFullName());
         }catch(Exception ex){
+            System.out.println("An exception occurred in public_htm"+ex.toString());
             throw new NGException("nugen.operation.fail.project.public.page", new Object[]{pageId,accountId} , ex);
         }
         return modelAndView;
-
     }
 
     @RequestMapping(value = "/{accountId}/{pageId}/member.htm", method = RequestMethod.GET)
-    public ModelAndView showMemberTab(@PathVariable String accountId,@PathVariable String pageId,
+    public ModelAndView member_htm(@PathVariable String accountId,@PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.member.login.msg");
-            }
-            NGPageIndex.assertBook(accountId);
-            modelAndView=new ModelAndView("member");
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-
-            ar.setPageAccessLevels(nGPage);
-            if(!ar.isMember()){
-                request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.member.section.memberlogin");
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
+            ModelAndView modelAndView= memberCheckViews(ar);
+            if (modelAndView!=null) {
+                return modelAndView;
             }
 
-            modelAndView=new ModelAndView("member");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.member");
             request.setAttribute("visibility_value", "2");
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Notes");
             request.setAttribute("title", nGPage.getFullName());
+            return new ModelAndView("member");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.member.page", new Object[]{pageId,accountId} , ex);
         }
-        return modelAndView;
-
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/private.htm", method = RequestMethod.GET)
-    public ModelAndView showPrivateTab(@PathVariable String accountId,@PathVariable String pageId,
-            HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        ModelAndView modelAndView = null;
-
-        try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
-            AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPageIndex.assertBook(accountId);
-            modelAndView=new ModelAndView("private");
-
-            request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Project Notes");
-            request.setAttribute("subTabId", "nugen.projecthome.subtab.private");
-            request.setAttribute("visibility_value", "4");
-        }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.private.page", new Object[]{pageId,accountId} , ex);
-        }
-        return modelAndView;
-
-    }
 
     @RequestMapping(value = "/{accountId}/{pageId}/deletedNotes.htm", method = RequestMethod.GET)
-    public ModelAndView showDeletedTab(@PathVariable String accountId,@PathVariable String pageId,
+    public ModelAndView deletedNotes_htm(@PathVariable String accountId,@PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
-
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Notes");
 
-            NGPageIndex.assertBook(accountId);
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(nGPage);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
-            if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.deleted.notes.login.msg");
-            }
-            if(!ar.isMember()){
-                request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.projecthome.deletednotes.memberlogin");
+            ModelAndView modelAndView= memberCheckViews(ar);
+            if (modelAndView!=null) {
+                return modelAndView;
             }
 
             modelAndView=new ModelAndView("leaf_deleted");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.deletedNotes");
             request.setAttribute("visibility_value", "4");
             request.setAttribute("title", nGPage.getFullName());
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.delete.notes.page", new Object[]{pageId,accountId} , ex);
         }
-        return modelAndView;
-
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/admin.htm", method = RequestMethod.GET)
-    public ModelAndView showAdminTab(@PathVariable String accountId,
-            @PathVariable String pageId, HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        ModelAndView modelAndView = null;
+
+    @RequestMapping(value = "/{accountId}/{pageId}/draftNotes.htm", method = RequestMethod.GET)
+    public ModelAndView draftNotes(@PathVariable String accountId,@PathVariable String pageId,
+            HttpServletRequest request, HttpServletResponse response)
+           throws Exception {
+
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Project Settings");
-            request.setAttribute("subTabId", "nugen.projectsettings.subtab.Admin");
-
-            NGPageIndex.assertBook(accountId);
-            NGBook nGBook = null;
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(nGPage);
-
-            if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.login.msg");
+            registerRequiredProject(ar, accountId, pageId);
+            ModelAndView modelAndView= memberCheckViews(ar);
+            if (modelAndView!=null) {
+                return modelAndView;
             }
 
-            modelAndView = new ModelAndView("leaf_admin");
-            modelAndView.addObject("page", nGPage);
-            modelAndView.addObject("tanent", nGBook);
-
-            request.setAttribute("visibility_value", "3");
-            request.setAttribute("title", nGPage.getFullName());
-        }catch (Exception ex) {
-            throw new NGException("nugen.operation.fail.project.admin.page", new Object[]{pageId,accountId} , ex);
+            modelAndView=new ModelAndView("leaf_draftNotes");
+            request.setAttribute("subTabId", "nugen.projecthome.subtab.draftNotes");
+            request.setAttribute("visibility_value", "4");
+            request.setAttribute("realRequestURL", ar.getRequestURL());
+            request.setAttribute("tabId", "Project Notes");
+            return modelAndView;
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.project.draft.notes.page", new Object[]{pageId,accountId} , ex);
         }
-
-        return modelAndView;
     }
+
 
     @RequestMapping(value = "/{accountId}/{pageId}/projectSettings.htm", method = RequestMethod.GET)
     public ModelAndView showProjectSettingsTab(@PathVariable String accountId,@PathVariable String pageId,
@@ -250,16 +188,12 @@ public class MainTabsViewControler extends BaseController {
             throws Exception {
         ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             request.setAttribute("subTabId", "nugen.projecthome.subtab.documents");
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Documents");
 
-            NGPageIndex.assertBook(accountId);
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(nGPage);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
             modelAndView=new ModelAndView("attachment");
             request.setAttribute("title", nGPage.getFullName());
@@ -275,36 +209,28 @@ public class MainTabsViewControler extends BaseController {
     public ModelAndView showDeletedAttachments(@PathVariable String accountId,@PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Documents");
 
-            NGPageIndex.assertBook(accountId);
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(nGPage);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
-            if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.deleted.doc.login.msg");
-            }
-            if(!ar.isMember()){
-                request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.attachment.deletedattachment.memberlogin");
+            ModelAndView modelAndView= memberCheckViews(ar);
+            if (modelAndView!=null) {
+                return modelAndView;
             }
 
             modelAndView=new ModelAndView("leaf_deleted_attach");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.deleted");
             request.setAttribute("title", nGPage.getFullName());
-        }catch(Exception ex){
+            return modelAndView;
+        }
+        catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.delete.attachment.page", new Object[]{pageId,accountId} , ex);
         }
-
-        return modelAndView;
-
     }
+
     @RequestMapping(value = "/{accountId}/{pageId}/process.htm", method = RequestMethod.GET)
     public ModelAndView showProcessTab(@PathVariable String accountId,@PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
@@ -322,22 +248,15 @@ public class MainTabsViewControler extends BaseController {
             throws Exception {
         ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Tasks");
 
-            NGPageIndex.assertBook(accountId);
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(nGPage);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
-            if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.gantt.chart.login.msg");
-            }
-            if(!ar.isMember()){
-                request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.projecthome.task.memberlogin");
+            modelAndView= memberCheckViews(ar);
+            if (modelAndView!=null) {
+                return modelAndView;
             }
 
             modelAndView=new ModelAndView("ganttchart");
@@ -355,46 +274,31 @@ public class MainTabsViewControler extends BaseController {
     public ModelAndView showPermissionTab(@PathVariable String accountId,@PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Settings");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.Permissions");
 
-            NGPageIndex.assertBook(accountId);
-            NGBook nGBook = null;
-
-            // Set the Index page name
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
             List<NGRole> roles = nGPage.getAllRoles();
-            nGBook = nGPage.getAccount();
-            ar.setPageAccessLevels(nGPage);
 
-            if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.permission.login.msg");
-            }
-            if(!ar.isMember()){
-                request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.projecthome.permission.memberlogin");
+            ModelAndView modelAndView= memberCheckViews(ar);
+            if (modelAndView!=null) {
+                return modelAndView;
             }
 
-            modelAndView=new ModelAndView("permission");
+            modelAndView = new ModelAndView("permission");
 
             //TODO: eliminate these unnecessary parameters
             request.setAttribute("roles", roles);
             modelAndView.addObject("page", nGPage);
-            modelAndView.addObject("tanent", nGBook);
 
             request.setAttribute("title", nGPage.getFullName());
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.permission.page", new Object[]{pageId,accountId} , ex);
         }
-
-        return modelAndView;
-
     }
 
     @RequestMapping(value = "/{accountId}/{pageId}/history.htm", method = RequestMethod.GET)
@@ -403,23 +307,19 @@ public class MainTabsViewControler extends BaseController {
             throws Exception {
         ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Stream");
 
-            NGPageIndex.assertBook(accountId);
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(nGPage);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
             request.setAttribute("title", nGPage.getFullName());
 
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.history.login.msg");
+                return showWarningView(ar, "nugen.project.history.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.projecthome.projectbulletin.memberlogin");
+                return showWarningView(ar, "nugen.projecthome.projectbulletin.memberlogin");
             }
 
             modelAndView=new ModelAndView("history");
@@ -430,23 +330,22 @@ public class MainTabsViewControler extends BaseController {
         return modelAndView;
     }
 
-    @RequestMapping(value="/{accountId}/{pageId}/a/{docId}.{ext}", method = RequestMethod.GET)
+    @RequestMapping(value="/{accountId}/{pageId}/a/{docName}.{ext}", method = RequestMethod.GET)
      public void loadDocument(
            @PathVariable String accountId,
            @PathVariable String pageId,
-           @PathVariable String docId,
+           @PathVariable String docName,
            @PathVariable String ext,
            HttpServletRequest request,
            HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(ngp);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
-            String attachmentName = docId+"."+ext;
-            AttachmentRecord att = ngp.findAttachmentByNameOrFail(attachmentName);
+            String attachmentName = docName+"."+ext;
+            AttachmentRecord att = nGPage.findAttachmentByNameOrFail(attachmentName);
 
-            boolean canAccessDoc = AccessControl.canAccessDoc(ar, ngp, att);
+            boolean canAccessDoc = AccessControl.canAccessDoc(ar, nGPage, att);
 
             if(!canAccessDoc){
                 String msgKey = "message.loginalert.access.attachment";
@@ -456,13 +355,12 @@ public class MainTabsViewControler extends BaseController {
                 sendRedirectToLogin(ar, msgKey,null);
                 return;
             }
-            NGPageIndex.assertBook(accountId);
 
             String version = ar.defParam("version", null);
             if(version != null && !"".equals(version)){
-               SectionAttachments.serveUpFileNewUI(ar, ngp, attachmentName,Integer.parseInt(version));
+               SectionAttachments.serveUpFileNewUI(ar, nGPage, attachmentName,Integer.parseInt(version));
             }else{
-               SectionAttachments.serveUpFile(ar, ngp, attachmentName);
+               SectionAttachments.serveUpFile(ar, nGPage, attachmentName);
             }
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.download.document", new Object[]{pageId,accountId} , ex);
@@ -509,7 +407,7 @@ public class MainTabsViewControler extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             NGPageIndex.assertBook(accountId);
-            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
 
             //this constructs and outputs the PDF file to the output stream
             WikiToPDF.handlePDFRequest(ar, ngp);
@@ -530,8 +428,7 @@ public class MainTabsViewControler extends BaseController {
 
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPageIndex.assertBook(accountId);
-            NGPageIndex.getProjectByKeyOrFail(pageId);
+            registerRequiredProject(ar, accountId, pageId);
 
             PDFUtil pdfUtil = new PDFUtil();
             pdfUtil.serveUpFile(ar, pageId);
@@ -675,17 +572,11 @@ public class MainTabsViewControler extends BaseController {
      public ModelAndView displayOneLeaflet(@PathVariable String lid, @PathVariable String pageId,
             @PathVariable String accountId, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPageIndex.assertBook(accountId);
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(nGPage);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
             NoteRecord note = nGPage.getNoteOrFail(lid);
 
-            modelAndView=new ModelAndView("NoteZoomView");
 
             request.setAttribute("lid", lid);
             request.setAttribute("zoomMode", true);
@@ -693,10 +584,10 @@ public class MainTabsViewControler extends BaseController {
             request.setAttribute("title", note.getSubject()+" - "+nGPage.getFullName());
             request.setAttribute("tabId", "Project Notes");
             request.setAttribute("realRequestURL", ar.getRequestURL());
+            return new ModelAndView("NoteZoomView");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.zoom.note.page", new Object[]{lid,pageId,accountId} , ex);
         }
-        return modelAndView;
     }
 
      @RequestMapping(value = "/previewNoteForEmail.htm", method = RequestMethod.GET)
@@ -941,11 +832,8 @@ public class MainTabsViewControler extends BaseController {
             throws Exception {
         ModelAndView modelAndView = null;
         try {
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPageIndex.assertBook(accountId);
-            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
 
             String go = ar.reqParam("go");
             String action = ar.reqParam("action");
@@ -954,7 +842,6 @@ public class MainTabsViewControler extends BaseController {
             String data = ar.defParam("data", null);
             String choice = ar.defParam("choice", null);
 
-            ar.setPageAccessLevels(ngp);
             NoteRecord note = ngp.getNoteOrFail(lid);
             LeafletResponseRecord llr;
 
@@ -994,61 +881,82 @@ public class MainTabsViewControler extends BaseController {
         return modelAndView;
     }
 
+    /*
     @RequestMapping(value = "/{accountId}/{pageId}/personal.htm", method = RequestMethod.GET)
-    public ModelAndView showPersonalTab(@PathVariable String accountId,@PathVariable String pageId,
-             HttpServletRequest request, HttpServletResponse response)
-             throws Exception {
-        try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
+    public ModelAndView showPersonalTab(@PathVariable String accountId,
+            @PathVariable String pageId, HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        try {
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPageIndex.assertBook(accountId);
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(nGPage);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
-            NGBook nGBook = nGPage.getAccount();
-
-            ModelAndView modelAndView = null;
-            if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.personal.login.msg");
+            if (!ar.isLoggedIn()) {
+                return showWarningView(ar, "nugen.project.personal.login.msg");
             }
 
-            modelAndView=new ModelAndView("personal");
+            ModelAndView modelAndView = new ModelAndView("personal");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.personal");
             request.setAttribute("visibility_value", "4");
 
             modelAndView.addObject("page", nGPage);
-            modelAndView.addObject("tanent", nGBook);
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Settings");
             request.setAttribute("title", nGPage.getFullName());
             return modelAndView;
-        }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.personal.page", new Object[]{pageId,accountId} , ex);
         }
-     }
+        catch (Exception ex) {
+            throw new NGException("nugen.operation.fail.project.personal.page", new Object[] {
+                    pageId, accountId }, ex);
+        }
+    }
+    */
+
+    @RequestMapping(value = "/{accountId}/{pageId}/streamingLinks.htm", method = RequestMethod.GET)
+    public ModelAndView streamingLinks(@PathVariable String accountId, @PathVariable String pageId,
+            HttpServletRequest request, HttpServletResponse response) throws Exception {
+        try {
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
+            ModelAndView modelAndView= memberCheckViews(ar);
+            if (modelAndView!=null) {
+                return modelAndView;
+            }
+
+            NGBook nGBook = nGPage.getAccount();
+
+            modelAndView = new ModelAndView("leaf_streamingLinks");
+            request.setAttribute("subTabId", "nugen.projectsettings.subtab.personal");
+            request.setAttribute("visibility_value", "4");
+
+            modelAndView.addObject("page", nGPage);
+            request.setAttribute("realRequestURL", ar.getRequestURL());
+            request.setAttribute("tabId", "Project Settings");
+            request.setAttribute("title", nGPage.getFullName());
+            return modelAndView;
+        }
+        catch (Exception ex) {
+            throw new NGException("nugen.operation.fail.project.personal.page", new Object[] {
+                    pageId, accountId }, ex);
+        }
+    }
 
       @RequestMapping(value = "/{accountId}/{pageId}/project.htm", method = RequestMethod.GET)
       public ModelAndView showGwtProject(@PathVariable String accountId,@PathVariable String pageId,
               HttpServletRequest request, HttpServletResponse response)
               throws Exception {
-        ModelAndView modelAndView = null;
-        AuthRequest ar = null;
+        AuthRequest ar = AuthRequest.getOrCreate(request, response);
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
-            ar = AuthRequest.getOrCreate(request, response);
-            NGPageIndex.assertBook(accountId);
-            modelAndView=new ModelAndView("project");
+            registerRequiredProject(ar, accountId, pageId);
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Notes");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.public");
             request.setAttribute("visibility_value", "1");
-        }catch(Exception ex){
+            return new ModelAndView("project");
+        }
+        catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.gwt.project.page", new Object[]{pageId,accountId} , ex);
         }
-        return modelAndView;
      }
 
     @RequestMapping(value = "/{userKey}/Search.htm", method = RequestMethod.GET)
@@ -1099,12 +1007,11 @@ public class MainTabsViewControler extends BaseController {
                 return redirectToLoginView(ar, "message.loginalert.access.taglink.page",null);
             }
 
-            ModelAndView modelAndView=new ModelAndView("TagLinks");
             request.setAttribute("headerType", "user");
             request.setAttribute("tabId", "Home");
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("userKey",userKey);
-            return modelAndView;
+            return new ModelAndView("TagLinks");
         }
         catch(Exception ex)
         {
@@ -1155,29 +1062,23 @@ public class MainTabsViewControler extends BaseController {
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPageIndex.assertBook(accountId);
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(nGPage);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
-            ModelAndView modelAndView = null;
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.reminders.login.msg");
+                return showWarningView(ar, "nugen.project.reminders.login.msg");
             }
             if(!ar.isMember()){
                 request.setAttribute("roleName", "Members");
-                return needAccessView(request, "nugen.projecthome.reminders.memberlogin");
+                return showWarningView(ar, "nugen.projecthome.reminders.memberlogin");
             }
 
-            modelAndView=new ModelAndView("reminders");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.reminders");
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Documents");
             request.setAttribute("title", nGPage.getFullName());
-            return modelAndView;
+            return new ModelAndView("reminders");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.reminder.page", new Object[]{pageId,accountId} , ex);
         }
@@ -1215,22 +1116,16 @@ public class MainTabsViewControler extends BaseController {
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPageIndex.assertBook(accountId);
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
             NGBook nGBook = nGPage.getAccount();
 
             // Set the Index page name
             List<NGRole> roles=nGPage.getAllRoles();
 
-            ar.setPageAccessLevels(nGPage);
-
             String userId = ar.reqParam( "emailId" );
             ModelAndView modelAndView = new ModelAndView("inviteUser");
             modelAndView.addObject("page", nGPage);
-            modelAndView.addObject("tanent", nGBook);
             modelAndView.addObject("emailId", userId);
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
@@ -1271,7 +1166,7 @@ public class MainTabsViewControler extends BaseController {
         boolean includeBodyInMail = (ar.defParam("includeBody", null)!=null);
         NGContainer ngp = NGPageIndex.getContainerByKeyOrFail(p);
         ar.setPageAccessLevels(ngp);
-        ar.assertContainerFrozen(ngp);
+        ar.assertNotFrozen(ngp);
 
         String subject = ar.defParam("subject", null);
 
@@ -1549,22 +1444,20 @@ public class MainTabsViewControler extends BaseController {
             @PathVariable String accountId)
             throws Exception {
 
-        ModelAndView modelAndView = null;
         try{
             request.setAttribute("book", accountId);
             request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             NGPageIndex.assertBook(accountId);
             if(!ar.isLoggedIn()){
-                return needAccessView(request, "nugen.project.export.pdf.login.msg");
+                return showWarningView(ar, "nugen.project.export.pdf.login.msg");
             }
-            modelAndView=new ModelAndView("exportPDF");
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Notes");
+            return new ModelAndView("exportPDF");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.export.pdf.page", new Object[]{pageId,accountId} , ex);
         }
-        return modelAndView;
     }
 
       @RequestMapping(value = "/isNoteDeleted.ajax", method = RequestMethod.POST)
@@ -1614,40 +1507,6 @@ public class MainTabsViewControler extends BaseController {
           return modelAndView;
       }
 
-      @RequestMapping(value = "/{accountId}/{pageId}/draftNotes.htm", method = RequestMethod.GET)
-      public ModelAndView draftNotes(@PathVariable String accountId,@PathVariable String pageId,
-              HttpServletRequest request, HttpServletResponse response)
-             throws Exception {
-
-          ModelAndView modelAndView = null;
-          try{
-              request.setAttribute("book", accountId);
-              request.setAttribute("pageId", pageId);
-              AuthRequest ar = AuthRequest.getOrCreate(request, response);
-
-              NGPageIndex.assertBook(accountId);
-              NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-              ar.setPageAccessLevels(nGPage);
-              if(!ar.isLoggedIn()){
-                  return needAccessView(request, "nugen.project.draft.notes.login.msg");
-              }
-              if(!ar.isMember()){
-                  request.setAttribute("roleName", "Members");
-                  return needAccessView(request, "nugen.projecthome.draftnotes.memberlogin");
-              }
-
-              modelAndView=new ModelAndView("leaf_draftNotes");
-              request.setAttribute("subTabId", "nugen.projecthome.subtab.draftNotes");
-              request.setAttribute("visibility_value", "4");
-              request.setAttribute("realRequestURL", ar.getRequestURL());
-              request.setAttribute("tabId", "Project Notes");
-          }catch(Exception ex){
-              throw new NGException("nugen.operation.fail.project.draft.notes.page", new Object[]{pageId,accountId} , ex);
-          }
-
-          return modelAndView;
-      }
-
       @RequestMapping(value = "/{accountId}/{pageId}/statusReport.form", method = RequestMethod.POST)
       public ModelAndView statusReport( @PathVariable String accountId,@PathVariable String pageId,
               HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -1674,18 +1533,15 @@ public class MainTabsViewControler extends BaseController {
           ModelAndView modelAndView = null;
 
           try{
-              request.setAttribute("book", accountId);
-              request.setAttribute("pageId", pageId);
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
-              NGPage ngp =  getAccountProjectOrFail(accountId, pageId);
-              ar.setPageAccessLevels(ngp);
+              registerRequiredProject(ar, accountId, pageId);
 
               if(!ar.isLoggedIn()){
-                  return needAccessView(request, "nugen.project.upload.email.reminder.login.msg");
+                  return showWarningView(ar, "nugen.project.upload.email.reminder.login.msg");
               }
               if(!ar.isMember()){
                   request.setAttribute("roleName", "Members");
-                  return needAccessView(request, "nugen.projectsettings.emailRecords.memberlogin");
+                  return showWarningView(ar, "nugen.projectsettings.emailRecords.memberlogin");
               }
 
               modelAndView=new ModelAndView("emailrecords");
@@ -1703,24 +1559,17 @@ public class MainTabsViewControler extends BaseController {
               HttpServletRequest request, HttpServletResponse response)
               throws Exception {
 
-          ModelAndView modelAndView = null;
           try{
-              request.setAttribute("book", accountId);
-              request.setAttribute("pageId", pageId);
-             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-              NGPageIndex.assertBook(accountId);
-              NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-              ar.setPageAccessLevels(nGPage);
-
+              AuthRequest ar = AuthRequest.getOrCreate(request, response);
+              NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
               if(!ar.isLoggedIn()){
-                  return needAccessView(request, "nugen.project.task.login.msg");
+                  return showWarningView(ar, "nugen.project.task.login.msg");
               }
               if(!ar.isMember()){
                   request.setAttribute("roleName", "Members");
-                  return needAccessView(request, "nugen.projecthome.task.memberlogin");
+                  return showWarningView(ar, "nugen.projecthome.task.memberlogin");
               }
 
-              modelAndView=new ModelAndView("ProjectActiveTasks");
 
               //this page has a required parameter 'active', test it here so that any error
               //happens in the controller, not the page.
@@ -1731,10 +1580,10 @@ public class MainTabsViewControler extends BaseController {
               request.setAttribute("title",  nGPage.getFullName());
               request.setAttribute("active", active);
               request.setAttribute("subTabId", "nugen.projecttasks.subtab.active.tasks");
+              return new ModelAndView("ProjectActiveTasks");
           }catch(Exception ex){
               throw new NGException("nugen.operation.fail.project.process.page", new Object[]{pageId,accountId} , ex);
           }
-          return modelAndView;
 
       }
 
@@ -1743,24 +1592,17 @@ public class MainTabsViewControler extends BaseController {
               HttpServletRequest request, HttpServletResponse response)
               throws Exception {
 
-          ModelAndView modelAndView = null;
           try{
-              request.setAttribute("book", accountId);
-              request.setAttribute("pageId", pageId);
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
-              NGPageIndex.assertBook(accountId);
-              NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-              ar.setPageAccessLevels(nGPage);
+              NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
               if(!ar.isLoggedIn()){
-                  return needAccessView(request, "nugen.project.task.login.msg");
+                  return showWarningView(ar, "nugen.project.task.login.msg");
               }
               if(!ar.isMember()){
                   request.setAttribute("roleName", "Members");
-                  return needAccessView(request, "nugen.projecthome.task.memberlogin");
+                  return showWarningView(ar, "nugen.projecthome.task.memberlogin");
               }
-
-              modelAndView=new ModelAndView("ProjectCompletedTasks");
 
               //this page has a required parameter 'active', test it here so that any error
               //happens in the controller, not the page.
@@ -1771,11 +1613,10 @@ public class MainTabsViewControler extends BaseController {
               request.setAttribute("title",  nGPage.getFullName());
               request.setAttribute("active", active);
               request.setAttribute("subTabId", "nugen.projecttasks.subtab.completed.tasks");
+              return new ModelAndView("ProjectCompletedTasks");
           }catch(Exception ex){
               throw new NGException("nugen.operation.fail.project.process.page", new Object[]{pageId,accountId} , ex);
           }
-          return modelAndView;
-
       }
 
       @RequestMapping(value = "/{accountId}/{pageId}/projectFutureTasks.htm", method = RequestMethod.GET)
@@ -1783,24 +1624,17 @@ public class MainTabsViewControler extends BaseController {
               HttpServletRequest request, HttpServletResponse response)
               throws Exception {
 
-          ModelAndView modelAndView = null;
           try{
-              request.setAttribute("book", accountId);
-              request.setAttribute("pageId", pageId);
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
-              NGPageIndex.assertBook(accountId);
-              NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-              ar.setPageAccessLevels(nGPage);
+              NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
               if(!ar.isLoggedIn()){
-                  return needAccessView(request, "nugen.project.task.login.msg");
+                  return showWarningView(ar, "nugen.project.task.login.msg");
               }
               if(!ar.isMember()){
                   request.setAttribute("roleName", "Members");
-                  return needAccessView(request, "nugen.projecthome.task.memberlogin");
+                  return showWarningView(ar, "nugen.projecthome.task.memberlogin");
               }
-
-              modelAndView=new ModelAndView("ProjectFutureTasks");
 
               //this page has a required parameter 'active', test it here so that any error
               //happens in the controller, not the page.
@@ -1811,11 +1645,10 @@ public class MainTabsViewControler extends BaseController {
               request.setAttribute("title",  nGPage.getFullName());
               request.setAttribute("active", active);
               request.setAttribute("subTabId", "nugen.projecttasks.subtab.future.tasks");
+              return new ModelAndView("ProjectFutureTasks");
           }catch(Exception ex){
               throw new NGException("nugen.operation.fail.project.process.page", new Object[]{pageId,accountId} , ex);
           }
-          return modelAndView;
-
       }
 
       @RequestMapping(value = "/{accountId}/{pageId}/projectAllTasks.htm", method = RequestMethod.GET)
@@ -1823,24 +1656,17 @@ public class MainTabsViewControler extends BaseController {
               HttpServletRequest request, HttpServletResponse response)
               throws Exception {
 
-          ModelAndView modelAndView = null;
           try{
-              request.setAttribute("book", accountId);
-              request.setAttribute("pageId", pageId);
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
-              NGPageIndex.assertBook(accountId);
-              NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-              ar.setPageAccessLevels(nGPage);
+              NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
               if(!ar.isLoggedIn()){
-                  return needAccessView(request, "nugen.project.task.login.msg");
+                  return showWarningView(ar, "nugen.project.task.login.msg");
               }
               if(!ar.isMember()){
                   request.setAttribute("roleName", "Members");
-                  return needAccessView(request, "nugen.projecthome.task.memberlogin");
+                  return showWarningView(ar, "nugen.projecthome.task.memberlogin");
               }
-
-              modelAndView=new ModelAndView("ProjectsAllTasks");
 
               //this page has a required parameter 'active', test it here so that any error
               //happens in the controller, not the page.
@@ -1851,11 +1677,10 @@ public class MainTabsViewControler extends BaseController {
               request.setAttribute("title",  nGPage.getFullName());
               request.setAttribute("active", active);
               request.setAttribute("subTabId", "nugen.projecttasks.subtab.all.tasks");
+              return new ModelAndView("ProjectsAllTasks");
           }catch(Exception ex){
               throw new NGException("nugen.operation.fail.project.process.page", new Object[]{pageId,accountId} , ex);
           }
-          return modelAndView;
-
       }
 
       @RequestMapping(value = "/{accountId}/{pageId}/statusReport.htm", method = RequestMethod.GET)
@@ -1863,24 +1688,17 @@ public class MainTabsViewControler extends BaseController {
               HttpServletRequest request, HttpServletResponse response)
               throws Exception {
 
-          ModelAndView modelAndView = null;
           try{
-              request.setAttribute("book", accountId);
-              request.setAttribute("pageId", pageId);
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
-              NGPageIndex.assertBook(accountId);
-              NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-              ar.setPageAccessLevels(nGPage);
+              NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
 
               if(!ar.isLoggedIn()){
-                  return needAccessView(request, "nugen.project.task.login.msg");
+                  return showWarningView(ar, "nugen.project.task.login.msg");
               }
               if(!ar.isMember()){
                   request.setAttribute("roleName", "Members");
-                  return needAccessView(request, "nugen.projecthome.task.memberlogin");
+                  return showWarningView(ar, "nugen.projecthome.task.memberlogin");
               }
-
-              modelAndView=new ModelAndView("ProjectStatusReport");
 
               //this page has a required parameter 'active', test it here so that any error
               //happens in the controller, not the page.
@@ -1891,10 +1709,91 @@ public class MainTabsViewControler extends BaseController {
               request.setAttribute("title",  nGPage.getFullName());
               request.setAttribute("active", active);
               request.setAttribute("subTabId", "nugen.projecttasks.subtab.status.report");
+              return new ModelAndView("ProjectStatusReport");
           }catch(Exception ex){
               throw new NGException("nugen.operation.fail.project.process.page", new Object[]{pageId,accountId} , ex);
           }
-          return modelAndView;
-
       }
+
+      //A very simple form with a prompt for a user's display name  (dName)
+      //and the user name is set with whatever is posted in.
+      //Can only set the current logged in user name.
+      //User session must be logged in (so you have a profile to set)
+      @RequestMapping(value = "/requiredName.form", method = RequestMethod.POST)
+      public void requireName_form(HttpServletRequest request, HttpServletResponse response)
+          throws Exception {
+
+          try{
+              AuthRequest ar = AuthRequest.getOrCreate(request, response);
+              String go = ar.defParam("go", ar.baseURL);
+              if (ar.isLoggedIn()) {
+                  UserProfile up = ar.getUserProfile();
+                  String dName = ar.reqParam("dName");
+                  up.setName(dName);
+                  up.setLastUpdated(ar.nowTime);
+                  UserManager.writeUserProfilesToFile();
+              }
+              response.sendRedirect(go);
+          }catch(Exception ex){
+              throw new NGException("nugen.operation.fail.project.sent.note.by.email.page", null , ex);
+          }
+      }
+
+
+      //A very simple form with a prompt for a user's email address which is
+      //user to send a confirmation message, and another prompt to enter the
+      //confirmation message.
+      @RequestMapping(value = "/requiredEmail.form", method = RequestMethod.POST)
+      public void requiredEmail_form(HttpServletRequest request, HttpServletResponse response)
+          throws Exception {
+
+          try{
+              AuthRequest ar = AuthRequest.getOrCreate(request, response);
+              String go = ar.defParam("go", ar.baseURL);
+              String cmd = ar.reqParam("cmd");
+              if (ar.isLoggedIn()) {
+                  UserProfile up = ar.getUserProfile();
+                  UserPage uPage = ar.getAnonymousUserPage();
+                  if ("Send Email".equals(cmd)) {
+                      String email = ar.reqParam("email");
+                      ProfileRequest newReq = uPage.createProfileRequest(
+                              ProfileRequest.ADD_EMAIL, email, ar.nowTime);
+                      newReq.sendEmail(ar, go);
+                      newReq.setUserKey(up.getKey());
+                      uPage.save();
+                  }
+                  else if ("Confirmation Key".equals(cmd)) {
+                      String cKey = ar.reqParam("cKey");
+
+                      //look through the requests by email, and if the confirmation key matches
+                      //then add the email, and remove the profile request.
+                      for (ProfileRequest profi : uPage.getProfileRequests()) {
+                          if (cKey.equals(profi.getSecurityToken())  &&
+                                  up.getKey().equals(profi.getUserKey())) {
+                              //ok, can only happen if same person received the message
+                              String email = profi.getEmail();
+                              String id = profi.getId();
+
+                              //use it only ONCE
+                              uPage.removeProfileRequest(id);
+                              uPage.save();
+
+                              //go ahead and add email to profile.
+                              up.addId(email);
+                              up.setPreferredEmail(email);
+                              up.setLastUpdated(ar.nowTime);
+                              UserManager.writeUserProfilesToFile();
+
+                              break;
+                          }
+                      }
+                  }
+              }
+              response.sendRedirect(go);
+          }catch(Exception ex){
+              throw new NGException("nugen.operation.fail.project.sent.note.by.email.page", null , ex);
+          }
+      }
+
+
 }

@@ -13,6 +13,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
+import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ServletExit;
 
@@ -32,19 +33,52 @@ public class BaseController {
             return null;
         }
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
-        long exceptionNO=ar.logException("", ex);
-        ModelAndView modelAndView = new ModelAndView(Constant.COMMON_ERROR);
-        modelAndView.addObject("exceptionNO", Long.toString(exceptionNO));
-        return modelAndView;
+        return displayException(ar, ex);
     }
 
-    public static NGPage getAccountProjectOrFail(String accountId, String projectId) throws Exception
+    /**
+     * Logs the exception in the tracker, and generates a 'nice' display of an exception.
+     * This can be used when the exception
+     * is predictable, such a parsing a URL and not finding the data that it should display.
+     * You should also be aware of the problems of displaying an exception when the
+     * system is truly breaking -- the support necessary to create the nice display
+     * might not be functioning well enough to display anything.
+     */
+    protected ModelAndView displayException(AuthRequest ar, Exception extd) {
+        long exceptionNO=ar.logException("Caught in user interface", extd);
+        ar.req.setAttribute("display_exception", extd);
+        ar.req.setAttribute("log_number", exceptionNO);
+        return new ModelAndView("DisplayException");
+    }
+
+    protected ModelAndView showWarningView(AuthRequest ar, String why) {
+        ar.req.setAttribute("property_msg_key", why);
+        return new ModelAndView("Warning");
+    }
+
+
+
+    /**
+     * This is a convenience function for all handlers that have the account and project
+     * in the URL.
+     *
+     * (1) This will validate those values.
+     * (2) Read the project.
+     * (3) Sets the access level to the page
+     * (4) Throws and exception if anything is wrong.
+     *
+     * Will ALSO set two request attributes needed by the JSP files.
+     */
+    public static NGPage registerRequiredProject(AuthRequest ar, String accountId, String projectId) throws Exception
     {
+        ar.req.setAttribute(ACCOUNT_ID, accountId);
+        ar.req.setAttribute(PAGE_ID, projectId);
         NGPageIndex.assertBook(accountId);
         NGPage ngp = NGPageIndex.getProjectByKeyOrFail( projectId );
         if (!accountId.equals(ngp.getAccountKey())) {
             throw new NGException("nugen.operation.fail.account.match", new Object[]{projectId,accountId});
         }
+        ar.setPageAccessLevels(ngp);
         return ngp;
     }
 
@@ -119,6 +153,46 @@ public class BaseController {
         return null;
     }
 
+    protected boolean needsToSetName(AuthRequest ar) throws Exception {
+        if (!ar.isLoggedIn()) {
+            return false;
+        }
+        UserProfile up = ar.getUserProfile();
+        String displayName = up.getName();
+        return displayName == null || displayName.length()==0;
+    }
+
+    protected boolean needsToSetEmail(AuthRequest ar) throws Exception {
+        if (!ar.isLoggedIn()) {
+            return false;
+        }
+        UserProfile up = ar.getUserProfile();
+        String email = up.getPreferredEmail();
+        return email == null || email.length()==0;
+    }
+
+    /**
+     * This is a set of checks that results in different views depending on the state
+     * of the user.  Particularly: must be logged in, must have a name, must have an email
+     * address, and must be a member of the page.
+     * @return a ModelAndView object that will tell the user what is wrong.
+     */
+    protected ModelAndView memberCheckViews(AuthRequest ar) throws Exception {
+        if(!ar.isLoggedIn()){
+            return showWarningView(ar, "nugen.project.login.msg");
+        }
+        if (needsToSetName(ar)) {
+            return new ModelAndView("requiredName");
+        }
+        if (needsToSetEmail(ar)) {
+            return new ModelAndView("requiredEmail");
+        }
+        if(!ar.isMember()){
+            ar.req.setAttribute("roleName", "Members");
+            return showWarningView(ar, "nugen.project.member.msg");
+        }
+        return null;
+    }
 }
 
 

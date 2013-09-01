@@ -7,7 +7,9 @@ import org.socialbiz.cog.spring.AccountRequest;
 
 public class AccessControl {
 
-
+    //TODO: this is not a good idea, to cache the entire user page for every user
+    //that touches the system.  This should be cleared occasionally or store a
+    //smaller amount of data and should only cache a specified number of users.
     static HashMap<String, UserPage> userPageMap = new HashMap<String, UserPage>();
 
     /**
@@ -96,11 +98,9 @@ public class AccessControl {
     }
 
     public static String getAccessReminderParams(NGContainer ngc, ReminderRecord reminderRecord) throws Exception{
-        String accessDocParam = "mnremider=";
         String resourceId = "reminder:"+ngc.getKey()+":"+reminderRecord.getId();
         String encodedValue = URLEncoder.encode(ngc.emailDependentMagicNumber(resourceId), "UTF-8");
-        accessDocParam += encodedValue;
-        return accessDocParam;
+        return "mnremider=" + encodedValue;
     }
 
     public static boolean canAccessGoal(AuthRequest ar, NGContainer ngc, GoalRecord gr)
@@ -226,10 +226,9 @@ public class AccessControl {
     public static boolean canAccessAccountRequest(AuthRequest ar, String userKey, AccountRequest accountDetails)
     throws Exception {
 
-        //then, if user is logged in, and is a member, then can access
+        //then, if user is logged in, and is a super admin, then can always access
         if (ar.isLoggedIn()) {
-            UserProfile user = ar.getUserProfile();
-            if (user != null && ar.isSuperAdmin()) {
+            if (ar.isSuperAdmin()) {
                 return true;
             }
         }
@@ -243,13 +242,13 @@ public class AccessControl {
         //now, check the query parameters, and if appropriate, set up the special access
         //url must have "mnaccountrequest"  (magic number for account request)
         String mndoc = ar.defParam("mnaccountrequest", null);
-        if (mndoc != null) {
-            String expectedMN = "";
-            if(userPageMap.containsKey(userKey)){
-                UserPage userPage = userPageMap.get(userKey);
-                expectedMN = userPage.emailDependentMagicNumber(resourceId);
-            }
-
+        if (mndoc == null) {
+            //no magic number, no luck
+            return false;
+        }
+        if(userPageMap.containsKey(userKey)){
+            UserPage userPage = userPageMap.get(userKey);
+            String expectedMN = userPage.emailDependentMagicNumber(resourceId);
             if (expectedMN.equals(mndoc)) {
                 ar.setSpecialSessionAccess(resourceId);
                 return true;

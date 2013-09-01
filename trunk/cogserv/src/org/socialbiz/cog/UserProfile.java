@@ -21,7 +21,7 @@ public class UserProfile extends DOMFace implements UserRef
     private Vector<WatchRecord> watchList = null;
     private Vector<NotificationRecord> notificationList = null;
     private List<TemplateRecord> templateList = null;
-    
+
     public UserProfile(Document doc, Element upEle, DOMFace p)
         throws Exception
     {
@@ -895,7 +895,8 @@ public class UserProfile extends DOMFace implements UserRef
         for (IDRecord possible : ids)
         {
             String idval = possible.getLoginId();
-            if (idval.indexOf("@")>=0)
+            //an at sign in there, and no slashes, could be an email address
+            if (idval.indexOf("@")>=0 && idval.indexOf("/")<0)
             {
                 return idval;
             }

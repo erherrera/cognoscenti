@@ -4,6 +4,7 @@
 %><%
     String title=(String)request.getAttribute("title");
     request.setAttribute("headerType", "blank");
+    String themePath = ar.getThemePath();
 %>
 <html>
     <head>
@@ -75,6 +76,7 @@
         <!-- for calender -->
         <link href="<%=ar.retPath%>css/reset.css" rel="styleSheet" type="text/css" media="screen" />
         <link href="<%=ar.retPath%>css/global.css" rel="styleSheet" type="text/css" media="screen" />
+        <link href="<%=ar.retPath%><%=themePath%>theme.css" rel="styleSheet" type="text/css" media="screen" />
         <link href="<%=ar.retPath%>css/ddlevelsmenu-base.css" rel="styleSheet" type="text/css" media="screen" />
 
 

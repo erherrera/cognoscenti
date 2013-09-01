@@ -28,7 +28,6 @@ import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.ReminderMgr;
 import org.socialbiz.cog.ReminderRecord;
 import org.socialbiz.cog.spring.AttachmentHelper;
-import org.socialbiz.cog.spring.ReminderEmailHelper;
 
 @Controller
 public class AccountsDocumentController extends BaseController {
@@ -169,7 +168,7 @@ public class AccountsDocumentController extends BaseController {
             request.setAttribute(TAB_ID, "Account Documents");
             request.setAttribute(ACCOUNT_ID, accountId);
             request.setAttribute( "headerType", "account" );
-            modelAndView = new ModelAndView("reminder_email");
+            modelAndView = new ModelAndView("ReminderEmail");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.send.email.reminder", new Object[]{accountId} , ex);
         }
@@ -194,7 +193,7 @@ public class AccountsDocumentController extends BaseController {
             String reminderId = ar.reqParam("rid");
             String emailto = ar.defParam("emailto", null);
 
-            ReminderEmailHelper.reminderEmail(ar, accountId, reminderId, emailto, ngb);
+            ReminderRecord.reminderEmail(ar, accountId, reminderId, emailto, ngb);
 
             modelAndView = createModelView(accountId, request, response,ar,"account_attachment","Account Documents");
         }catch(Exception ex){
@@ -554,22 +553,6 @@ public class AccountsDocumentController extends BaseController {
         }
         return modelAndView;
     }
-
-    /**
-    * @deprecated URL pattern - use docinfo###.htm instead
-    * leaving in in case there are old URLs sitting around
-    * deprecatd on MAy 15, 2011, remove about a year after that
-    @RequestMapping(value = "/{accountId}/$/downloadAccountDocument.htm", method = RequestMethod.GET)
-    protected ModelAndView getDownloadDocumentPage(@PathVariable String accountId,
-            HttpServletRequest request,
-            HttpServletResponse response) throws Exception
-    {
-        NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
-        AuthRequest ar = getAuthRequest(request, response, "Must be logged in to open document download page.");
-        String docId = ar.reqParam("aid");
-        return accountDocInfo(accountId, docId, request, response);
-    }
-    */
 
 
     @RequestMapping(value = "/{accountId}/$/docinfo{docId}.htm", method = RequestMethod.GET)
