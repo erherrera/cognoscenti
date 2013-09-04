@@ -13,6 +13,7 @@
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.GoalRecord"
 %><%@page import="org.socialbiz.cog.UserProfile"
+%><%@page import="org.socialbiz.cog.AccessControl"
 %><%@page import="java.net.URLEncoder"
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
@@ -243,6 +244,17 @@
             ar.writeHtml(ar.retPath);
             ar.writeHtml(task.stateImg(task.getState()));
             ar.write("\"></a> ");
+
+            ar.writeHtml(AccessControl.getAccessTaskParams(ngp,task));
+            ar.write("|");
+            if (AccessControl.canAccessGoal(ar, ngp, task)) {
+                ar.write("yes|");
+            }
+            else {
+               ar.write("no|");
+            }
+
+            //ar.write("-->");
         }
         else
         {
@@ -251,6 +263,8 @@
             ar.writeHtml(task.stateImg(task.getState()));
             ar.write("\"> ");
         }
+
+
 
         ar.writeHtml(task.getSynopsis());
 

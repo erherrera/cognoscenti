@@ -8,6 +8,12 @@
     String fullName = up.getName();
 
 %>
+<style>
+    .reRow {height:50px;padding:15px}
+    .reHead {padding:15px;text-align:left;font-weight:bold;}
+    .reElem {padding:15px;vertical-align:top;}
+</style>
+
 <div>
     <div class="pageHeading">Set Email Address</div>
     <div class="pageSubHeading">
@@ -15,47 +21,49 @@
     </div>
     <br/>
     <table width="600">
-    <tr>
+    <tr class="reRow">
         <td class="linkWizardHeading">You Need an EMail Address:</td>
     </tr>
-    <tr style="height:50px;padding:15px">
-    <td style="padding:15px">Before going any further, you need to specify your email address,
+    <tr class="reRow">
+    <td class="reElem">Before going any further, you need to specify your email address,
         and confirm it.    Email address is required to send notifications and messages.
         You email address will not be set until you confirm it with the confirmation key.</td>
     </tr>
     <form action="<%= ar.retPath %>t/requiredEmail.form" method="post">
     <input type="hidden" name="go" value="<%= ar.getCompleteURL() %>">
 
-    <tr style="height:50px;padding:15px">
-         <td style="padding:15px"><input type="text" name="email" size="50"><input type="submit" name="cmd" value="Send Email"></td>
+    <tr class="reRow">
+         <td class="reElem"><input type="text" name="email" size="50"> &nbsp;
+             <input type="submit" name="cmd" value="Send Email" class="inputBtn"></td>
     </tr>
 
-    <tr style="height:50px;padding:15px">
-         <td style="padding:15px">Enter your email address above and click 'Send Email'
+    <tr class="reRow">
+         <td class="reElem">Enter your email address above and click 'Send Email'
          in order to have a message with a confirmation key sent to you.
          It should arrive within a couple minutes, and if it doesn't you can request
          another to be sent.</td>
     </tr>
 
-    <tr style="height:50px;padding:15px">
-         <td style="padding:15px"><hr/></td>
+    <tr class="reRow">
+         <td class="reElem"><hr/></td>
     </tr>
 
-    <tr style="height:50px;padding:15px">
-         <td style="padding:15px">Check your email inbox.</td>
-    </tr>
-
-    <tr style="height:50px;padding:15px">
-         <td style="padding:15px"><input type="text" name="cKey" size="50"><input type="submit" name="cmd" value="Confirmation Key"></td>
-    </tr>
-
-    <tr style="height:50px;padding:15px">
-         <td style="padding:15px">When the message arrives, copy the confirmation key above and click 'Confirmation Key'
+    <tr class="reRow">
+         <td class="reElem">Check your email inbox. When the message arrives, copy the confirmation key below and click 'Confirmation Key'
          in order to actually add this email address to your profile.</td>
     </tr>
 
-    <tr style="height:50px;padding:15px">
-         <td style="padding:15px"></td>
+    <tr class="reRow">
+         <td class="reElem"><input type="text" name="cKey" size="50"> &nbsp;
+             <input type="submit" name="cmd" value="Confirmation Key"  class="inputBtn"></td>
+    </tr>
+
+    <tr class="reRow">
+         <td class="reElem"></td>
+    </tr>
+
+    <tr class="reRow">
+         <td class="reElem"></td>
     </tr>
 
     </form>

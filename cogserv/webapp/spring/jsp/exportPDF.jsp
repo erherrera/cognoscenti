@@ -104,8 +104,8 @@ Required parameter:
                   }
               %>
             </table>
-
             <br><br>
+<% if (ar.isMember()) { %>
             <div class="generalHeading">Member Notes :</div>
             <br>
             <table border="0px solid gray" class="gridTable" width="800">
@@ -116,7 +116,8 @@ Required parameter:
                 %>
                     No member notes found.
                 <%
-                    }else{
+                        }
+                        else{
                 %>
                 <thead>
                     <tr>
@@ -128,8 +129,8 @@ Required parameter:
                     <td colspan="2">&nbsp;</td>
                 </tr>
              <%
-                 for(int i=0;i<memberComments.size();i++){
-                        NoteRecord noteRec = memberComments.get(i);
+                        for(int i=0;i<memberComments.size();i++) {
+                            NoteRecord noteRec = memberComments.get(i);
              %>
                 <tr>
                     <td>
@@ -139,11 +140,12 @@ Required parameter:
                       &nbsp;&nbsp;&nbsp;<input type="checkbox" name="memberNotes"  value="<%ar.writeHtml(noteRec.getId()); %>" onclick="return unSelect('memberNotesAll')"/>
                     </td>
                 </tr>
-              <%}
-                }
+              <%            }
+                        }
               %>
 
             </table>
+<% } %>
 
         </form>
     </div>

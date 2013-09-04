@@ -44,18 +44,21 @@ Parameter used :
     ar.assertNotPost();
     String deletedWarning = "";
 
-    if(userKey != null){
-        userKey = URLEncoder.encode(userKey);
-        headerType = "user";
-    }
 
     String navImage = ar.retPath+"navigation.jpg";
 
     NGContainer ngp =null;
     NGBook ngb=null;
+    UserProfile userRecord = null;
     if(pageTitle == null && pageId != null){
         ngp  = NGPageIndex.getContainerByKey(pageId);
     }
+    if(userKey != null){
+        userKey = URLEncoder.encode(userKey);
+        headerType = "user";
+        userRecord = UserManager.getUserProfileByKey(userKey);
+    }
+
 
     if (ngp!=null)
     {
@@ -290,88 +293,91 @@ Parameter used :
         <link href="<%=ar.retPath%>css/ie7styles.css" rel="styleSheet" type="text/css" media="screen" />
     <![endif]-->
 
-     <% if ((!headerType.equals("account"))  || (headerType.equals("user")) )
-         {
-        %>
+<% if (!headerType.equals("account")) { %>
     <script>
         var specialTab='<%=tabId%>';
         headerType = "<%=headerType%>";
         serverMode = "<%=serverMode%>";
         var userKey = "<%=userKey%>";
         var isSuperAdmin = "<%=ar.isSuperAdmin()%>";
-        <%
-        if (pageId != null && bookId != null)
-        {
-        %>
+        <% if (pageId != null && bookId != null) { %>
           pageId='<%=pageId%>';
           book='<%=bookId%>';
-        <%
-        }
-        %>
+        <% } %>
     </script>
     <style type="text/css">
-
         th.yui-dt-hidden,
         tr.yui-dt-odd .yui-dt-hidden,
         tr.yui-dt-even .yui-dt-hidden {
         display:none;
         }
     </style>
-    <body onload="createTabs();">
 
-    <%
-    }else if(headerType.equals("account")){
-
-    %>
+<% } else if(headerType.equals("account")){ %>
      <script>
         var specialTab='<%=tabId%>';
         headerType = "<%=headerType%>";
         serverMode = "<%=serverMode%>";
-
         var userKey = "<%=userKey%>";
-        <%if(accountId != null){%>
-        var accountId='<%=accountId %>';
-        <%}else if(pageId!=null){%>
-        var accountId='<%=pageId%>';
-        <%}%>
-     </script>
-    <body onload="createTabs();">
-    <%
-    }
-    else{
-    %>
 
-    <body>
-    <%
-    }
-    %>
+        <% if(accountId != null){ %>
+        var accountId='<%=accountId %>';
+        <% } else if(pageId!=null){ %>
+        var accountId='<%=pageId%>';
+        <% } %>
+     </script>
+<% } %>
+
+<body onload="createTabs();">
+
+
     <!-- Begin siteMasthead -->
     <div id="siteMasthead">
         <img id="logoInterstage" src="<%=ar.retPath%>assets/logo_interstage.gif" alt="Interstage" width="145" height="38" />
         <div id="consoleName">
-           <%  //Account Link
-                    if(ngb!=null){
-                       ar.write("Account: <a href=\"");
-                       ar.write(ar.retPath);
-                       ar.write("v/");
-                       ar.writeURLData(ngb.getKey());
-                       ar.write("/$/public.htm\" title=\"View the Account for this page\">");
-                       ar.writeHtml(ngb.getName());
-                       ar.write("</a> \n");
+           <% if(ngb!=null){ %>
+           Account: <a href="<%=ar.retPath%>v/<%ar.writeURLData(ngb.getKey());%>/$/public.htm"
+                     title="View the Account for this page"><%ar.writeHtml(ngb.getName());%></a>
 
-                   }
-           %>
-            <br />
-            <%
-            if(!(headerType.equals("user")))
-            {
+           <% } %>
+           <br />
+           <%
+            if(headerType.equals("user")) {
+                if(userRecord!=null){
+                    String userName = userRecord.getName();
+                    if(userName.length()>60){
+                        userName=userName.substring(0,60)+"...";
+                    }
+                    ar.write("User: <span title=\"");
+                    ar.write(userName);
+                    ar.write("\">");
+                    ar.writeHtml(userName);
+                    ar.write("</span>");
+                }
+            }
+            else if(headerType.equals("account")) {
                 if(pageTitle!=null){
                     if(pageTitle.length()>60){
                         trncatePageTitle=pageTitle.substring(0,60)+"...";
                     }else{
                         trncatePageTitle=pageTitle;
                     }
-                    ar.write("<span title=\"");
+                    ar.write("Account: <span title=\"");
+                    ar.write(pageTitle);
+                    ar.write("\">");
+                    ar.writeHtml(trncatePageTitle);
+                    ar.write(deletedWarning);
+                    ar.write("</span>");
+                }
+            }
+            else {
+                if(pageTitle!=null){
+                    if(pageTitle.length()>60){
+                        trncatePageTitle=pageTitle.substring(0,60)+"...";
+                    }else{
+                        trncatePageTitle=pageTitle;
+                    }
+                    ar.write("Project: <span title=\"");
                     ar.write(pageTitle);
                     ar.write("\">");
                     ar.writeHtml(trncatePageTitle);
