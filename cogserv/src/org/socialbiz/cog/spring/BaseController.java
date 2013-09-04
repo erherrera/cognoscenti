@@ -51,7 +51,7 @@ public class BaseController {
         return new ModelAndView("DisplayException");
     }
 
-    protected ModelAndView showWarningView(AuthRequest ar, String why) {
+    protected static ModelAndView showWarningView(AuthRequest ar, String why) {
         ar.req.setAttribute("property_msg_key", why);
         return new ModelAndView("Warning");
     }
@@ -65,7 +65,8 @@ public class BaseController {
      * (1) This will validate those values.
      * (2) Read the project.
      * (3) Sets the access level to the page
-     * (4) Throws and exception if anything is wrong.
+     * (4) Set the header type to be project
+     * (5) Throws and exception if anything is wrong.
      *
      * Will ALSO set two request attributes needed by the JSP files.
      */
@@ -73,6 +74,7 @@ public class BaseController {
     {
         ar.req.setAttribute(ACCOUNT_ID, accountId);
         ar.req.setAttribute(PAGE_ID, projectId);
+        ar.req.setAttribute("headerType", "project");
         NGPageIndex.assertBook(accountId);
         NGPage ngp = NGPageIndex.getProjectByKeyOrFail( projectId );
         if (!accountId.equals(ngp.getAccountKey())) {

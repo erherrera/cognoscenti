@@ -41,7 +41,7 @@ public class AdminController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.change.goal",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(project);
             ar.setPageAccessLevels(ngp);

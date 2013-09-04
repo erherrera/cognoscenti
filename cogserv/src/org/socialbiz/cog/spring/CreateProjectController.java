@@ -68,18 +68,17 @@ public class CreateProjectController extends BaseController {
         this.context = context;
     }
 
-    @RequestMapping(value = "/{book}/{pageId}/addmemberrole.htm", method = RequestMethod.GET)
-    public ModelAndView addMemberRole(@PathVariable String book,@PathVariable String pageId,HttpServletRequest request,
+    @RequestMapping(value = "/{accountId}/{pageId}/addmemberrole.htm", method = RequestMethod.GET)
+    public ModelAndView addMemberRole(@PathVariable String accountId,@PathVariable String pageId,HttpServletRequest request,
             HttpServletResponse response) throws Exception
     {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.add.member.to.role",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGPageIndex.assertBook(book);
-            NGPage page = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
+            NGPage page = registerRequiredProject(ar, accountId, pageId);
 
             String invitedUser = ar.defParam( "invitedUser","false" );
 
@@ -104,7 +103,7 @@ public class CreateProjectController extends BaseController {
                 modelAndView = new ModelAndView(new RedirectView("permission.htm"));
             }
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.add.member.role", new Object[]{pageId,book} , ex);
+            throw new NGException("nugen.operation.fail.project.add.member.role", new Object[]{pageId,accountId} , ex);
         }
         return modelAndView;
     }
@@ -128,13 +127,13 @@ public class CreateProjectController extends BaseController {
     }
 
 
-    @RequestMapping(value = "/{book}/isProjectExist.ajax", method = RequestMethod.POST)
-    public void isProjectExist(@RequestParam String book,
+    @RequestMapping(value = "/{accountId}/isProjectExist.ajax", method = RequestMethod.POST)
+    public void isProjectExist(@RequestParam String accountId,
         ModelMap model, HttpServletRequest request,
         HttpServletResponse response) throws Exception {
         AuthRequest ar = NGWebUtils.getAuthRequest(request, response, "Could not check project name.");
 
-        String message=projectNameValidity(book, ar,context);
+        String message=projectNameValidity(accountId, ar,context);
         NGWebUtils.sendResponse(ar, message);
     }
 
@@ -200,8 +199,8 @@ public class CreateProjectController extends BaseController {
     }
 
 
-    @RequestMapping(value = "/{book}/{pageId}/createProjectFromTask.htm", method = RequestMethod.GET)
-    public ModelAndView createProjectFromTask(@PathVariable String book,@PathVariable String pageId,
+    @RequestMapping(value = "/{accountId}/{pageId}/createProjectFromTask.htm", method = RequestMethod.GET)
+    public ModelAndView createProjectFromTask(@PathVariable String accountId,@PathVariable String pageId,
             @RequestParam String newTaskname,@RequestParam String parentProcess,@RequestParam String goToUrl,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
@@ -210,7 +209,7 @@ public class CreateProjectController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.login.create.project.from.tasklist",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
 
             modelAndView = new ModelAndView("CreateProjectFromTask");
@@ -225,20 +224,20 @@ public class CreateProjectController extends BaseController {
             request.setAttribute("newTaskname",newTaskname);
             request.setAttribute("bookList",memberOfAccounts);
             request.setAttribute("goUrl",goToUrl);
-            request.setAttribute("book",book);
+            request.setAttribute("book",accountId);
 
             String realRequestURL = request.getRequestURL().toString();
             request.setAttribute("realRequestURL", realRequestURL);
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.create.project.from.task", new Object[]{pageId,book} , ex);
+            throw new NGException("nugen.operation.fail.create.project.from.task", new Object[]{pageId,accountId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{book}/{pageId}/isProjectExistOnSystem.ajax", method = RequestMethod.GET)
-    public void isProjectExistOnSystem(@PathVariable
-    String book, @RequestParam
-    String projectname, HttpServletRequest request, HttpServletResponse response)
+    @RequestMapping(value = "/{accountId}/{pageId}/isProjectExistOnSystem.ajax", method = RequestMethod.GET)
+    public void isProjectExistOnSystem(@PathVariable String accountId,
+            @RequestParam String projectname, HttpServletRequest request,
+            HttpServletResponse response)
             throws Exception {
         String message = "";
         AuthRequest ar = null;
@@ -246,7 +245,7 @@ public class CreateProjectController extends BaseController {
         try{
             ar = NGWebUtils.getAuthRequest(request, response,"Could not check project name.");
 
-            message=projectNameValidity(book, ar,context);
+            message=projectNameValidity(accountId, ar,context);
 
         }catch(Exception ex){
             ar.logException(message, ex);

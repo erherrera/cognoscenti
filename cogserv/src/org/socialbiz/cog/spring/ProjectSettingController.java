@@ -12,10 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.HistoryRecord;
-import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGContainer;
 import org.socialbiz.cog.NGPage;
-import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.RoleRequestRecord;
 import org.socialbiz.cog.UtilityMethods;
@@ -36,8 +34,8 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 public class ProjectSettingController extends BaseController {
 
-    @RequestMapping(value = "/{book}/{pageId}/EditRole.htm", method = RequestMethod.GET)
-    public ModelAndView editRole(@PathVariable String book,@PathVariable String pageId,
+    @RequestMapping(value = "/{accountId}/{pageId}/EditRole.htm", method = RequestMethod.GET)
+    public ModelAndView editRole(@PathVariable String accountId,@PathVariable String pageId,
             @RequestParam String roleName,
             HttpServletRequest request,
             HttpServletResponse response)
@@ -47,40 +45,33 @@ public class ProjectSettingController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.can.not.edit.role",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGPageIndex.assertBook(book);
-
-            NGContainer nGPage  = NGPageIndex.getContainerByKeyOrFail(pageId);
+            NGContainer nGPage  = registerRequiredProject(ar, accountId, pageId);
 
             List<NGRole> roles = nGPage.getAllRoles();
 
             modelAndView = new ModelAndView("editrole");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("book", book);
             request.setAttribute("tabId", "Project Settings");
-            request.setAttribute("pageId", pageId);
             request.setAttribute("roleName", roleName);
             request.setAttribute("roles", roles);
             request.setAttribute("title", " : " + nGPage.getFullName());
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.edit.role.page", new Object[]{pageId,book} , ex);
+            throw new NGException("nugen.operation.fail.project.edit.role.page", new Object[]{pageId,accountId} , ex);
         }
         return modelAndView;
 
     }
-    @RequestMapping(value = "/{book}/{pageId}/roleRequest.htm", method = RequestMethod.GET)
-    public ModelAndView remindersTab(@PathVariable String book,@PathVariable String pageId,
+    @RequestMapping(value = "/{accountId}/{pageId}/roleRequest.htm", method = RequestMethod.GET)
+    public ModelAndView remindersTab(@PathVariable String accountId,@PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
 
-            NGPageIndex.assertBook(book);
-
-            NGPage nGPage = NGPageIndex.getProjectByKeyOrFail(pageId);
-            NGBook nGBook = nGPage.getAccount();
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
             ar.setPageAccessLevels(nGPage);
             if(!ar.isLoggedIn()){
                 request.setAttribute("property_msg_key", "nugen.project.role.request.login.msg");
@@ -94,35 +85,34 @@ public class ProjectSettingController extends BaseController {
                 request.setAttribute("subTabId", "nugen.projectsettings.subtab.role.request");
             }
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("book", book);
+            request.setAttribute("book", accountId);
             request.setAttribute("tabId", "Project Settings");
             request.setAttribute("pageId", pageId);
             request.setAttribute("title", nGPage.getFullName());
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.role.request.page", new Object[]{pageId,book} , ex);
+            throw new NGException("nugen.operation.fail.project.role.request.page", new Object[]{pageId,accountId} , ex);
         }
         return modelAndView;
 
     }
 
-    @RequestMapping(value = "/{book}/{pageId}/pageRoleAction.form", method = RequestMethod.POST)
-    public ModelAndView pageRoleAction(@PathVariable String book,@PathVariable String pageId,
+    @RequestMapping(value = "/{accountId}/{pageId}/pageRoleAction.form", method = RequestMethod.POST)
+    public ModelAndView pageRoleAction(@PathVariable String accountId,@PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.must.be.login.to.perform.action",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGPageIndex.assertBook(book);
+            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
 
             String r  = ar.reqParam("r");   //role name
             boolean sendEmail  = ar.defParam("sendEmail", null)!=null;
             String op = ar.reqParam("op");  //operation: add or remove
             String go = ar.reqParam("go");  //where to go afterwards
 
-            NGContainer ngp = NGPageIndex.getContainerByKeyOrFail(pageId);
             ar.setPageAccessLevels(ngp);
             ar.assertMember("Unable to modify roles.");
             ar.assertNotFrozen(ngp);
@@ -235,7 +225,7 @@ public class ProjectSettingController extends BaseController {
            }
 
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.update.role.or.member", new Object[]{pageId,book} , ex);
+            throw new NGException("nugen.operation.fail.project.update.role.or.member", new Object[]{pageId,accountId} , ex);
         }
         return modelAndView;
     }

@@ -213,7 +213,7 @@ public class EmailSender extends TimerTask {
             sendDailyDigest();
         }
         else {
-            System.out.println("EmailSender: Checked and decided NOT to send the daily digest");
+            System.out.println("EmailSender: Checked and decided NOT to send the daily digest "+SectionUtil.getNicePrintDate(threadLastCheckTime));
         }
         //only call this when you are sure you are not holding on to any containers
         NGPageIndex.clearLocksHeldByThisThread();
@@ -612,7 +612,7 @@ public class EmailSender extends TimerTask {
         ar.write("?");
         NGPage ngp = (NGPage) ngpi.getContainer();
         GoalRecord gr = ngp.getGoalOrFail(task.taskId);
-        ar.write(AccessControl.getAccessTaskParams(ngp, gr));
+        ar.write(AccessControl.getAccessGoalParams(ngp, gr));
 
     }
 

@@ -56,7 +56,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.upload.doc",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             //Handling special case for Multipart request
@@ -101,7 +101,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.edit.attachment.",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGPageIndex.getAccountByKeyOrFail(accountId);
             modelAndView = createModelView(accountId,request, response,ar,"edit_attachment","Account Documents");
@@ -120,7 +120,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.can.not.send.email",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
 
@@ -160,7 +160,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.can.not.send.email.reminder",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGPageIndex.getAccountByKeyOrFail(accountId);
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
@@ -184,7 +184,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.can.not.resend.email.reminder",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
 
@@ -212,7 +212,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.can.not.edit.an.attachment",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             //Handling special case for Multipart request
@@ -243,7 +243,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.can.not.create.link.url",null);
+                return showWarningView(ar, "message.login.to.see.task.detail");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
 
@@ -298,7 +298,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.must.login.to.open.upload.doc.form",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(ngb);
@@ -325,7 +325,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.link.url",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(ngb);
@@ -352,7 +352,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.open.email.reminder",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(ngb);
@@ -377,7 +377,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.modify.doc.setting",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(ngb);
@@ -401,7 +401,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.file.version",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(ngb);
@@ -427,7 +427,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.can.not.edit.an.attachment",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             //Handling special case for Multipart request
@@ -489,7 +489,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.open.remined.attachment",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(ngb);
@@ -536,7 +536,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.open.reminders",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(ngb);
@@ -590,7 +590,7 @@ public class AccountsDocumentController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.must.be.login",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(ngb);

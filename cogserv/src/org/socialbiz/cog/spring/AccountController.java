@@ -42,7 +42,7 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.approve.account.requests",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
 
             String action = ar.reqParam( "action" );
@@ -121,10 +121,8 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.open.role.request",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGPageIndex.assertBook(accountId);
-
             NGBook nGBook = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(nGBook);
 
@@ -167,7 +165,7 @@ public class AccountController extends BaseController {
 
             if(!canAccess){
                 if(!ar.isLoggedIn()){
-                    return redirectToLoginView(ar, "message.loginalert.account.requests",null);
+                    return showWarningView(ar, "message.loginalert.see.page");
                 }
 
                 if (!ar.isSuperAdmin())
@@ -261,7 +259,7 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.see.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
 
             NGPageIndex.assertBook(accountId);
@@ -288,7 +286,7 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.see.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
 
             NGPageIndex.assertBook(accountId);
@@ -315,7 +313,7 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.open.attachment.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGPageIndex.assertBook(accountId);
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
@@ -342,7 +340,7 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.open.admin.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGPageIndex.assertBook(accountId);
 
@@ -389,8 +387,11 @@ public class AccountController extends BaseController {
                 canAccess = AccessControl.canAccessAccountRequest(ar, userId, accountDetails);
             }
 
-            if(!canAccess && !ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.approve.account.request",null);
+            if(!canAccess) {
+                if(!ar.isLoggedIn()){
+                    return showWarningView(ar, "message.loginalert.see.page");
+                }
+                throw new Exception("Not able to access.");
             }
             //Note: the approval page works in two modes.
             //1. if you are super admin, you have buttons to grant or deny
@@ -412,7 +413,7 @@ public class AccountController extends BaseController {
         try {
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.create.role",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGPageIndex.assertBook(accountId);
             NGBook account = NGPageIndex.getAccountByKeyOrFail(accountId );
@@ -438,9 +439,8 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.open.public.notes",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGPageIndex.assertBook(accountId);
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(ngb);
             modelAndView=new ModelAndView("account_public");
@@ -467,7 +467,7 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.open.member.notes",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGPageIndex.assertBook(accountId);
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
@@ -495,7 +495,7 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.open.history.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGPageIndex.assertBook(accountId);
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
@@ -523,7 +523,7 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.account.info",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             modelAndView = new ModelAndView("RequestAccount");
             request.setAttribute("userKey", userKey);
@@ -542,7 +542,7 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.see.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGPageIndex.assertBook(accountId);
 
@@ -590,7 +590,7 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.add.member.to.role",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGPageIndex.assertBook(accountId);
             NGBook account = NGPageIndex.getAccountByKeyOrFail(accountId);
@@ -626,10 +626,8 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.open.permission.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGPageIndex.assertBook(accountId);
-
             NGBook nGBook = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(nGBook);
 
@@ -656,10 +654,8 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.open.personal.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGPageIndex.assertBook(accountId);
-
             NGBook nGBook = NGPageIndex.getAccountByKeyOrFail(accountId);
             ar.setPageAccessLevels(nGBook);
 
@@ -727,7 +723,7 @@ public class AccountController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.edit.role",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             NGPageIndex.assertBook(accountId);
             NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
