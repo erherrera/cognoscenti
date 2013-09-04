@@ -69,111 +69,128 @@ TabRef = function(href,name,ref){
           this.ref=ref;
       };
 
-      function createTabs(){
-           var mainElement = document.getElementById("tabs");
-           var arrayOfTabs;
-             if(headerType == "user"){
-                     arrayOfTabs = [new TabRef(retPath+"v/"+userKey+"/watchedProjects.htm","Projects","userSubMenu1"),
-                         new TabRef(retPath+"v/"+userKey+"/userAlerts.htm","Updates",""),
-                         new TabRef(retPath+"v/"+userKey+"/userActiveTasks.htm","Goals","userSubMenu2"),
-                         new TabRef(retPath+"v/"+userKey+"/userSettings.htm","Settings","userSubMenu3")
+function createTabs(){
+    var mainElement = document.getElementById("tabs");
+    var arrayOfTabs;
+    var shortPath = "t/"+book+"/"+pageId;
+    var homePath = shortPath + "/projectHome.htm";
+    if (shortPath = "t///projectHome.htm") {
+        homePath = "";
+    }
+    if(headerType == "user"){
+        arrayOfTabs = [
+            new TabRef(retPath+"v/"+userKey+"/watchedProjects.htm","Projects","userSubMenu1"),
+            new TabRef(retPath+"v/"+userKey+"/userAlerts.htm","Updates",""),
+            new TabRef(retPath+"v/"+userKey+"/userActiveTasks.htm","Goals","userSubMenu2"),
+            new TabRef(retPath+"v/"+userKey+"/userSettings.htm","Settings","userSubMenu3")
+        ];
 
-                     ];
+        if(isSuperAdmin=="true"){
+            arrayOfTabs.push(new TabRef(retPath+"v/"+userKey+"/emailListnerSettings.htm","Administration","userSubMenu4"));
+        }
+    }
+    else if(headerType == "account") {
+        arrayOfTabs = [
+            new TabRef(retPath+"t/"+accountId+"/$/public.htm","Account Notes","accountSubMenu1"),
+            new TabRef(retPath+"t/"+accountId+"/$/accountListProjects.htm","Account Projects","accountSubMenu2"),
+            new TabRef(retPath+"t/"+accountId+"/$/account_attachment.htm","Account Documents","accountSubMenu3"),
+            new TabRef(retPath+"t/"+accountId+"/$/account_settings.htm","Account Settings","accountSubMenu4")
+        ];
+    }
+    else if(headerType == "project") {
+        arrayOfTabs = [
+            new TabRef(retPath+"t/"+book+"/"+pageId+"/history.htm","Project Stream",""),
+            new TabRef(retPath+"t/"+book+"/"+pageId+"/projectHome.htm","Project Notes","ddsubmenu1"),
+            new TabRef(retPath+"t/"+book+"/"+pageId+"/projectActiveTasks.htm","Project Goals","ddsubmenu2"),
+            new TabRef(retPath+"t/"+book+"/"+pageId+"/attachment.htm","Project Documents","ddsubmenu3"),
+            new TabRef(retPath+"t/"+book+"/"+pageId+"/projectSettings.htm","Project Settings","ddsubmenu4")
+        ];
+    }
+    else  {
+        arrayOfTabs = [
+            new TabRef(retPath+homePath,"Home","")
+        ];
+    }
+    
+    for(var  i=0;i<arrayOfTabs.length ;i++){
 
-                     if(isSuperAdmin=="true"){
-                        arrayOfTabs.push(new TabRef(retPath+"v/"+userKey+"/emailListnerSettings.htm","Administration","userSubMenu4"));
-                     }
-             }else if(headerType == "account") {
-                  arrayOfTabs = [
-                        new TabRef(retPath+"t/"+accountId+"/$/public.htm","Account Notes","accountSubMenu1"),
-                        new TabRef(retPath+"t/"+accountId+"/$/accountListProjects.htm","Account Projects","accountSubMenu2"),
-                        new TabRef(retPath+"t/"+accountId+"/$/account_attachment.htm","Account Documents","accountSubMenu3"),
-                        new TabRef(retPath+"t/"+accountId+"/$/account_settings.htm","Account Settings","accountSubMenu4")
-                   ];
-             }else if(headerType == "blank") {
-                        arrayOfTabs = [new TabRef(retPath+"t/"+book+"/"+pageId+"/projectHome.htm","Project","")
-                   ];
-             }else {
-                        arrayOfTabs = [new TabRef(retPath+"t/"+book+"/"+pageId+"/history.htm","Project Stream",""),
-                        new TabRef(retPath+"t/"+book+"/"+pageId+"/projectHome.htm","Project Notes","ddsubmenu1"),
-                        new TabRef(retPath+"t/"+book+"/"+pageId+"/projectActiveTasks.htm","Project Goals","ddsubmenu2"),
-                        new TabRef(retPath+"t/"+book+"/"+pageId+"/attachment.htm","Project Documents","ddsubmenu3"),
-                        new TabRef(retPath+"t/"+book+"/"+pageId+"/projectSettings.htm","Project Settings","ddsubmenu4")
-                ];
-             }
-          for(var  i=0;i<arrayOfTabs.length ;i++){
+        var newli   = document.createElement('li');
+        var newlink = document.createElement('a');
 
-            var newli= document.createElement('li');
+        newlink.setAttribute('onclick','updateSpecialTab("'+arrayOfTabs[i].name+'");');
+        var newspan = document.createElement('span');
 
-            var newlink = document.createElement('a');
+        newlink.setAttribute('href',arrayOfTabs[i].href);
+        newlink.setAttribute('rel',arrayOfTabs[i].ref);
 
-            newlink.setAttribute('onclick','updateSpecialTab("'+arrayOfTabs[i].name+'");');
-            var newspan = document.createElement('span');
-
-             newlink.setAttribute('href',arrayOfTabs[i].href);
-             newlink.setAttribute('rel',arrayOfTabs[i].ref);
-
-            if(arrayOfTabs[i].name=="Project Stream" ){
+        if(arrayOfTabs[i].name=="Project Stream" ){
             newli.className = 'mainNavLink1';
-          }
-            if(arrayOfTabs[i].name=="Projects" ){
+        }
+        if(arrayOfTabs[i].name=="Projects" ){
             newli.className = 'mainNavLink1';
-          }
+        }
 
-          if(arrayOfTabs[i].name=="Account Notes" ){
+        if(arrayOfTabs[i].name=="Account Notes" ){
             newli.className = 'mainNavLink1';
-          }
-            if(specialTab=="null" && ((arrayOfTabs[i].name=="Project Stream")||(arrayOfTabs[i].name=="Projects") ||(arrayOfTabs[i].name=="Account Notes"))){
+        }
+        if(specialTab=="null" && ((arrayOfTabs[i].name=="Project Stream")||(arrayOfTabs[i].name=="Projects") ||(arrayOfTabs[i].name=="Account Notes"))){
             newli.className = 'mainNavLink1 selected';
-          }
-            else if(specialTab==arrayOfTabs[i].name){
-              if(specialTab==arrayOfTabs[i].name && ((arrayOfTabs[i].name=="Project Stream")||(arrayOfTabs[i].name=="Projects")||(arrayOfTabs[i].name=="Account Notes"))){
+        }
+        else if(specialTab==arrayOfTabs[i].name){
+            if( (arrayOfTabs[i].name=="Project Stream")||
+                (arrayOfTabs[i].name=="Projects")||
+                (arrayOfTabs[i].name=="Account Notes") ){
                 newli.className = 'mainNavLink1 selected';
             }
-            else{
+            else {
                 newli.className = 'selected';
-              }
-          }
+            }
+        }
 
-            newspan.innerHTML=arrayOfTabs[i].name;
+        newspan.innerHTML=arrayOfTabs[i].name;
 
-            newlink.appendChild(newspan);
-            newli.appendChild(newlink);
-            mainElement.appendChild(newli);
+        newlink.appendChild(newspan);
+        newli.appendChild(newlink);
+        mainElement.appendChild(newli);
 
-          }
-          ddlevelsmenu.setup("tabs", "topbar");
-      }
+    }
+    ddlevelsmenu.setup("tabs", "topbar");
+}
 
-      function updateSpecialTab(tabName){
-          specialTab=tabName;
-      }
+function updateSpecialTab(tabName){
+    specialTab=tabName;
+}
 
-    function createSubLinks(){
+function createSubLinks(){
 
-    var arrayOfSubMenu=0;var arrayOfMainMenu=0;
+    var arrayOfSubMenu=0;
+    var arrayOfMainMenu=0;
+    
     if(headerType == "account") {
-      var accountSubMenu1 = [new Tab(retPath+"t/"+accountId+"/$/public.htm","Public Notes"),
-                      new Tab(retPath+"t/"+accountId+"/$/member.htm","Member Notes"),
-                      new Tab(retPath+"t/"+accountId+"/$/account_history.htm","Account Bulletin")
-      ];
-      var accountSubMenu2 = [new Tab(retPath+"t/"+accountId+"/$/accountListProjects.htm","List Projects"),
-                      new Tab(retPath+"t/"+accountId+"/$/accountCreateProject.htm","Create New Project")
-      ];
-      var accountSubMenu3 = [new Tab(retPath+"t/"+accountId+"/$/account_attachment.htm","Account Document"),
-                      new Tab(retPath+"t/"+accountId+"/$/account_reminders.htm","Reminders"),
-                      new Tab(retPath+"t/"+accountId+"/$/uploadDocument.htm","Upload Document"),
-                      new Tab(retPath+"t/"+accountId+"/$/linkURLToProject.htm","Link URL to Account"),
-                      new Tab(retPath+"t/"+accountId+"/$/emailReminder.htm","Send Email Reminder")
-      ];
-      var accountSubMenu4 = [new Tab(retPath+"t/"+accountId+"/$/personal.htm","Personal"),
-                      new Tab(retPath+"t/"+accountId+"/$/permission.htm","Permissions"),
-                      new Tab(retPath+"t/"+accountId+"/$/roleRequest.htm","Role Requests"),
-                      new Tab(retPath+"t/"+accountId+"/$/admin.htm","Admin")
-      ];
-      arrayOfSubMenu=["accountSubMenu1","accountSubMenu2","accountSubMenu3","accountSubMenu4"];
-      arrayOfMainMenu =[accountSubMenu1, accountSubMenu2, accountSubMenu3, accountSubMenu4];
-    }else if(headerType == "user"){
+    
+        var accountSubMenu1 = [new Tab(retPath+"t/"+accountId+"/$/public.htm","Public Notes"),
+            new Tab(retPath+"t/"+accountId+"/$/member.htm","Member Notes"),
+            new Tab(retPath+"t/"+accountId+"/$/account_history.htm","Account Bulletin")
+        ];
+        var accountSubMenu2 = [new Tab(retPath+"t/"+accountId+"/$/accountListProjects.htm","List Projects"),
+            new Tab(retPath+"t/"+accountId+"/$/accountCreateProject.htm","Create New Project")
+        ];
+        var accountSubMenu3 = [new Tab(retPath+"t/"+accountId+"/$/account_attachment.htm","Account Document"),
+            new Tab(retPath+"t/"+accountId+"/$/account_reminders.htm","Reminders"),
+            new Tab(retPath+"t/"+accountId+"/$/uploadDocument.htm","Upload Document"),
+            new Tab(retPath+"t/"+accountId+"/$/linkURLToProject.htm","Link URL to Account"),
+            new Tab(retPath+"t/"+accountId+"/$/emailReminder.htm","Send Email Reminder")
+        ];
+        var accountSubMenu4 = [new Tab(retPath+"t/"+accountId+"/$/personal.htm","Personal"),
+            new Tab(retPath+"t/"+accountId+"/$/permission.htm","Permissions"),
+            new Tab(retPath+"t/"+accountId+"/$/roleRequest.htm","Role Requests"),
+            new Tab(retPath+"t/"+accountId+"/$/admin.htm","Admin")
+        ];
+        arrayOfSubMenu=["accountSubMenu1","accountSubMenu2","accountSubMenu3","accountSubMenu4"];
+        arrayOfMainMenu =[accountSubMenu1, accountSubMenu2, accountSubMenu3, accountSubMenu4];
+    }
+    else if(headerType == "user"){
+    
         var arrayOfTabs1 = [new Tab(retPath+"v/"+userKey+"/watchedProjects.htm","Watched Projects"),
             new Tab(retPath+"v/"+userKey+"/notifiedProjects.htm","Notified Projects"),
             new Tab(retPath+"v/"+userKey+"/allProjects.htm","All Projects"),
@@ -201,73 +218,76 @@ TabRef = function(href,name,ref){
                 new Tab(retPath+"v/"+userKey+"/newAccounts.htm","New Accounts"),
                 new Tab(retPath+"v/"+userKey+"/deniedAccounts.htm","Denied Accounts")
             ];
-            arrayOfSubMenu=["userSubMenu1","userSubMenu2","userSubMenu3","userSubMenu4"];
-            arrayOfMainMenu =[arrayOfTabs1,arrayOfTabs2,arrayOfTabs3,arrayOfTabs4]
-        }else{
-            arrayOfSubMenu=["userSubMenu1","userSubMenu2","userSubMenu3"];
-            arrayOfMainMenu =[arrayOfTabs1,arrayOfTabs2,arrayOfTabs3]
+            arrayOfSubMenu  =["userSubMenu1","userSubMenu2","userSubMenu3","userSubMenu4"];
+            arrayOfMainMenu =[ arrayOfTabs1,  arrayOfTabs2,  arrayOfTabs3,  arrayOfTabs4]
+        }
+        else{
+            arrayOfSubMenu  =["userSubMenu1","userSubMenu2","userSubMenu3"];
+            arrayOfMainMenu =[ arrayOfTabs1,  arrayOfTabs2,  arrayOfTabs3]
         }
 
 
-    }else{
-        var arrayOfTabs1 = [new Tab(retPath+"t/"+book+"/"+pageId+"/public.htm","Public Notes"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/member.htm","Member Notes"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/deletedNotes.htm","Deleted Notes"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/draftNotes.htm","Draft Notes"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/exportPDF.htm","Generate PDF")
+    }
+    
+    else{   //This is the Project case
+    
+        var arrayOfTabs1 = [
+            new Tab(retPath+"t/"+book+"/"+pageId+"/public.htm",      "Public Notes"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/member.htm",      "Member Notes"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/deletedNotes.htm","Deleted Notes"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/draftNotes.htm",  "Draft Notes"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/exportPDF.htm",   "Generate PDF"),
+            new Tab(retPath+"t/texteditor.htm?pid="+pageId+"&nid=",  "Create New Note &gt;")
         ];
 
-        if(serverMode == "Development"){
-            var arrayOfTabs2 = [new Tab(retPath+"t/"+book+"/"+pageId+"/projectActiveTasks.htm","Active Goals"),
-                        new Tab(retPath+"t/"+book+"/"+pageId+"/projectCompletedTasks.htm","Completed Goals"),
-                        new Tab(retPath+"t/"+book+"/"+pageId+"/projectFutureTasks.htm","Future Goals"),
-                        new Tab(retPath+"t/"+book+"/"+pageId+"/projectAllTasks.htm","All Goals"),
-                        new Tab(retPath+"t/"+book+"/"+pageId+"/statusReport.htm","Status Report"),
-                        new Tab(retPath+"t/"+book+"/"+pageId+"/ganttchart.htm","Gantt Chart")
-            ];
-        }else{
-            var arrayOfTabs2 = [new Tab(retPath+"t/"+book+"/"+pageId+"/projectActiveTasks.htm","Active Goals"),
-                        new Tab(retPath+"t/"+book+"/"+pageId+"/projectCompletedTasks.htm","Completed Goals"),
-                        new Tab(retPath+"t/"+book+"/"+pageId+"/projectFutureTasks.htm","Future Goals"),
-                        new Tab(retPath+"t/"+book+"/"+pageId+"/projectAllTasks.htm","All Goals"),
-                        new Tab(retPath+"t/"+book+"/"+pageId+"/statusReport.htm","Status Report")
-                        //new Tab(retPath+"t/"+book+"/"+pageId+"/ganttchart.htm","Gantt Chart")
-            ];
-        }
+        var arrayOfTabs2 = [
+            new Tab(retPath+"t/"+book+"/"+pageId+"/projectActiveTasks.htm",   "Active Goals"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/projectCompletedTasks.htm","Completed Goals"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/projectFutureTasks.htm",   "Future Goals"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/projectAllTasks.htm",      "All Goals"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/statusReport.htm",         "Status Report")
+            //new Tab(retPath+"t/"+book+"/"+pageId+"/ganttchart.htm",         "Gantt Chart")
+        ];
 
-          var arrayOfTabs3 = [new Tab(retPath+"t/"+book+"/"+pageId+"/attachment.htm","List Documents"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/addDocument.htm","Add Document"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/syncSharePointAttachmentDisplay.htm","Synchonize") ,
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/reminders.htm","Reminders"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/emailReminder.htm","Send Email Reminder"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/deletedAttachments.htm","Deleted Documents")
-          ];
-          var arrayOfTabs4 = [new Tab(retPath+"t/"+book+"/"+pageId+"/personal.htm","Personal"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/permission.htm","Permissions"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/roleRequest.htm","Role Requests") ,
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/admin.htm","Admin" ),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/emailrecords.htm","Email Records"),
-                           new Tab(retPath+"t/"+book+"/"+pageId+"/streamingLinks.htm","Streaming Links")
-          ];
-          arrayOfSubMenu=["ddsubmenu1","ddsubmenu2","ddsubmenu3","ddsubmenu4"];
-          arrayOfMainMenu =[arrayOfTabs1,arrayOfTabs2,arrayOfTabs3,arrayOfTabs4]
-        }
-
-        for(var  j=0;j<arrayOfSubMenu.length ;j++){
-            var arrayOfTabs=arrayOfMainMenu[j];
-            for(var  i=0;i<arrayOfTabs.length ;i++){
-                var mainElement = document.getElementById(arrayOfSubMenu[j]);
-                var newli= document.createElement('li');
-                var newlink = document.createElement('a');
-                var newspan = document.createElement('span');
-                newlink.setAttribute('href',arrayOfTabs[i].href);
-                newspan.innerHTML=arrayOfTabs[i].name;
-                newlink.appendChild(newspan);
-                newli.appendChild(newlink);
-                mainElement.appendChild(newli);
+        var arrayOfTabs3 = [
+            new Tab(retPath+"t/"+book+"/"+pageId+"/attachment.htm",        "List Documents"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/addDocument.htm",       "Add Document"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/syncSharePointAttachmentDisplay.htm","Synchonize") ,
+            new Tab(retPath+"t/"+book+"/"+pageId+"/reminders.htm",         "Reminders"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/emailReminder.htm",     "Send Email Reminder"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/deletedAttachments.htm","Deleted Documents")
+        ];
+        var arrayOfTabs4 = [
+            new Tab(retPath+"t/"+book+"/"+pageId+"/personal.htm",      "Personal"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/permission.htm",    "Permissions"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/roleRequest.htm",   "Role Requests") ,
+            new Tab(retPath+"t/"+book+"/"+pageId+"/admin.htm",         "Admin" ),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/emailrecords.htm",  "Email Records"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/streamingLinks.htm","Streaming Links")
+        ];
+        arrayOfSubMenu=["ddsubmenu1","ddsubmenu2","ddsubmenu3","ddsubmenu4"];
+        arrayOfMainMenu =[arrayOfTabs1,arrayOfTabs2,arrayOfTabs3,arrayOfTabs4]
+    }
+http://bobcat:8080/cog/t/texteditor.htm?pid=copy-of-development-meeting&nid=&visibility_value=4
+    for(var  j=0;j<arrayOfSubMenu.length ;j++){
+        var arrayOfTabs=arrayOfMainMenu[j];
+        for(var  i=0;i<arrayOfTabs.length ;i++){
+            var mainElement = document.getElementById(arrayOfSubMenu[j]);
+            var newli= document.createElement('li');
+            var newlink = document.createElement('a');
+            var newspan = document.createElement('span');
+            newlink.setAttribute('href',arrayOfTabs[i].href);
+            if (arrayOfTabs[i].name.indexOf('&gt;')>0) {
+                newlink.setAttribute('target','_blank');
             }
+            newlink.setAttribute('href',arrayOfTabs[i].href);
+            newspan.innerHTML=arrayOfTabs[i].name;
+            newlink.appendChild(newspan);
+            newli.appendChild(newlink);
+            mainElement.appendChild(newli);
         }
     }
+}
 
 
 

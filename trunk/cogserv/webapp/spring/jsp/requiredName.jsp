@@ -8,6 +8,11 @@
     String fullName = up.getName();
 
 %>
+<style>
+    .reRow {height:50px;padding:15px}
+    .reHead {padding:15px;text-align:left;font-weight:bold;}
+    .reElem {padding:15px;vertical-align:top;}
+</style>
 <div>
     <div class="pageHeading">Set Name</div>
     <div class="pageSubHeading">
@@ -15,23 +20,25 @@
     </div>
     <br/>
     <table width="600">
-    <tr>
+    <tr class="reRow">
         <td class="linkWizardHeading">You Need A Name:</td>
     </tr>
-    <tr style="height:50px;padding:15px">
-    <td style="padding:15px">Before going any further, you need to specify your display name.  This is the name
-                             that will be displayed to others to indicate things you have done or own.
-                             Please specify your full name because there may be many people using this server.</td>
+    <tr class="reRow">
+    <td class="reElem">Before going any further, please specify a display name
+                             that will be used to identify you to others when you do or own things.
+                             Please specify your <b>full name</b> because over time there may be
+                             many people using this server.  You can change this later at any time.</td>
     </tr>
     <form action="<%= ar.retPath %>t/requiredName.form" method="post">
     <input type="hidden" name="go" value="<%= ar.getCompleteURL() %>">
 
-    <tr style="height:50px;padding:15px">
-         <td style="padding:15px"><input type="text" name="dName" size="50"><input type="submit" value="Set Display Name"></td>
+    <tr class="reRow">
+         <td class="reElem"><input type="text" name="dName" size="50"> &nbsp;
+             <input type="submit" value="Set Display Name" class="inputBtn"></td>
     </tr>
 
-    <tr style="height:50px;padding:15px">
-         <td style="padding:15px"></td>
+    <tr class="reRow">
+         <td class="reElem"></td>
     </tr>
 
     </form>

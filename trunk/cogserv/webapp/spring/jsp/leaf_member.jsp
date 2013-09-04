@@ -1,6 +1,7 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@page import="org.socialbiz.cog.RoleRequestRecord"
 %><%@page import="org.socialbiz.cog.NGRole"
+%><%@page import="org.socialbiz.cog.UserRef"
 %><%@ include file="leaf_ProjectHome.jsp"
 %><%!
     String pageTitle="";
@@ -16,7 +17,7 @@
     %>
     </div>
     <%
-         out.flush();
+        out.flush();
     %>
 </div>
 </div>

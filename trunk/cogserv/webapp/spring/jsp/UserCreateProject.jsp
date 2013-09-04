@@ -30,6 +30,11 @@ Required Parameters:
 
 
 %>
+<style>
+    table {}
+    .acctListHead {padding:15px;text-align:left;font-weight:bold;}
+    .acctListElem {padding:15px;vertical-align:top;}
+</style>
 <div class="content tab04" style="display:block;">
     <div class="section_body">
         <div style="height:10px;"></div>
@@ -40,21 +45,35 @@ if(memberOfAccounts.size()>0) {
         <div class="generalContent">
             <div id="accountPaging"></div>
             <div id="accountsContainer">
-                A project must be created inside an account.
+                A new project must be created inside an account.
                 Choose from the list below the account you would like to create
                 this new project in.
-                <br/>
-                <br/>
+                <br/><br/>
+                <table class="acctList">
+                <tr>
+                <th class="acctListHead">Account Name</th>
+                <th></th>
+                <th class="acctListHead">Account Description</th>
+                </tr>
+
                 <%
                 for (NGBook account : memberOfAccounts) {
                     String accountLink =ar.baseURL+"t/"+account.getKey()+"/$/accountCreateProject.htm";
                     %>
+                    <tr>
+                    <td class="acctListElem">
                     <form action="<%ar.writeHtml(accountLink);%>">
                     <input type="submit" value="<%ar.writeHtml(account.getName());%>" class="inputBtn">
-                    </form><br/>
+                    </form></td>
+                    <td class="acctListElem">
+                    </td>
+                    <td class="acctListElem"><%ar.writeHtml(account.getDescription());%>
+                    </td>
+                    </tr>
                 <%
                 }
                 %>
+                </table>
             </div>
         </div>
 <%
