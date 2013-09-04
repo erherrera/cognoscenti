@@ -39,13 +39,11 @@ import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 public class NGWebUtils {
 
     /**
-     * This static aplication context is initialized when SuperAdminController
+     * This static application context is initialized when SuperAdminController
      * is initialized by "Autowire" capability. Need to figure out how to assure
      * that happens before any of these methods need it.
      */
@@ -664,12 +662,12 @@ public class NGWebUtils {
                 HistoryRecord.CONTEXT_TYPE_ROLE, 0, eventType, ar, "");
     }
 
-    @Deprecated
-    /**
+
+    /*
      * Use redirectToLoginView in baseController instead, It uses the message key instead of
      * message and pick the message from properties file to make translatable. This method will be replaced by BaseController method
      * from every where in code soon.
-     */
+     *
     public static ModelAndView redirectToLoginView(AuthRequest ar,
             String message) throws Exception {
         ModelAndView redirectView = new ModelAndView(new RedirectView(
@@ -677,7 +675,7 @@ public class NGWebUtils {
         redirectView.addObject("msg", message);
         redirectView.addObject("go", ar.getCompleteURL());
         return redirectView;
-    }
+    }*/
 
     /*
      * public static String getCombinedRepresentation(String url, String token)

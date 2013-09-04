@@ -169,7 +169,7 @@ public class LoginController extends BaseController {
         {
             AuthRequest ar = AuthRequest.getOrCreate( request, response );
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.edit.setting",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             request.setAttribute( "realRequestURL", ar.getRequestURL() );
         } catch (Exception ex)

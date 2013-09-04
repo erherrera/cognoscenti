@@ -717,7 +717,7 @@ public class RemoteLinkController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.must.be.login",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             UserManager.getUserProfileOrFail(userKey);
 
@@ -763,7 +763,7 @@ public class RemoteLinkController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.must.be.login",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             UserManager.getUserProfileOrFail(userKey);
 

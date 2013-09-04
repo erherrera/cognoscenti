@@ -478,7 +478,7 @@ public class MainTabsViewControler extends BaseController {
              modelAndView = new ModelAndView("texteditor");
              AuthRequest ar = AuthRequest.getOrCreate(request, response);
              if(!ar.isLoggedIn()){
-                 return redirectToLoginView(ar, "message.loginalert.create.note",null);
+                 return showWarningView(ar, "message.loginalert.see.page");
              }
 
              String p = ar.reqParam("pid");
@@ -503,7 +503,7 @@ public class MainTabsViewControler extends BaseController {
          try{
              AuthRequest ar = AuthRequest.getOrCreate(request, response);
              if(!ar.isLoggedIn()){
-                 return redirectToLoginView(ar, "message.loginalert.send.note.by.email",null);
+                 return showWarningView(ar, "message.loginalert.see.page");
              }
 
              modelAndView=new ModelAndView("SendNoteByEmail");
@@ -598,7 +598,7 @@ public class MainTabsViewControler extends BaseController {
          try{
              AuthRequest ar = AuthRequest.getOrCreate(request, response);
              if(!ar.isLoggedIn()){
-                 return redirectToLoginView(ar, "message.loginalert.preview.note",null);
+                 return showWarningView(ar, "message.loginalert.see.page");
              }
              modelAndView = new ModelAndView("PreviewNoteForEmail");
              String editedSubject = ar.defParam("subject", "");
@@ -881,7 +881,7 @@ public class MainTabsViewControler extends BaseController {
         return modelAndView;
     }
 
-    /*
+
     @RequestMapping(value = "/{accountId}/{pageId}/personal.htm", method = RequestMethod.GET)
     public ModelAndView showPersonalTab(@PathVariable String accountId,
             @PathVariable String pageId, HttpServletRequest request, HttpServletResponse response)
@@ -909,7 +909,29 @@ public class MainTabsViewControler extends BaseController {
                     pageId, accountId }, ex);
         }
     }
-    */
+
+    @RequestMapping(value = "/{accountId}/{pageId}/admin.htm", method = RequestMethod.GET)
+    public ModelAndView showAdminTab(@PathVariable String accountId,
+            @PathVariable String pageId, HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
+
+            if(!ar.isLoggedIn()){
+                return showWarningView(ar, "nugen.project.login.msg");
+            }
+
+            request.setAttribute("tabId", "Project Settings");
+            request.setAttribute("subTabId", "nugen.projectsettings.subtab.Admin");
+            request.setAttribute("visibility_value", "3");
+            request.setAttribute("title", nGPage.getFullName());
+            return new ModelAndView("leaf_admin");
+        }catch (Exception ex) {
+            throw new NGException("nugen.operation.fail.project.admin.page", new Object[]{pageId,accountId} , ex);
+        }
+    }
+
 
     @RequestMapping(value = "/{accountId}/{pageId}/streamingLinks.htm", method = RequestMethod.GET)
     public ModelAndView streamingLinks(@PathVariable String accountId, @PathVariable String pageId,
@@ -921,8 +943,6 @@ public class MainTabsViewControler extends BaseController {
             if (modelAndView!=null) {
                 return modelAndView;
             }
-
-            NGBook nGBook = nGPage.getAccount();
 
             modelAndView = new ModelAndView("leaf_streamingLinks");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.personal");
@@ -967,7 +987,7 @@ public class MainTabsViewControler extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.access.search.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
 
             String headerType = ar.defParam("h",null);
@@ -1004,7 +1024,7 @@ public class MainTabsViewControler extends BaseController {
         {
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.access.taglink.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
 
             request.setAttribute("headerType", "user");
@@ -1118,7 +1138,6 @@ public class MainTabsViewControler extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
-            NGBook nGBook = nGPage.getAccount();
 
             // Set the Index page name
             List<NGRole> roles=nGPage.getAllRoles();
@@ -1438,6 +1457,9 @@ public class MainTabsViewControler extends BaseController {
           }
       }
 
+      /**
+       * This is a view that prompts the user to specify how they want the PDF to be produced.
+       */
     @RequestMapping(value = "/{accountId}/{pageId}/exportPDF.htm", method = RequestMethod.GET)
     public ModelAndView exportPDF(HttpServletRequest request, HttpServletResponse response,
             @PathVariable String pageId,
@@ -1445,10 +1467,8 @@ public class MainTabsViewControler extends BaseController {
             throws Exception {
 
         try{
-            request.setAttribute("book", accountId);
-            request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPageIndex.assertBook(accountId);
+            registerRequiredProject(ar, accountId, pageId);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "nugen.project.export.pdf.login.msg");
             }
@@ -1497,7 +1517,7 @@ public class MainTabsViewControler extends BaseController {
           try{
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
               if(!ar.isLoggedIn()){
-                  return redirectToLoginView(ar, "message.must.be.login",null);
+                  return showWarningView(ar, "message.loginalert.see.page");
               }
               modelAndView=new ModelAndView("closeWindow");
               request.setAttribute("realRequestURL", ar.getRequestURL());
@@ -1515,7 +1535,7 @@ public class MainTabsViewControler extends BaseController {
               request.setAttribute("pageId", pageId);
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
               if(!ar.isLoggedIn()){
-                  return redirectToLoginView(ar, "message.must.be.login.to.perform.action",null);
+                  return showWarningView(ar, "message.loginalert.see.page");
               }
               request.setAttribute("realRequestURL", ar.getRequestURL());
               request.setAttribute("tabId", "Status");

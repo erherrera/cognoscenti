@@ -319,7 +319,7 @@
         <put-attribute name="body" value="/spring/jsp/leaflet_account.jsp" />
     </definition>
 
-    <definition name="editUserProfile" extends="baseLayout">
+    <definition name="editUserProfile" extends="baseLayoutWithoutLeftPanel">
         <put-attribute name="title" value="Update User Profile" />
         <put-attribute name="body" value="/spring/jsp/edituserprofile.jsp" />
     </definition>
@@ -362,6 +362,7 @@
     </definition>
     <definition name="UserAccountSetting" extends="baseLayout">
         <put-attribute name="title" value="Admin" />
+        <put-attribute name="headerType" value="account" />
         <put-attribute name="body" value="/spring/jsp/UserAccountSetting.jsp" />
     </definition>
     <definition name="upload_document_form_account" extends="baseLayout">
@@ -599,7 +600,7 @@
         <put-attribute name="body" value="/spring/jsp/texteditor.jsp" />
     </definition>
 
-    <definition name="Warning" extends="projectBaseLayout">
+    <definition name="Warning" extends="baseLayout">
         <put-attribute name="title" value="Warning" />
         <put-attribute name="body" value="/spring/jsp/Warning.jsp" />
     </definition>
@@ -614,7 +615,7 @@
         <put-attribute name="body" value="/spring/jsp/requiredEmail.jsp" />
     </definition>
 
-    <definition name="DisplayException" extends="projectBaseLayout">
+    <definition name="DisplayException" extends="baseLayoutWithoutLeftPanel">
         <put-attribute name="title" value="Display Exception" />
         <put-attribute name="body" value="/spring/jsp/DisplayException.jsp" />
     </definition>

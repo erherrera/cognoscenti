@@ -39,7 +39,7 @@ public class AccessControl {
         }
 
         //then, check to see if there is any special condition in session
-        String resourceId = "doc:"+ngc.getKey()+":"+attachRec.getId();
+        String resourceId = "doc:"+attachRec.getId()+":"+ngc.getKey();
         if (ar.hasSpecialSessionAccess(resourceId)) {
             return true;
         }
@@ -59,11 +59,9 @@ public class AccessControl {
     }
 
     public static String getAccessDocParams(NGContainer ngc, AttachmentRecord attachRec) throws Exception{
-        String accessDocParam = "mndoc=";
-        String resourceId = "doc:"+ngc.getKey()+":"+attachRec.getId();
+        String resourceId = "doc:"+attachRec.getId()+":"+ngc.getKey();
         String encodedValue = URLEncoder.encode(ngc.emailDependentMagicNumber(resourceId), "UTF-8");
-        accessDocParam += encodedValue;
-        return accessDocParam;
+        return "mndoc=" + encodedValue;
     }
 
     public static boolean canAccessReminder(AuthRequest ar, NGContainer ngc, ReminderRecord reminderRecord)
@@ -78,7 +76,7 @@ public class AccessControl {
         }
 
         //then, check to see if there is any special condition in session
-        String resourceId = "reminder:"+ngc.getKey()+":"+reminderRecord.getId();
+        String resourceId = "reminder:"+reminderRecord.getId()+":"+ngc.getKey();
         if (ar.hasSpecialSessionAccess(resourceId)) {
             return true;
         }
@@ -98,7 +96,7 @@ public class AccessControl {
     }
 
     public static String getAccessReminderParams(NGContainer ngc, ReminderRecord reminderRecord) throws Exception{
-        String resourceId = "reminder:"+ngc.getKey()+":"+reminderRecord.getId();
+        String resourceId = "reminder:"+reminderRecord.getId()+":"+ngc.getKey();
         String encodedValue = URLEncoder.encode(ngc.emailDependentMagicNumber(resourceId), "UTF-8");
         return "mnremider=" + encodedValue;
     }
@@ -115,7 +113,7 @@ public class AccessControl {
         }
 
         //then, check to see if there is any special condition in session
-        String resourceId = "goal:"+ngc.getKey()+":"+gr.getId();
+        String resourceId = "goal:"+gr.getId()+":"+ngc.getKey();
         if (ar.hasSpecialSessionAccess(resourceId)) {
             return true;
         }
@@ -134,12 +132,10 @@ public class AccessControl {
         return false;
     }
 
-    public static String getAccessTaskParams(NGContainer ngc, GoalRecord gr) throws Exception{
-        String accessDocParam = "mntask=";
-        String resourceId = "goal:"+ngc.getKey()+":"+gr.getId();
+    public static String getAccessGoalParams(NGContainer ngc, GoalRecord gr) throws Exception{
+        String resourceId = "goal:"+gr.getId()+":"+ngc.getKey();
         String encodedValue = URLEncoder.encode(ngc.emailDependentMagicNumber(resourceId), "UTF-8");
-        accessDocParam += encodedValue;
-        return accessDocParam;
+        return "mntask=" + encodedValue;
     }
 
     public static boolean canAccessNote(AuthRequest ar, NGContainer ngc, NoteRecord noteRec)
@@ -157,7 +153,7 @@ public class AccessControl {
         }
 
         //then, check to see if there is any special condition in session
-        String resourceId = "note:"+ngc.getKey()+":"+noteRec.getId();
+        String resourceId = "goal:"+noteRec.getId()+":"+ngc.getKey();
         if (ar.hasSpecialSessionAccess(resourceId)) {
             return true;
         }
@@ -177,11 +173,9 @@ public class AccessControl {
     }
 
     public static String getAccessNoteParams(NGContainer ngc, NoteRecord noteRec) throws Exception{
-        String accessDocParam = "mnnote=";
-        String resourceId = "note:"+ngc.getKey()+":"+noteRec.getId();
+        String resourceId = "goal:"+noteRec.getId()+":"+ngc.getKey();
         String encodedValue = URLEncoder.encode(ngc.emailDependentMagicNumber(resourceId), "UTF-8");
-        accessDocParam += encodedValue;
-        return accessDocParam;
+        return "mnnote=" + encodedValue;
     }
 
     public static boolean canAccessRoleRequest(AuthRequest ar, NGContainer ngc, RoleRequestRecord roleRequestRecord)

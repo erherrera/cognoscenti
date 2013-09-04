@@ -187,7 +187,7 @@ public class SuperAdminController extends BaseController {
               String userKey, String modelAndViewName, String subTabId) throws Exception {
 
          if(!ar.isLoggedIn()){
-             return redirectToLoginView(ar, "message.loginalert.errors.log",null);
+             return showWarningView(ar, "message.loginalert.see.page");
          }
          if(!ar.isSuperAdmin()){
              throw new NGException("nugen.exceptionhandling.system.admin.rights",null);

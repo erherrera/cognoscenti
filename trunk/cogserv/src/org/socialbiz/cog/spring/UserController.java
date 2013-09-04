@@ -80,11 +80,6 @@ public class UserController extends BaseController {
         binder.registerCustomEditor(byte[].class,new ByteArrayMultipartFileEditor());
     }
 
-    private ModelAndView needAccessView(HttpServletRequest request, String why) {
-        request.setAttribute("property_msg_key", why);
-        return new ModelAndView("Warning");
-    }
-
     private List<NGBook> findAllMemberAccounts(UserProfile up) throws Exception {
         List<NGBook> memberOfAccounts=new ArrayList<NGBook>();
         for (NGBook aBook : NGBook.getAllAccounts()){
@@ -123,7 +118,7 @@ public class UserController extends BaseController {
 
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.user.project.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
 
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
@@ -142,8 +137,7 @@ public class UserController extends BaseController {
             String sourcePage = ar.defParam("source", null);
 
             HttpSession session = request.getSession();
-            if (sourcePage!=null)
-            {
+            if (sourcePage!=null) {
                 session.setAttribute("hook", sourcePage);
             }
 
@@ -174,7 +168,7 @@ public class UserController extends BaseController {
 
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.user.project.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
 
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
@@ -201,7 +195,7 @@ public class UserController extends BaseController {
 
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.user.project.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
 
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
@@ -242,7 +236,7 @@ public class UserController extends BaseController {
 
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.user.project.page",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
 
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
@@ -313,7 +307,7 @@ public class UserController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.user.active.tasks",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
 
@@ -335,7 +329,7 @@ public class UserController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.user.completed.tasks",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
 
@@ -357,7 +351,7 @@ public class UserController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.user.future.tasks",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
 
@@ -379,7 +373,7 @@ public class UserController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "message.loginalert.user.all.tasks",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
 
@@ -548,16 +542,18 @@ public class UserController extends BaseController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{book}/{pageId}/CreateRole.form", method = RequestMethod.POST)
-    public ModelAndView createRole(@PathVariable String book,@PathVariable String pageId,HttpServletRequest request,
+    @RequestMapping(value = "/{accountId}/{pageId}/CreateRole.form", method = RequestMethod.POST)
+    public ModelAndView createRole(@PathVariable String accountId,@PathVariable String pageId,HttpServletRequest request,
             HttpServletResponse response)
     throws Exception
     {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request,  response ,null);
+            NGPage project  = registerRequiredProject(ar, accountId, pageId);
             ar.assertLoggedIn("Can't create a Role.");
-            NGPage project = NGPageIndex.getProjectByKeyOrFail(pageId);
-            ar.setPageAccessLevels(project);
+            if(!ar.isLoggedIn()){
+                return showWarningView(ar, "message.loginalert.see.page");
+            }
             ar.assertAuthor("Must be an admin of the project to create a role.");
 
             String roleName = ar.reqParam("rolename").trim();
@@ -573,7 +569,7 @@ public class UserController extends BaseController {
             return redirectBrowser(ar,"permission.htm");
 
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.user.create.role.page", new Object[]{pageId,book} , ex);
+            throw new NGException("nugen.operation.fail.user.create.role.page", new Object[]{pageId,accountId} , ex);
         }
     }
 
@@ -1185,7 +1181,7 @@ public class UserController extends BaseController {
             boolean canAccessPage = AccessControl.canAccessRoleRequest(ar, ngp, roleRequestRecord);
 
             if(!canAccessPage){
-                 return needAccessView(request, "nugen.project.member.login.msg");
+                 return showWarningView(ar, "nugen.project.member.login.msg");
             }
 
             String isAccessThroughEmail = ar.reqParam("isAccessThroughEmail");
@@ -1249,15 +1245,19 @@ public class UserController extends BaseController {
             throws Exception {
 
         try{
+            request.setAttribute("folderId", folderId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             ar.assertLoggedIn("Need to log in to see remote folder page.");
             UserProfile up = UserManager.getUserProfileOrFail(userKey);
             UserPage uPage = ar.getUserPage();
+            String path = ar.defParam("path", "/");
+
+            //test to see if things are working OK before going to the JSP level
             uPage.getConnectionOrFail(folderId);
+            FolderAccessHelper fdh = new FolderAccessHelper(ar);
+            fdh.getRemoteResource(folderId, path, true);
 
             ModelAndView modelAndView = createModelAndView(ar, up, "Home", "FolderDisplay");
-            String path = ar.defParam("path", "/");
-            request.setAttribute("folderId", folderId);
             request.setAttribute("path", path);
 
             //this is deprecated ... remove soon
@@ -1754,7 +1754,7 @@ public class UserController extends BaseController {
 
             if(!ar.hasSpecialSessionAccess("Notifications:"+userKey)){
                 if(!ar.isLoggedIn()){
-                    return redirectToLoginView(ar, "message.loginalert.access.notification.page", null);
+                    return showWarningView(ar, "message.loginalert.see.page");
                 }
             }
 
@@ -1935,7 +1935,7 @@ public class UserController extends BaseController {
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
 
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "nugen.userprofile.Logout",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
 
             UserProfile up = UserManager.getUserProfileOrFail(userKey);
@@ -1989,7 +1989,7 @@ public class UserController extends BaseController {
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
 
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "nugen.userprofile.Logout",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             UserProfile up = UserManager.getUserProfileOrFail(userKey);
 
@@ -2041,7 +2041,7 @@ public class UserController extends BaseController {
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
 
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "nugen.userprofile.Logout",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             UserProfile up = UserManager.getUserProfileOrFail(userKey);
 
@@ -2098,7 +2098,7 @@ public class UserController extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
-                return redirectToLoginView(ar, "nugen.exception.login.to.clear.cookie",null);
+                return showWarningView(ar, "message.loginalert.see.page");
             }
             ar.clearCookie();
 
