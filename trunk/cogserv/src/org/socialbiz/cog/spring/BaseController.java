@@ -11,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.UserProfile;
@@ -82,6 +83,15 @@ public class BaseController {
         }
         ar.setPageAccessLevels(ngp);
         return ngp;
+    }
+
+    public static NGBook prepareAccountView(AuthRequest ar, String accountId) throws Exception
+    {
+        ar.req.setAttribute(ACCOUNT_ID, accountId);
+        ar.req.setAttribute("headerType", "account");
+        NGBook ngb = NGPageIndex.getAccountByKeyOrFail( accountId );
+        ar.setPageAccessLevels(ngb);
+        return ngb;
     }
 
 
@@ -192,6 +202,29 @@ public class BaseController {
         if(!ar.isMember()){
             ar.req.setAttribute("roleName", "Members");
             return showWarningView(ar, "nugen.project.member.msg");
+        }
+        return null;
+    }
+
+    /**
+     * This is a set of checks that results in different views depending on the state
+     * of the user.  Particularly: must be logged in, must have a name, must have an email
+     * address, and must be a member of the page.
+     * @return a ModelAndView object that will tell the user what is wrong.
+     */
+    protected ModelAndView executiveCheckViews(AuthRequest ar) throws Exception {
+        if(!ar.isLoggedIn()){
+            return showWarningView(ar, "nugen.project.login.msg");
+        }
+        if (needsToSetName(ar)) {
+            return new ModelAndView("requiredName");
+        }
+        if (needsToSetEmail(ar)) {
+            return new ModelAndView("requiredEmail");
+        }
+        if(!ar.isMember()){
+            ar.req.setAttribute("roleName", "Executive");
+            return showWarningView(ar, "nugen.project.executive.msg");
         }
         return null;
     }

@@ -52,17 +52,21 @@ public class AccountsDocumentController extends BaseController {
             HttpServletResponse response,
             @RequestParam("fname") MultipartFile file) throws Exception {
 
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
+            NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
+
             //Handling special case for Multipart request
             ar.req = request;
 
-            ar.setPageAccessLevels(ngb);
+            ar.setPageAccessLevels(account);
 
             request.setCharacterEncoding("UTF-8");
 
@@ -84,31 +88,35 @@ public class AccountsDocumentController extends BaseController {
             String comment = ar.defParam("comment", "");
             String name = ar.defParam("name", null);
 
-            AttachmentHelper.uploadNewDocument(ar, ngb, file, name, visibility, comment,ar.getBestUserId());
+            AttachmentHelper.uploadNewDocument(ar, account, file, name, visibility, comment,ar.getBestUserId());
 
             modelAndView = new ModelAndView(new RedirectView("account_attachment.htm"));
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.upload.document", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/getEditAttachmentForm.form", method = RequestMethod.GET)
     protected ModelAndView getEditAttachmentForm(@PathVariable String accountId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGPageIndex.getAccountByKeyOrFail(accountId);
+            prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
+
             modelAndView = createModelView(accountId,request, response,ar,"edit_attachment","Account Documents");
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.edit.attachment.page", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/emailReminder.form", method = RequestMethod.POST)
@@ -116,13 +124,16 @@ public class AccountsDocumentController extends BaseController {
             @PathVariable String accountId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
+            NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
 
             String comment = ar.reqParam("comment");
             String pname = ar.defParam("pname", "");
@@ -131,8 +142,8 @@ public class AccountsDocumentController extends BaseController {
             String subj = ar.reqParam("subj");
             String destFolder = ar.reqParam("destFolder");
 
-            ReminderMgr rMgr = ngb.getReminderMgr();
-            ReminderRecord rRec = rMgr.createReminder(ngb.getUniqueOnPage());
+            ReminderMgr rMgr = account.getReminderMgr();
+            ReminderRecord rRec = rMgr.createReminder(account.getUniqueOnPage());
             rRec.setFileDesc(comment);
             rRec.setInstructions(instruct);
             rRec.setAssignee(assignee);
@@ -142,13 +153,13 @@ public class AccountsDocumentController extends BaseController {
             rRec.setModifiedDate(ar.nowTime);
             rRec.setDestFolder(destFolder);
 
-            ngb.saveFile(ar, "Modified attachments");
+            account.saveFile(ar, "Modified attachments");
 
             modelAndView = new ModelAndView(new RedirectView("account_attachment.htm"));
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.create.email.reminder", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/sendemailReminder.htm", method = RequestMethod.GET)
@@ -156,23 +167,23 @@ public class AccountsDocumentController extends BaseController {
             @PathVariable String accountId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGPageIndex.getAccountByKeyOrFail(accountId);
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
-            ar.setPageAccessLevels(ngb);
+            prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
+
             request.setAttribute(TAB_ID, "Account Documents");
-            request.setAttribute(ACCOUNT_ID, accountId);
-            request.setAttribute( "headerType", "account" );
             modelAndView = new ModelAndView("ReminderEmail");
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.send.email.reminder", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/resendemailReminder.htm", method = RequestMethod.POST)
@@ -180,26 +191,27 @@ public class AccountsDocumentController extends BaseController {
             @PathVariable String accountId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
-
-            ar.setPageAccessLevels(ngb);
+            NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
 
             String reminderId = ar.reqParam("rid");
             String emailto = ar.defParam("emailto", null);
 
-            ReminderRecord.reminderEmail(ar, accountId, reminderId, emailto, ngb);
+            ReminderRecord.reminderEmail(ar, accountId, reminderId, emailto, account);
 
             modelAndView = createModelView(accountId, request, response,ar,"account_attachment","Account Documents");
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.resend.email.reminder", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/editAttachment.form", method = RequestMethod.POST)
@@ -208,13 +220,17 @@ public class AccountsDocumentController extends BaseController {
             HttpServletResponse response,
             @RequestParam(value = "fname", required = false) MultipartFile file)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
+            NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
+
             //Handling special case for Multipart request
             ar.req = request;
 
@@ -227,25 +243,24 @@ public class AccountsDocumentController extends BaseController {
             if ("Cancel".equals(action) || "Go back".equals(action)) {
                 return modelAndView;
             }else{
-                AttachmentHelper.updateAttachmentFile(accountId, request, file, ar, action, visibility, ngb);
+                AttachmentHelper.updateAttachmentFile(accountId, request, file, ar, action, visibility, account);
             }
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.edit.attachment", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/createLinkURL.form", method = RequestMethod.POST)
     protected ModelAndView createLinkURL(@PathVariable String accountId,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.login.to.see.task.detail");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
+            NGBook account = prepareAccountView(ar, accountId);
 
             String destFolder = ar.reqParam("visibility");
             String comment = ar.reqParam("comment");
@@ -253,13 +268,13 @@ public class AccountsDocumentController extends BaseController {
             String ftype = ar.reqParam("ftype");
 
             AttachmentRecord attachment = null;
-            attachment = ngb.createAttachment();
+            attachment = account.createAttachment();
             attachment.setComment(comment);
             attachment.setModifiedBy(ar.getBestUserId());
             attachment.setModifiedDate(ar.nowTime);
             attachment.setType(ftype);
 
-            AttachmentHelper.setDisplayName(ngb, attachment, taskUrl);
+            AttachmentHelper.setDisplayName(account, attachment, taskUrl);
 
             if (destFolder.equals("PUB")) {
                 attachment.setVisibility(1);
@@ -267,16 +282,15 @@ public class AccountsDocumentController extends BaseController {
                 attachment.setVisibility(2);
             }
             attachment.setStorageFileName(taskUrl);
-            HistoryRecord.createHistoryRecord(ngb, attachment.getId(), HistoryRecord.CONTEXT_TYPE_DOCUMENT,
+            HistoryRecord.createHistoryRecord(account, attachment.getId(), HistoryRecord.CONTEXT_TYPE_DOCUMENT,
                     ar.nowTime, HistoryRecord.EVENT_DOC_ADDED, ar, "Created Link URL");
 
-            ngb.saveContent(ar, "Created Link URL");
+            account.saveContent(ar, "Created Link URL");
 
-            modelAndView = new ModelAndView(new RedirectView("account_attachment.htm"));
+            return new ModelAndView(new RedirectView("account_attachment.htm"));
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.create.link.url", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     private ModelAndView createModelView(String accountId,
@@ -294,127 +308,135 @@ public class AccountsDocumentController extends BaseController {
     @RequestMapping(value = "/{accountId}/$/uploadDocument.htm", method = RequestMethod.GET)
     public ModelAndView uploadDocumentForm(@PathVariable String accountId, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
-            ar.setPageAccessLevels(ngb);
+            NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
             request.setAttribute( "subTabId","nugen.projecthome.subtab.upload.document" );
             request.setAttribute( "realRequestURL", ar.getRequestURL() );
             request.setAttribute( "tabId", "Account Documents" );
-            request.setAttribute( "accountId", accountId );
-            request.setAttribute( "title", ngb.getFullName() );
-            request.setAttribute( "headerType", "account" );
-            request.setAttribute( "pageTitle", ngb.getFullName() );
+            request.setAttribute( "title", account.getFullName() );
+            request.setAttribute( "pageTitle", account.getFullName() );
 
             modelAndView = new ModelAndView("upload_document_form_account" );
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.upload.document.page", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/linkURLToProject.htm", method = RequestMethod.GET)
     protected ModelAndView getLinkURLToProjectForm(@PathVariable String accountId,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
-            ar.setPageAccessLevels(ngb);
+            NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("subTabId", "nugen.projecthome.subtab.link.url.to.project");
             request.setAttribute( "realRequestURL", ar.getRequestURL() );
             request.setAttribute( "tabId", "Account Documents" );
             request.setAttribute( "accountId", accountId );
-            request.setAttribute( "title", ngb.getFullName() );
-            request.setAttribute( "pageTitle", ngb.getFullName() );
+            request.setAttribute( "title", account.getFullName() );
+            request.setAttribute( "pageTitle", account.getFullName() );
 
             modelAndView = createModelView(accountId, request, response,ar,"linkurlproject_form_account","Account Documents");
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.link.project.page", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/emailReminder.htm", method = RequestMethod.GET)
     protected ModelAndView getEmailRemainderForm(@PathVariable String accountId,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
-            ar.setPageAccessLevels(ngb);
+            NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
             request.setAttribute( "tabId", "Account Documents" );
             request.setAttribute("subTabId", "nugen.projecthome.subtab.emailreminder");
             request.setAttribute( "headerType", "account" );
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("title", ngb.getFullName());
-            request.setAttribute( "pageTitle", ngb.getFullName() );
+            request.setAttribute("title", account.getFullName());
+            request.setAttribute( "pageTitle", account.getFullName() );
             modelAndView = createModelView(accountId, request, response,ar,"emailreminder_form_account","Account Documents");
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.email.reminder.page", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/editDocumentForm.htm", method = RequestMethod.GET)
     protected ModelAndView getEditDocumentForm(@PathVariable String accountId,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
-            ar.setPageAccessLevels(ngb);
+            NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("subTabId", "nugen.projectdocument.subtab.attachmentdetails");
             request.setAttribute("aid",ar.reqParam("aid"));
-            request.setAttribute("title", ngb.getFullName());
-            request.setAttribute( "pageTitle", ngb.getFullName() );
+            request.setAttribute("title", account.getFullName());
+            request.setAttribute( "pageTitle", account.getFullName() );
             modelAndView = createModelView(accountId, request, response,ar,"edit_document_form_account","Account Documents");
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.edit.document.page", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/fileVersions.htm", method = RequestMethod.GET)
     protected ModelAndView getFileVersion(@PathVariable String accountId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
 
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
-            ar.setPageAccessLevels(ngb);
+            NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("subTabId", "nugen.projectdocument.subtab.fileversions");
             request.setAttribute("aid",ar.reqParam("aid"));
-            request.setAttribute("title", ngb.getFullName());
-            request.setAttribute( "pageTitle", ngb.getFullName() );
+            request.setAttribute("title", account.getFullName());
+            request.setAttribute( "pageTitle", account.getFullName() );
             modelAndView = createModelView(accountId, request, response,ar,"file_version_account","Account Documents");
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.file.version.page", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/updateAttachment.form", method = RequestMethod.POST)
@@ -423,19 +445,22 @@ public class AccountsDocumentController extends BaseController {
             HttpServletResponse response,
             @RequestParam(value = "fname", required = false) MultipartFile file)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
+            NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
             //Handling special case for Multipart request
             ar.req = request;
-            ar.setPageAccessLevels(ngb);
+            ar.setPageAccessLevels(account);
 
             String aid = ar.reqParam("aid");
-            AttachmentRecord attachment = ngb.findAttachmentByIDOrFail(aid);
+            AttachmentRecord attachment = account.findAttachmentByIDOrFail(aid);
 
             String action = ar.reqParam("actionType");
 
@@ -460,15 +485,15 @@ public class AccountsDocumentController extends BaseController {
                 String comment_panel = ar.reqParam("comment_panel");
 
                 attachment.setComment(comment_panel);
-                AttachmentHelper.setDisplayName(ngb, attachment,AttachmentHelper.assureExtension(attachment.getDisplayName(), file.getOriginalFilename()));
+                AttachmentHelper.setDisplayName(account, attachment,AttachmentHelper.assureExtension(attachment.getDisplayName(), file.getOriginalFilename()));
                 AttachmentHelper.saveUploadedFile(ar, attachment, file);
             }
-            ngb.saveFile(ar, "Modified attachments");
+            account.saveFile(ar, "Modified attachments");
             modelAndView = new ModelAndView(new RedirectView("account_attachment.htm"));
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.edit.attachment", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
      public String loginCheckMessage(AuthRequest ar) throws Exception {
@@ -485,20 +510,22 @@ public class AccountsDocumentController extends BaseController {
         HttpServletRequest request,
         HttpServletResponse response) throws Exception
     {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
-            ar.setPageAccessLevels(ngb);
+            prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
             request.setAttribute("subTabId", "nugen.projecthome.subtab.upload.document");
             modelAndView = createModelView(accountId, request, response,ar,"remind_attachment","Account Documents");
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.remind.attachment.page", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
 
@@ -532,26 +559,26 @@ public class AccountsDocumentController extends BaseController {
     public ModelAndView remindersTab(@PathVariable String accountId,
                                         HttpServletRequest request, HttpServletResponse response)
                                         throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
-            ar.setPageAccessLevels(ngb);
+            NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
             modelAndView=new ModelAndView("reminders_account");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.reminders");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("accountId", accountId);
-            request.setAttribute("headerType", "account");
             request.setAttribute( "tabId", "Account Documents" );
-            request.setAttribute( "title", ngb.getFullName() );
-            request.setAttribute( "pageTitle", ngb.getFullName() );
+            request.setAttribute( "title", account.getFullName() );
+            request.setAttribute( "pageTitle", account.getFullName() );
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.remind.attachment.page", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
 
