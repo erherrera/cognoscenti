@@ -73,8 +73,8 @@ public class BaseController {
      */
     public static NGPage registerRequiredProject(AuthRequest ar, String accountId, String projectId) throws Exception
     {
-        ar.req.setAttribute(ACCOUNT_ID, accountId);
-        ar.req.setAttribute(PAGE_ID, projectId);
+        ar.req.setAttribute("pageId",     projectId);
+        ar.req.setAttribute("book",       accountId);
         ar.req.setAttribute("headerType", "project");
         NGPageIndex.assertBook(accountId);
         NGPage ngp = NGPageIndex.getProjectByKeyOrFail( projectId );
@@ -87,7 +87,8 @@ public class BaseController {
 
     public static NGBook prepareAccountView(AuthRequest ar, String accountId) throws Exception
     {
-        ar.req.setAttribute(ACCOUNT_ID, accountId);
+        ar.req.setAttribute("accountId", accountId);
+        ar.req.setAttribute("book",      accountId);
         ar.req.setAttribute("headerType", "account");
         NGBook ngb = NGPageIndex.getAccountByKeyOrFail( accountId );
         ar.setPageAccessLevels(ngb);

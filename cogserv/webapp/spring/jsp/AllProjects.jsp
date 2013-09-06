@@ -12,10 +12,16 @@
     <%
     if(bookList!=null && bookList.size()<1){
     %>
-       <div id="loginArea">
-           <span class="black">
-               <fmt:message key="nugen.userhome.PermissionToCreateProject.text"/>
-           </span>
+       <div class="guideVocal">
+           You have not created any projects.  When you create projects, they will be listed here.<br/>
+           <br/>
+           In order to create a project, you need to be an "Owner" or an "Executive" of an "Account".<br/>
+           <br/>
+           Use <a href="userAccounts.htm"><button class="inputBtn">Settings &gt; Accounts</button></a>
+           to view your accounts, or request a new account from the system administrator.
+           If approved you will be the owner of that new account,
+           and can create new projects within it.
+
        </div>
     <%
     }

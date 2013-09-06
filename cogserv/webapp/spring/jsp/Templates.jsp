@@ -1,11 +1,34 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="UserHome.jsp"
+%><%
+    boolean noneFound = (templates.size()==0);
+
 %>
 <div class="content tab04" style="display:block;">
     <div class="section_body">
         <div style="height:10px;"></div>
         <div id="pagingTemplate"></div>
         <div id="templateDiv">
+        <%
+            if (noneFound) {
+        %>
+            <div class="guideVocal">You have not specified any templates.<br/>
+                <br/>
+                Templates are references to normal projects.  When you
+                create a new project, you can specify a template, and all the goals
+                and roles are copied (empty & unstarted) into the new project.
+                This is a convenient way to 'prime' a project with the normal tasks
+                and roles that you need. <br/>
+                <br/>
+                If you visit a project which has a good form, and you might want to use it
+                in the future as a template, on that project go the "Project Settings>Personal" page,
+                and choose to remember the project as a template.  Then that project will appear here
+                and in other places where you can use a template, such as at the time that you
+                create a new project.<br/>
+                </div>
+        <%  }
+            else {
+        %>
             <table id="templatelist">
                 <thead>
                     <tr>
@@ -40,9 +63,14 @@
         %>
                 </tbody>
             </table>
+        <%  }
+        %>
         </div>
     </div>
 </div>
+
+<% if (!noneFound) { %>
+
 <script type="text/javascript">
     YAHOO.util.Event.addListener(window, "load", function()
     {
@@ -84,3 +112,5 @@
         }();
     });
 </script>
+
+<% } %>
