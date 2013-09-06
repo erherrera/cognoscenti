@@ -112,30 +112,34 @@ public class AccountController extends BaseController {
                 bodyWriter.toString());
     }
 
-
+    /**
+    * This displays the page of account requests that have been made by others
+    * and their current status.  Thus, only current executives and owners should see this.
+    */
     @RequestMapping(value = "/{accountId}/$/roleRequest.htm", method = RequestMethod.GET)
     public ModelAndView remindersTab(@PathVariable String accountId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook account = prepareAccountView(ar, accountId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
 
             modelAndView = new ModelAndView("account_role_request");
-            request.setAttribute("headerType", "account");
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Account Settings");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.role.request");
-            request.setAttribute("accountId", accountId);
             request.setAttribute("pageTitle", account.getFullName());
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.role.request.page", new Object[]{accountId} , ex);
         }
-        return modelAndView;
     }
 
 
@@ -267,9 +271,7 @@ public class AccountController extends BaseController {
 
             modelAndView = new ModelAndView("accountListProjects");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("headerType", "account");
             request.setAttribute("tabId", "Account Projects");
-            request.setAttribute("accountId", accountId);
             request.setAttribute("title", account.getFullName());
             request.setAttribute("pageTitle", account.getFullName());
             return modelAndView;
@@ -442,8 +444,6 @@ public class AccountController extends BaseController {
 
             modelAndView=new ModelAndView("account_public");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("headerType", "account");
-            request.setAttribute("accountId", accountId);
             request.setAttribute("tabId", "Account Notes");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.public");
             request.setAttribute("visibility_value", "1");
@@ -652,19 +652,17 @@ public class AccountController extends BaseController {
                 return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook account = prepareAccountView(ar, accountId);
-            ModelAndView modelAndView = executiveCheckViews(ar);
-            if (modelAndView != null) {
-                return modelAndView;
-            }
-            modelAndView=new ModelAndView("account_personal");
-            request.setAttribute("headerType", "account");
+            //personal view is available to everyone, regardless of whether they
+            //have a role or access to that project.  This is the page that
+            //one can request access.
+
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Account Settings");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.personal");
             request.setAttribute("visibility_value", "4");
             request.setAttribute("title", account.getFullName());
             request.setAttribute("pageTitle", account.getFullName());
-            return modelAndView;
+            return new ModelAndView("account_personal");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.personal.page", new Object[]{accountId}, ex);
         }

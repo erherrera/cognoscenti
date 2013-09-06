@@ -2,12 +2,27 @@
 %><%@ include file="UserHome.jsp"
 %><%
     Vector<WatchRecord> watchList = uProf.getWatchList();
+    boolean noneFound = watchList.size()==0;
+
 %>
 <div class="content tab01" style="display:block;" >
     <div class="section_body">
         <div style="height:10px;"></div>
         <div id="pagingWatchedProject"></div>
         <div id="watchedProjectContainer">
+        <%
+            if (noneFound) {
+        %>
+            <div class="guideVocal">You are not watching any projects.<br/>
+                <br/>
+                As you visit projects, go to the "Project Settings>Personal" page, and choose
+                to watch the project.  Then that project will appear here.  It is a convenient
+                way to keep track of the projects that you are currently working on.<br/>
+                <br/>
+                Later, when you are no longer interested, it is easy to stop watching a project.</div>
+        <%  }
+            else {
+        %>
             <table id="watchedProjectList">
                 <thead>
                     <tr>
@@ -24,8 +39,6 @@
                 </thead>
                 <tbody>
             <%
-            if (watchList != null)
-            {
                 Hashtable visitDate = new Hashtable();
                 Vector<NGPageIndex> watchedProjects = new Vector<NGPageIndex>();
                 for (WatchRecord wr : watchList)
@@ -80,13 +93,18 @@
 
                     count++;
                 }
-            }
             %>
                 </tbody>
             </table>
+        <%
+            }
+        %>
         </div>
     </div>
 </div>
+
+<% if (!noneFound) { %>
+
 <script type="text/javascript">
     YAHOO.util.Event.addListener(window, "load", function()
     {
@@ -170,3 +188,4 @@
         }();
     });
 </script>
+<% } %>

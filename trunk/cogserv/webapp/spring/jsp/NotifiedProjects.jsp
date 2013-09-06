@@ -72,10 +72,14 @@
         }
         else{
         %>
-        <p>You are not signed up to receive notifications from any project.  Go to the projects that you
-        want to track, and sign up in project settings to receive notifications.
-        Then, when things in the project change, such as documents added, or notes edited,
-        you will be automatically notified of the changes.</p>
+        <div class="guideVocal">You are not signed up to receive notifications from any project.<br/>
+            <br/>
+            When visiting a project, go to the "Project Settings>Personal" page and sign up
+            to receive notifications.   Then, when things in the project change,
+            such as documents added, or notes edited, you will see those changes here,
+            and will be automatically notified of the changes by email.<br/>
+            <br/>
+            Later, you can turn off notifications at any time.</div>
         <%
         }
         %>
