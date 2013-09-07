@@ -10,10 +10,10 @@
 /*
 Required parameter:
 
-    1. accountId : This is the id of an account and here it is used to retrieve NGBook.  
+    1. accountId : This is the id of an account and here it is used to retrieve NGBook.
 
-*/ 
-    
+*/
+
     String accountId = ar.reqParam("accountId");
 
 %><%!
@@ -90,7 +90,7 @@ Required parameter:
             <%    }
             }
             %>
-           document.getElementById('createRoleForm').submit();    
+           document.getElementById('createRoleForm').submit();
         }
         function addRoleMember(){
 
@@ -231,7 +231,6 @@ Required parameter:
 </script>
 <head>
     <title><% ar.writeHtml(pageTitle); %></title>
-    <link href="<%=ar.baseURL%>css/tab-view.css" rel="styleSheet" type="text/css" media="screen" />
     <link href="<%=ar.baseURL%>css/tabs.css" rel="styleSheet" type="text/css" media="screen" />
     <link href="<%=ar.baseURL%>css/tables.css" rel="styleSheet" type="text/css" media="screen" />
 

@@ -17,7 +17,7 @@ Required parameter:
     request.setCharacterEncoding("UTF-8");
     UserProfile  uProf = UserManager.getUserProfileByKey(userKey);
 %>
-<div class="pageHeading">Request for a New Account Space</div>
+<div class="pageHeading">Request a New Account Space</div>
 <div class="pageSubHeading">From here you can request to create a new account from where you can create & handle multiple projects.</div>
 <div class="generalSettings">
     <div id="requestAccount">

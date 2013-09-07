@@ -321,7 +321,6 @@ public class AccountsDocumentController extends BaseController {
             request.setAttribute( "subTabId","nugen.projecthome.subtab.upload.document" );
             request.setAttribute( "realRequestURL", ar.getRequestURL() );
             request.setAttribute( "tabId", "Account Documents" );
-            request.setAttribute( "title", account.getFullName() );
             request.setAttribute( "pageTitle", account.getFullName() );
 
             modelAndView = new ModelAndView("upload_document_form_account" );
@@ -350,7 +349,6 @@ public class AccountsDocumentController extends BaseController {
             request.setAttribute( "realRequestURL", ar.getRequestURL() );
             request.setAttribute( "tabId", "Account Documents" );
             request.setAttribute( "accountId", accountId );
-            request.setAttribute( "title", account.getFullName() );
             request.setAttribute( "pageTitle", account.getFullName() );
 
             modelAndView = createModelView(accountId, request, response,ar,"linkurlproject_form_account","Account Documents");
@@ -378,7 +376,6 @@ public class AccountsDocumentController extends BaseController {
             request.setAttribute("subTabId", "nugen.projecthome.subtab.emailreminder");
             request.setAttribute( "headerType", "account" );
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("title", account.getFullName());
             request.setAttribute( "pageTitle", account.getFullName() );
             modelAndView = createModelView(accountId, request, response,ar,"emailreminder_form_account","Account Documents");
             return modelAndView;
@@ -404,7 +401,6 @@ public class AccountsDocumentController extends BaseController {
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("subTabId", "nugen.projectdocument.subtab.attachmentdetails");
             request.setAttribute("aid",ar.reqParam("aid"));
-            request.setAttribute("title", account.getFullName());
             request.setAttribute( "pageTitle", account.getFullName() );
             modelAndView = createModelView(accountId, request, response,ar,"edit_document_form_account","Account Documents");
             return modelAndView;
@@ -430,7 +426,6 @@ public class AccountsDocumentController extends BaseController {
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("subTabId", "nugen.projectdocument.subtab.fileversions");
             request.setAttribute("aid",ar.reqParam("aid"));
-            request.setAttribute("title", account.getFullName());
             request.setAttribute( "pageTitle", account.getFullName() );
             modelAndView = createModelView(accountId, request, response,ar,"file_version_account","Account Documents");
             return modelAndView;
@@ -573,7 +568,6 @@ public class AccountsDocumentController extends BaseController {
             request.setAttribute("subTabId", "nugen.projecthome.subtab.reminders");
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute( "tabId", "Account Documents" );
-            request.setAttribute( "title", account.getFullName() );
             request.setAttribute( "pageTitle", account.getFullName() );
             return modelAndView;
         }catch(Exception ex){

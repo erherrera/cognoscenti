@@ -1,8 +1,8 @@
-<%@ include file="/spring/jsp/include.jsp"
-%><%@ include file="/spring/jsp/functions.jsp"
-%><%@page import="java.util.StringTokenizer"
+<%@page import="java.util.StringTokenizer"
 %><%@page import="java.util.Calendar,java.text.DateFormat"
 %><%@page import="org.socialbiz.cog.MicroProfileMgr"
+%><%@ include file="/spring/jsp/include.jsp"
+%><%@ include file="/spring/jsp/functions.jsp"
 %><%/*
 
 Required Parameters:
@@ -41,18 +41,18 @@ Required Parameters:
         endDate=String.valueOf(ar.nowTime);
 
     }else{
-		date=(Date) formatter.parse(endDate);
-		calendar.setTime(date);
-		// Substract 23 hour from the current time
-		calendar.add(Calendar.HOUR, 23);
+        date=(Date) formatter.parse(endDate);
+        calendar.setTime(date);
+        // Substract 23 hour from the current time
+        calendar.add(Calendar.HOUR, 23);
 
-		// Add 59 minutes to the calendar time
-		calendar.add(Calendar.MINUTE, 59);
+        // Add 59 minutes to the calendar time
+        calendar.add(Calendar.MINUTE, 59);
 
-		// Add 59 seconds to the calendar time
-		calendar.add(Calendar.SECOND, 59);
+        // Add 59 seconds to the calendar time
+        calendar.add(Calendar.SECOND, 59);
 
-		endDate =String.valueOf((calendar.getTime().getTime()));
+        endDate =String.valueOf((calendar.getTime().getTime()));
     }
 
     if(startDate.equals(null) || startDate.equals("")){
@@ -61,8 +61,8 @@ Required Parameters:
 
     }
     else{
-		date=(Date) formatter.parse(startDate);
-		startDate=String.valueOf((date.getTime()) );
+        date=(Date) formatter.parse(startDate);
+        startDate=String.valueOf((date.getTime()) );
     }
 
     long endTime = DOMFace.safeConvertLong(endDate);
@@ -402,13 +402,13 @@ function generateReoprt(){
 
     <%
     if (!ar.isLoggedIn()) {
-		%>
-		<div class="generalArea">
-			<div class="generalContent">In order to see the process section of
-			the project, you need to be logged in, and you need to be an member of
-			the project.</div>
-		</div>
-		<%
+        %>
+        <div class="generalArea">
+            <div class="generalContent">In order to see the process section of
+            the project, you need to be logged in, and you need to be an member of
+            the project.</div>
+        </div>
+        <%
     }
 
     %>
@@ -584,38 +584,38 @@ function reOrderIndex(id){
     }
 
 
-	public void writeTaskStateIcon(AuthRequest ar, GoalRecord task) throws Exception {
-		int state = task.getState();
-		ar.write("<a href=\"task");
-		ar.write(task.getId());
-		ar.write(".htm\"><img src=\"");
-		ar.write(ar.retPath);
-		ar.write("/assets/images/");
-		ar.write(BaseRecord.stateImg(state));
-		ar.write(" \" alt=\"");
-		ar.write(BaseRecord.stateName(state));
-		ar.write("\"/></a>");
-	}
+    public void writeTaskStateIcon(AuthRequest ar, GoalRecord task) throws Exception {
+        int state = task.getState();
+        ar.write("<a href=\"task");
+        ar.write(task.getId());
+        ar.write(".htm\"><img src=\"");
+        ar.write(ar.retPath);
+        ar.write("/assets/images/");
+        ar.write(BaseRecord.stateImg(state));
+        ar.write(" \" alt=\"");
+        ar.write(BaseRecord.stateName(state));
+        ar.write("\"/></a>");
+    }
 
 
-	public void writeAssignees(AuthRequest ar, GoalRecord task, NGPage ngp) throws Exception {
-		StringTokenizer st = new StringTokenizer(task.getAssigneeCommaSeparatedList(), ",");
-		boolean needsComma = false;
-		int size = st.countTokens();
-		if (size==0) {
-			ar.write(" -nobody- ");
-		}
-		while(st.hasMoreTokens()) {
-			String userId =(String)st.nextToken();
-			AddressListEntry ale = new AddressListEntry(userId);
-			String userKey=UserManager.getKeyByUserId(userId);
-			if(needsComma){
-				ar.write(",&nbsp;");
-			}
+    public void writeAssignees(AuthRequest ar, GoalRecord task, NGPage ngp) throws Exception {
+        StringTokenizer st = new StringTokenizer(task.getAssigneeCommaSeparatedList(), ",");
+        boolean needsComma = false;
+        int size = st.countTokens();
+        if (size==0) {
+            ar.write(" -nobody- ");
+        }
+        while(st.hasMoreTokens()) {
+            String userId =(String)st.nextToken();
+            AddressListEntry ale = new AddressListEntry(userId);
+            String userKey=UserManager.getKeyByUserId(userId);
+            if(needsComma){
+                ar.write(",&nbsp;");
+            }
 
-			ale.writeLink(ar);
-			needsComma = true;
-		}
-	}%>
+            ale.writeLink(ar);
+            needsComma = true;
+        }
+    }%>
 
 

@@ -85,10 +85,7 @@ public class ProjectSettingController extends BaseController {
                 request.setAttribute("subTabId", "nugen.projectsettings.subtab.role.request");
             }
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("book", accountId);
             request.setAttribute("tabId", "Project Settings");
-            request.setAttribute("pageId", pageId);
-            request.setAttribute("title", nGPage.getFullName());
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.role.request.page", new Object[]{pageId,accountId} , ex);
         }

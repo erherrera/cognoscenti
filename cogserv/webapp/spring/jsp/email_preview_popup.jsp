@@ -194,5 +194,4 @@ Optional Parameter:
             </td></tr></table>
         </div>
     </div>
-<%@ include file="/spring/jsp/functions.jsp"%>
 </body>

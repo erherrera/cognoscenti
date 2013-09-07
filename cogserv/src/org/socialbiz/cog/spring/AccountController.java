@@ -272,7 +272,6 @@ public class AccountController extends BaseController {
             modelAndView = new ModelAndView("accountListProjects");
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Account Projects");
-            request.setAttribute("title", account.getFullName());
             request.setAttribute("pageTitle", account.getFullName());
             return modelAndView;
         }catch(Exception ex){
@@ -297,7 +296,6 @@ public class AccountController extends BaseController {
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Account Projects");
-            request.setAttribute("title", account.getFullName());
             request.setAttribute("pageTitle", account.getFullName());
             return new ModelAndView("accountCreateProject");
         }catch(Exception ex){
@@ -324,7 +322,6 @@ public class AccountController extends BaseController {
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Account Documents");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.documents");
-            request.setAttribute("title", account.getFullName());
             request.setAttribute("pageTitle", account.getFullName());
             return modelAndView;
         }catch(Exception ex){
@@ -351,7 +348,6 @@ public class AccountController extends BaseController {
             request.setAttribute("tabId", "Account Settings");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.Admin");
             request.setAttribute("visibility_value", "3");
-            request.setAttribute("title", account.getFullName());
             request.setAttribute("pageTitle", account.getFullName());
             return modelAndView;
         }catch(Exception ex){
@@ -447,7 +443,6 @@ public class AccountController extends BaseController {
             request.setAttribute("tabId", "Account Notes");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.public");
             request.setAttribute("visibility_value", "1");
-            request.setAttribute("title", account.getFullName());
             request.setAttribute("pageTitle", account.getFullName());
             return modelAndView;
         }catch(Exception ex){
@@ -475,7 +470,6 @@ public class AccountController extends BaseController {
             request.setAttribute("tabId", "Account Notes");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.member");
             request.setAttribute("visibility_value", "1");
-            request.setAttribute("title", account.getFullName());
             request.setAttribute("pageTitle", account.getFullName());
             return modelAndView;
         }catch(Exception ex){
@@ -503,7 +497,6 @@ public class AccountController extends BaseController {
             request.setAttribute("tabId", "Account Notes");
             request.setAttribute("subTabId", "nugen.accounthome.subtab.accountbulletin");
             request.setAttribute("visibility_value", "1");
-            request.setAttribute("title", account.getFullName());
             request.setAttribute("pageTitle", account.getFullName());
             return modelAndView;
         }catch(Exception ex){
@@ -633,7 +626,6 @@ public class AccountController extends BaseController {
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Account Settings");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.Permissions");
-            request.setAttribute("title", account.getFullName());
             request.setAttribute("pageTitle", account.getFullName());
             return modelAndView;
         }catch(Exception ex){
@@ -660,7 +652,6 @@ public class AccountController extends BaseController {
             request.setAttribute("tabId", "Account Settings");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.personal");
             request.setAttribute("visibility_value", "4");
-            request.setAttribute("title", account.getFullName());
             request.setAttribute("pageTitle", account.getFullName());
             return new ModelAndView("account_personal");
         }catch(Exception ex){

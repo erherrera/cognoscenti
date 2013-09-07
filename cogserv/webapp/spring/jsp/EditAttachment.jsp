@@ -1,7 +1,7 @@
 <%@page errorPage="/spring/jsp/error.jsp"
+%><%@page import="java.util.List"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
-%><%@page import="java.util.List"
 %><%
 /*
 Required parameters:

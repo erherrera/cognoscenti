@@ -1,5 +1,6 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
+%><%@ include file="/spring/jsp/functions.jsp"
 %><%@page import="org.socialbiz.cog.NGRole"
 %><%
 /*
@@ -130,4 +131,3 @@ Optional Parameters:
                 </table>
             </form>
         </div>
-        <%@ include file="/spring/jsp/functions.jsp"%>

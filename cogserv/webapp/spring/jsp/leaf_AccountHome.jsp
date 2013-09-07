@@ -32,7 +32,6 @@ Required parameters:
 <head>
     <title><% ar.writeHtml(pageTitle); %></title>
 
-    <link href="<%=ar.baseURL%>css/tab-view.css" rel="styleSheet" type="text/css" media="screen" />
     <link href="<%=ar.baseURL%>css/tabs.css" rel="styleSheet" type="text/css" media="screen" />
     <link href="<%=ar.baseURL%>css/tables.css" rel="styleSheet" type="text/css" media="screen" />
 

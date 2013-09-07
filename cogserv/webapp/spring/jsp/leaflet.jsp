@@ -20,6 +20,7 @@
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
 %><%@ include file="/spring/jsp/include.jsp"
+%><%@ include file="/spring/jsp/functions.jsp"
 %><%@page import="org.socialbiz.cog.AccessControl"
 %><%/*
 Required parameter:
@@ -283,4 +284,3 @@ Required parameter:
 </body>
 </div>
 
-<%@ include file="/spring/jsp/functions.jsp"%>
