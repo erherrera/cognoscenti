@@ -17,7 +17,7 @@
            <br/>
            In order to create a project, you need to be an "Owner" or an "Executive" of an "Account".<br/>
            <br/>
-           Use <a href="userAccounts.htm"><button class="inputBtn">Settings &gt; Accounts</button></a>
+           Use <button class="inputBtn" onClick="location.href='userAccounts.htm'">Settings &gt; Accounts</button>
            to view your accounts, or request a new account from the system administrator.
            If approved you will be the owner of that new account,
            and can create new projects within it.

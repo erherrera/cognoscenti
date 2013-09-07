@@ -33,18 +33,18 @@
                 <td colspan="3" class="linkWizardHeading">How do you want to attach the file?:</td>
             </tr>
             <tr style="height:50px;padding:15px">
-            <td style="padding:15px"><a href="uploadDocument.htm"><button type="button" class="inputBtn">Upload a File</button></a></td>
+            <td style="padding:15px"><button type="button" class="inputBtn" onClick="location.href='uploadDocument.htm'">Upload a File</button></td>
             <td style="padding:15px"><p>Take a file from your local disk, and using your browser upload that document to the project.</p></td>
             </tr>
             <tr style="height:50px;padding:15px">
-            <td style="padding:15px"><a href="linkToRepository.htm"><button class="inputBtn">Attach from Repository</button></a></td>
+            <td style="padding:15px"><button class="inputBtn" onClick="location.href='linkToRepository.htm'">Attach from Repository</button></td>
             <td style="padding:15px"><p>Cognoscenti can access a document repository, using WebDAV or other protocols,
                    to retrieve a document directly from there.   The advantage of this is that later, if the document is
                    changed, the updated document can be synchronized with that document repository.  Either specify the
                    address of that document, or browse the repository using your pre-configured connections.</p></td>
             </tr>
             <tr style="height:50px;padding:15px">
-            <td style="padding:15px"><a href="linkURLToProject.htm"><button type="button" class="inputBtn">Link URL</button></a></td>
+            <td style="padding:15px"><button type="button" class="inputBtn" onClick="location.href='linkURLToProject.htm'">Link URL</button></td>
             <td style="padding:15px"><p>Link a web page to the project.   This will not download the web page as a attachment,
                    but instead will provide an easy way for other users to access the web page in their browser.</p></td>
             </tr>
