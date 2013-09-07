@@ -981,7 +981,6 @@ public class UserController extends BaseController {
             ar.assertLoggedIn("Need to log in to see a user's accounts.");
             UserProfile up = UserManager.getUserProfileOrFail(userKey);
 
-            request.setAttribute("subTabId", "nugen.usersettings.subtab.accounts");
             request.setAttribute("memberOfAccounts", findAllMemberAccounts(ar.getUserProfile()));
             request.setAttribute("title", up.getName());
 

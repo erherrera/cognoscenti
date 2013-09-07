@@ -1,13 +1,13 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"
 %><%
     String title=(String)request.getAttribute("title");
-
     String themePath = ar.getThemePath();
 
 %>
+<!-- Begin baseLayout.jsp -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -17,7 +17,6 @@
         <!--[if lt IE 7]>
             <script type="text/javascript" src="js/pngfix.js"></script>
         <![endif]-->
-        <link rel="stylesheet" href="<%=ar.baseURL%>css/editor/style.css" type="text/css">
 
         <!--
             Include the WYSIWYG javascript files
@@ -31,7 +30,6 @@
         <script type="text/javascript" src="<%=ar.baseURL%>jscript/nugen_utils.js"></script>
         <script type="text/javascript" src="<%=ar.baseURL%>jscript/yahoo-dom-event.js"></script>
 
-        <link href="<%=ar.retPath%>css/tab-view.css" rel="styleSheet" type="text/css" media="screen" />
         <link href="<%=ar.retPath%>css/tabs.css" rel="styleSheet" type="text/css" media="screen" />
 
         <script type="text/javascript" language="javascript" src="<%=ar.baseURL%>jscript/jquery.js"></script>
@@ -83,9 +81,7 @@
 
 
 
-        <title>
-        <tiles:getAsString name="title"/>
-        <%
+        <title><tiles:getAsString name="title"/><%
         if(title!=null) {
             ar.write(" : ");
             ar.write(title);
@@ -139,3 +135,4 @@
         <!-- End body wrapper -->
     </body>
 </html>
+<!-- end baseLayout.jsp -->

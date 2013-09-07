@@ -1,7 +1,7 @@
 <%@ include file="/spring/jsp/include.jsp"
+%><%@ page import="org.socialbiz.cog.ProfileRequest"
 %><%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
-%><%@ page import="org.socialbiz.cog.ProfileRequest"
 %>
 <%
     /*
@@ -13,8 +13,8 @@
      3. up       : This is UserProfile of logged in user.
      4. popupMsg : This contain the messgae(if any) to show in the pop up created on body load.
      */
-     
-     
+
+
     String redirectPageURL = ar.retPath+"t/EmailLoginForm.htm?go="+ar.retPath+"t/index.htm";
     UserProfile up = ar.getUserProfile();
     String go  =  ar.defParam("go",ar.retPath+"t/"+up.getKey()+"/watchedProjects.htm");
@@ -74,7 +74,7 @@
                         <td class="gridTableColummHeader_3"></td>
                         <td style="width: 20px;"></td>
                         <td>
-                            <input type="submit" class="inputBtn" name="action" value="Link with Existing Profile" /> 
+                            <input type="submit" class="inputBtn" name="action" value="Link with Existing Profile" />
                         </td>
                     </tr>
                     <tr>
@@ -169,11 +169,11 @@
             }
         }
     }
-    
+
     function addEmailId(){
         var newid = document.getElementById("txtBoxEmailId").value;
         var name = document.getElementById("txtBoxName").value;
-                
+
         var go = "<%=ar.baseURL %>v/<%=up.getKey()%>/confirmedAddIdView.htm?addedEmailId="+newid;
         var postURL = "<%=ar.baseURL %>t/createProfile.ajax?newid="+newid+"&isEmail=true&go="+encodeURI(go)+"&name="+encodeURI(name);
         var transaction = YAHOO.util.Connect.asyncRequest('POST', postURL, addEmailIdResult);

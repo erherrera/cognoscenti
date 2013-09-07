@@ -8,10 +8,6 @@
         String configDest = ar.retPath + "init/config.htm?go="+URLEncoder.encode(go);
         response.sendRedirect(configDest);
     }
-/*
-    Properties props = ConfigFile.getConfigProperties();
-    String dataFolder = props.getProperty("dataFolder");
-*/
 
 %>
 

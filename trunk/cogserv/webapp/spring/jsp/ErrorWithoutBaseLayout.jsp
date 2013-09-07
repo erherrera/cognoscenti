@@ -8,7 +8,6 @@
 <script type="text/javascript" src="<%=ar.baseURL%>jscript/nugen_utils.js"></script>
 <script type="text/javascript" src="<%=ar.baseURL%>jscript/yahoo-dom-event.js"></script>
 
-<link href="<%=ar.retPath%>css/tab-view.css" rel="styleSheet" type="text/css" media="screen" />
 <link href="<%=ar.retPath%>css/tabs.css" rel="styleSheet" type="text/css" media="screen" />
 
 

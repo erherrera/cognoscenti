@@ -369,7 +369,7 @@
         <put-attribute name="title" value="Upload Attachment Form" />
         <put-attribute name="body" value="/spring/jsp/uploadDocumentFormAccount.jsp" />
     </definition>
-    <definition name="project" extends="baseLayout">
+    <definition name="leaf_project" extends="baseLayout">
         <put-attribute name="title" value="Project" />
         <put-attribute name="body" value="/spring/jsp/leaf_project.jsp" />
     </definition>

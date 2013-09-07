@@ -292,6 +292,7 @@ http://bobcat:8080/cog/t/texteditor.htm?pid=copy-of-development-meeting&nid=&vis
 
 
     function createSubTabs(home){
+        return;
         var mainElement = document.getElementById("subTabs");
         var arrayOfTabs;
         var first_tab;

@@ -6,6 +6,7 @@
     request.setAttribute("headerType", "blank");
     String themePath = ar.getThemePath();
 %>
+<!-- Begin baseLayoutWithoutLeftPanel.jsp -->
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -16,7 +17,6 @@
         <!--[if lt IE 7]>
             <script type="text/javascript" src="js/pngfix.js"></script>
         <![endif]-->
-        <link rel="stylesheet" href="<%=ar.baseURL%>css/editor/style.css" type="text/css">
 
         <!--
             Include the WYSIWYG javascript files
@@ -79,18 +79,12 @@
         <link href="<%=ar.retPath%><%=themePath%>theme.css" rel="styleSheet" type="text/css" media="screen" />
         <link href="<%=ar.retPath%>css/ddlevelsmenu-base.css" rel="styleSheet" type="text/css" media="screen" />
 
-
-
-
-        <title>
-        <tiles:getAsString name="title"/>
-        <%-- add additional title (if found) --%>
-        <%
+        <title><tiles:getAsString name="title"/><%
         if(title!=null) {
             ar.write(title);
         }
-        %>
-        </title>
+        %></title>
+
         <style type="text/css">
             #bodyWrapper {
                 margin:0px 30px 45px 30px;
@@ -140,3 +134,5 @@
     <!-- End body wrapper -->
     </body>
 </html>
+<!-- end baseLayoutWithoutLeftPanel.jsp -->
+

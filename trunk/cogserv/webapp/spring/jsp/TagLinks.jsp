@@ -50,5 +50,4 @@ Required parameter:
     %>
     </table>
 
-<%@ include file="functions.jsp"%>
 

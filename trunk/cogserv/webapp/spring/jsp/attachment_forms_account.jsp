@@ -1,14 +1,14 @@
 <%@page errorPage="/spring/jsp/error.jsp"
-%><%@ include file="/spring/jsp/include.jsp" 
+%><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
 %><%
 /*
 Required parameter:
-    
-    1. accountId : This is the id of an account and here it is used to retrieve NGBook.  
+
+    1. accountId : This is the id of an account and here it is used to retrieve NGBook.
 
 */
-    
+
     String bookId = ar.reqParam("accountId");
 
 %><%!

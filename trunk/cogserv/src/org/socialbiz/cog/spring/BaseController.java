@@ -82,6 +82,7 @@ public class BaseController {
             throw new NGException("nugen.operation.fail.account.match", new Object[]{projectId,accountId});
         }
         ar.setPageAccessLevels(ngp);
+        ar.req.setAttribute("title", ngp.getFullName());
         return ngp;
     }
 
@@ -90,9 +91,10 @@ public class BaseController {
         ar.req.setAttribute("accountId", accountId);
         ar.req.setAttribute("book",      accountId);
         ar.req.setAttribute("headerType", "account");
-        NGBook ngb = NGPageIndex.getAccountByKeyOrFail( accountId );
-        ar.setPageAccessLevels(ngb);
-        return ngb;
+        NGBook account = NGPageIndex.getAccountByKeyOrFail( accountId );
+        ar.setPageAccessLevels(account);
+        ar.req.setAttribute("title", account.getFullName());
+        return account;
     }
 
 

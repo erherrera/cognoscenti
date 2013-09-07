@@ -53,6 +53,9 @@
 
 /*
 
+functions.jsp provides useful java functions for the pages
+It does NOT produce any output by itself.
+
 Optional Parameters:
 
     // used in 'findSpecifiedUserOrDefault' method
@@ -63,7 +66,9 @@ Optional Parameters:
 
 */
 
-%><%!int count=100;
+%><%!
+
+int count=100;
     private NGContainer ngp = null;
     private NGBook ngb = null;
     private boolean firstLeafLet = true;
@@ -1175,10 +1180,10 @@ Optional Parameters:
         }
         for (int i=0; en.hasMoreElements(); i++)
         {
-	        String key = (String)en.nextElement();
-	        String value = req.getParameter(key);
-	        if (value == null) value = "";
-	        qs = qs + ((i>0)? "&" : "") + key + "=" + SectionUtil.encodeURLData(value);
+            String key = (String)en.nextElement();
+            String value = req.getParameter(key);
+            if (value == null) value = "";
+            qs = qs + ((i>0)? "&" : "") + key + "=" + SectionUtil.encodeURLData(value);
         }
         return qs;
     }
@@ -1275,5 +1280,6 @@ Optional Parameters:
             ar.writeHtml(ent.getDecodedName());
             ar.write("</a>");
         }
-    }%>
-<!-- end of functions.jsp -->
+    }
+
+%>

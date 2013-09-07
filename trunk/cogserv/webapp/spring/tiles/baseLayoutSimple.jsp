@@ -2,11 +2,10 @@
 <%@ include file="/spring/jsp/include.jsp"
 %><%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"
 %><%
-    String title=null;
-    if(request.getAttribute("title")!=null){
-     title = (String)request.getAttribute("title");
-    }
+    String title=(String)request.getAttribute("title");
+    String themePath = ar.getThemePath();
 %>
+<!-- Begin baseLayoutSimple.jsp -->
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -18,15 +17,11 @@
         <link href="<%=ar.baseURL%>css/body.css" rel="styleSheet" type="text/css" media="screen" />
         <link href="<%=ar.retPath%>css/ddlevelsmenu-base.css" rel="styleSheet" type="text/css" media="screen" />
 
-        <title>
-        <tiles:getAsString name="title"/>
-        <%-- add additional title (if found) --%>
-        <%
+        <title><tiles:getAsString name="title"/><%
         if(title!=null) {
             ar.write(title);
         }
-        %>
-        </title>
+        %></title>
     </head>
     <body>
 
@@ -39,3 +34,4 @@
     <!-- End body wrapper -->
     </body>
 </html>
+<!-- end baseLayoutSimple.jsp -->
