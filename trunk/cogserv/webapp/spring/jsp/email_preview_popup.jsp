@@ -2,6 +2,7 @@
 %><%@page import="org.socialbiz.cog.AuthRequest"
 %><%@page import="org.socialbiz.cog.EmailSender"
 %><%@page import="org.socialbiz.cog.NoteRecord"
+%><%@page import="org.socialbiz.cog.NGContainer"
 %><%@page import="org.socialbiz.cog.NGBook"
 %><%@page import="org.socialbiz.cog.NGPage"
 %><%@page import="org.socialbiz.cog.NGPageIndex"
@@ -52,7 +53,7 @@ Optional Parameter:
     }
 
     pageTitle  ="Send Note By Mail";
-    ngp = NGPageIndex.getContainerByKeyOrFail(p);
+    NGContainer ngp = NGPageIndex.getContainerByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
     ar.assertMember("Can not send email.");
     String subject = ar.defParam("subject", "Documents from Project "+ngp.getFullName());
