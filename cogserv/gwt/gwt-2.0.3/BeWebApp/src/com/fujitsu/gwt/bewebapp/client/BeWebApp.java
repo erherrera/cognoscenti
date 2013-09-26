@@ -174,7 +174,7 @@ public class BeWebApp implements EntryPoint {
                 note.setId("-1");
                 note.setPinPosition("0");
                 note.setEffectiveDate(System.currentTimeMillis());
-                note.setEditedBy(1);
+                note.setEditedBy(2);
             }
 
             if (note == null) {

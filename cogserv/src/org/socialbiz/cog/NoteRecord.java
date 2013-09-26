@@ -3,6 +3,7 @@ package org.socialbiz.cog;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -39,7 +40,6 @@ public class NoteRecord extends DOMFace
         setEffectiveDate(other.getEffectiveDate());
         setTags(other.getTags());
         setChoices(other.getChoices());
-        setEditable(other.getEditable());
     }
 
     public String getId()
@@ -170,15 +170,22 @@ public class NoteRecord extends DOMFace
     * when the comment is private it can only be edited by the
     * owner.
     *
-    * By default, a comment is editable only by the owner.
+    * By default, a comment is editable only by the all members.
+    * This is preferred to edit only by owner because generally
+    * collaboration is preferred over exclusive access.
     */
-    public int getEditable()
-    {
-        return (int) safeConvertLong(getScalar("editable"));
+    public int getEditable() {
+        if (1 == safeConvertLong(getScalar("editable"))) {
+            return EDIT_OWNER;
+        }
+        else {
+            return EDIT_MEMBER;
+        }
     }
-    public void setEditable(int newData)
-    {
-        setScalar("editable", Integer.toString(newData));
+    public void setEditable(int newData) {
+        if (newData == EDIT_OWNER || newData == EDIT_MEMBER) {
+            setScalar("editable", Integer.toString(newData));
+        }
     }
 
     /**
@@ -314,7 +321,7 @@ public class NoteRecord extends DOMFace
             }
         }
         //did not find it, so we need to create it
-        LeafletResponseRecord newChild = (LeafletResponseRecord) createChildWithID(
+        LeafletResponseRecord newChild = createChildWithID(
                 "response", LeafletResponseRecord.class, "user", up.getUniversalId());
         return newChild;
     }
@@ -335,7 +342,7 @@ public class NoteRecord extends DOMFace
             }
         }
         //did not find it, so we need to create it
-        LeafletResponseRecord newChild = (LeafletResponseRecord) createChildWithID(
+        LeafletResponseRecord newChild = createChildWithID(
                 "response", LeafletResponseRecord.class, "user", userId);
         return newChild;
     }
