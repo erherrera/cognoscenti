@@ -20,10 +20,10 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 
 public class NoteEditor implements ClickHandler{
-    
+
     LeafData lfdata = null;
     private int currentAccessLevel;
-    
+
     private Label subjLabel;
     private Label bodyLabel;
     private Label visibleLabel;
@@ -31,7 +31,7 @@ public class NoteEditor implements ClickHandler{
     private Label effectiveDateLabel;
     private Label pinPositionLabel;
     private Label choiceLable;
-    
+
     private TextBox subjText;
     private TextBox pinPos;
     private TextBox choices;
@@ -45,7 +45,7 @@ public class NoteEditor implements ClickHandler{
     private RadioButton optionMember;
     private RadioButton optionEditedByYou;
     private RadioButton optionEditedByMember;
-    
+
     private HorizontalPanel editBarPanel;
     private HorizontalPanel editSubjPanel;
     private HorizontalPanel editVisibility;
@@ -54,18 +54,18 @@ public class NoteEditor implements ClickHandler{
     private HorizontalPanel effectiveDatePanel;
     private HorizontalPanel pinPositionPanel;
     private HorizontalPanel choicePanel;
-    
+
     private TinyMCE tinyMCE;
     VerticalPanel dialogEPanel;
 
     private boolean isNew = false;
-    
+
     public NoteEditor(LeafData lfdata, VerticalPanel mainPanel) {
         this.dialogEPanel = mainPanel;
         this.lfdata = lfdata;
         this.currentAccessLevel = lfdata.getVisibility();
     }
-    
+
     public void initEditPanel(){
         subjLabel = new Label("Subject:");
         subjLabel.setStyleName("gridTableColummHeader_3");
@@ -120,27 +120,32 @@ public class NoteEditor implements ClickHandler{
         }else if(currentAccessLevel == 2){
             optionMember.setValue(true);
         }
-        
+
         editedByLabel = new Label("Edited By:");
         editedByLabel.setStyleName("gridTableColummHeader_3");
         optionEditedByYou = new RadioButton("LeditedBy", "Only You");
         optionEditedByMember =  new RadioButton("LeditedBy", "Any Project Member ");
-        if(lfdata.getEditedBy()== 2){
+        int editByValue = lfdata.getEditedBy();
+        if(editByValue == 2){
             optionEditedByMember.setValue(true);
-        }else{
+        }
+        else if(editByValue == 1){
             optionEditedByYou.setValue(true);
         }
-        
+        else{
+            throw new RuntimeException("Internal Logic Error: The editedby value HAS NOT BEEN SET!");
+        }
+
         editByPanel = new HorizontalPanel();
         editByPanel.add(editedByLabel);
         editByPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
         editByPanel.add(optionEditedByYou);
         editByPanel.add(new HTML("&nbsp"));
         editByPanel.add(optionEditedByMember);
-        
+
         effectiveDateLabel = new Label("Effective Date:");
         effectiveDateLabel.setStyleName("gridTableColummHeader_3");
-        
+
         DateTimeFormat dateFormat = DateTimeFormat.getLongDateFormat();
         effectiveDate = new DateBox();
         effectiveDate.setValue(new Date(lfdata.getEffectiveDate()));
@@ -150,38 +155,38 @@ public class NoteEditor implements ClickHandler{
                 lfdata.setEffectiveDate(effectiveDate.getValue().getTime());
             }
         });
-        
+
         effectiveDatePanel = new HorizontalPanel();
         effectiveDatePanel.add(effectiveDateLabel);
         effectiveDatePanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
         effectiveDatePanel.add(effectiveDate);
-        
-        
+
+
         pinPositionLabel = new Label("Pin Position:");
         pinPositionLabel.setStyleName("gridTableColummHeader_3");
         pinPos = new TextBox();
         pinPos.setText(lfdata.getPinPosition());
         pinPos.setStyleName("inputGeneralSmall");
-        
+
         pinPositionPanel = new HorizontalPanel();
         pinPositionPanel.add(pinPositionLabel);
         pinPositionPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
         pinPositionPanel.add(pinPos);
-        
+
         choiceLable = new Label("Choices:");
         choiceLable.setStyleName("gridTableColummHeader_3");
         choices = new TextBox();
         choices.setText(lfdata.getChoice());
         choices.setStyleName("inputGeneralUrl");
-       
+
         choicePanel = new HorizontalPanel();
         choicePanel.add(choiceLable);
         choicePanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
         choicePanel.add(choices);
-        
+
         dialogEPanel.setSpacing(5);
         //dialogEPanel.setBorderWidth(3);
-        dialogEPanel.addStyleName("dialogVPanel");  
+        dialogEPanel.addStyleName("dialogVPanel");
         dialogEPanel.setTitle("Note Editor");
         dialogEPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
         dialogEPanel.add(editBarPanel);
@@ -192,7 +197,7 @@ public class NoteEditor implements ClickHandler{
 
         bodyLabel = new Label("Body:");
         bodyLabel.setStyleName("gridTableColummHeader_3");
-        
+
         subjText.setText(lfdata.getSubject());
         tinyMCE  = new TinyMCE(30,30,lfdata.getData());
         dialogEPanel.add(new HTML("<br>"));
@@ -200,7 +205,7 @@ public class NoteEditor implements ClickHandler{
         editBody.add(bodyLabel);
         editBody.add(new HTML("&nbsp;&nbsp;&nbsp;"));
         editBody.add(tinyMCE);
-        
+
         dialogEPanel.add(editBody);
         dialogEPanel.add(new HTML("<br>"));
         dialogEPanel.add(editVisibility);
@@ -212,21 +217,21 @@ public class NoteEditor implements ClickHandler{
         dialogEPanel.add(pinPositionPanel);
         dialogEPanel.add(new HTML("<br>"));
         dialogEPanel.add(choicePanel);
-        
+
     }
-    
+
     public void initCreatePanel(){
         isNew = true;
         editSaveAsDraftBtn.setText("Save as Draft");
         editSaveAsDraftBtn.setVisible(true);
         //optionPublic.setValue(true);
     }
-    
-    
+
+
     public void onClick(ClickEvent event) {
         Widget sender = (Widget) event.getSource();
         if (sender == editCancelBtn) {
-            closeBrowser();   
+            closeBrowser();
         } else if (sender == editSaveAsDraftBtn) {
             LeafData tld = getEditorLd();
             if("Save as Draft".equals(editSaveAsDraftBtn.getText())){
@@ -249,7 +254,7 @@ public class NoteEditor implements ClickHandler{
         }
 
     }
-    
+
     private void createLeafData(LeafData tld){
         BeWebApp.leafService.createNote(tld.getPageId(), tld, new AsyncCallback<LeafData>() {
             public void onFailure(Throwable caught) {
@@ -265,12 +270,12 @@ public class NoteEditor implements ClickHandler{
                     editSaveAsDraftBtn.setVisible(false);
                 }
                 tinyMCE.setText(rld.getData());
-                
+
             }
          });
     }
-    
-    
+
+
     private LeafData getEditorLd(){
         LeafData tmpLeaf = new LeafData();
         tmpLeaf.setSubject(subjText.getText());
@@ -281,7 +286,7 @@ public class NoteEditor implements ClickHandler{
         }else if(this.optionMember.getValue()){
             tmpLeaf.setVisibility(2);
         }
-        
+
         if(optionEditedByYou.getValue()){
             tmpLeaf.setEditedBy(1);
         }else if(this.optionEditedByMember.getValue()){
@@ -289,17 +294,17 @@ public class NoteEditor implements ClickHandler{
         }
         tmpLeaf.setPinPosition(pinPos.getText());
         tmpLeaf.setChoice(choices.getText());
-       
+
 
         tmpLeaf.setId(lfdata.getId());
         tmpLeaf.setPageId(lfdata.getPageId());
-        
+
         tmpLeaf.setIsDraft(lfdata.isDraft());
 
         return tmpLeaf;
 
     }
-    
+
     public void submitLeafData(LeafData tld){
         BeWebApp.leafService.saveNote(tld.getPageId(), tld , new AsyncCallback<LeafData>() {
             public void onFailure(Throwable caught) {
@@ -335,20 +340,20 @@ public class NoteEditor implements ClickHandler{
           });
     }
 
-     public static native void closeBrowser() 
-        /*-{ 
-            $wnd.close(); 
-        }-*/; 
-     
-     /**     
-         * encodeURIComponent() -      
-         * Wrapper for the native URL encoding methods      
-         * @param text - the text to encode      
-         * @return the encoded text      */     
-        
-        protected native String jsEscape(String text) /*-{         
-            return escape(text);     
-        }-*/;   
+     public static native void closeBrowser()
+        /*-{
+            $wnd.close();
+        }-*/;
 
-    
+     /**
+         * encodeURIComponent() -
+         * Wrapper for the native URL encoding methods
+         * @param text - the text to encode
+         * @return the encoded text      */
+
+        protected native String jsEscape(String text) /*-{
+            return escape(text);
+        }-*/;
+
+
 }
