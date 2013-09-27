@@ -1,6 +1,23 @@
 /*
- * NGLeafServlet.java
+ * Copyright 2013 Keith D Swenson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors Include: Shamim Quader, Sameer Pradhan, Kumar Raja, Jim Farris,
+ * Sandia Yang, CY Chen, Rajiv Onat, Neal Wang, Dennis Tam, Shikha Srivastava,
+ * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
+
 package org.socialbiz.cog;
 
 import org.socialbiz.cog.exception.ProgramLogicError;
@@ -17,7 +34,7 @@ public class RestHandler {
     String resource;
     NGBook account;
     NGPage ngp;
-    
+
     /**
      * This servlet handles REST style requests for XML content
      */
@@ -26,12 +43,12 @@ public class RestHandler {
     }
 
     public void doAuthenticatedGet()  throws Exception {
-        
+
         findResource();
         CaseExchange.sendCaseFormat(ar, ngp);
-        
+
     }
-    
+
     private void findResource()  throws Exception {
         //if this servlet is mapped with /r/*
         //getPathInfo return only the path AFTER the r
@@ -41,7 +58,7 @@ public class RestHandler {
             throw new ProgramLogicError("Path should start with / but instead it is: "
                             + path);
         }
-        
+
         int slashPos = path.indexOf("/",1);
         if (slashPos<1) {
             throw new ProgramLogicError("could not find a second slash in: " + path);
@@ -54,7 +71,7 @@ public class RestHandler {
         }
         projectId = path.substring(slashPos+1, nextSlashPos);
         ngp = NGPageIndex.getProjectByKeyOrFail(projectId);
-        
+
         resource = path.substring(nextSlashPos+1);
         if (!"case.xml".equals(resource)) {
             throw new ProgramLogicError("the only resource supported is case.xml, but got: "+resource);
