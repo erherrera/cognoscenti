@@ -1,3 +1,23 @@
+/*
+ * Copyright 2013 Keith D Swenson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors Include: Shamim Quader, Sameer Pradhan, Kumar Raja, Jim Farris,
+ * Sandia Yang, CY Chen, Rajiv Onat, Neal Wang, Dennis Tam, Shikha Srivastava,
+ * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
+ */
+
 package org.socialbiz.cog.util;
 
 import org.socialbiz.cog.exception.ProgramLogicError;
@@ -10,7 +30,7 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 public class JSConversions {
     /**
      * make private so it is a static only class
-     * 
+     *
      * @publish extension
      */
     private JSConversions() {
@@ -29,7 +49,7 @@ public class JSConversions {
     /**
      * Encodes a single <code>String</code> value to a JavaScript literal
      * expression.
-     * 
+     *
      * <p>
      * If you are constructing a JavaScript expression and you have a String
      * value that you want to be expressed as a String literal in the
@@ -38,11 +58,11 @@ public class JSConversions {
      * result of the conversion is written into the String buffer that you pass
      * in. This routine also adds start and end quotes.
      * </p>
-     * 
+     *
      * <p>
      * <b>Do NOT simply paste quotes before and after the string!</b>
      * </p>
-     * 
+     *
      * @param res
      *                The <code>StringBuffer</code> object to which the
      *                encoded String value is added.
@@ -123,14 +143,14 @@ public class JSConversions {
      * Takes a single JavaScript literal and converts it back to a String value,
      * removing the start and end quotes, and then converting any backslash
      * escaped value into its actual value.
-     * 
+     *
      * <p>
      * Note: This method does not recognize the terminating quote in any
      * position except the last. It allows characters in the String that
      * JavaScript will not allow. This means you can "trick" this conversion by
      * passing an invalid literal, such as:
      * </p>
-     * 
+     *
      * <table>
      * <tr>
      * <td>"abc" + "def"</td>
@@ -149,7 +169,7 @@ public class JSConversions {
      * <td>(invalid quote in middle not detected)</td>
      * </tr>
      * </table>
-     * 
+     *
      * @param res
      *                The <code>StringBuffer</code> object to which the
      *                converted literalString is added.
@@ -238,7 +258,7 @@ public class JSConversions {
     /**
      * Encodes a single <code>String</code> value to a JavaScript literal
      * expression.
-     * 
+     *
      * @param val
      *                The <code>String</code> value to encode.
      * @return The JavaScript literal expression encoded from the supplied
@@ -252,19 +272,19 @@ public class JSConversions {
 
     /**
      * Converts a single JavaScript literal back to a String value.
-     * 
+     *
      * <p>
      * The conversion starts with removing the start and end quotes and then
      * converting any backslash escaped value into its actual value.
      * </p>
-     * 
+     *
      * <p>
      * Note: This method does not recognize the terminating quote in any
      * position except the last. It allows characters in the String that
      * <code>JavaScript</code> will not allow. This means you can "trick" this
      * conversion by passing an invalid literal, such as:
      * </p>
-     * 
+     *
      * <table>
      * <tr>
      * <td>"abc" + "def"</td>
@@ -283,7 +303,7 @@ public class JSConversions {
      * <td>(invalid quote in middle not detected)</td>
      * </tr>
      * </table>
-     * 
+     *
      * @param val
      *                The JavaScript literal to be converted.
      * @return The String value generated from the supplied JavaScript literal.
