@@ -245,7 +245,7 @@
             ar.writeHtml(task.stateImg(task.getState()));
             ar.write("\"></a> ");
 
-            ar.writeHtml(AccessControl.getAccessTaskParams(ngp,task));
+            ar.writeHtml(AccessControl.getAccessGoalParams(ngp,task));
             ar.write("|");
             if (AccessControl.canAccessGoal(ar, ngp, task)) {
                 ar.write("yes|");
