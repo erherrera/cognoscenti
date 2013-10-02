@@ -70,7 +70,7 @@ Optional Parameter:
 
              var accountId = acct.options[acct.selectedIndex].value;
 
-            var transaction = YAHOO.util.Connect.asyncRequest('POST',"isProjectExist.ajax?projectname="+projectName+"&book="+accountId, projectValidationResponse);
+            var transaction = YAHOO.util.Connect.asyncRequest('POST',"isProjectExist.ajax?projectname="+projectName+"&accountId="+accountId, projectValidationResponse);
             return false;
         }
 

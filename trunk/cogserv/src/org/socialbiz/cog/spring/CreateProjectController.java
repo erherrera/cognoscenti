@@ -127,16 +127,6 @@ public class CreateProjectController extends BaseController {
     }
 
 
-    @RequestMapping(value = "/{accountId}/isProjectExist.ajax", method = RequestMethod.POST)
-    public void isProjectExist(@RequestParam String accountId,
-        ModelMap model, HttpServletRequest request,
-        HttpServletResponse response) throws Exception {
-        AuthRequest ar = NGWebUtils.getAuthRequest(request, response, "Could not check project name.");
-
-        String message=projectNameValidity(accountId, ar,context);
-        NGWebUtils.sendResponse(ar, message);
-    }
-
     @RequestMapping(value = "/getProjectNames.ajax", method = RequestMethod.POST)
     public void getProjectNames(HttpServletRequest request,
             HttpServletResponse response) throws Exception {
@@ -234,26 +224,6 @@ public class CreateProjectController extends BaseController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/isProjectExistOnSystem.ajax", method = RequestMethod.GET)
-    public void isProjectExistOnSystem(@PathVariable String accountId,
-            @RequestParam String projectname, HttpServletRequest request,
-            HttpServletResponse response)
-            throws Exception {
-        String message = "";
-        AuthRequest ar = null;
-
-        try{
-            ar = NGWebUtils.getAuthRequest(request, response,"Could not check project name.");
-
-            message=projectNameValidity(accountId, ar,context);
-
-        }catch(Exception ex){
-            ar.logException(message, ex);
-        }
-        NGWebUtils.sendResponse(ar, message);
-
-    }
-
     @RequestMapping(value = "/{account}/{pageId}/createTemplateProject.form", method = RequestMethod.POST)
     public void createTemplateProject(@PathVariable String account,String pageId,
             ModelMap model, HttpServletRequest request,
@@ -300,37 +270,6 @@ public class CreateProjectController extends BaseController {
 
 
     ////////////////// HELPER FUNCTIONS /////////////////////////////////
-
-
-    public static boolean  isProjectExist(String projectName) throws Exception {
-
-        Vector<NGPageIndex> foundPages = NGPageIndex
-                .getPageIndexByName(projectName);
-        if (foundPages.size() > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    private static String projectNameValidity(String book, AuthRequest ar,
-            ApplicationContext context) throws Exception {
-        String message = "";
-        String projectName = ar.reqParam("projectname");
-        try {
-            NGPageIndex.assertBook(book);
-            if (isProjectExist(projectName)) {
-                message = NGWebUtils.getJSONMessage(Constant.YES, context.getMessage(
-                        "nugen.userhome.project.name.already.exists",null, ar.getLocale()), "");
-            } else {
-                message = NGWebUtils.getJSONMessage(Constant.No, projectName,"");
-            }
-        } catch (Exception ex) {
-            message = NGWebUtils.getExceptionMessageForAjaxRequest(ex, ar
-                    .getLocale());
-            ar.logException(message, ex);
-        }
-        return message;
-    }
 
 
     private static String sanitizeHyphenate(String p) throws Exception {
