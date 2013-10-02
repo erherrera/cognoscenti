@@ -612,6 +612,7 @@ public class NGWebUtils {
         writer.close();
     }
 
+
     public static AuthRequest getAuthRequest(HttpServletRequest request,
             HttpServletResponse response, String assertLoggedInMsg)
             throws Exception {

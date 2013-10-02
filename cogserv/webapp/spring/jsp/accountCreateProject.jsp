@@ -38,7 +38,7 @@ Required parameter:
      function isProjectExist(){
          var projectName = document.getElementById('projectname').value;
          var acct = '<%=accountKey%>';
-         var url="../isProjectExist.ajax?projectname="+projectName+"&book="+acct;
+         var url="../isProjectExist.ajax?projectname="+projectName+"&accountId="+acct;
          var transaction = YAHOO.util.Connect.asyncRequest('POST',url, projectValidationResponse);
          return false;
      }
