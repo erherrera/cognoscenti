@@ -21,11 +21,17 @@
     AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Must be logged in to list the accounts.");
 
+    Vector<NGBook> allAccounts = NGBook.getAllAccounts();
+    if (allAccounts==null) {
+        throw new Exception("Strange, the system does not appear to be initialized.");
+    }
+
+
 
 %>
 <%@ include file="Header.jsp"%>
 
-        <h1>Account List</h1>
+    <h1>Account List</h1>
 
     <div class="section">
             <div class="section_title">
@@ -45,20 +51,16 @@
                 <tr>
                     <td>Account Id</td>
                     <td>#prj</td>
+                    <td>#docs</td>
                     <td>Owners</td>
                     <td>Description</td>
                 </tr>
 <%
 
-    Vector<NGBook> allBooks = NGBook.getAllAccounts();
-    if (allBooks==null)
-    {
-        throw new Exception("Strange, the system does not appear to be initialized.");
-    }
-
-    for (NGBook ngb : allBooks)
+    for (NGBook ngb : allAccounts)
     {
         Vector<NGPageIndex> allProjects = NGPageIndex.getAllProjectsInAccount(ngb.key);
+        List<AttachmentRecord> allDocs = ngb.getAllAttachments();
         NGRole owner = ngb.getSecondaryRole();
 
 %>
@@ -66,6 +68,7 @@
                 <td><a href="BookPages.jsp?b=<%ar.writeHtml(ngb.getKey());%>" title="List all the projects in this account">
                     <%ar.writeHtml(ngb.getName());%></a></td>
                 <td><%=allProjects.size()%></td>
+                <td><%=allDocs.size()%></td>
                 <td><%
                     for (AddressListEntry ale : owner.getDirectPlayers())
                     {
@@ -80,20 +83,6 @@
     }
 %>
             </table>
-        </div>
-    </div>
-    <div class="section">
-        <div class="section_title">
-            <h1 class="left">Create a new account</h1>
-            <div class="section_date right"></div>
-            <div class="clearer">&nbsp;</div>
-        </div>
-        <div class="section_body">
-        <form action="CreateBookAction.jsp" method="post">
-        <input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
-        <input type="submit" name="" value="Create New Account:">
-        <input type="text" name="bn" value="">
-        </form>
         </div>
     </div>
 
