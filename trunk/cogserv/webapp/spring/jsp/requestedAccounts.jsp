@@ -17,42 +17,47 @@
 <div class="content tab04" style="display:block;">
     <div class="section_body">
         <div style="height:10px;"></div>
-        <div class="generalHeading">List of newly created Accounts</div>
-        <div id="newAccountContainer">
-            <table id="newAccountList">
+        <div class="generalHeadingBorderLess"><br>System Administrator: Account Requests</div>
+        <div id="accountRequestPaging"></div>
+        <div id="accountRequestDiv">
+            <table id="pagelist11">
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>Account Name</th>
-                        <th>Account Description</th>
+                        <th >Request Id</th>
+                        <th >Account Name</th>
+                        <th >State</th>
+                        <th >Description</th>
+                        <th >Date</th>
+                        <th >Requested by</th>
+                        <th >timePeriod</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <%
-                    int i = 0;
-                    Iterator<NGBook> it = newAccounts.iterator();
-                    while (it.hasNext()) {
-                        i++;
-                        NGBook account = (NGBook) it.next();
-                        if(account==null){
-                            //i don't know why, but for some reason this can
-                            //sometimes be null, and skip the loop if so.
-                            continue;
-                        }
-                        String accountLink = ar.baseURL + "v/" + account.getKey() + "/$/public.htm";
-                    %>
+                <%
+                for (AccountRequest requestRecord : superRequests)
+                {
+                    UserProfile userProfile =  UserManager.findUserByAnyId(requestRecord.getModUser());
+                %>
                     <tr>
-                        <td><% ar.writeHtml(String.valueOf(i));%></td>
-                        <td><a href="<%ar.writeHtml(accountLink); %>" title="navigate to the account">
-                            <%writeHtml(out, account.getName());%>
-                        </a></td>
-                        <td>
-                            <%writeHtml(out, account.getDescription());%>
-                        </td>
+                        <td><%ar.writeHtml(requestRecord.getRequestId()); %></td>
+                        <td><%ar.writeHtml(requestRecord.getName());%></td>
+                        <td><%ar.writeHtml(requestRecord.getStatus()); %></td>
+                        <td><%ar.writeHtml(requestRecord.getDescription());%></td>
+                        <td><%ar.writeHtml(SectionUtil.getNicePrintDate(requestRecord.getModTime())); %></td>
+                        <td><%
+                            if (userProfile==null) {
+                                ar.writeHtml(requestRecord.getModUser());
+                            }
+                            else
+                            {
+                                userProfile.writeLink(ar);
+                            }
+                        %></td>
+                        <td><%ar.writeHtml(String.valueOf(requestRecord.getModTime()));%></td>
                     </tr>
-                    <%
-                    }
-                    %>
+                <%
+                }
+                %>
                 </tbody>
             </table>
         </div>

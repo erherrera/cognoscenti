@@ -175,8 +175,7 @@ public class AccountController extends BaseController {
 
             String requestId = ar.reqParam("requestId");
             AccountRequest accountDetails = AccountReqFile.getRequestByKey(requestId);
-            if (accountDetails==null)
-            {
+            if (accountDetails==null) {
                 throw new NGException("nugen.exceptionhandling.not.find.account.request",new Object[]{requestId});
             }
 
@@ -191,8 +190,7 @@ public class AccountController extends BaseController {
                     return showWarningView(ar, "message.loginalert.see.page");
                 }
 
-                if (!ar.isSuperAdmin())
-                {
+                if (!ar.isSuperAdmin()) {
                     throw new NGException("nugen.exceptionhandling.account.approval.rights",null);
                 }
             }
@@ -206,7 +204,7 @@ public class AccountController extends BaseController {
             AddressListEntry ale = new AddressListEntry(accountDetails.getUniversalId());
             String context=null;
             String uniqueId=requestId;
-            boolean cancel = false;
+            String description = ar.defParam("description", "");
             if ("Granted".equals(action)) {
 
                 //Create new Account
@@ -214,14 +212,14 @@ public class AccountController extends BaseController {
                 ngb.setKey(accountDetails.getAccountId());
                 ngb.getPrimaryRole().addPlayer(ale);
                 ngb.getSecondaryRole().addPlayer(ale);
-                ngb.setDescription( ar.reqParam("description") );
+                ngb.setDescription(description);
 
                 ngb.saveFile(ar, "New Account created");
                 NGPageIndex.makeIndex(ngb);
 
                 //Change the status accepted
                 accountDetails.setStatus("Granted");
-                accountDetails.setDescription(ar.reqParam("description"));
+                accountDetails.setDescription(description);
                 context = AdminEvent.ACCOUNT_CREATED;
                 uniqueId=ngb.getKey();
 
@@ -229,25 +227,23 @@ public class AccountController extends BaseController {
                 //Change the status Denied
                 accountDetails.setStatus("Denied");
                 //update the description if change
-                accountDetails.setDescription(ar.reqParam("description"));
+                accountDetails.setDescription(description);
                 context = AdminEvent.ACCOUNT_DENIED;
             }else{
-                cancel= true;
+                throw new Exception("Unrecognized action '"+action+"' in acceptOrDeny.form");
             }
 
-            if(!cancel){
+            NGWebUtils.sendAccountGrantedEmail( ar, ale.getUserProfile(), accountDetails);
+            AccountReqFile.saveAll();
 
-                NGWebUtils.sendAccountGrantedEmail( ar, ale.getUserProfile(), accountDetails);
-                AccountReqFile.saveAll();
-
-                if(ar.getUserProfile() != null){
-                    modelAndView = new ModelAndView(new RedirectView(ar.retPath+"v/"
-                            +ar.getUserProfile().getKey()+"/userAccounts.htm"));
-                }else{
-                    modelAndView = new ModelAndView(new RedirectView("accountRequestResult.htm?requestId="+requestId));
-                }
-                SuperAdminLogFile.createAdminEvent(uniqueId, ar.nowTime,modUser, context);
+            if(ar.getUserProfile() != null){
+                modelAndView = new ModelAndView(new RedirectView(ar.retPath+"v/"
+                        +ar.getUserProfile().getKey()+"/userAccounts.htm"));
             }
+            else{
+                modelAndView = new ModelAndView(new RedirectView("accountRequestResult.htm?requestId="+requestId));
+            }
+            SuperAdminLogFile.createAdminEvent(uniqueId, ar.nowTime,modUser, context);
 
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.acceptOrDeny.account.request", null, ex);
@@ -456,9 +452,8 @@ public class AccountController extends BaseController {
                 return showWarningView(ar, "message.loginalert.see.page");
             }
             NGBook account = prepareAccountView(ar, accountId);
-            ModelAndView modelAndView = executiveCheckViews(ar);
 
-            modelAndView=new ModelAndView("account_public");
+            ModelAndView modelAndView=new ModelAndView("account_public");
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Account Notes");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.public");
@@ -528,20 +523,25 @@ public class AccountController extends BaseController {
     public ModelAndView requestAccount(@PathVariable String userKey,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            modelAndView = new ModelAndView("RequestAccount");
+            if (needsToSetName(ar)) {
+                return new ModelAndView("requiredName");
+            }
+            if (needsToSetEmail(ar)) {
+                return new ModelAndView("requiredEmail");
+            }
+            ModelAndView modelAndView = new ModelAndView("RequestAccount");
             request.setAttribute("userKey", userKey);
             request.setAttribute("pageTitle", "New Account Request Form");
             request.setAttribute("tabId", "Settings");
+            return modelAndView;
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.request.page", null, ex);
         }
-        return modelAndView;
     }
 
     @RequestMapping(value = "/{accountId}/$/leafletResponse.htm", method = RequestMethod.POST)

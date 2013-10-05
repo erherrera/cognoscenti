@@ -214,8 +214,10 @@ function createSubLinks(){
         if(isSuperAdmin=="true"){
             var arrayOfTabs4 = [new Tab(retPath+"v/"+userKey+"/emailListnerSettings.htm","Email"),
                 new Tab(retPath+"v/"+userKey+"/lastNotificationSend.htm","Last Notification Send"),
-                new Tab(retPath+"v/"+userKey+"/errorLog.htm","Errors Log"),
-                new Tab(retPath+"v/"+userKey+"/newAccounts.htm","New Accounts"),
+                new Tab(retPath+"v/"+userKey+"/errorLog.htm",      "Error Log"),
+                new Tab(retPath+"v/"+userKey+"/newAccounts.htm",   "New Accounts"),
+                new Tab(retPath+"v/"+userKey+"/newUsers.htm",      "New Users"),
+                new Tab(retPath+"v/"+userKey+"/requestedAccounts.htm","Requested Accounts"),
                 new Tab(retPath+"v/"+userKey+"/deniedAccounts.htm","Denied Accounts")
             ];
             arrayOfSubMenu  =["userSubMenu1","userSubMenu2","userSubMenu3","userSubMenu4"];

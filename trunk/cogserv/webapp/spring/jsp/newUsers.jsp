@@ -17,42 +17,36 @@
 <div class="content tab04" style="display:block;">
     <div class="section_body">
         <div style="height:10px;"></div>
-        <div class="generalHeading">List of newly created Accounts</div>
-        <div id="newAccountContainer">
-            <table id="newAccountList">
+        <div class="generalHeadingBorderLess"><br>New Users</div>
+        <div id="newUserPaging"></div>
+        <div id="newUserDiv">
+            <table id="newUserList">
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>Account Name</th>
-                        <th>Account Description</th>
+                        <th>User Name</th>
+                        <th>Registration Date</th>
+                        <th>Email Id</th>
+
                     </tr>
                 </thead>
                 <tbody>
-                    <%
-                    int i = 0;
-                    Iterator<NGBook> it = newAccounts.iterator();
-                    while (it.hasNext()) {
-                        i++;
-                        NGBook account = (NGBook) it.next();
-                        if(account==null){
-                            //i don't know why, but for some reason this can
-                            //sometimes be null, and skip the loop if so.
-                            continue;
-                        }
-                        String accountLink = ar.baseURL + "v/" + account.getKey() + "/$/public.htm";
-                    %>
+                <%
+                Iterator forallRequest = deniedAccounts.listIterator();
+                forallRequest = newUsers.listIterator();
+                   while (forallRequest.hasNext()){
+                UserProfile profile = (UserProfile) forallRequest.next();
+                String profileLink = ar.baseURL + "v/"
+                                    + profile.getKey()
+                                    + "/userProfile.htm?active=1";
+                %>
                     <tr>
-                        <td><% ar.writeHtml(String.valueOf(i));%></td>
-                        <td><a href="<%ar.writeHtml(accountLink); %>" title="navigate to the account">
-                            <%writeHtml(out, account.getName());%>
-                        </a></td>
-                        <td>
-                            <%writeHtml(out, account.getDescription());%>
-                        </td>
+                        <td><%profile.writeLink(ar);%></td>
+                        <td><%SectionUtil.nicePrintDate(out,profile.getLastLogin());%></td>
+                        <td><%ar.writeHtml(profile.getPreferredEmail());%></td>
                     </tr>
-                    <%
-                    }
-                    %>
+                <%
+                }
+                %>
                 </tbody>
             </table>
         </div>

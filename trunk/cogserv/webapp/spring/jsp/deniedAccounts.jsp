@@ -1,12 +1,19 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="administration.jsp"
+%><%
+
+    ar.assertLoggedIn("New Account page should never be accessed when not logged in");
+    if (!ar.isSuperAdmin()) {
+        throw new Exception("New Account page should only be accessed by Super Admin");
+    }
+    if (uProf==null) {
+        throw new Exception("Program Logic Error: The 'uProf' object must be set up for newAccounts.jsp");
+    }
+
 %>
 <div class="content tab05" style="display:block;">
     <div class="section_body">
         <div style="height:10px;"></div>
-        <%
-        if (ar.isLoggedIn() && uProf != null) {
-        %>
         <div id="deniedAccountPaging"></div>
         <div id="listofpagesdiv">
             <table id="pagelist">
@@ -47,9 +54,6 @@
                 </tbody>
             </table>
         </div>
-        <%
-        }
-        %>
     </div>
 </div>
 <script type="text/javascript">
