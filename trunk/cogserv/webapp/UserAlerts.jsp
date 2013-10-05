@@ -34,7 +34,7 @@
             <div class="pagenavigation">
                 <div class="pagenav">
                     <div class="left"><%
-                    	ar.writeHtml( uProf.getName());
+                        ar.writeHtml( uProf.getName());
                     %> &raquo; Active Goals </div>
                     <div class="right"></div>
                     <div class="clearer">&nbsp;</div>
@@ -56,14 +56,14 @@
            <td>Due</td>
         </tr>
 <%
-	Vector myActive = th.getActiveTasks();
+    Vector myActive = th.getActiveTasks();
     Enumeration e = myActive.elements();
     while (e.hasMoreElements())
     {
         GoalRecord tr = (GoalRecord) e.nextElement();
         int state = tr.getState();
         String imageName = GoalRecord.stateImg(state);
-        NGPage taskPage = tr.getSection().parent;
+        NGPage taskPage = tr.getProject();
 %>
         <tr>
            <td><a href="WorkItem.jsp?p=<%=URLEncoder.encode(taskPage.getKey(),"UTF-8")%>&s=Tasks&id=<%=tr.getId()%>"
