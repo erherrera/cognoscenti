@@ -323,26 +323,8 @@ public class AccountController extends BaseController {
     public ModelAndView showAccountDocumentTab(@PathVariable String accountId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        try{
-            AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            if(!ar.isLoggedIn()){
-                return showWarningView(ar, "message.loginalert.see.page");
-            }
-            NGBook account = prepareAccountView(ar, accountId);
-            ModelAndView modelAndView = executiveCheckViews(ar);
-            if (modelAndView != null) {
-                return modelAndView;
-            }
-
-            modelAndView = new ModelAndView("accountDocumentPage");
-            request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Documents");
-            request.setAttribute("subTabId", "nugen.projecthome.subtab.documents");
-            request.setAttribute("pageTitle", account.getFullName());
-            return modelAndView;
-        }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.attachment.page", new Object[]{accountId}, ex);
-        }
+        AuthRequest ar = AuthRequest.getOrCreate(request, response);
+        return showWarningView(ar, "nugen.deprecatedView");
     }
     @RequestMapping(value = "/{accountId}/$/admin.htm", method = RequestMethod.GET)
     public ModelAndView showAccountSettingTab(@PathVariable String accountId,
