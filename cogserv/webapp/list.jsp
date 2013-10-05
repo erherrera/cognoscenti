@@ -45,6 +45,8 @@
             <table valign="top">
                 <col width="130">
                 <col width="40">
+                <col width="40">
+                <col width="40">
                 <col width="300">
                 <col width="400">
 
@@ -52,6 +54,7 @@
                     <td>Account Id</td>
                     <td>#prj</td>
                     <td>#docs</td>
+                    <td>#notes</td>
                     <td>Owners</td>
                     <td>Description</td>
                 </tr>
@@ -61,6 +64,7 @@
     {
         Vector<NGPageIndex> allProjects = NGPageIndex.getAllProjectsInAccount(ngb.key);
         List<AttachmentRecord> allDocs = ngb.getAllAttachments();
+        List<NoteRecord> allNotes = ngb.getAllNotes();
         NGRole owner = ngb.getSecondaryRole();
 
 %>
@@ -69,6 +73,7 @@
                     <%ar.writeHtml(ngb.getName());%></a></td>
                 <td><%=allProjects.size()%></td>
                 <td><%=allDocs.size()%></td>
+                <td><%=allNotes.size()%></td>
                 <td><%
                     for (AddressListEntry ale : owner.getDirectPlayers())
                     {

@@ -482,7 +482,6 @@ Parameter used :
            <!--Top Drop Down Menu for Account section HTML Starts Here -->
                 <ul id="accountSubMenu1" class="ddsubmenustyle"/></ul>
                 <ul id="accountSubMenu2" class="ddsubmenustyle"></ul>
-                <ul id="accountSubMenu3" class="ddsubmenustyle"> </ul>
                 <ul id="accountSubMenu4" class="ddsubmenustyle"> </ul>
 
     </div>
