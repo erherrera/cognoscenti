@@ -117,7 +117,7 @@ Required Parameters:
         <%
         }else{
         %>
-        <div class="generalContent">
+        <div class="guideVocal">
             <%
             if(accReqs.size()>0) {
             %>

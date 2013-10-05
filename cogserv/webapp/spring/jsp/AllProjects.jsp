@@ -13,7 +13,9 @@
     if(bookList!=null && bookList.size()<1){
     %>
        <div class="guideVocal">
-           You have not created any projects.  When you create projects, they will be listed here.<br/>
+           You have not created any projects, and you do not have any access to accounts to create one in.
+           <br/>
+           When you create projects, they will be listed here.<br/>
            <br/>
            In order to create a project, you need to be an "Owner" or an "Executive" of an "Account".<br/>
            <br/>
@@ -25,123 +27,6 @@
        </div>
     <%
     }
-    else
-    {
-    %>
-        <form name="projectform" action="createProject.form" method="post" autocomplete="off">
-            <table class="popups">
-                   <tr><td style="height:30px"></td></tr>
-                   <tr>
-                    <td class="gridTableColummHeader_2 bigHeading">Create New Project:</td>
-                    <td style="width:20px;"></td>
-                    <td>
-                        <table cellpadding="0" cellspacing="0">
-                           <tr>
-                               <td class="createInput" style="padding:0px;">
-                                   <input type="text" class="inputCreateButton" name="projectname" id="projectname"
-                                   value='<fmt:message key="nugen.project.projectname.textbox.text"/>'
-                                   onKeyup="updateVal();" onfocus="ClearForm();" onblur="addvalue();"
-                                   onclick="expandDiv('assignTask')" />
-                               </td>
-                               <td class="createButton" onclick="submitForm();">&nbsp;</td>
-                           </tr>
-                       </table>
-                   </td>
-                </tr>
-                <tr>
-                    <td colspan="3">
-                        <table id="assignTask" style="display:none">
-                            <tr><td width="148" class="gridTableColummHeader_2" style="height:20px"></td></tr>
-                            <tr>
-                                <td width="148" class="gridTableColummHeader_2">Select Template:</td>
-                                <td width="39" style="width:20px;"></td>
-                                <td><Select class="selectGeneral" id="templateName" name="templateName">
-                                        <option value="" selected>Select</option>
-                                        <%
-                                        for (NGPageIndex ngpi : templates)
-                                        {
-                                            %>
-                                            <option value="<%ar.writeHtml(ngpi.containerKey);%>" ><%ar.writeHtml(ngpi.containerName);%></option>
-                                            <%
-                                        }
-                                        %>
-                                    </Select>
-                                </td>
-                            </tr>
-                            <tr><td style="height:15px"></td></tr>
-                            <tr>
-                                <td width="148" class="gridTableColummHeader_2"><fmt:message key="nugen.userhome.Account"/></td>
-                                <td width="39" style="width:20px;"></td>
-                                <td><select class="selectGeneral" name="accountId" id="accountId">
-                                    <%
-                                    for (NGBook ngb : bookList)
-                                    {
-                                        String id =ngb.getKey();
-                                        String bookName= ngb.getName();
-                                        if(bookKey !=null && id.equalsIgnoreCase(bookKey))
-                                        {
-                                            %><option value="<%ar.writeHtml(id);%>" selected><%
-                                        }
-                                        else
-                                        {
-                                            %><option value="<%ar.writeHtml(id);%>"><%
-                                        }
-                                        ar.writeHtml(bookName);
-                                        %></option><%
-                                    }
-                                    %>
-                                   </select>
-                                </td>
-                            </tr>
-                            <tr><td style="height:10px"></td></tr>
-                            <tr>
-                                <td width="148" class="gridTableColummHeader_2"><fmt:message key="nugen.project.duedate.text"/></td>
-                                <td width="39" style="width:20px;"></td>
-                                <td><input type="text" class="inputGeneral" style="width:368px" size="50" name="dueDate" id="dueDate"  value="" readonly="1"/>
-                                    <img src="<%=ar.retPath %>/jscalendar/img.gif" id="btn_dueDate" style="cursor: pointer;" title="Date selector"/>
-                                </td>
-                            </tr>
-                            <tr><td style="height:15px"></td></tr>
-                            <tr>
-                                <td class="gridTableColummHeader_2" style="vertical-align:top"><fmt:message key="nugen.project.desc.text"/></td>
-                                <td style="width:20px;"></td>
-                                <td><textarea name="description" id="description" class="textAreaGeneral" rows="4" tabindex=7></textarea></td>
-                            </tr>
-                            <tr><td style="height:20px"></td></tr>
-                            <tr>
-                                <td width="148" class="gridTableColummHeader_2">Upstream Link:</td>
-                                <td style="width:20px;"></td>
-                                <td><input type="text" class="inputGeneral" style="width:368px" size="50" name="upstream" value=""/>
-                                </td>
-                            </tr>
-                            <tr><td style="height:20px"></td></tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-                    <td width="148" class="gridTableColummHeader_2"></td>
-                    <td width="39" style="width:20px;"></td>
-                    <td style="cursor:pointer">
-                        <span id="showDiv" style="display:inline" onclick="setVisibility('assignTask')">
-                            <img src="<%=ar.retPath %>/assets/createSeperatorDown.gif" width="398" height="13"
-                                title="Expand" alt="" /></span>
-                        <span id="hideDiv" style="display:none" onclick="setVisibility('assignTask')">
-                            <img src="<%=ar.retPath %>/assets/createSeperatorUp.gif" width="398" height="13"
-                                title="Collapse" alt="" />
-                        </span>
-                       </td>
-                </tr>
-            </table>
-        </form>
-        <script language="javascript">
-            initCal();
-        </script>
-    <%
-    SectionTask.plugInCalenderScript(out, "dueDate", "btn_dueDate");
-    SectionTask.plugInDurationCalcScript(out);
-    %>
-    <%
-    }
     %>
     <br>
         <div class="generalHeadingBorderLess">List of Projects</div>
@@ -149,7 +34,7 @@
         Vector v = NGPageIndex.getAllPagesForAdmin(uProf);
         if(v.size()==0){
         %>
-        <p>You do not have any projects currently.</p>
+        <p>You have not created any projects yet.</p>
         <%
         }
         else{
