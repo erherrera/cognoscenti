@@ -682,6 +682,16 @@
         <put-attribute name="body" value="/spring/jsp/newAccounts.jsp"/>
     </definition>
 
+    <definition name="newUsers" extends="baseLayout">
+        <put-attribute name="title" value="New Users"/>
+        <put-attribute name="body" value="/spring/jsp/newUsers.jsp"/>
+    </definition>
+
+    <definition name="requestedAccounts" extends="baseLayout">
+        <put-attribute name="title" value="Requested Accounts"/>
+        <put-attribute name="body" value="/spring/jsp/requestedAccounts.jsp"/>
+    </definition>
+
     <definition name="deniedAccounts" extends="baseLayout">
         <put-attribute name="title" value="Denied Accounts"/>
         <put-attribute name="body" value="/spring/jsp/deniedAccounts.jsp"/>

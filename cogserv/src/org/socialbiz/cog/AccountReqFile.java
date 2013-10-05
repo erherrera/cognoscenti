@@ -129,13 +129,13 @@ public class AccountReqFile extends DOMFile {
         if (accountId==null) {
             throw new Exception("AccountId parameter can not be null");
         }
-        if (accountId.length()<4 || accountId.length()>6) {
-            throw new Exception("AccountId must be four to six charcters/numbers long.  Received ("+accountId+")");
+        if (accountId.length()<4 || accountId.length()>8) {
+            throw new Exception("AccountId must be four to eight charcters/numbers long.  Received ("+accountId+")");
         }
         for (int i=0; i<accountId.length(); i++) {
             char ch = accountId.charAt(i);
             if (ch < '0'  ||   (ch>'9' && ch<'A') || (ch>'Z' && ch<'a') || ch>'z') {
-                throw new Exception("AccountId must have only letters and numbers.  Received ("+accountId+")");
+                throw new Exception("AccountId must have only letters and numbers - no spaces or punctuation.  Received ("+accountId+")");
             }
         }
 

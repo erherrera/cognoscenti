@@ -108,6 +108,31 @@ public class SuperAdminController extends BaseController {
          }
      }
 
+     @RequestMapping(value = "/{userKey}/newUsers.htm", method = RequestMethod.GET)
+     public ModelAndView newUsers(@PathVariable String userKey,
+             HttpServletRequest request, HttpServletResponse response)
+             throws Exception {
+         try{
+             AuthRequest ar = AuthRequest.getOrCreate(request, response);
+             return adminModelSetUp(ar, userKey, "newUsers", "nugen.admin.subtab.new.accounts");
+         }catch(Exception ex){
+             throw new NGException("nugen.operation.fail.administration.page", new Object[]{userKey} , ex);
+         }
+     }
+
+     @RequestMapping(value = "/{userKey}/requestedAccounts.htm", method = RequestMethod.GET)
+     public ModelAndView requestedAccounts(@PathVariable String userKey,
+             HttpServletRequest request, HttpServletResponse response)
+             throws Exception {
+         try{
+             AuthRequest ar = AuthRequest.getOrCreate(request, response);
+             return adminModelSetUp(ar, userKey, "requestedAccounts", "nugen.admin.subtab.new.accounts");
+         }catch(Exception ex){
+             throw new NGException("nugen.operation.fail.administration.page", new Object[]{userKey} , ex);
+         }
+     }
+
+
      @RequestMapping(value = "/{userKey}/deniedAccounts.htm", method = RequestMethod.GET)
      public ModelAndView deniedAccounts(@PathVariable String userKey,
              HttpServletRequest request, HttpServletResponse response)

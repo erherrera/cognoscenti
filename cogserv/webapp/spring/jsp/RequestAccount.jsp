@@ -26,22 +26,25 @@ Required parameter:
             <table width="100%" border="0" cellpadding="0" cellspacing="0">
                 <tr><td style="height:10px"></td></tr>
                 <tr>
-                    <td class="gridTableColummHeader_2" valign="top"><b>Account ID:<span style="color:red">*</span></b></td>
+                    <td class="gridTableColummHeader_2" valign="top"><b>Account Name:<span style="color:red">*</span></b></td>
                     <td style="width:20px;"></td>
-                    <td><input type="text" name="accountID" id="accountID" class="inputGeneral"/><br/>
-                        <span>Enter 4 to 6 letters and numbers to identify this account uniquely.</span></td>
+                    <td><input type="text" name="accountName" id="accountName" class="inputGeneral" /><br/>
+                        <span class="formFieldHelp">Enter a descriptive proper name.  This can be changed later.</span></td>
                 </tr>
                 <tr><td style="height:10px"></td></tr>
                 <tr>
-                    <td class="gridTableColummHeader_2"><b>Account Name:<span style="color:red">*</span></b></td>
+                    <td class="gridTableColummHeader_2" valign="top"><b>Account ID:<span style="color:red">*</span></b></td>
                     <td style="width:20px;"></td>
-                    <td><input type="text" name="accountName" id="accountName" class="inputGeneral" /></td>
+                    <td><input type="text" name="accountID" id="accountID" class="inputGeneral"/><br/>
+                        <span class="formFieldHelp">Enter 4 to 8 letters and numbers to identify this account uniquely.<br/>
+                        The value you pick here is permanent, and can not be changed for this account.</span></td>
                 </tr>
                 <tr><td style="height:10px"></td></tr>
                 <tr>
                     <td class="gridTableColummHeader_2" valign="top"><b>Account Description:<span style="color:red">*</span></b></td>
                     <td style="width:20px;"></td>
-                    <td><textarea name="accountDesc" id="accountDesc" class="textAreaGeneral" rows="4"></textarea></td>
+                    <td><textarea name="accountDesc" id="accountDesc" class="textAreaGeneral" rows="4"></textarea><br/>
+                        <span class="formFieldHelp">The description helps others know what you intend to use this account for.</span></td>
                 </tr>
                 <tr><td style="height:10px"></td></tr>
                 <tr>

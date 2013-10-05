@@ -731,6 +731,16 @@ public class AuthRequest
         }
     }
 
+    public void assertSuperAdmin(String opDescription)
+            throws Exception
+    {
+        assertLoggedIn(opDescription);
+        if (!isSuperAdmin()) {
+            throw new NGException("nugen.exception.assertSuperAdmin", new Object[]{opDescription});
+        }
+    }
+
+
     //checks the registered page and if there is on, returns true
     //if you are a member of the page, false otherwise.
     public boolean isMember()
