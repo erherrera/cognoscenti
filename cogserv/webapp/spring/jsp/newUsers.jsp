@@ -1,4 +1,5 @@
 <%@page errorPage="/spring/jsp/error.jsp"
+%><%@page import="org.socialbiz.cog.SuperAdminLogFile"
 %><%@ include file="administration.jsp"
 %><%
 
@@ -6,12 +7,7 @@
     if (!ar.isSuperAdmin()) {
         throw new Exception("New Account page should only be accessed by Super Admin");
     }
-    if (newAccounts==null) {
-        throw new Exception("Program Logic Error: The 'newAccounts' object must be set up for newAccounts.jsp");
-    }
-    if (uProf==null) {
-        throw new Exception("Program Logic Error: The 'uProf' object must be set up for newAccounts.jsp");
-    }
+    List<UserProfile> newUsers = SuperAdminLogFile.getInstance().getAllNewRegisteredUsers();
 
 %>
 <div class="content tab04" style="display:block;">
@@ -31,13 +27,10 @@
                 </thead>
                 <tbody>
                 <%
-                Iterator forallRequest = deniedAccounts.listIterator();
-                forallRequest = newUsers.listIterator();
-                   while (forallRequest.hasNext()){
-                UserProfile profile = (UserProfile) forallRequest.next();
-                String profileLink = ar.baseURL + "v/"
-                                    + profile.getKey()
-                                    + "/userProfile.htm?active=1";
+                for (UserProfile profile : newUsers) {
+                    String profileLink = ar.baseURL + "v/"
+                                + profile.getKey()
+                                + "/userProfile.htm?active=1";
                 %>
                     <tr>
                         <td><%profile.writeLink(ar);%></td>
@@ -53,47 +46,6 @@
     </div>
 </div>
 <script type="text/javascript">
-    YAHOO.util.Event.addListener(window, "load", function()
-    {
-        YAHOO.example.EnhanceFromMarkup = function()
-        {
-            var newAccountCD = [
-                {key:"no",label:"No",formatter:YAHOO.widget.DataTable.formatNumber,sortable:true,resizeable:true},
-                {key:"accountname",label:"Account Name", sortable:true,resizeable:true},
-                {key:"description",label:" Account Description", sortable:true,resizeable:true}
-
-            ];
-
-            var newAccountDS = new YAHOO.util.DataSource(YAHOO.util.Dom.get("newAccountList"));
-            newAccountDS.responseType = YAHOO.util.DataSource.TYPE_HTMLTABLE;
-            newAccountDS.responseSchema = {
-                fields: [{key:"no", parser:"number"},
-                        {key:"accountname"},
-                        {key:"description"},
-                        ]
-            };
-
-            var oConfigs = {
-                paginator: new YAHOO.widget.Paginator({
-                    rowsPerPage: 200
-                }),
-                initialRequest: "results=999999"
-            };
-
-
-            var newAccountDT = new YAHOO.widget.DataTable("newAccountContainer", newAccountCD, newAccountDS, oConfigs,
-            {caption:"",sortedBy:{key:"no",dir:"desc"}});
-
-             // Enable row highlighting
-            newAccountDT.subscribe("rowMouseoverEvent", newAccountDT.onEventHighlightRow);
-            newAccountDT.subscribe("rowMouseoutEvent", newAccountDT.onEventUnhighlightRow);
-
-            return {
-                oDS: newAccountDS,
-                oDT: newAccountDT
-            };
-        }();
-    });
 
     YAHOO.util.Event.addListener(window, "load", function()
     {
@@ -131,148 +83,6 @@
             return {
                 oDS: newUserDS,
                 oDT: newUserDT
-            };
-        }();
-    });
-
-    YAHOO.util.Event.addListener(window, "load", function()
-    {
-        YAHOO.example.EnhanceFromMarkup = function()
-        {
-            var accountRequestCD = [
-                {key:"requesteId",label:"Request Id",sortable:true,resizeable:true},
-                {key:"accountName",label:"Account Name",sortable:false,resizeable:true},
-                {key:"state",label:"<fmt:message key='nugen.attachment.State'/>",sortable:true,resizeable:true},
-                {key:"description",label:"Description",sortable:false,resizeable:true},
-                {key:"date",label:"Date",formatter:YAHOO.widget.DataTable.formatDate,sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
-                {key:"requestedby",label:"Requested by",sortable:true,resizeable:true},
-                {key:"timePeriod",label:"timePeriod",sortable:true,resizeable:false,hidden:true}
-                ];
-
-            var accountRequestDS = new YAHOO.util.DataSource(YAHOO.util.Dom.get("pagelist11"));
-            accountRequestDS.responseType = YAHOO.util.DataSource.TYPE_HTMLTABLE;
-            accountRequestDS.responseSchema = {
-                fields: [{key:"requesteId"},
-                        {key:"accountName"},
-                        {key:"state"},
-                        {key:"description"},
-                        {key:"date"},
-                        {key:"requestedby"},
-                        {key:"timePeriod", parser:YAHOO.util.DataSource.parseNumber}]
-            };
-
-            var oConfigs = {
-                paginator: new YAHOO.widget.Paginator({
-                    rowsPerPage: 200,
-                    containers   : 'accountRequestPaging'
-                }),
-                initialRequest: "results=999999"
-
-            };
-
-            var accountRequestDT = new YAHOO.widget.DataTable("accountRequestDiv", accountRequestCD, accountRequestDS, oConfigs,
-            {caption:"",sortedBy:{key:"requestedby",dir:"date"}});
-
-             // Enable row highlighting
-            accountRequestDT.subscribe("rowMouseoverEvent", accountRequestDT.onEventHighlightRow);
-            accountRequestDT.subscribe("rowMouseoutEvent", accountRequestDT.onEventUnhighlightRow);
-
-            var onContextMenuClick = function(p_sType, p_aArgs, p_accountRequestDT) {
-                var task = p_aArgs[1];
-              if(task) {
-                    // Extract which TR element triggered the context menu
-
-                    var elRow = this.contextEventTarget;
-                    elRow = p_accountRequestDT.getTrEl(elRow);
-                    accountRequestDT2=p_accountRequestDT;
-                    elRow2=elRow;
-                    var oRecord = p_accountRequestDT.getRecord(elRow);
-
-                    if(elRow) {
-                       switch(task.index) {
-
-                            case 0:
-                                    var accountName = oRecord.getData("accountName");
-                                    var requesteId = oRecord.getData("requesteId");
-                                    var state = oRecord.getData("state");
-                                    var description = oRecord.getData("description");
-                                    var date = oRecord.getData("date");
-                                    var requestedby = oRecord.getData("requestedby");
-                                    var body = '<div class="generalArea">'+
-                                                '<div class="generalSettings">'+
-                                                '<form id="acceptOrDenyForm" action="<%=ar.retPath%>t/acceptOrDeny.form" method="post" >'+
-                                                    '<table>'+
-                                                        '<tr>'+
-                                                            '<td class="gridTableColummHeader">'+
-                                                                '<label id="nameLbl"><B>Requested By: </B></label>'+
-                                                            '</td>'+
-                                                            '<td style="width:20px;"></td>'+
-                                                            '<td><B>'+
-                                                                requestedby+
-                                                            '</B></td>'+
-                                                        '</tr>'+
-                                                        '<tr><td style="height:10px"></td></tr>'+
-                                                        '<tr>'+
-                                                            '<td class="gridTableColummHeader"><B>Account Name: </B></td>'+
-                                                            '<td style="width:20px;"></td>'+
-                                                            '<td>'+
-                                                                accountName+
-                                                            '</td>'+
-                                                        '</tr>'+
-                                                        '<tr><td style="height:10px"></td></tr>'+
-                                                        '<tr>'+
-                                                            '<td class="gridTableColummHeader">'+
-                                                                '<label><B>Requested On: </B></label>'+
-                                                            '</td>'+
-                                                            '<td style="width:20px;"></td>'+
-                                                            '<td>'+
-                                                                date+
-                                                            '</td>'+
-                                                        '</tr>'+
-                                                        '<tr><td style="height:20px"></td></tr>'+
-                                                        '<tr>'+
-                                                            '<td class="gridTableColummHeader" valign="top"><B>Description: </B></td>'+
-                                                            '<td style="width:20px;"></td>'+
-                                                            '<td>'+
-                                                                '<textarea id="description" name="description" row="4">'+description+'</textarea>'+
-                                                            '</td>'+
-                                                        '</tr>'+
-                                                        '<tr><td style="height:20px"></td></tr>'+
-                                                        '<tr>'+
-                                                            '<td class="gridTableColummHeader"></td>'+
-                                                            '<td style="width:20px;"></td>'+
-                                                            '<td>'+
-                                                                '<input type="button" class="inputBtn"  value="Accept" onclick="acceptOrDeny(\'accept\',\''+state+'\')">&nbsp;'+
-                                                                '<input type="button" class="inputBtn"  value="Deny" onclick="acceptOrDeny(\'deny\',\''+state+'\')">&nbsp;'+
-                                                                '<input type="button" class="inputBtn"  value="Cancel" onclick="cancel()" >'+
-                                                            '</td>'+
-                                                      '</table>'+
-                                                      '<input type="hidden" name="action" id="action" value="">'+
-                                                      '<input type="hidden" name="requestId" id="requestId" value="'+ requesteId +'">'+
-                                                    '</form>'+
-                                                    '</div>'+
-                                                    '</div>';
-                                    createPanel("Accept or Deny Request",body,"600px");
-                                    break;
-                            }
-                        }
-                    }
-                };
-
-            var myContextMenu = new YAHOO.widget.ContextMenu("mycontextmenu",
-                    {trigger:accountRequestDT.getTbodyEl()});
-
-             myContextMenu.addItems(
-                                    [{ text: "Accept/Deny Request"}]
-                                   );
-
-            // Render the ContextMenu instance to the parent container of the DataTable
-            myContextMenu.render("accountRequestDiv");
-            myContextMenu.clickEvent.subscribe(onContextMenuClick, accountRequestDT);
-
-            return {
-                oDS: accountRequestDS,
-                oDT: accountRequestDT
             };
         }();
     });

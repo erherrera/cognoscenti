@@ -27,17 +27,15 @@
                 <th>bookKey</th>
             </thead>
         <%
-            for (NGPageIndex ngpi : NGPageIndex.getAllContainer())
-                {
+        for (NGPageIndex ngpi : NGPageIndex.getAllContainer()) {
             //start by clearing any outstanding locks in every loop
             NGPageIndex.clearLocksHeldByThisThread();
-            
-            if (!ngpi.isProject())
-            {
+
+            if (!ngpi.isProject()) {
                 continue;
             }
             NGPage aPage = ngpi.getPage();
-            
+
             ReminderMgr rMgr = aPage.getReminderMgr();
             Vector<ReminderRecord> rVec = rMgr.getUserReminders(ar.getUserProfile());
             AddressListEntry ale = null;
@@ -45,16 +43,16 @@
             {
                 ale = new AddressListEntry(reminder.getModifiedBy());
         %>
-        
+
             <tr>
                 <td><% ale.writeLink(ar); %></td>
                 <td><%ar.write(reminder.getSubject()); %></td>
                 <td><%SectionUtil.nicePrintTime(ar, reminder.getModifiedDate(), ar.nowTime); %></td>
-                <td><%ar.write(aPage.getFullName()); %></td>
+                <td><%ar.write(ngpi.containerName); %></td>
                 <td><%ar.writeHtml(String.valueOf((ar.nowTime - reminder.getModifiedDate())/1000 ));%></td>
                 <td><%ar.writeHtml(reminder.getId());%></td>
-                <td><%ar.writeHtml(aPage.getKey());%></td>
-                <td><%ar.writeHtml(aPage.getAccount().getKey());%></td>
+                <td><%ar.writeHtml(ngpi.containerKey);%></td>
+                <td><%ar.writeHtml(ngpi.pageBookKey);%></td>
             </tr>
         <%
             }
@@ -70,7 +68,7 @@
     </form>
 
     <script type="text/javascript">
-        
+
     </script>
 
 <script type="text/javascript">
@@ -78,7 +76,7 @@
     function invokeRSSLink(link) {
         window.location.href = "<%=ar.retPath + rssLink%>&status=" + document.taskList.rssfilter.value ;
     }
-                
+
     YAHOO.util.Event.addListener(window, "load", function()
     {
         YAHOO.example.EnhanceFromMarkup = function()
@@ -102,18 +100,18 @@
                                                 'public.htm" target=\"_blank\" title=\"Navigate to project\">'
                                                 + oRecord.getData("PageName") + '</a>';
                         };
-                        
-                        
+
+
                         var assigneeFormater = function(elCell, oRecord, oColumn, sData)
                         {
                             var assignee=oRecord.getData("Assignee") ;
                             var loggingUser=<%=UtilityMethods.quote4JS(loggingUserName)%>;
-                            if(assignee!=loggingUser){                                
+                            if(assignee!=loggingUser){
                                  elCell.innerHTML =assignee;
-                             }                            
+                             }
                         };
-                        
-                        var activeTasksCD = [                            
+
+                        var activeTasksCD = [
                             {key:"State",label:"State", formatter:stateUrlFormater, sortable:true,resizeable:true},
                             {key:"NameAndDescription",label:"Task", sortable:true,resizeable:true},
                             {key:"Page",label:"Project", formatter:pageNameUrlFormater, sortable:true,resizeable:true},
@@ -122,7 +120,7 @@
                             {key:"DueDate",label:"DueDate",formatter:YAHOO.widget.DataTable.formatDate,sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
                             {key:"timePeriod",label:"timePeriod",sortable:true,resizeable:false,hidden:true}
                         ];
-                        
+
                         var activeTasksDS = new YAHOO.util.DataSource(xmlDoc);
                         activeTasksDS.responseType = YAHOO.util.DataSource.TYPE_XML;
                         activeTasksDS.responseSchema = {
@@ -134,7 +132,7 @@
                                      {key:"NameAndDescription"},
                                      {key:"Assignee"},
                                      {key:"Priority", parser:"number"},
-                                     {key:"DueDate"},                                     
+                                     {key:"DueDate"},
                                      {key:"PageKey"},
                                      {key:"PageName"},
                                      {key:"PageURL"},
@@ -150,12 +148,12 @@
                                           oConfigs,
                                           {caption:"",sortedBy:{key:"No",dir:"desc"}}
                                       );
-                        
-                        var oColumn = activeTasksDT.getColumn(3);  
+
+                        var oColumn = activeTasksDT.getColumn(3);
                         activeTasksDT.hideColumn(oColumn);
-                       
-                        
-                        
+
+
+
 
                     },
                     failure: function(o)
@@ -170,11 +168,11 @@
                                     "&u=<%ar.writeHtml(URLEncoder.encode(uProf.getUniversalId(), "UTF-8"));%>&isNewUI=yes";
 
             var getXML = YAHOO.util.Connect.asyncRequest("GET",servletURL, connectionCallback);
-            
-           
+
+
         }();
     });
-        
+
     YAHOO.util.Event.addListener(window, "load", function()
     {
 
@@ -241,6 +239,6 @@
         var projectName = oRecord.getData("projectName");
         elCell.innerHTML = '<a href="<%=ar.baseURL%>t/'+bookKey+'/'+pageKey+'/public.htm" >'+projectName+'</a>';
 
-    };    
-        
+    };
+
 </script>

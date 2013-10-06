@@ -92,9 +92,9 @@
             %>
 
                         </td>
-                        <td style='display:none'><%ar.writeHtml(ngpi.getPage().getFullName()); %></td>
-                        <td style='display:none'><%ar.writeHtml(ngpi.getPage().getKey()); %></td>
-                        <td style='display:none'><%= uProf.findTemplate(ngpi.getPage().getKey())%></td>
+                        <td style='display:none'><%ar.writeHtml(ngpi.containerName); %></td>
+                        <td style='display:none'><%ar.writeHtml(ngpi.containerKey); %></td>
+                        <td style='display:none'><%= uProf.findTemplate(ngpi.containerKey)%></td>
                         <td style='display:none'><%= (ar.nowTime - ngpi.lastChange)/1000%></td>
                     </tr>
             <%

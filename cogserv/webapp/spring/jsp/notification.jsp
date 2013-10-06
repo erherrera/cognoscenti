@@ -7,7 +7,7 @@
     <div class="section_body">
         <div class="pageHeading">
             Notifications Settings for <%
-        	ar.writeHtml(up.getName());
+            ar.writeHtml(up.getName());
         %>
         </div>
 
@@ -15,36 +15,41 @@
             Below is a list of things you are subscribed to that might cause you to receive email.
             If you wish to avoid email in the future, you can unsubscribe to any of them below.
             <%
-        	if (!ar.isLoggedIn() && ar.hasSpecialSessionAccess("Notifications:"+userKey)) {
-                        ar.write("  Note, you are able to access this page because you used a special link from an email message that gives you acces to this page only.");
-                    }
+            if (!ar.isLoggedIn() && ar.hasSpecialSessionAccess("Notifications:"+userKey)) {
+                ar.write("  Note, you are able to access this page because you used a special link from an email message that gives you acces to this page only.");
+            }
         %>
         </div>
         <div style="height:10px;"></div>
         <div class="leafLetArea">
         <%
-        	String formId= "";
-                    int counter = 0;
-                    Vector<NGPageIndex> v = NGPageIndex.getProjectsUserIsPartOf(up);
-                    for(NGPageIndex ngpi : v){
-                        NGPage ngp = ngpi.getPage();
+            String formId= "";
+            int counter = 0;
+            Vector<NGPageIndex> v = NGPageIndex.getProjectsUserIsPartOf(up);
+            for(NGPageIndex ngpi : v){
+                NGPage ngp = ngpi.getPage();
 
-                        if (ngp != null)
-                        {
+                if (ngp != null)
+                {
         %>
-                <div class="leafHeading" id="leafHeading<%ar.write(String.valueOf(counter));%>" onMouseOver="this.style.backgroundColor='#fdf9e1'"
-                onMouseOut="this.style.backgroundColor='#f7f7f7'" onclick="expandCollapseLeaflets('leafContent<%ar.write(String.valueOf(counter));%>','<%=ar.baseURL%>','leafHeading<%ar.write(String.valueOf(counter));%>')">
+                <div class="leafHeading" id="leafHeading<%ar.write(String.valueOf(counter));%>"
+                    onMouseOver="this.style.backgroundColor='#fdf9e1'"
+                    onMouseOut="this.style.backgroundColor='#f7f7f7'"
+                    onclick="expandCollapseLeaflets('leafContent<%ar.write(String.valueOf(counter));%>','<%=ar.baseURL%>','leafHeading<%ar.write(String.valueOf(counter));%>')">
                     <table width="100%" cellpadding="0" cellspacing="0">
                         <tr>
-                            <td id="leafHeading<%ar.write(String.valueOf(counter));%>_leafContent<%ar.write(String.valueOf(counter));%>">
-                                <img src="<%=ar.baseURL%>assets/images/expandIcon.gif" name="img_leafContent<%ar.write(String.valueOf(counter));%>" id="img_leafContent<%ar.write(String.valueOf(counter));%>" border="0" />
+                            <td id="leafHeading<%=counter%>_leafContent<%=counter%>">
+                                <img src="<%=ar.baseURL%>assets/images/expandIcon.gif"
+                                     name="img_leafContent<%=counter%>"
+                                     id="img_leafContent<%=counter%>"
+                                     border="0" />
                                 &nbsp;&nbsp;<b>
                                 <%
-                                	String projectName = ngp.getFullName();
-                                                                    if(ngp.getFullName().length() >= 100){
-                                                                        projectName = projectName.substring(0,100)+"...";
-                                                                    }
-                                                                    ar.write(projectName);
+                                    String projectName = ngp.getFullName();
+                                    if(ngp.getFullName().length() >= 100){
+                                        projectName = projectName.substring(0,100)+"...";
+                                    }
+                                    ar.write(projectName);
                                 %>
                                 </b>
                                 <a href="<%=ar.baseURL%>t/<%=ngp.getAccountKey()%>/<%=ngp.getKey()%>/history.htm">
@@ -57,20 +62,20 @@
                     </table>
                 </div>
             <%
-            	formId = "notificationSettingsForm"+counter;
+                formId = "notificationSettingsForm"+counter;
             %>
                 <form id="<%=formId%>"
                     action="<%=ar.baseURL%>v/<%=up.getKey()%>/saveNotificationSettings.form" method="post">
 
                     <input type="hidden" id="pageId" name="pageId" value="<%ar.write(ngp.getKey());%>">
                     <%
-                    	boolean isNotified = up.isNotifiedForProject(ngp.getKey());
+                        boolean isNotified = up.isNotifiedForProject(ngp.getKey());
                     %>
                     <div class="leafContentArea" id="leafContent<%ar.write(String.valueOf(counter));%>" style="display:none">
                         <div class="notificationContent">
                             <table width="100%" cellpadding="0" cellspacing="0">
                                 <%
-                                	if(isNotified){
+                                    if(isNotified){
                                 %>
                                 <tr>
                                     <td class="notificationSubHeading">Send me a digest of message activity:
@@ -90,39 +95,39 @@
                                 </tr>
                                 <tr><td style="height:30px;"></td></tr>
                                 <%
-                                	}
-                                                                                                Vector<GoalRecord> activeTask = new Vector<GoalRecord>();
-                                                                                                for(GoalRecord task : ngp.getAllGoals())
-                                                                                                {
-                                                                                                    if ((!task.isAssignee(up)) && (!task.isReviewer(up)))
-                                                                                                    {
-                                                                                                        continue;
-                                                                                                    }
-                                                                                                    int state = task.getState();
-                                                                                                    if(state == BaseRecord.STATE_ERROR)
-                                                                                                    {
-                                                                                                        if (task.isAssignee(up)) {
-                                                                                                            activeTask.add(task);
-                                                                                                        }
-                                                                                                    }
-                                                                                                    else if(state == BaseRecord.STATE_ACCEPTED ||
-                                                                                                              state == BaseRecord.STATE_STARTED ||
-                                                                                                              state == BaseRecord.STATE_WAITING)
-                                                                                                    {
-                                                                                                        if (task.isAssignee(up)) {
-                                                                                                            activeTask.add(task);
-                                                                                                        }
+                                    }
+                                    Vector<GoalRecord> activeTask = new Vector<GoalRecord>();
+                                    for(GoalRecord task : ngp.getAllGoals())
+                                    {
+                                        if ((!task.isAssignee(up)) && (!task.isReviewer(up)))
+                                        {
+                                            continue;
+                                        }
+                                        int state = task.getState();
+                                        if(state == BaseRecord.STATE_ERROR)
+                                        {
+                                            if (task.isAssignee(up)) {
+                                                activeTask.add(task);
+                                            }
+                                        }
+                                        else if(state == BaseRecord.STATE_ACCEPTED ||
+                                                  state == BaseRecord.STATE_STARTED ||
+                                                  state == BaseRecord.STATE_WAITING)
+                                        {
+                                            if (task.isAssignee(up)) {
+                                                activeTask.add(task);
+                                            }
 
-                                                                                                    }
-                                                                                                    else if(state == BaseRecord.STATE_REVIEW)
-                                                                                                    {
-                                                                                                        if (task.isNextReviewer(up))
-                                                                                                        {
-                                                                                                            activeTask.add(task);
-                                                                                                        }
-                                                                                                    }
-                                                                                                }
-                                                                                                if(activeTask.size() > 0){
+                                        }
+                                        else if(state == BaseRecord.STATE_REVIEW)
+                                        {
+                                            if (task.isNextReviewer(up))
+                                            {
+                                                activeTask.add(task);
+                                            }
+                                        }
+                                    }
+                                    if(activeTask.size() > 0){
                                 %>
                                 <tr>
                                     <td class="notificationSubHeading">Email notifications related to goals & sub goals</td>
@@ -147,9 +152,9 @@
 
 
                                             <%
-                                            	String imageName = null;
-                                                                                        for(GoalRecord task : activeTask){
-                                                                                            imageName = GoalRecord.stateImg(task.getState());
+                                                String imageName = null;
+                                                for(GoalRecord task : activeTask){
+                                                    imageName = GoalRecord.stateImg(task.getState());
                                             %>
 
                                             <tr>

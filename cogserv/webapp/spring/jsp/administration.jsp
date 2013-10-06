@@ -14,7 +14,11 @@
     1. userKey : This id is the used to get UserProfile object from request attribute.
 
     */
-    String userKey = ar.reqParam("userKey");%><%!String pageTitle = "";%><%request.setCharacterEncoding("UTF-8");
+    String userKey = ar.reqParam("userKey");
+%><%!
+    String pageTitle = "";
+%><%
+    request.setCharacterEncoding("UTF-8");
 
     UserProfile uProf = UserManager.getUserProfileOrFail(userKey);
 
@@ -22,7 +26,6 @@
     List<AccountRequest> allaccounts = AccountReqFile.getAccountsStatus();
     List<NGBook> newAccounts = SuperAdminLogFile.getInstance().getAllNewAccounts();
     List<AccountRequest> deniedAccounts = AccountReqFile.scanAllDeniedAccountRequests();
-    List<UserProfile> newUsers = SuperAdminLogFile.getInstance().getAllNewRegisteredUsers();
     List<AccountRequest> superRequests = new ArrayList<AccountRequest>();
     for (AccountRequest accountDetails: allaccounts)
     {   if (isSuper && accountDetails.getStatus().equalsIgnoreCase("requested"))
