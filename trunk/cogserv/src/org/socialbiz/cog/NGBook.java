@@ -442,6 +442,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * duplication any id found here.
      */
     public void findIDs(Vector<String> v) throws Exception {
+        //shouldn't be any attachments.  But count them if there are any
         List<AttachmentRecord> attachments = getAllAttachments();
         for (AttachmentRecord att : attachments) {
             v.add(att.getId());
@@ -609,7 +610,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public void writeDocumentLink(AuthRequest ar, String documentId, int len) throws Exception {
-
+        throw new Exception("writeDocumentLink should no longer be used on an Account");
+        /*
         AttachmentRecord att = findAttachmentByID(documentId);
         if (att == null) {
             ar.write("(Document ");
@@ -624,9 +626,12 @@ public class NGBook extends ContainerCommon implements NGContainer {
         ar.write(".htm\">");
         ar.writeHtml(nameOfLink);
         ar.write("</a>");
+        */
     }
 
     public void writeReminderLink(AuthRequest ar, String reminderId, int len) throws Exception {
+        throw new Exception("writeReminderLink should no longer be used on an Account");
+        /*
         ReminderRecord att = getReminderMgr().findReminderByID(reminderId);
         if (att == null) {
             ar.write("(Reminder ");
@@ -641,7 +646,40 @@ public class NGBook extends ContainerCommon implements NGContainer {
         ar.write("\">");
         ar.writeHtml(nameOfLink);
         ar.write("</a>");
+        */
     }
+
+    /**
+     * overridden in Account to make sure this is never needed
+     */
+    public AttachmentRecord findAttachmentByID(String id) throws Exception {
+        throw new Exception("findAttachmentByID should never be needed on Account");
+    }
+    public AttachmentRecord findAttachmentByIDOrFail(String id) throws Exception {
+        throw new Exception("findAttachmentByIDOrFail should never be needed on Account");
+    }
+    public AttachmentRecord findAttachmentByName(String name) throws Exception {
+        throw new Exception("findAttachmentByName should never be needed on Account");
+    }
+    public AttachmentRecord findAttachmentByNameOrFail(String name) throws Exception {
+        throw new Exception("findAttachmentByNameOrFail should never be needed on Account");
+    }
+    public AttachmentRecord createAttachment() throws Exception {
+        throw new Exception("createAttachment should never be needed on Account");
+    }
+    public void deleteAttachment(String id,AuthRequest ar) throws Exception {
+        throw new Exception("deleteAttachment should never be needed on Account");
+    }
+    public void unDeleteAttachment(String id) throws Exception {
+        throw new Exception("unDeleteAttachment should never be needed on Account");
+    }
+    public void eraseAttachmentRecord(String id) throws Exception {
+        throw new Exception("eraseAttachmentRecord should never be needed on Account");
+    }
+
+
+
+
 
     public void writeTaskLink(AuthRequest ar, String taskId, int len) throws Exception {
         throw new ProgramLogicError("This account does not have a task '" + taskId

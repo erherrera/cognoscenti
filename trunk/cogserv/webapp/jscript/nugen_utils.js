@@ -378,7 +378,7 @@ http://bobcat:8080/cog/t/texteditor.htm?pid=copy-of-development-meeting&nid=&vis
             ];
         }else{
             first_tab=tab0_edit_attachments;
-            arrayOfTabs = [new Tab(retPath+"t/"+book+"/"+pageId+"/editDocumentForm.htm?aid="+aid,tab0_edit_attachments),
+            arrayOfTabs = [new Tab(retPath+"t/"+book+"/"+pageId+"/editDetails"+aid+".htm",tab0_edit_attachments),
                 new Tab(retPath+"t/"+book+"/"+pageId+"/fileVersions.htm?aid="+aid,tab1_edit_attachments)
             ];
         }
@@ -774,7 +774,7 @@ var formSubmitResponse ={
             new Tab(retPath+"t/"+accountId+"/$/account_history.htm","Account Bulletin")];
     }else{
         first_tab=tab0_edit_attachments;
-        arrayOfTabs = [new Tab(retPath+"t"+"/"+accountId+"/$/editDocumentForm.htm?aid="+aid,tab0_edit_attachments),
+        arrayOfTabs = [new Tab(retPath+"t"+"/"+accountId+"/$/editDetails"+aid+".htm",tab0_edit_attachments),
             new Tab(retPath+"t"+"/"+accountId+"/$/fileVersions.htm?aid="+aid,tab1_edit_attachments)];
     }
 

@@ -113,8 +113,8 @@ public class ProjectAttachment extends AttachmentRecord
         }
 
         String displayName = getNiceName();
-        AttachmentVersion av = AttachmentVersionProject.getNewProjectVersion(projectFolder, displayName,
-                getId(), contents);
+        AttachmentVersion av = AttachmentVersionProject.getNewProjectVersion(projectFolder,
+                 displayName, getId(), contents);
 
         //update the record
         setVersion(av.getNumber());

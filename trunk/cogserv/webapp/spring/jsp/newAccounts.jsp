@@ -39,7 +39,7 @@
                             //sometimes be null, and skip the loop if so.
                             continue;
                         }
-                        String accountLink = ar.baseURL + "v/" + account.getKey() + "/$/public.htm";
+                        String accountLink = ar.baseURL + "v/" + account.getKey() + "/$/accountListProjects.htm";
                     %>
                     <tr>
                         <td><% ar.writeHtml(String.valueOf(i));%></td>

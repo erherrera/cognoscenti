@@ -22,6 +22,8 @@ Required parameters:
     UserProfile uProf = ar.getUserProfile();
 
     NGPage ngp =NGPageIndex.getProjectByKeyOrFail(pageId);
+    pageId = ngp.getKey();
+    NGBook account = ngp.getAccount();
 
     AttachmentRecord attachment = ngp.findAttachmentByIDOrFail(aid);
     long fileSize = attachment.getFileSize(ngp);
@@ -56,9 +58,8 @@ Required parameters:
 <script type="text/javascript"
     src="<%=ar.retPath%>jscript/attachment.js"></script>
 <body class="yui-skin-sam">
-    <div class="pageHeading">Download Document</div>
-    <div class="pageSubHeading">You can view the details of the
-        document and also download it from here.</div>
+    <div class="pageHeading">Access Document</div>
+    <div class="pageSubHeading">You can view the document details and also download it from here.</div>
     <div class="generalSettings">
         <table border="0px solid red" width="800">
             <tr>
@@ -222,16 +223,15 @@ Required parameters:
                 <td><input type="button" class="inputBtn"
                     onclick="return gotoSendNoteByEmail('<%=ar.retPath%>t/sendNoteByEmail.htm?p=<%ar.writeHtml(pageId);%>&oid=x&selectedAttachemnt=attach<%ar.writeHtml(attachment.getId()); %>&encodingGuard=%E6%9D%B1%E4%BA%AC'); "
                     value="Send By Email" /> &nbsp;
-                    <%
-                        if(!attachment.getReadOnlyType().equals("on"))
-                        {
-                    %>
-                        <input type="button" class="inputBtn"
-                        onclick="return uploadRevisedDocForm(<%ar.writeQuote4JS(attachment.getId());%>,<%ar.writeQuote4JS(attachment.getNiceName());%>,<%ar.writeQuote4JS(attachment.getComment());%>, <%ar.writeQuote4JS(String.valueOf(attachment.getVersion()));%>);"
-                        value="Upload New Version" />
-                    <%
-                        }
-                    %>
+                    <input type="button" class="inputBtn"
+                        onclick="window.location.assign('uploadRevisedDocument.htm?aid=<%ar.writeHtml(attachment.getId());%>');"
+                        value="Upload New Version" /> &nbsp;
+                    <input type="button" class="inputBtn"
+                        onclick="window.location.assign('editDetails<%ar.writeHtml(attachment.getId());%>.htm');"
+                        value="Edit Details" /> &nbsp;
+                    <input type="button" class="inputBtn"
+                        onclick="window.location.assign('fileVersions.htm?aid=<%ar.writeHtml(attachment.getId());%>');"
+                        value="List Versions" />
                 </td>
             </tr>
                     <% }

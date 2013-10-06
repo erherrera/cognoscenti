@@ -581,6 +581,16 @@ public class UploadFileController extends BaseController {
     protected ModelAndView getEditDocumentForm(@PathVariable String accountId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
+        AuthRequest ar = AuthRequest.getOrCreate(request, response);
+        String aid = ar.reqParam("aid");
+        return editDetails(accountId, pageId, aid, request, response);
+    }
+
+    @RequestMapping(value = "/{accountId}/{pageId}/editDetails{aid}.htm", method = RequestMethod.GET)
+    protected ModelAndView editDetails(@PathVariable String accountId,
+            @PathVariable String pageId, @PathVariable String aid, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
@@ -596,10 +606,9 @@ public class UploadFileController extends BaseController {
             if(ngp.isFrozen()){
                 return showWarningView(ar, "nugen.generatInfo.Frozen");
             }
-            String aid = ar.reqParam("aid");
             ngp.findAttachmentByIDOrFail(aid);
 
-            modelAndView = createNamedView(accountId, pageId, ar, "edit_document_form", "Project Documents");
+            modelAndView = createNamedView(accountId, pageId, ar, "editDetails", "Project Documents");
             request.setAttribute("subTabId", "nugen.projectdocument.subtab.attachmentdetails");
             request.setAttribute("aid",aid);
             request.setAttribute("realRequestURL", ar.getRequestURL());
@@ -721,21 +730,6 @@ public class UploadFileController extends BaseController {
     }
 
 
-    /**
-    * deprecated URL pattern, use docinfo####.htm instead
-    * This remains incase someone had recorded some URLs
-    * deprecated MAy 15, 2011, remove this about a year later
-    *
-    RequestMapping(value = "/{accountId}/{pageId}/downloadDocument.htm", method = RequestMethod.GET)
-    protected ModelAndView getDownloadDocumentPage(@PathVariable String accountId,
-             @PathVariable String pageId, HttpServletRequest request,
-             HttpServletResponse response) throws Exception
-    {
-        AuthRequest ar = getLoggedInAuthRequest(request, response, "message.must.be.login.to.open.page");
-        return docInfoView(accountId, pageId, ar.reqParam("aid"), request, response);
-    }*/
-
-
     @RequestMapping(value = "/{accountId}/{pageId}/docinfo{docId}.htm", method = RequestMethod.GET)
     protected ModelAndView docInfoView(@PathVariable String accountId,
              @PathVariable String pageId, @PathVariable String docId,
@@ -749,7 +743,7 @@ public class UploadFileController extends BaseController {
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("subTabId", "nugen.projectdocument.subtab.attachmentdetails");
             request.setAttribute("aid", docId);
-            return createNamedView(accountId, pageId, ar, "download_document", "Project Documents");
+            return createNamedView(accountId, pageId, ar, "docinfo", "Project Documents");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.download.document.page", new Object[]{pageId,accountId} , ex);
         }
