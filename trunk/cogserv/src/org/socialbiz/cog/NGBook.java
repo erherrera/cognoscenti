@@ -567,7 +567,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public long getLastModifyTime() throws Exception {
-        return 0;
+        return bookInfoRecord.getModTime();
     }
 
     public boolean isDeleted() {

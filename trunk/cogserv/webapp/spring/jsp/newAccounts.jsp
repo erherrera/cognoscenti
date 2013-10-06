@@ -30,15 +30,8 @@
                 <tbody>
                     <%
                     int i = 0;
-                    Iterator<NGBook> it = newAccounts.iterator();
-                    while (it.hasNext()) {
+                    for (NGBook account : newAccounts) {
                         i++;
-                        NGBook account = (NGBook) it.next();
-                        if(account==null){
-                            //i don't know why, but for some reason this can
-                            //sometimes be null, and skip the loop if so.
-                            continue;
-                        }
                         String accountLink = ar.baseURL + "v/" + account.getKey() + "/$/accountListProjects.htm";
                     %>
                     <tr>

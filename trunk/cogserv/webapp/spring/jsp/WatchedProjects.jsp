@@ -30,11 +30,9 @@
                         <th><fmt:message key="nugen.userhome.MostRecentChange"/></th>
                         <th><fmt:message key="nugen.userhome.Visited"/></th>
                         <th style="display:none"><fmt:message key="nugen.userhome.PageKey"/></th>
-                        <th style="display:none"><fmt:message key="nugen.userhome.FullName"/></th>
                         <th style="display:none">timePeriod</th>
                         <th style="display:none">PageBookKey</th>
                         <th style="display:none">visitedTimePeriod</th>
-                        <th style="display:none">isFrozen</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,40 +55,33 @@
                 for (NGPageIndex ngpi : watchedProjects)
                 {
                     String rowStyleClass="";
-                     if(count%2 == 0){
-                         rowStyleClass = "tableBodyRow odd";
-                        }else{
-                         rowStyleClass = "tableBodyRow even";
-                        }
-                    NGPage  ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(ngpi.getPage().getKey());
-                    long  changeTime = 0;
+                    if(count%2 == 0){
+                        rowStyleClass = "tableBodyRow odd";
+                    }
+                    else{
+                        rowStyleClass = "tableBodyRow even";
+                    }
                     ar.write("\n<tr>\n  <td>");
                     ar.writeHtml(ngpi.containerName);
-                    changeTime = ngpi.lastChange;
+                    long changeTime = ngpi.lastChange;
                     ar.write("</td>\n  <td>");
                     SectionUtil.nicePrintTime(ar.w, changeTime, ar.nowTime);
                     ar.write("</td>\n  <td>");
                     Long lastSeen = (Long) visitDate.get(ngpi.containerKey);
                     SectionUtil.nicePrintTime(ar.w, lastSeen.longValue(), ar.nowTime);
                     ar.write("</td>\n  <td style='display:none'>");
-                    ar.writeHtml(ngpi.getPage().getKey());
-                    ar.write("</td>\n  <td style='display:none'>");
-                    ar.writeHtml(ngpi.getPage().getFullName());
+                    ar.writeHtml(ngpi.containerKey);
                     ar.write("</td>");
                     ar.write("\n  <td>");
                     ar.write(String.valueOf(ar.nowTime-changeTime));
                     ar.write("</td>");
                     ar.write("\n  <td>");
-                    ar.writeHtml(ngpi.getPage().getAccount().getKey());
+                    ar.writeHtml(ngpi.pageBookKey);
                     ar.write("</td>");
                     ar.write("\n  <td>");
                     ar.write(String.valueOf(ar.nowTime-lastSeen.longValue()));
                     ar.write("</td>");
-                    ar.write("\n  <td>");
-                    ar.write(String.valueOf(ngp.isFrozen()));
-                    ar.write("</td>");
                     ar.write("\n</tr>");
-
                     count++;
                 }
             %>
@@ -115,11 +106,9 @@
                 {key:"recent",label:"<fmt:message key='nugen.userhome.MostRecentChange'/>", sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
                 {key:"visited",label:"<fmt:message key='nugen.userhome.Visited'/>", sortable:true,sortOptions:{sortFunction:sortVisitedDates},resizeable:true},
                 {key:"pagekey",label:"<fmt:message key='nugen.userhome.PageKey'/>", sortable:true,resizeable:true,hidden:true},
-                {key:"fullName",label:"<fmt:message key='nugen.userhome.FullName'/>", sortable:true,resizeable:true,hidden:true},
                 {key:"timePeriod",label:"timePeriod",sortable:true, resizeable:true, hidden:true},
                 {key:"pageBookKey",label:"PageBookKey",sortable:true, resizeable:true, hidden:true},
-                {key:"visitedTimePeriod",label:"visitedTimePeriod",sortable:true, resizeable:true, hidden:true},
-                {key:"isFrozen",label:"isFrozen",sortable:true, resizeable:true, hidden:true}
+                {key:"visitedTimePeriod",label:"visitedTimePeriod",sortable:true, resizeable:true, hidden:true}
             ];
 
             var WatchedProjectDS = new YAHOO.util.DataSource(YAHOO.util.Dom.get("watchedProjectList"));
@@ -129,11 +118,9 @@
                         {key:"recent"},
                         {key:"visited"},
                         {key:"pagekey"},
-                        {key:"fullName"},
                         {key:"timePeriod" , parser:YAHOO.util.DataSource.parseNumber},
                         {key:"pageBookKey"},
-                        {key:"visitedTimePeriod", parser:YAHOO.util.DataSource.parseNumber},
-                        {key:"isFrozen"}]
+                        {key:"visitedTimePeriod", parser:YAHOO.util.DataSource.parseNumber}]
             };
 
             var oConfigs = {
