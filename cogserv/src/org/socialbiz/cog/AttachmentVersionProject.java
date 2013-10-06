@@ -262,7 +262,7 @@ public class AttachmentVersionProject implements AttachmentVersion {
                 throw new NGException("nugen.exception.unable.to.rename.temp.file",
                         new Object[]{tempFile,currentFile});
             }
-            return new AttachmentVersionProject(currentFile, newSubVersion+1, false, true);
+            return new AttachmentVersionProject(currentFile, newSubVersion, false, true);
         }
     }
 

@@ -31,6 +31,16 @@
                        out.write("URL");
                     }
                     %>
+                    &nbsp; &nbsp;
+                    <input type="button" class="inputBtn"
+                        onclick="window.location.assign('fileVersions.htm?aid=<%ar.writeHtml(attachment.getId());%>');"
+                        value="List Versions" />  &nbsp;
+                    <input type="button" class="inputBtn"
+                        onclick="window.location.assign('editDetails<%ar.writeHtml(attachment.getId());%>.htm');"
+                        value="Edit Details" /> &nbsp;
+                    <input type="button" class="inputBtn"
+                        onclick="window.location.assign('docinfo<%ar.writeHtml(attachment.getId());%>.htm');"
+                        value="Access Document" />
                     </td>
             </tr>
             <tr><td style="height:10px"></td></tr>

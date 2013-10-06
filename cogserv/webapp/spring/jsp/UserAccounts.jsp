@@ -86,7 +86,7 @@ Required Parameters:
                         }
 
                         NGBook account  = (NGBook) it.next();
-                        String accountLink =ar.baseURL+"t/"+account.getKey()+"/$/public.htm";
+                        String accountLink =ar.baseURL+"t/"+account.getKey()+"/$/accountListProjects.htm";
 
                     %>
                         <tr>
@@ -160,7 +160,7 @@ Required Parameters:
 
                     for (AccountRequest accountDetails : myAccountRequests)
                     {
-                        String accountLink =ar.baseURL+"t/"+accountDetails.getAccountId()+"/$/public.htm";
+                        String accountLink =ar.baseURL+"t/"+accountDetails.getAccountId()+"/$/accountListProjects.htm";
                         %><tr><td><%
                         if(accountDetails.getStatus().equalsIgnoreCase("Granted")){
                             %><a href="<%ar.writeHtml(accountLink); %>"><%

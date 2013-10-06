@@ -6,8 +6,18 @@
 %>
 <div class="content tab01">
     <br>
-    <B>Attachment Name : <%ar.writeHtml(attachment.getDisplayName());%></B>
-    <br>
+    <B>Attachment Name : <%ar.writeHtml(attachment.getDisplayName());%> &nbsp;</B> &nbsp;
+                    <input type="button" class="inputBtn"
+                        onclick="window.location.assign('uploadRevisedDocument.htm?aid=<%ar.writeHtml(attachment.getId());%>');"
+                        value="Upload New Version" /> &nbsp;
+                    <input type="button" class="inputBtn"
+                        onclick="window.location.assign('editDetails<%ar.writeHtml(attachment.getId());%>.htm');"
+                        value="Edit Details" /> &nbsp;
+                    <input type="button" class="inputBtn"
+                        onclick="window.location.assign('docinfo<%ar.writeHtml(attachment.getId());%>.htm');"
+                        value="Access Document" />
+
+    <br/>
     <div class="scrollableOverflow">
         <div id="attachVersionList" width="100%">
             <table id="attachVersionTable" width="100%">

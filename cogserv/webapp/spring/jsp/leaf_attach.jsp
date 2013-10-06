@@ -249,7 +249,7 @@
                                         }
                                         break;
                                     case 2:
-                                        window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/editDocumentForm.htm?aid="+aid;
+                                        window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/editDetails"+aid+".htm";
                                         break;
                                     case 3:
                                         if(oRecord.getData("ftype") != 'URL'){

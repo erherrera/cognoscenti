@@ -938,9 +938,8 @@ int count=100;
             modifiedBy = "unknown";
         }
 
-         String editLink = "editDocumentForm.htm"
-                + "?p=" + URLEncoder.encode(ngp.getKey(), "UTF-8")
-                + "&aid=" + URLEncoder.encode(id, "UTF-8");
+         String editLink = "editDetails"+URLEncoder.encode(id, "UTF-8")+".htm"
+                + "?p=" + URLEncoder.encode(ngp.getKey(), "UTF-8");
 
         String contentLink = "";
         boolean putCreateIcon = false;

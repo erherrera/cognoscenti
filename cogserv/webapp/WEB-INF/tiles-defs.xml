@@ -120,11 +120,6 @@
         <put-attribute name="body" value="/spring/jsp/createAttachment.jsp" />
     </definition>
 
-    <definition name="edit_attachment" extends="baseLayout">
-        <put-attribute name="title" value="Edit Attachments" />
-        <put-attribute name="body" value="/spring/jsp/EditAttachment.jsp" />
-    </definition>
-
     <definition name="createProfile" extends="baseLayout">
         <put-attribute name="title" value="CreateProfile" />
         <put-attribute name="body" value="/spring/jsp/CreateUserProfile.jsp" />
@@ -284,9 +279,9 @@
         <put-attribute name="body" value="/spring/jsp/emailReminderForm.jsp" />
     </definition>
 
-    <definition name="edit_document_form" extends="baseLayout">
+    <definition name="editDetails" extends="baseLayout">
         <put-attribute name="title" value="Edit Document Form" />
-        <put-attribute name="body" value="/spring/jsp/editAttachmentDetail.jsp" />
+        <put-attribute name="body" value="/spring/jsp/editDetails.jsp" />
     </definition>
 
     <definition name="fileVersions" extends="baseLayout">
@@ -356,43 +351,14 @@
         <put-attribute name="title" value="account" />
         <put-attribute name="body" value="/spring/jsp/accountCreateProject.jsp" />
     </definition>
-    <definition name="accountDocumentPage" extends="baseLayout">
-        <put-attribute name="title" value="Attachments" />
-        <put-attribute name="body" value="/spring/jsp/UserAccountDocument.jsp" />
-    </definition>
     <definition name="UserAccountSetting" extends="baseLayout">
         <put-attribute name="title" value="Admin" />
         <put-attribute name="headerType" value="account" />
         <put-attribute name="body" value="/spring/jsp/UserAccountSetting.jsp" />
     </definition>
-    <definition name="upload_document_form_account" extends="baseLayout">
-        <put-attribute name="title" value="Upload Attachment Form" />
-        <put-attribute name="body" value="/spring/jsp/uploadDocumentFormAccount.jsp" />
-    </definition>
     <definition name="leaf_project" extends="baseLayout">
         <put-attribute name="title" value="Project" />
         <put-attribute name="body" value="/spring/jsp/leaf_project.jsp" />
-    </definition>
-
-    <definition name="linkurlproject_form_account" extends="baseLayout">
-        <put-attribute name="title" value="Link URL To Project Form" />
-        <put-attribute name="body" value="/spring/jsp/createLinkURLAccount.jsp" />
-    </definition>
-
-
-    <definition name="emailreminder_form_account" extends="baseLayout">
-        <put-attribute name="title" value="Email Reminder Form" />
-        <put-attribute name="body" value="/spring/jsp/emailReminderFormAccount.jsp" />
-    </definition>
-    <definition name="edit_document_form_account" extends="baseLayout">
-        <put-attribute name="title" value="Edit Document Form" />
-        <put-attribute name="body" value="/spring/jsp/editAttachmentDetailAccount.jsp" />
-    </definition>
-
-
-    <definition name="file_version_account" extends="baseLayout">
-        <put-attribute name="title" value="File version list" />
-        <put-attribute name="body" value="/spring/jsp/fileVersionsAccount.jsp" />
     </definition>
 
     <definition name="search" extends="baseLayout">
@@ -429,9 +395,9 @@
             <put-attribute name="body" value="/spring/jsp/email_preview_popup.jsp" />
     </definition>
 
-    <definition name="download_document" extends="baseLayoutWithoutLeftPanel">
+    <definition name="docinfo" extends="baseLayoutWithoutLeftPanel">
         <put-attribute name="title" value="Download Document" />
-        <put-attribute name="body" value="/spring/jsp/downloadDocument.jsp" />
+        <put-attribute name="body" value="/spring/jsp/docinfo.jsp" />
     </definition>
 
     <definition name="showSearchResult" extends="baseLayout">
@@ -442,16 +408,6 @@
     <definition name="reminders" extends="baseLayout">
         <put-attribute name="title" value="Reminders" />
         <put-attribute name="body" value="/spring/jsp/reminders.jsp" />
-    </definition>
-
-    <definition name="reminders_account" extends="baseLayout">
-        <put-attribute name="title" value="Reminders" />
-        <put-attribute name="body" value="/spring/jsp/reminders_account.jsp" />
-    </definition>
-
-      <definition name="download_account_document" extends="baseLayout">
-        <put-attribute name="title" value="Process" />
-        <put-attribute name="body" value="/spring/jsp/downloadAccountDocument.jsp" />
     </definition>
 
     <definition name="roleRequest" extends="baseLayout">
