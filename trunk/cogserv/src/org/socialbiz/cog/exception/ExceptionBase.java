@@ -471,8 +471,7 @@ public class ExceptionBase extends Exception {
             } catch (MissingResourceException mre) {
                 throw new RuntimeException("getResourceBundle: "
                         + "Failed to load resource bundle '"
-                        + bundleName + "' for locale '" + locale.getDisplayName() + "'.  "
-                        + mre.getMessage());
+                        + bundleName + "' for locale '" + locale.getDisplayName() + "'.  ",mre);
             }
         }
         return bundle;
@@ -496,19 +495,19 @@ public class ExceptionBase extends Exception {
         if (locale == null) {
             locale = Locale.getDefault();
         }
-        ResourceBundle resourceBundle = getResourceBundle(locale);
-
-        if (resourceBundle != null) {
-            try {
+        try {
+            ResourceBundle resourceBundle = getResourceBundle(locale);
+            if (resourceBundle != null) {
                 propValue = resourceBundle.getString(propKey);
-            } catch (Exception e) {
-                // Here, there is a possibility that the exception occurs.
-                // However, this exception is ignored, and the default
-                // value of propKey is used.  This warnign printed to the log.
-                System.out.println("Unable to find a text resource with the key ["
-                      +propKey+"], using the untranslated key directly instead.  "
-                      +"Perhaps the resource bundle is missing some entries? -- " + e.getMessage());
             }
+        }
+        catch (Exception e) {
+            // Here, there is a possibility that the exception occurs.
+            // However, this exception is ignored, and the default
+            // value of propKey is used.  This warnign printed to the log.
+            System.out.println("Unable to find a text resource with the key ["
+                  +propKey+"], using the untranslated key directly instead.  "
+                  +"Perhaps the resource bundle is missing some entries? -- " + e.getMessage());
         }
         return propValue;
     }
