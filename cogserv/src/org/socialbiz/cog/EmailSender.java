@@ -824,6 +824,7 @@ public class EmailSender extends TimerTask {
 
         Transport transport = null;
         try {
+            dumpProperties(emailProperties);
             Authenticator authenticator = new MyAuthenticator(emailProperties);
             Session mailSession = Session.getInstance(emailProperties, authenticator);
             mailSession.setDebug("true".equals(getProperty("mail.debug")));

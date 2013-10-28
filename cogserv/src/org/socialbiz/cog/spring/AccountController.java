@@ -516,6 +516,10 @@ public class AccountController extends BaseController {
             if (needsToSetEmail(ar)) {
                 return new ModelAndView("requiredEmail");
             }
+            if (UserManager.getAllSuperAdmins(ar).size()==0) {
+                return showWarningView(ar, "nugen.missingSuperAdmin");
+            }
+
             ModelAndView modelAndView = new ModelAndView("RequestAccount");
             request.setAttribute("userKey", userKey);
             request.setAttribute("pageTitle", "New Account Request Form");

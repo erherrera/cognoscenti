@@ -155,7 +155,8 @@ public class ServerInitializer extends TimerTask {
      */
     public static void reinitServer() throws Exception {
         if (serverInitState != STATE_PAUSED) {
-            throw new Exception("The server can only be reinitialized after it has been paused.");
+            pauseServer();
+            //throw new Exception("The server can only be reinitialized after it has been paused.");
         }
         serverInitState = STATE_FAILED;
         singletonInitializer.run();
