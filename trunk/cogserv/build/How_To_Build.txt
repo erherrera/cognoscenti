@@ -25,7 +25,7 @@ SETUP
 
 4) Run the "build.bat" file.  This is a small script that calls the config scripte, and then calls ANT.
 
-Rebuild as many times as you want in that folder.  Results of prior builds are properly cleaned out.  
+Rebuild as many times as you want in that folder.  Results of prior builds are properly cleaned out.  Note that the "build.xml" ANT script does not need to be copied to the build folder ... it is read directly from the source folder.
 
 If you must use Eclipse to do your builds, set it up to use the "build.bat" file for building.  It takes only a couple minutes to build.  This BAT file is the official project build, and the only way to be entirely sure that everyone else will be able to build is by using the official build.bat file for your own use.  Do not use the (default) setting in Eclipse to write anything into the source folders under management.  It is pretty easy to configure Eclipse to put all its automated output somewhere else, into a working folder.  The Ecplise working folder can be one place, and you link to an external folder for source and libraries from the project site.  
 

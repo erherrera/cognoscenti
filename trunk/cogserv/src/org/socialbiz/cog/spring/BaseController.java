@@ -34,6 +34,7 @@ import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
+import org.socialbiz.cog.UserManager;
 import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ServletExit;
@@ -226,6 +227,9 @@ public class BaseController {
             ar.req.setAttribute("roleName", "Members");
             return showWarningView(ar, "nugen.project.member.msg");
         }
+        if (UserManager.getAllSuperAdmins(ar).size()==0) {
+            return showWarningView(ar, "nugen.missingSuperAdmin");
+        }
         return null;
     }
 
@@ -248,6 +252,9 @@ public class BaseController {
         if(!ar.isMember()){
             ar.req.setAttribute("roleName", "Executive");
             return showWarningView(ar, "nugen.project.executive.msg");
+        }
+        if (UserManager.getAllSuperAdmins(ar).size()==0) {
+            return showWarningView(ar, "nugen.missingSuperAdmin");
         }
         return null;
     }
