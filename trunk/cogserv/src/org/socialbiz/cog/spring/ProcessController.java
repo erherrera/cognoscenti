@@ -29,6 +29,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
+import org.socialbiz.cog.AccessControl;
+import org.socialbiz.cog.AddressListEntry;
+import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.BaseRecord;
+import org.socialbiz.cog.GoalRecord;
+import org.socialbiz.cog.HistoryRecord;
+import org.socialbiz.cog.LicensedURL;
+import org.socialbiz.cog.NGBook;
+import org.socialbiz.cog.NGPage;
+import org.socialbiz.cog.NGPageIndex;
+import org.socialbiz.cog.NGRole;
+import org.socialbiz.cog.ProcessRecord;
+import org.socialbiz.cog.SectionUtil;
+import org.socialbiz.cog.UserProfile;
+import org.socialbiz.cog.UtilityMethods;
+import org.socialbiz.cog.exception.NGException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,24 +52,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.AccessControl;
-import org.socialbiz.cog.AddressListEntry;
-import org.socialbiz.cog.AuthRequest;
-import org.socialbiz.cog.BaseRecord;
-import org.socialbiz.cog.HistoryRecord;
-import org.socialbiz.cog.LicensedURL;
-import org.socialbiz.cog.NGBook;
-import org.socialbiz.cog.NGPage;
-import org.socialbiz.cog.NGRole;
-import org.socialbiz.cog.NGPageIndex;
-import org.socialbiz.cog.ProcessRecord;
-import org.socialbiz.cog.SectionUtil;
-import org.socialbiz.cog.GoalRecord;
-import org.socialbiz.cog.UserProfile;
-import org.socialbiz.cog.UtilityMethods;
-import org.socialbiz.cog.spring.NGWebUtils;
 
 /**
  * This class will handle all requests managing process/tasks. Currently this is
@@ -358,7 +356,6 @@ public class ProcessController extends BaseController {
     public void handleActivityUpdates(@PathVariable String accountId, @PathVariable String pageId,@RequestParam String pId,
                 HttpServletRequest request, HttpServletResponse response) throws Exception
     {
-        System.out.println("updateTaskStatus.ajax -- START");
         AuthRequest ar = null;
         try{
             ar = AuthRequest.getOrCreate(request, response);
@@ -555,7 +552,7 @@ public class ProcessController extends BaseController {
             responseMessage = param.toString();
         }catch(Exception ex){
             responseMessage = NGWebUtils.getExceptionMessageForAjaxRequest(ex, ar.getLocale());
-            ar.logException("Caught by updateTaskStatus.ajax", ex);
+            ar.logException("Caught by subProcess.ajax", ex);
         }
         NGWebUtils.sendResponse(ar, responseMessage);
     }

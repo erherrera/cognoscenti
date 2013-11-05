@@ -666,7 +666,7 @@ public class AuthRequest
             if (canRedirect)
             {
                 String configDest = retPath + "init/config.htm?go="
-                        +URLEncoder.encode(getRequestURL(),"UTF=8");
+                        +URLEncoder.encode(getRequestURL(),"UTF-8");
                 resp.sendRedirect(configDest);
             }
             throw new NGException("nugen.exception.server.not.initialized",null, NGPageIndex.initFailureException());

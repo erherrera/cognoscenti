@@ -602,7 +602,8 @@ public class NGPageIndex
                     //file would prevent the server from starting.
                     //BUT log it so the admin knows
                     AuthRequest dummy = AuthDummy.serverBackgroundRequest();
-                    dummy.logException("Failure reading file during Initialization: "+child.toString(), eig);
+                    Exception wrapper = new Exception("Failure reading file during Initialization: "+child.toString(), eig);
+                    dummy.logException("Initialization Loop Continuing After Failure", wrapper);
                 }
             }
         }

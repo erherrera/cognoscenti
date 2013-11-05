@@ -64,8 +64,6 @@ import org.springframework.context.ApplicationContext;
  * long run.
  */
 public class EmailSender extends TimerTask {
-    private static EmailSender singletonSender = null;
-    private static SendEmailThread sendEmailThread = null;
     private static ApplicationContext resourceBundle;
     private static Properties emailProperties = new Properties();
 
@@ -148,34 +146,25 @@ public class EmailSender extends TimerTask {
     public static void initSender(Timer timer, ServletContext sc,
             ApplicationContext _resourceBundle) throws Exception {
         resourceBundle = _resourceBundle;
-        // nothing else should create the EmailSender
-        if (singletonSender != null) {
-            return;
-        }
 
-        singletonSender = new EmailSender();
+        // apparently a timer task can not be reused by a Timer, or in another
+        // Timer.  You have to create them every time you schedule them???
+        // TODO: no reason to make these static then
+        EmailSender singletonSender = new EmailSender();
+        SendEmailThread sendEmailThread = new SendEmailThread();
 
-        // there is no longer any need to send email at the moment of starting
-        // up.
-        // the only thing that happens now is to start the scheduler to call
-        // every ten minutes
-        // Then, ten minutes from now, the routine will figure out if anything
-        // needs to be emailed at that time.
-        // The run method is called every ten minutes for a very light
-        // calculation. If that calculation
-        // shows that email is overdue ... then it sends the email. As long as
-        // the server is up, the mail should
-        // always be sent within 10 minutes of the time it was scheduled to go.
+        // As long as the server is up, the mail should
+        // always be sent within 20 minutes of the time it was scheduled to go.
 
-        // second parameter is the "delay" of 60 seconds. The first mailing will
-        // be tested one minute
-        // from now, and every 20 minutes after that. Note, if the sending of
-        // email fails, then it will
+        // second parameter is the "delay" of 60 seconds.
+        // The first mailing will be tested one minute from now,
+        // and every 20 minutes after that.
+        // Note, if the sending of email fails, then it will
         // try again 20 minutes later, and every 20 minutes until it succeeds.
         timer.scheduleAtFixedRate(singletonSender, 60000, EVERY_TWENTY_MINUTES);
 
         //check if anything needs to be sent every 10 seconds
-        sendEmailThread = new SendEmailThread();
+        //after waiting an initial 60 seconds.
         timer.scheduleAtFixedRate(sendEmailThread, 60000, 10000);
     }
 
@@ -184,15 +173,20 @@ public class EmailSender extends TimerTask {
     // The calling of this method has nothing to do with the email schedule /
     // frequency.
     public void run() {
-        // make sure that this method doesnt throw any exception
+        // make sure that this method doesn't throw any exception
         try {
             checkAndSendDailyDigest();
         } catch (Exception e) {
             Exception failure = new Exception(
                     "Failure in the EmailSender thread run method.  Thread died.",
                     e);
+            System.out.println("FATAL FAILURE in EmailSender thread:" + e);
             failure.printStackTrace();
             threadLastCheckException = failure;
+        }
+        finally {
+            //only call this when you are sure you are not holding on to any containers
+            NGPageIndex.clearLocksHeldByThisThread();
         }
     }
 
@@ -235,8 +229,6 @@ public class EmailSender extends TimerTask {
         else {
             System.out.println("EmailSender: Checked and decided NOT to send the daily digest "+SectionUtil.getNicePrintDate(threadLastCheckTime));
         }
-        //only call this when you are sure you are not holding on to any containers
-        NGPageIndex.clearLocksHeldByThisThread();
     }
 
     /*
@@ -718,18 +710,17 @@ public class EmailSender extends TimerTask {
             throw new ProgramLogicError(
                     "queueEmailNGC requires a non null ngc parameter");
         }
-        EmailSender es = getInstance();
         if (from == null) {
             from = composeFromAddress(ngc);
         }
-        es.createEmailRecordInternal(ngc, from, addresses, subject, emailBody, attachIds);
+        EmailSender.createEmailRecordInternal(ngc, from, addresses, subject, emailBody, attachIds);
     }
 
 
     /**
      * TODO: This should probable be on the NGPage object.
      */
-    private void createEmailRecordInternal(NGContainer ngc, String from,
+    private static void createEmailRecordInternal(NGContainer ngc, String from,
             Vector<OptOutAddr> addresses, String subject, String emailBody, Vector<String> attachIds)
             throws Exception {
 
@@ -775,8 +766,7 @@ public class EmailSender extends TimerTask {
      */
     public static void simpleEmail(Vector<OptOutAddr> addresses, String from,
             String subject, String emailBody) throws Exception {
-        EmailSender es = getInstance();
-        es.instantEmailSend(addresses, subject, emailBody, from);
+        EmailSender.instantEmailSend(addresses, subject, emailBody, from);
     }
 
     /**
@@ -784,7 +774,7 @@ public class EmailSender extends TimerTask {
      * Does NOT associate this with a NGPage object.
      * TODO: check if this should be on a project
      */
-    private void instantEmailSend(Vector<OptOutAddr> addresses, String subject,
+    private static void instantEmailSend(Vector<OptOutAddr> addresses, String subject,
             String emailBody, String fromAddress) throws Exception {
         if (subject == null || subject.length() == 0) {
             throw new ProgramLogicError(
@@ -812,7 +802,7 @@ public class EmailSender extends TimerTask {
         sendPreparedMessageImmediately(eRec);
     }
 
-    public void sendPreparedMessageImmediately(EmailRecord eRec)
+    public static void sendPreparedMessageImmediately(EmailRecord eRec)
             throws Exception {
         if (eRec == null) {
             throw new ProgramLogicError(
@@ -906,7 +896,7 @@ public class EmailSender extends TimerTask {
         }
     }
 
-    private void attachFiles(Multipart mp, EmailRecord eRec) throws Exception {
+    private static void attachFiles(Multipart mp, EmailRecord eRec) throws Exception {
         Vector<String> attachids = eRec.getAttachmentIds();
         if (attachids.size()==0) {
             return;
@@ -987,10 +977,6 @@ public class EmailSender extends TimerTask {
         sb.append(baseEmail);
         sb.append(">");
         return sb.toString();
-    }
-
-    public static EmailSender getInstance() {
-        return singletonSender;
     }
 
     /**

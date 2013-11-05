@@ -255,6 +255,14 @@
         <put-attribute name="title" value="Add Document" />
         <put-attribute name="body" value="/spring/jsp/addDocument.jsp" />
     </definition>
+    <definition name="xbrlValidate" extends="baseLayout">
+        <put-attribute name="title" value="XBRL Validation Setup" />
+        <put-attribute name="body" value="/spring/jsp/xbrlValidate.jsp" />
+    </definition>
+    <definition name="xbrlResults" extends="baseLayout">
+        <put-attribute name="title" value="XBRL Validation Results" />
+        <put-attribute name="body" value="/spring/jsp/xbrlResults.jsp" />
+    </definition>
     <definition name="uploadDocumentForm" extends="baseLayout">
         <put-attribute name="title" value="Upload Attachment Form" />
         <put-attribute name="body" value="/spring/jsp/uploadDocumentForm.jsp" />

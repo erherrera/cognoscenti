@@ -25,20 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.ServletRequestDataBinder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
-import org.springframework.web.servlet.ModelAndView;
-
-import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.AccessControl;
 import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AuthRequest;
@@ -51,8 +37,19 @@ import org.socialbiz.cog.ReminderRecord;
 import org.socialbiz.cog.UserPage;
 import org.socialbiz.cog.dms.FolderAccessHelper;
 import org.socialbiz.cog.dms.ResourceEntity;
-import org.socialbiz.cog.spring.AttachmentHelper;
-import org.socialbiz.cog.spring.NGWebUtils;
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestDataBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class UploadFileController extends BaseController {
@@ -319,7 +316,7 @@ public class UploadFileController extends BaseController {
     }
 
     /**
-     * Let the use decide how to add a document to the project
+     * Let the user decide how to add a document to the project
      */
     @RequestMapping(value = "/{accountId}/{pageId}/addDocument.htm", method = RequestMethod.GET)
     protected ModelAndView addDocument(@PathVariable String accountId,
@@ -915,4 +912,73 @@ public class UploadFileController extends BaseController {
         }
         return modelAndView;
     }
+
+    /**
+     * The first step in validating XBRL documents
+     */
+    @RequestMapping(value = "/{accountId}/{pageId}/xbrlValidate.htm", method = RequestMethod.GET)
+    protected ModelAndView xbrlValidate(@PathVariable String accountId,
+            @PathVariable String pageId, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        ModelAndView modelAndView = null;
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
+
+            if(!ar.isLoggedIn()){
+                return showWarningView(ar, "nugen.project.upload.doc.login.msg");
+            }
+            if(!ar.isMember()){
+                request.setAttribute("roleName", "Members");
+                return showWarningView(ar, "nugen.attachment.uploadattachment.memberlogin");
+            }
+            if(ngp.isFrozen()){
+                return showWarningView(ar, "nugen.generatInfo.Frozen");
+            }
+
+            modelAndView = createNamedView(accountId, pageId, ar, "xbrlValidate","XBRL Documents");
+//            request.setAttribute("realRequestURL", ar.getRequestURL());
+//            request.setAttribute("title", ngp.getFullName());
+
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.project.upload.document.page", new Object[]{pageId,accountId} , ex);
+        }
+        return modelAndView;
+    }
+
+    /**
+     * The first step in validating XBRL documents
+     */
+    @RequestMapping(value = "/{accountId}/{pageId}/xbrlResults.htm", method = RequestMethod.GET)
+    protected ModelAndView xbrlResults(@PathVariable String accountId,
+            @PathVariable String pageId, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        ModelAndView modelAndView = null;
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            NGPage ngp =  registerRequiredProject(ar, accountId, pageId);
+
+            if(!ar.isLoggedIn()){
+                return showWarningView(ar, "nugen.project.upload.doc.login.msg");
+            }
+            if(!ar.isMember()){
+                request.setAttribute("roleName", "Members");
+                return showWarningView(ar, "nugen.attachment.uploadattachment.memberlogin");
+            }
+            if(ngp.isFrozen()){
+                return showWarningView(ar, "nugen.generatInfo.Frozen");
+            }
+
+            modelAndView = createNamedView(accountId, pageId, ar, "xbrlResults","XBRL Validation Results");
+//            request.setAttribute("realRequestURL", ar.getRequestURL());
+//            request.setAttribute("title", ngp.getFullName());
+
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.project.upload.document.page", new Object[]{pageId,accountId} , ex);
+        }
+        return modelAndView;
+    }
+
+
+
 }

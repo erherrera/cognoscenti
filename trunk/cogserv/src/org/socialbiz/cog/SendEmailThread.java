@@ -30,7 +30,7 @@ public class SendEmailThread extends TimerTask {
 
     public void run() {
         try {
-            EmailSender emailSender = EmailSender.getInstance();
+            System.out.println("SendEmailThread: Checking for email to send");
             EmailRecord eRec=null;
             NGPage possiblePage = null;
 
@@ -38,7 +38,7 @@ public class SendEmailThread extends TimerTask {
             //messages there to send
             while ((possiblePage=NGPageIndex.getPageWithEmailToSend()) != null) {
                 while ( (eRec=possiblePage.getEmailReadyToSend()) != null) {
-                    emailSender.sendPreparedMessageImmediately(eRec);
+                    EmailSender.sendPreparedMessageImmediately(eRec);
                 }
                 possiblePage.save();
             }
@@ -46,7 +46,7 @@ public class SendEmailThread extends TimerTask {
             //This is the old, deprecated way to store email messages in the
             //for sending later in a single global store.
             while ( (eRec=EmailRecordMgr.getEmailReadyToSend()) != null) {
-                emailSender.sendPreparedMessageImmediately(eRec);
+                EmailSender.sendPreparedMessageImmediately(eRec);
                 EmailRecordMgr.save();
             }
 

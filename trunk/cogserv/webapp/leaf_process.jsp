@@ -271,15 +271,22 @@
         String dlink = task.getDisplayLink();
         if (dlink!=null && dlink.length()>0)
         {
-            ar.write(" <a href=\"");
-            ar.writeHtml(ar.retPath);
-
             String pageid = getKeyFromURL(dlink);
             NGPageIndex subpage = NGPageIndex.getContainerIndexByKey(pageid);
-            ar.writeHtml(ar.getResourceURL(subpage, "process.htm"));
-            ar.write("\"><img src=\"");
-            ar.writeHtml(ar.retPath);
-            ar.write("drilldown.gif\"></a>");
+
+            if (subpage!=null) {
+                ar.write(" <a href=\"");
+                ar.writeHtml(ar.retPath);
+                ar.writeHtml(ar.getResourceURL(subpage, "process.htm"));
+                ar.write("\"><img src=\"");
+                ar.writeHtml(ar.retPath);
+                ar.write("drilldown.gif\"></a>");
+            }
+            else {
+                ar.write("<img src=\"");
+                ar.writeHtml(ar.retPath);
+                ar.write("ts_error.gif\">");
+            }
         }
         ar.write("</td><td>");
         task.writeUserLinks(ar);

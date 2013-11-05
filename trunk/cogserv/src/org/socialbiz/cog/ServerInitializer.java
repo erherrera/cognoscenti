@@ -21,10 +21,13 @@
 package org.socialbiz.cog;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
+
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -109,7 +112,7 @@ public class ServerInitializer extends TimerTask {
         //in FAILED state the time task will immediately try to reinitialize it.
         serverInitState = STATE_FAILED;
         singletonInitializer = new ServerInitializer(config, resourceBundle);
-        timerForInit = new Timer();
+        timerForInit = new Timer("Initialization Timer", true);
         timerForInit.scheduleAtFixedRate(singletonInitializer, 30000, 30000);
 
         //call it directly to initialize right away if possible
@@ -146,6 +149,7 @@ public class ServerInitializer extends TimerTask {
             timerForOtherTasks.cancel();
         }
         timerForOtherTasks = null;
+        System.out.println("COG SERVER CHANGE - New state "+getServerStateString());
     }
 
     /**
@@ -160,15 +164,18 @@ public class ServerInitializer extends TimerTask {
         }
         serverInitState = STATE_FAILED;
         singletonInitializer.run();
+        System.out.println("COG SERVER CHANGE - New state "+getServerStateString());
     }
 
     public synchronized void run()
     {
         //any non-FAILED state, there is nothing to do, so exit quick as possible
+        //this get hit every 30 seconds or so while running.
         if (serverInitState != STATE_FAILED) {
             return;
         }
 
+        System.out.println("COG SERVER INIT - Starting state "+getServerStateString()+" at "+new Date());
         //only if it is in FAILED state, it should attempt to reinitialize everything.
         //Init fails if any init method throws an exception
         try {
@@ -181,7 +188,7 @@ public class ServerInitializer extends TimerTask {
             if (timerForOtherTasks!=null) {
                 timerForOtherTasks.cancel();
             }
-            timerForOtherTasks = new Timer();
+            timerForOtherTasks = new Timer("Main Cog Timer", true);
 
             //start by clearing everything ... in case there is mess left over.
             //TODO: move this routine to this class
@@ -229,6 +236,7 @@ public class ServerInitializer extends TimerTask {
         finally {
             NGPageIndex.clearLocksHeldByThisThread();
         }
+        System.out.println("COG SERVER INIT - Concluding state "+getServerStateString());
     }
 
     public static String getServerStateString() {
