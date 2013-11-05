@@ -20,12 +20,12 @@
 <div>
     <div class="pageHeading">XBRL Validation Results</div>
     <div class="pageSubHeading">
-        Displays the results of validation
+        MOCKUP DEMONSTRATION: Displays hypothetical results of validation
     </div>
     <br/>
     <table>
     <tr>
-        <td colspan="3" class="linkWizardHeading">Here are the results:</td>
+        <td colspan="3" class="linkWizardHeading">Here are the (hypothetical) results:</td>
     </tr>
     <tr style="height:50px;padding:15px">
     <td style="padding:15px">1. line 12</td>
@@ -40,5 +40,6 @@
     <td style="padding:15px"><p>Not enough donations to charity.</p></td>
     </tr>
     </table>
+
 </div>
 <!-- end addDocument.jsp -->
