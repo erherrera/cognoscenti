@@ -12,7 +12,6 @@
 <script type="text/javascript" src="<%=ar.baseURL%>yui/build/animation/animation-min.js"></script>
 <script type="text/javascript" src="<%=ar.baseURL%>yui/build/dragdrop/dragdrop-min.js"></script>
 <script type="text/javascript" src="<%=ar.baseURL%>yui/build/container/container-min.js"></script>
-<script type="text/javascript" src="<%=ar.baseURL%>yui/build/dispatcher/dispatcher.js"></script>
 <style type="text/css">
     #mycontextmenu ul li {
         list-style:none;
@@ -35,7 +34,7 @@
                 <thead>
                     <tr>
                         <th >Attachment Name</th>
-                        <th ><span class="iconArrowDown">Date</span></th>                        
+                        <th ><span class="iconArrowDown">Date</span></th>
                         <th >Comment</th>
                         <th >State</th>
                         <th >Deleted On</th>
@@ -81,7 +80,7 @@
 
                 var myColumnDefs = [
                     {key:"attachmentName",label:"<fmt:message key='nugen.attachment.pagelist.AttachmentName'/>",formatter:downloadAttachmentFormater,sortable:true,resizeable:true},
-                    {key:"date",label:"<fmt:message key='nugen.attachment.Date'/>",sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},                    
+                    {key:"date",label:"<fmt:message key='nugen.attachment.Date'/>",sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
                     {key:"comment",label:"<fmt:message key='nugen.attachment.Comment'/>",sortable:false,resizeable:true},
                     {key:"deletedon",label:"<fmt:message key='nugen.attachment.deletedon'/>",sortable:false,resizeable:true},
                     {key:"deletedby",label:"<fmt:message key='nugen.attachment.deletedby'/>",sortable:false,resizeable:true},
@@ -98,7 +97,7 @@
                 myDataSource.responseType = YAHOO.util.DataSource.TYPE_HTMLTABLE;
                 myDataSource.responseSchema = {
                     fields: [{key:"attachmentName", parser:YAHOO.util.DataSourceBase.parseString},
-                            {key:"date"},                            
+                            {key:"date"},
                             {key:"comment"},
                             {key:"deletedon"},
                             {key:"deletedby"},
@@ -124,7 +123,7 @@
                 var myDataTable = new YAHOO.widget.DataTable("listofpagesdiv1", myColumnDefs, myDataSource, oConfigs,
                 {caption:"",sortedBy:{key:"date",dir: YAHOO.widget.DataTable.CLASS_ASC
                 }});
-                
+
                 var onContextMenuClick = function(p_sType, p_aArgs, p_myDataTable) {
                     var task = p_aArgs[1];
                   if(task) {
@@ -175,7 +174,7 @@
                 // Render the ContextMenu instance to the parent container of the DataTable
                 myContextMenu.render("listofpagesdiv1");
                 myContextMenu.clickEvent.subscribe(onContextMenuClick, myDataTable);
-                
+
                 return {
                     oDS: myDataSource,
                     oDT: myDataTable

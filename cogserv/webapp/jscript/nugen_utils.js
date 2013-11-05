@@ -250,7 +250,8 @@ function createSubLinks(){
             new Tab(retPath+"t/"+book+"/"+pageId+"/syncSharePointAttachmentDisplay.htm","Synchonize") ,
             new Tab(retPath+"t/"+book+"/"+pageId+"/reminders.htm",         "Reminders"),
             new Tab(retPath+"t/"+book+"/"+pageId+"/emailReminder.htm",     "Send Email Reminder"),
-            new Tab(retPath+"t/"+book+"/"+pageId+"/deletedAttachments.htm","Deleted Documents")
+            new Tab(retPath+"t/"+book+"/"+pageId+"/deletedAttachments.htm","Deleted Documents"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/xbrlValidate.htm",      "XBRL Validation")
         ];
         var arrayOfTabs4 = [
             new Tab(retPath+"t/"+book+"/"+pageId+"/personal.htm",      "Personal"),

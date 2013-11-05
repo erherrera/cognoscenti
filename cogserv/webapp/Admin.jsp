@@ -9,10 +9,28 @@
 %><%@page import="org.socialbiz.cog.SuperAdminLogFile"
 %><%@page import="java.io.File"
 %><%@page import="java.util.Properties"
+%><%@page import="org.socialbiz.cog.ServerInitializer"
 %><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+
+    if (ServerInitializer.serverInitState==ServerInitializer.STATE_PAUSED) {
+
+        %>
+        <html>
+        <body>
+        <h1>Server Paused</h1>
+        <form action="AdminAction.jsp" method="POST">
+            <input type="hidden" name="encodingGuard" value="%E6%9D%B1%E4%BA%AC"/>
+            <input type="hidden" name="go" value="Admin.jsp"/>
+            <input type="submit" name="action" value="Restart Server"/>
+        </form>
+        </body>
+        </html>
+        <%
+        return;
+    }
+
     ar.assertLoggedIn("Must be logged in to run Admin page");
-    if (!ar.isSuperAdmin())
-    {
+    if (!ar.isSuperAdmin()){
         throw new Exception("must be site administrator to use this Site Admin page");
     }
 
@@ -62,6 +80,18 @@
                     <td>
                         <input type="submit" name="action" value="Send Test Email"/>
                         See if the server can send an email.
+                    </td>
+               </tr>
+                <tr>
+                    <td>
+                        <input type="submit" name="action" value="Pause Server"/>
+                        Put the server into paused mode.
+                    </td>
+               </tr>
+                <tr>
+                    <td>
+                        <input type="submit" name="action" value="Restart Server"/>
+                        Return to running from paused mode.
                     </td>
                </tr>
         </form>

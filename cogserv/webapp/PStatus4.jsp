@@ -50,7 +50,9 @@
     for (ProjectLink pl : allProjs) {
         String pageKey = pl.getKey();
         NGPageIndex ngpi = NGPageIndex.getContainerIndexByKey(pageKey);
-        watchedProjects.add(ngpi);
+        if (ngpi!=null) {
+            watchedProjects.add(ngpi);
+        }
     }
 
     StringWriter wikiNote = new StringWriter();

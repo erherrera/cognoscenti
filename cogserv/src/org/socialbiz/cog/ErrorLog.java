@@ -28,9 +28,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
-import org.w3c.dom.Document;
-
 import org.socialbiz.cog.exception.NGException;
+import org.w3c.dom.Document;
 
 public class ErrorLog extends DOMFile {
 
@@ -162,7 +161,7 @@ public class ErrorLog extends DOMFile {
         errorLog.save();
     }
 
-    private static String convertStackTraceToString(Throwable exception) {
+    public static String convertStackTraceToString(Throwable exception) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         pw.print(" [ ");
@@ -176,12 +175,27 @@ public class ErrorLog extends DOMFile {
             UserProfile userProfile, String errorURL) {
         try {
             ErrorLog errorLog = ErrorLog.getLogForDate(nowTime);
+
+            //redundantly included in the system out as well
+            //maybe someday this will not be necessary???
+            System.out.println("\nLOGGED EXCEPTION: "+ new Date(nowTime));
+            PrintWriter pw = new PrintWriter(System.out);
+            ex.printStackTrace(pw);
+            pw.flush();
+
+            long retval = -1;
             if (errorLog != null) {
-                return errorLog.logsError(userProfile, msg, ex, errorURL, nowTime);
+                retval = errorLog.logsError(userProfile, msg, ex, errorURL, nowTime);
             }
-            return -1;
+            else {
+                System.out.println("logfile for date missing: "+new Date(nowTime));
+            }
+
+            System.out.println("\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+            return retval;
         }
         catch (Exception e) {
+            System.out.println("FATAL FAILURE TO LOG ERROR: "+e);
             // what else to do? ... crash the server. If your log file
             // is not working there is very little else to be done.
             // Might as well try throwing the exception...

@@ -39,7 +39,6 @@
 <script type="text/javascript" src="<%=ar.baseURL%>yui/build/animation/animation-min.js"></script>
 <script type="text/javascript" src="<%=ar.baseURL%>yui/build/dragdrop/dragdrop-min.js"></script>
 <script type="text/javascript" src="<%=ar.baseURL%>yui/build/container/container-min.js"></script>
-<script type="text/javascript" src="<%=ar.baseURL%>yui/build/dispatcher/dispatcher.js"></script>
 <style type="text/css">
     #mycontextmenu ul li {
         list-style:none;

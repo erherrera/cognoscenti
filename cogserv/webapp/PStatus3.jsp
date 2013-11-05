@@ -82,8 +82,13 @@
         for (ProjectLink proj : stat.getProjects())
         {
             NGPageIndex projObj = proj.getPageIndexOrNull();
+            if (projObj==null) {
+                continue;
+            }
 
-            %><p>Project <%=proj.getKey()%>: <%ar.writeHtml(projObj.containerName);%></p><%
+            %><p>Project <a href="<%=ar.getResourceURL(projObj, "process.htm")%>">
+                <img src="<%=ar.retPath%>leaf.gif"><%=proj.getKey()%></a>:
+                <%ar.writeHtml(projObj.containerName);%></p><%
         }
         %>
 

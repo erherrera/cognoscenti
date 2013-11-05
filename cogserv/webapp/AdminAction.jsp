@@ -8,7 +8,16 @@
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.GoalRecord"
 %><%@page import="org.socialbiz.cog.UserManager"
+%><%@page import="org.socialbiz.cog.ServerInitializer"
 %><%
+
+    //to restart server have to skip all the normal stuff
+    //assume server un-pause is the only possible option here
+    if (ServerInitializer.serverInitState==ServerInitializer.STATE_PAUSED) {
+        ServerInitializer.reinitServer();
+        response.sendRedirect("Admin.jsp");
+        return;
+    }
     AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't use administration functions.");
     boolean createNewSubPage = false;
@@ -25,7 +34,7 @@
 
     if (action.equals("Reinitialize Index") || action.equals("Start Email Sender")) {
         ar.getSession().flushConfigCache();
-        
+
         // Only if the server is running, then this code will
         // set it into paused mode, wait a few seconds, and then
         // cause the server to be completely reinitialized.
@@ -41,6 +50,12 @@
     }
     else if (action.equals("Send Test Email")) {
         EmailSender.sendTestEmail();
+    }
+    else if (action.equals("Pause Server")) {
+        ServerInitializer.pauseServer();
+    }
+    else if (action.equals("Restart Server")) {
+        ServerInitializer.reinitServer();
     }
     else {
         throw new Exception ("Unrecognized command: "+action);
