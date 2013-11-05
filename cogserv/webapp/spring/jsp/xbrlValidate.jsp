@@ -20,7 +20,7 @@
 <div>
     <div class="pageHeading">XBRL Validation Setup</div>
     <div class="pageSubHeading">
-        Use this form to initiate validation of an XBRL document"
+        MOCKUP DEMONSTRATION: Use this form to initiate (hypothetical) validation of an XBRL document
     </div>
     <br/>
     <table>
