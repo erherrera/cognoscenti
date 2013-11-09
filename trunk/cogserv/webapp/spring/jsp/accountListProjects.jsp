@@ -4,7 +4,7 @@
 /*
 Required parameter:
 
-    1. accountId : This is the id of an account and used to retrieve NGBook.
+    1. accountId : This is the id of a site and used to retrieve NGBook.
 
 */
 
@@ -75,8 +75,8 @@ Required parameter:
 <body class="yui-skin-sam">
 
 
-<div class="pageHeading">Projects that belong to this account</div>
-<div class="pageSubHeading">Manage projects that belong to this account.</div>
+<div class="pageHeading">Projects that belong to this site</div>
+<div class="pageSubHeading">Manage projects that belong to this site.</div>
 
 <div class="generalContent">
 

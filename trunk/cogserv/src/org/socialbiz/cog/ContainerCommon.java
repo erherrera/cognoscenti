@@ -508,8 +508,8 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
             String desc = roleName+" of the project "+getFullName();
             if ("Executives".equals(roleName))
             {
-                desc = "The role 'Executives' contains a list of people who are assigned to the account "
-                +"as a whole, and are automatically members of every project in that account.  ";
+                desc = "The role 'Executives' contains a list of people who are assigned to the site "
+                +"as a whole, and are automatically members of every project in that site.  ";
             }
             else if ("Members".equals(roleName))
             {

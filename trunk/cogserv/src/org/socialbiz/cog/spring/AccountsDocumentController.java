@@ -43,10 +43,10 @@ import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPageIndex;
 
 /**
- * Accounts (NGBook) used to have documents.
+ * Sites (NGBook) used to have documents.
  * This capability was deprecated Oct 2013
  * After four years of use in Fujitsu, nobody EVER
- * attached a document to an account!
+ * attached a document to a site!
  *
  * These can be removed after suitable time (a few months)
  *
@@ -68,8 +68,8 @@ public class AccountsDocumentController extends BaseController {
 
     }
 
-    @RequestMapping(value = "/{accountId}/$/upload.form", method = RequestMethod.POST)
-    protected ModelAndView uploadFile(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/upload.form", method = RequestMethod.POST)
+    protected ModelAndView uploadFile(@PathVariable String siteId,
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestParam("fname") MultipartFile file) throws Exception {
@@ -78,43 +78,43 @@ public class AccountsDocumentController extends BaseController {
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/getEditAttachmentForm.form", method = RequestMethod.GET)
-    protected ModelAndView getEditAttachmentForm(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/getEditAttachmentForm.form", method = RequestMethod.GET)
+    protected ModelAndView getEditAttachmentForm(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/emailReminder.form", method = RequestMethod.POST)
+    @RequestMapping(value = "/{siteId}/$/emailReminder.form", method = RequestMethod.POST)
     protected ModelAndView submitEmailReminderForAttachment(
-            @PathVariable String accountId,
+            @PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/sendemailReminder.htm", method = RequestMethod.GET)
+    @RequestMapping(value = "/{siteId}/$/sendemailReminder.htm", method = RequestMethod.GET)
     protected ModelAndView sendEmailReminderForAttachment(
-            @PathVariable String accountId,
+            @PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/resendemailReminder.htm", method = RequestMethod.POST)
+    @RequestMapping(value = "/{siteId}/$/resendemailReminder.htm", method = RequestMethod.POST)
     protected ModelAndView resendEmailReminderForAttachment(
-            @PathVariable String accountId,
+            @PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/editAttachment.form", method = RequestMethod.POST)
-    protected ModelAndView editAttachment(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/editAttachment.form", method = RequestMethod.POST)
+    protected ModelAndView editAttachment(@PathVariable String siteId,
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestParam(value = "fname", required = false) MultipartFile file)
@@ -123,55 +123,56 @@ public class AccountsDocumentController extends BaseController {
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/createLinkURL.form", method = RequestMethod.POST)
-    protected ModelAndView createLinkURL(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/createLinkURL.form", method = RequestMethod.POST)
+    protected ModelAndView createLinkURL(@PathVariable String siteId,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/uploadDocument.htm", method = RequestMethod.GET)
-    public ModelAndView uploadDocumentForm(@PathVariable String accountId, HttpServletRequest request, HttpServletResponse response) throws Exception
+    @RequestMapping(value = "/{siteId}/$/uploadDocument.htm", method = RequestMethod.GET)
+    public ModelAndView uploadDocumentForm(@PathVariable String siteId, HttpServletRequest request,
+            HttpServletResponse response) throws Exception
     {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/linkURLToProject.htm", method = RequestMethod.GET)
-    protected ModelAndView getLinkURLToProjectForm(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/linkURLToProject.htm", method = RequestMethod.GET)
+    protected ModelAndView getLinkURLToProjectForm(@PathVariable String siteId,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/emailReminder.htm", method = RequestMethod.GET)
-    protected ModelAndView getEmailRemainderForm(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/emailReminder.htm", method = RequestMethod.GET)
+    protected ModelAndView getEmailRemainderForm(@PathVariable String siteId,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/editDocumentForm.htm", method = RequestMethod.GET)
-    protected ModelAndView getEditDocumentForm(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/editDocumentForm.htm", method = RequestMethod.GET)
+    protected ModelAndView getEditDocumentForm(@PathVariable String siteId,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/fileVersions.htm", method = RequestMethod.GET)
-    protected ModelAndView getFileVersion(@PathVariable String accountId, HttpServletRequest request,
+    @RequestMapping(value = "/{siteId}/$/fileVersions.htm", method = RequestMethod.GET)
+    protected ModelAndView getFileVersion(@PathVariable String siteId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
 
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-    @RequestMapping(value = "/{accountId}/$/updateAttachment.form", method = RequestMethod.POST)
-    protected ModelAndView updateAttachment(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/updateAttachment.form", method = RequestMethod.POST)
+    protected ModelAndView updateAttachment(@PathVariable String siteId,
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestParam(value = "fname", required = false) MultipartFile file)
@@ -189,8 +190,8 @@ public class AccountsDocumentController extends BaseController {
         return errorMsg;
      }
 
-    @RequestMapping(value = "/{accountId}/$/remindAttachment.htm", method = RequestMethod.GET)
-    protected ModelAndView remindAttachment(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/remindAttachment.htm", method = RequestMethod.GET)
+    protected ModelAndView remindAttachment(@PathVariable String siteId,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
@@ -198,15 +199,15 @@ public class AccountsDocumentController extends BaseController {
     }
 
 
-    @RequestMapping(value="/{accountId}/$/a/{docId}", method = RequestMethod.GET)
-    public void loadDocument(@PathVariable String accountId, @PathVariable String docId,
+    @RequestMapping(value="/{siteId}/$/a/{docId}", method = RequestMethod.GET)
+    public void loadDocument(@PathVariable String siteId, @PathVariable String docId,
         HttpServletRequest request, HttpServletResponse response) throws Exception
     {
-        throw new NGException("nugen.operation.fail.account.download.document", new Object[]{docId, accountId});
+        throw new NGException("nugen.operation.fail.account.download.document", new Object[]{docId, siteId});
     }
 
-    @RequestMapping(value = "/{accountId}/$/account_reminders.htm", method = RequestMethod.GET)
-    public ModelAndView remindersTab(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/account_reminders.htm", method = RequestMethod.GET)
+    public ModelAndView remindersTab(@PathVariable String siteId,
                                         HttpServletRequest request, HttpServletResponse response)
                                         throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
@@ -214,8 +215,8 @@ public class AccountsDocumentController extends BaseController {
     }
 
 
-    @RequestMapping(value = "/{accountId}/$/docinfo{docId}.htm", method = RequestMethod.GET)
-    protected ModelAndView accountDocInfo(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/docinfo{docId}.htm", method = RequestMethod.GET)
+    protected ModelAndView accountDocInfo(@PathVariable String siteId,
             @PathVariable String docId, HttpServletRequest request,
             HttpServletResponse response) throws Exception
     {
@@ -223,8 +224,8 @@ public class AccountsDocumentController extends BaseController {
         return showWarningView(ar, "nugen.deprecatedView");
     }
 
-     @RequestMapping(value = "/{accountId}/$/leaflet{lid}.htm", method = RequestMethod.GET)
-     public ModelAndView displayZoomedLeaflet(@PathVariable String lid,@PathVariable String accountId,
+     @RequestMapping(value = "/{siteId}/$/leaflet{lid}.htm", method = RequestMethod.GET)
+     public ModelAndView displayZoomedLeaflet(@PathVariable String lid,@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         ModelAndView modelAndView = null;
@@ -233,16 +234,16 @@ public class AccountsDocumentController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
+            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(siteId);
             ar.setPageAccessLevels(ngb);
 
             modelAndView=new ModelAndView("AccountNoteZoomView");
             request.setAttribute("lid", lid);
-            request.setAttribute("p", accountId);
+            request.setAttribute("p", siteId);
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Notes");
+            request.setAttribute("tabId", "Site Notes");
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.note", new Object[]{accountId} , ex);
+            throw new NGException("nugen.operation.fail.account.note", new Object[]{siteId} , ex);
         }
         return modelAndView;
     }

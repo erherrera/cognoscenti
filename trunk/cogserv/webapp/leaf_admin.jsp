@@ -48,7 +48,7 @@
 <%@ include file="Header.jsp"%>
 
 <%
-	headlinePath(ar, "Admin Only Section");
+    headlinePath(ar, "Admin Only Section");
 
 if (!ar.isLoggedIn())
 {
@@ -62,13 +62,13 @@ else if (!isAdmin)
             In order to see the project administration section, which allows the project structure
             and name to be changed, you need to be listed as an admin for this project.
             User '<%
-            	ar.getUserProfile().writeLink(ar);
+                ar.getUserProfile().writeLink(ar);
             %>' is not an admin.
             If you are already a member, you can request to be an
             admin, and if approved by another admin, you will then
             be able to have full control of this project.<br/>
      <%
-     	if (isMember)
+        if (isMember)
                  {
                      requestAdminButton(ar, ngp, ar.getUserProfile());
                  }
@@ -93,7 +93,7 @@ else if (!isAdmin)
     <div class="section_body">
         <ul>
 <%
-	for(int i=0; i<names.length; i++)
+    for(int i=0; i<names.length; i++)
         {
             ar.write("<li>");
             ar.writeHtml(names[i]);
@@ -106,7 +106,7 @@ else if (!isAdmin)
 
 
 <%
-	}
+    }
 else
 {
     if (!ar.isStaticSite())
@@ -119,7 +119,7 @@ else
       <input type="submit" value="Create New Admin Note">
       </form>
     <%
-    	}
+        }
         writeLeaflets(ngp, ar, SectionDef.ADMIN_ACCESS);
     %>
 
@@ -131,7 +131,7 @@ else
     </div>
     <div class="section_body">
 <%
-	String pageName = "";
+    String pageName = "";
     if (names.length>0)
     {
         pageName = names[0];
@@ -150,7 +150,7 @@ else
     <table>
     <tr><td>Previous Names:</td><td>(Delete)</td></tr>
 <%
-	for(int i=1; i<names.length; i++)
+    for(int i=1; i<names.length; i++)
     {
         String delLink = ar.retPath+"ChangeNameAction.jsp?action=delName&p="+
                 URLEncoder.encode(p, "UTF-8")+"&oldName="+URLEncoder.encode(names[i], "UTF-8");
@@ -176,7 +176,7 @@ else
     <div class="section_body">
     <table>
 <%
-	ProcessRecord process = ngp.getProcess();
+    ProcessRecord process = ngp.getProcess();
 
     String goal = process.getSynopsis();
     String purpose = process.getDescription();
@@ -194,7 +194,7 @@ else
     <tr><td>Purpose:</td>
       <td>
       <textarea name="purpose" rows="5" cols="60"><%
-      	ar.writeHtml(purpose);
+        ar.writeHtml(purpose);
       %></textarea>
       </td>
     </tr>
@@ -217,7 +217,7 @@ else
 <div class="section">
 <!-- ------------------------------------------------- -->
     <div class="section_title">
-    Account Setting
+    Site Setting
     </div>
     <div class="section_body">
 
@@ -226,8 +226,8 @@ else
     <input type="hidden" name="p" value="<%ar.writeHtml(p);%>">
     <input type="hidden" name="go" value="<%ar.writeHtml(thisPageAddress);%>">
     <input type="submit" value="Change Book">
-    Project in Account:<%
-    	ar.writeHtml(ngb.getName());
+    Project in Site:<%
+        ar.writeHtml(ngb.getName());
     %>
     </form>
     </div>
@@ -245,21 +245,21 @@ else
     <input type="hidden" name="p" value="<%ar.writeHtml(p);%>">
     <input type="hidden" name="go" value="<%ar.writeHtml(thisPageAddress);%>">
     <%
-    	if (!ngp.isDeleted()) {
+        if (!ngp.isDeleted()) {
     %>
     <input type="submit" name="action" value="Delete Project">
     <%
-    	} else {
+        } else {
     %>
     <p>Project was deleted by <%
-    	UserProfile.writeLink(ar, ngp.getDeleteUser());
+        UserProfile.writeLink(ar, ngp.getDeleteUser());
     %>
         <%
-        	SectionUtil.nicePrintTime(ar, ngp.getDeleteDate(), ar.nowTime);
+            SectionUtil.nicePrintTime(ar, ngp.getDeleteDate(), ar.nowTime);
         %>
     <input type="submit" name="action" value="Un-Delete Project">
     <%
-    	}
+        }
     %>
     </form>
     </div>
@@ -274,7 +274,7 @@ else
 
 
 <%
-	String pageKey = ngp.getKey();
+    String pageKey = ngp.getKey();
    String bookKey = ngb.getKey();
 
    UserProfile up = ar.getUserProfile();
@@ -305,33 +305,33 @@ else
         <ul>
             <li>My All Task <a href="<%=ar.retPath%><%ar.writeHtml(fAlltask);%>" target="restapi">
                     <%
-                    	ar.writeHtml(fAlltask);
+                        ar.writeHtml(fAlltask);
                     %></a></li>
             <li>My Active Task <a href="<%=ar.retPath%><%ar.writeHtml(fActivetask);%>" target="restapi">
                     <%
-                    	ar.writeHtml(fActivetask);
+                        ar.writeHtml(fActivetask);
                     %></a></li>
             <li>My Complete Task <a href="<%=ar.retPath%><%ar.writeHtml(fCompletetask);%>" target="restapi">
                     <%
-                    	ar.writeHtml(fCompletetask);
+                        ar.writeHtml(fCompletetask);
                     %></a></a></li>
             <li>My Future Task <a href="<%=ar.retPath%><%ar.writeHtml(fFutureask);%>" target="restapi">
                     <%
-                    	ar.writeHtml(fFutureask);
+                        ar.writeHtml(fFutureask);
                     %></a></li>
             <li>UserProfile List <a href="<%=ar.retPath%><%ar.writeHtml(auProfileAd);%>" target="restapi">
                     <%
-                    	ar.writeHtml(auProfileAd);
+                        ar.writeHtml(auProfileAd);
                     %></a></li>
             <%
-            	if(uProfileAd != null){
+                if(uProfileAd != null){
             %>
                     <li>UserProfile <a href="<%=ar.retPath%><%ar.writeHtml(uProfileAd);%>" target="restapi">
                         <%
-                        	ar.writeHtml(uProfileAd);
+                            ar.writeHtml(uProfileAd);
                         %></a></li>
             <%
-            	}
+                }
             %>
 
         </ul>
@@ -341,9 +341,9 @@ else
             <li>Project Content <a href="<%=ar.retPath%><%=pContentAd%>" target="restapi"><%=pContentAd%></a></li>
             <li>User List <a href="<%=ar.retPath%><%=pUserListAd%>" target="restapi"><%=pUserListAd%></a></li>
             <li>License List <a HREF="<%=ar.retPath%><%=pLicenseAd%>" TARGET="restapi"><%=pLicenseAd%></a></li>
-            <li>Account
+            <li>Site
                 <ul>
-                    <li>Account Content <a href="<%=ar.retPath%><%=bContentAd%>" target="restapi">
+                    <li>Site Content <a href="<%=ar.retPath%><%=bContentAd%>" target="restapi">
                              <%=bContentAd%></a></li>
                     <li>User List <a href="<%=ar.retPath%><%=bUserListAd%>" target="restapi">
                              <%=bUserListAd%></a></li>
@@ -354,7 +354,7 @@ else
             <li>Section
                 <ul>
 <%
-	Enumeration senum = allSecs.elements();
+    Enumeration senum = allSecs.elements();
     while (senum.hasMoreElements())
     {
         NGSection sec = (NGSection) senum.nextElement();
@@ -369,18 +369,18 @@ else
                 <ul>
                     <li>Section Content <a href="<%=ar.retPath%><%ar.writeHtml(stContent);%>" target="restapi">
                                 <%
-                                	ar.writeHtml(stContent);
+                                    ar.writeHtml(stContent);
                                 %></a></li>
                     <li>Process <a href="<%=ar.retPath%><%ar.writeHtml(stProcess);%>" target="restapi">
                                 <%
-                                	ar.writeHtml(stProcess);
+                                    ar.writeHtml(stProcess);
                                 %></a></li>
                     <li>History <a href="<%=ar.retPath%><%ar.writeHtml(stHistory);%>" target="restapi">
                                 <%
-                                	ar.writeHtml(stHistory);
+                                    ar.writeHtml(stHistory);
                                 %></a></li>
             <%
-            	for (GoalRecord tr : ngp.getAllGoals())
+                for (GoalRecord tr : ngp.getAllGoals())
                                     {
                                         String taskid = tr.getId();
                                         String stTaskData = "p/" + pageKey + "/s/Tasks/id/"+taskid+"/data.xml";

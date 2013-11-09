@@ -68,8 +68,8 @@ public class CreateProjectController extends BaseController {
         this.context = context;
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/addmemberrole.htm", method = RequestMethod.GET)
-    public ModelAndView addMemberRole(@PathVariable String accountId,@PathVariable String pageId,HttpServletRequest request,
+    @RequestMapping(value = "/{siteId}/{pageId}/addmemberrole.htm", method = RequestMethod.GET)
+    public ModelAndView addMemberRole(@PathVariable String siteId,@PathVariable String pageId,HttpServletRequest request,
             HttpServletResponse response) throws Exception
     {
         ModelAndView modelAndView = null;
@@ -78,7 +78,7 @@ public class CreateProjectController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGPage page = registerRequiredProject(ar, accountId, pageId);
+            NGPage page = registerRequiredProject(ar, siteId, pageId);
 
             String invitedUser = ar.defParam( "invitedUser","false" );
 
@@ -103,7 +103,7 @@ public class CreateProjectController extends BaseController {
                 modelAndView = new ModelAndView(new RedirectView("permission.htm"));
             }
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.add.member.role", new Object[]{pageId,accountId} , ex);
+            throw new NGException("nugen.operation.fail.project.add.member.role", new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
     }
@@ -171,8 +171,8 @@ public class CreateProjectController extends BaseController {
 
     //the unknown part of the path may be either a user id or an account id
     //because this is used in two different places.  Should reconsider this.
-    @RequestMapping(value = "/{accountId}/$/createprojectFromTemplate.form", method = RequestMethod.POST)
-    public void createprojectFromTemplate(@PathVariable String accountId, HttpServletRequest request,
+    @RequestMapping(value = "/{siteId}/$/createprojectFromTemplate.form", method = RequestMethod.POST)
+    public void createprojectFromTemplate(@PathVariable String siteId, HttpServletRequest request,
             HttpServletResponse response) throws Exception
     {
         try{
@@ -181,16 +181,16 @@ public class CreateProjectController extends BaseController {
                 sendRedirectToLogin(ar, "message.login.to.create.page",null);
                 return;
             }
-            NGPage project= createTemplateProject(ar,accountId);
-            response.sendRedirect(ar.retPath+"t/"+accountId+"/"+project.getKey()+"/public.htm");
+            NGPage project= createTemplateProject(ar,siteId);
+            response.sendRedirect(ar.retPath+"t/"+siteId+"/"+project.getKey()+"/public.htm");
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.create.project.from.template", new Object[]{accountId} , ex);
+            throw new NGException("nugen.operation.fail.create.project.from.template", new Object[]{siteId} , ex);
         }
     }
 
 
-    @RequestMapping(value = "/{accountId}/{pageId}/createProjectFromTask.htm", method = RequestMethod.GET)
-    public ModelAndView createProjectFromTask(@PathVariable String accountId,@PathVariable String pageId,
+    @RequestMapping(value = "/{siteId}/{pageId}/createProjectFromTask.htm", method = RequestMethod.GET)
+    public ModelAndView createProjectFromTask(@PathVariable String siteId,@PathVariable String pageId,
             @RequestParam String newTaskname,@RequestParam String parentProcess,@RequestParam String goToUrl,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
@@ -214,18 +214,18 @@ public class CreateProjectController extends BaseController {
             request.setAttribute("newTaskname",newTaskname);
             request.setAttribute("bookList",memberOfAccounts);
             request.setAttribute("goUrl",goToUrl);
-            request.setAttribute("book",accountId);
+            request.setAttribute("book",siteId);
 
             String realRequestURL = request.getRequestURL().toString();
             request.setAttribute("realRequestURL", realRequestURL);
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.create.project.from.task", new Object[]{pageId,accountId} , ex);
+            throw new NGException("nugen.operation.fail.create.project.from.task", new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{account}/{pageId}/createTemplateProject.form", method = RequestMethod.POST)
-    public void createTemplateProject(@PathVariable String account,String pageId,
+    @RequestMapping(value = "/{siteId}/{pageId}/createTemplateProject.form", method = RequestMethod.POST)
+    public void createTemplateProject(@PathVariable String siteId,String pageId,
             ModelMap model, HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
@@ -236,17 +236,16 @@ public class CreateProjectController extends BaseController {
                 sendRedirectToLogin(ar, "message.login.create.template.from.project",null);
                 return;
             }
-            String accountId = ar.reqParam("accountId");
             String goUrl = ar.reqParam("goUrl");
             String parentTaskId=goUrl.substring(goUrl.lastIndexOf("=")+1,goUrl.length());
             String parentProcessUrl=ar.reqParam("parentProcessUrl");
 
-            NGPage subProcess= createTemplateProject(ar,accountId);
+            NGPage subProcess= createTemplateProject(ar,siteId);
             linkSubProcessToTask(ar,subProcess,parentTaskId,parentProcessUrl);
 
             response.sendRedirect(goUrl);
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.create.template.project", new Object[]{pageId,account} , ex);
+            throw new NGException("nugen.operation.fail.create.template.project", new Object[]{pageId,siteId} , ex);
         }
     }
 
@@ -260,9 +259,9 @@ public class CreateProjectController extends BaseController {
                 sendRedirectToLogin(ar, "message.login.create.project",null);
                 return;
             }
-            String accountId = ar.reqParam("accountId");
-            NGPage project= createTemplateProject(ar,accountId);
-            response.sendRedirect(ar.retPath+"t/"+accountId+"/"+project.getKey()+"/public.htm");
+            String siteId = ar.reqParam("siteId");
+            NGPage project= createTemplateProject(ar,siteId);
+            response.sendRedirect(ar.retPath+"t/"+siteId+"/"+project.getKey()+"/public.htm");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.create.project", null , ex);
         }
@@ -342,11 +341,11 @@ public class CreateProjectController extends BaseController {
         return ngPage;
     }
 
-    private static NGPage createTemplateProject(AuthRequest ar, String accountId) throws Exception {
+    private static NGPage createTemplateProject(AuthRequest ar, String siteId) throws Exception {
         NGPage project = null;
         try {
 
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
+            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(siteId);
             if (!ngb.primaryOrSecondaryPermission(ar.getUserProfile())) {
                 throw new NGException("nugen.exception.not.a.member.of.account",
                         new Object[] { ngb.getFullName() });
@@ -385,7 +384,7 @@ public class CreateProjectController extends BaseController {
 
         } catch (Exception ex) {
             throw new Exception("Unable to create a project from template for account "
-                    +accountId, ex);
+                    +siteId, ex);
         }
         return project;
     }

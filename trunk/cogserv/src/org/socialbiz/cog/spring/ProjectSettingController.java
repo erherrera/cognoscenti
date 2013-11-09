@@ -51,8 +51,8 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 public class ProjectSettingController extends BaseController {
 
-    @RequestMapping(value = "/{accountId}/{pageId}/EditRole.htm", method = RequestMethod.GET)
-    public ModelAndView editRole(@PathVariable String accountId,@PathVariable String pageId,
+    @RequestMapping(value = "/{siteId}/{pageId}/EditRole.htm", method = RequestMethod.GET)
+    public ModelAndView editRole(@PathVariable String siteId,@PathVariable String pageId,
             @RequestParam String roleName,
             HttpServletRequest request,
             HttpServletResponse response)
@@ -64,7 +64,7 @@ public class ProjectSettingController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGContainer nGPage  = registerRequiredProject(ar, accountId, pageId);
+            NGContainer nGPage  = registerRequiredProject(ar, siteId, pageId);
 
             List<NGRole> roles = nGPage.getAllRoles();
 
@@ -75,20 +75,20 @@ public class ProjectSettingController extends BaseController {
             request.setAttribute("roles", roles);
             request.setAttribute("title", " : " + nGPage.getFullName());
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.edit.role.page", new Object[]{pageId,accountId} , ex);
+            throw new NGException("nugen.operation.fail.project.edit.role.page", new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
 
     }
-    @RequestMapping(value = "/{accountId}/{pageId}/roleRequest.htm", method = RequestMethod.GET)
-    public ModelAndView remindersTab(@PathVariable String accountId,@PathVariable String pageId,
+    @RequestMapping(value = "/{siteId}/{pageId}/roleRequest.htm", method = RequestMethod.GET)
+    public ModelAndView remindersTab(@PathVariable String siteId,@PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
 
-            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
+            NGPage nGPage = registerRequiredProject(ar, siteId, pageId);
             ar.setPageAccessLevels(nGPage);
             if(!ar.isLoggedIn()){
                 request.setAttribute("property_msg_key", "nugen.project.role.request.login.msg");
@@ -104,14 +104,14 @@ public class ProjectSettingController extends BaseController {
             request.setAttribute("realRequestURL", ar.getRequestURL());
             request.setAttribute("tabId", "Project Settings");
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.role.request.page", new Object[]{pageId,accountId} , ex);
+            throw new NGException("nugen.operation.fail.project.role.request.page", new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
 
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/pageRoleAction.form", method = RequestMethod.POST)
-    public ModelAndView pageRoleAction(@PathVariable String accountId,@PathVariable String pageId,
+    @RequestMapping(value = "/{siteId}/{pageId}/pageRoleAction.form", method = RequestMethod.POST)
+    public ModelAndView pageRoleAction(@PathVariable String siteId,@PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         ModelAndView modelAndView = null;
@@ -120,7 +120,7 @@ public class ProjectSettingController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
+            NGPage ngp = registerRequiredProject(ar, siteId, pageId);
 
             String r  = ar.reqParam("r");   //role name
             boolean sendEmail  = ar.defParam("sendEmail", null)!=null;
@@ -239,7 +239,7 @@ public class ProjectSettingController extends BaseController {
            }
 
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.update.role.or.member", new Object[]{pageId,accountId} , ex);
+            throw new NGException("nugen.operation.fail.project.update.role.or.member", new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
     }

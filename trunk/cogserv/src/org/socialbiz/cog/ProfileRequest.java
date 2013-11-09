@@ -47,7 +47,7 @@ import java.io.StringWriter;
 * as the specified user, then the email is added to the user.
 * Requires: userkey, security token, new email, timestamp
 *
-* 3. Create Profile.  User does not have an account.  They must provide an
+* 3. Create Profile.  User does not have a profile.  They must provide an
 * email address for this.  A Profile Request is created in a global space.
 * the security token is emailed to that address.  When the user clicks on the
 * link, the empty pofile is created with that email address in it.

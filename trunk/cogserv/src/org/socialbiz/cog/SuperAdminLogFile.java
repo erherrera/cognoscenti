@@ -34,7 +34,7 @@ import org.w3c.dom.Document;
  * SuperAdminHelper manages a file called 'superadmin.logs' That file holds
  * information relevant to the running of the whole server 1. automated
  * scheduling of email messages 2. list of new users who jioned recently 3. list
- * of account accepted/denied
+ * of site accepted/denied
  */
 public class SuperAdminLogFile extends DOMFile {
 
@@ -52,8 +52,9 @@ public class SuperAdminLogFile extends DOMFile {
     }
 
     /**
-     * This method returns a list of ALL accounts created. TODO: either fix this
-     * to return accounts created in a particular timespan OR: implement a
+     * This method returns a list of ALL sites created.
+     * TODO: either fix this
+     * to return sites created in a particular timespan OR: implement a
      * mechanism that removes the old events from the file, so that only the new
      * ones are left.
      */
@@ -63,9 +64,9 @@ public class SuperAdminLogFile extends DOMFile {
         List<NGBook> newAccounts = new ArrayList<NGBook>();
         for (AdminEvent event : allEvents) {
             if (event.getContext().equals(AdminEvent.ACCOUNT_CREATED)) {
-                NGBook account = (NGBook) NGPageIndex.getContainerByKey(event
+                NGBook site = (NGBook) NGPageIndex.getContainerByKey(event
                         .getObjectId());
-                newAccounts.add(account);
+                newAccounts.add(site);
             }
         }
         return newAccounts;

@@ -10,7 +10,7 @@
 /*
 Required parameter:
 
-    1. accountId : This is the id of an account and here it is used to retrieve NGBook.
+    1. accountId : This is the id of a site and here it is used to retrieve NGBook.
 
 */
 

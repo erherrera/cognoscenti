@@ -57,7 +57,7 @@ public class AdminEvent extends DOMFace {
     /**
     * This is the ID of the object being referred to.
     * If this is a user registration, then this is the key of the user profile.
-    * If this is a account creation, then this holds the key to the account.
+    * If this is a site creation, then this holds the key to the site.
     */
     public String getObjectId() {
         return getAttribute("id");

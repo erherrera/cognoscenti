@@ -22,7 +22,7 @@
     UserProfile up = ar.getUserProfile();
     ngb.getPrimaryRole().addPlayer(up);
     ngb.getSecondaryRole().addPlayer(up);
-    ngb.saveBookAs(ngb.getKey(), ar.getUserProfile(), "Create Account Action");
+    ngb.saveBookAs(ngb.getKey(), ar.getUserProfile(), "Create Site Action");
 
     response.sendRedirect("BookPages.jsp?b="+ngb.getKey());
 

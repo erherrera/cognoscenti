@@ -39,7 +39,7 @@
         <form action="changeAccountName.form" method="post">
             <table>
                 <tr>
-                    <td class="gridTableColummHeader_2">Account Name:</td>
+                    <td class="gridTableColummHeader_2">Site Name:</td>
                     <td style="width:20px;"></td>
                     <td>
                         <input type="hidden" name="p" value="<%ar.writeHtml(accountId);%>">
@@ -89,7 +89,7 @@
             </table>
         </form>
     </div>
-    <div class="generalHeading">Account Settings</div>
+    <div class="generalHeading">Site Settings</div>
     <div class="generalContent">
         <form action="changeAccountDescription.form" method="post">
             <input type="hidden" name="p" value="<%writeHtml(out,pageFullName);%>">
@@ -98,7 +98,7 @@
             <table>
                 <tr><td height="5px"></td></tr>
                 <tr>
-                    <td class="gridTableColummHeader_2" valign="top">Account Description:</td>
+                    <td class="gridTableColummHeader_2" valign="top">Site Description:</td>
                     <td style="width:20px;"></td>
                     <td>
                         <input type="hidden" name="p" value="<%ar.writeHtml(accountId);%>">
@@ -143,7 +143,7 @@
                 </tr>
                 <tr><td height="10px"></td></tr>
                 <tr>
-                    <td class="gridTableColummHeader_2">Account Key:</td>
+                    <td class="gridTableColummHeader_2">Site Key:</td>
                     <td style="width:20px;"></td>
                     <td>
                         <% ar.writeHtml(ngb.getKey()); %>

@@ -3,11 +3,12 @@
 %><%
 
     String encodedLoginMsg = URLEncoder.encode("Can't open form","UTF-8");
-    String encodedDeleteMsg = URLEncoder.encode("Can't delete attachment","UTF-8");
+
 %>
-<script type="text/javascript">
-     var isLoggedIn = "<%=ar.isLoggedIn()%>";
-</script>
+    <div class="pageHeading">Document Reminders</div>
+    <div class="pageSubHeading">
+        This is a list of the reminders to attach documents to this project.
+    </div>
 <link rel="stylesheet" type="text/css" href="<%=ar.baseURL%>yui/build/container/assets/skins/sam/container.css">
 <script type="text/javascript" src="<%=ar.baseURL%>yui/build/yahoo-dom-event/yahoo-dom-event.js"></script>
 <script type="text/javascript" src="<%=ar.baseURL%>yui/build/animation/animation-min.js"></script>

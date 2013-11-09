@@ -8,12 +8,12 @@
 Required parameters:
 
     1. pageId   : This is the id of an Project and here it is used to retrieve NGPage.
-    2. bookList : This is the list of account which is set in request attribute, used here to show
-                  dropdown list of account.
+    2. bookList : This is the list of sites which is set in request attribute, used here to show
+                  dropdown list of sites.
     3. taskId   : This parameter is id of a task and here it is used to get current task detail (GoalRecord)
                   and to pass current task id value when submitted.
     4. book     : This request attribute provide the key of account which is used to select account from the
-                  list of all accounts by-default when the page is rendered.
+                  list of all sites by-default when the page is rendered.
 
 */
 

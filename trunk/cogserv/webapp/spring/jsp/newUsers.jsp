@@ -3,9 +3,9 @@
 %><%@ include file="administration.jsp"
 %><%
 
-    ar.assertLoggedIn("New Account page should never be accessed when not logged in");
+    ar.assertLoggedIn("New Users page should never be accessed when not logged in");
     if (!ar.isSuperAdmin()) {
-        throw new Exception("New Account page should only be accessed by Super Admin");
+        throw new Exception("New Users page should only be accessed by Super Admin");
     }
     List<UserProfile> newUsers = SuperAdminLogFile.getInstance().getAllNewRegisteredUsers();
 

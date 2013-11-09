@@ -19,7 +19,7 @@
 %><%@page import="org.w3c.dom.Element"
 %><%
     AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
-    ar.assertLoggedIn("Must be logged in to list the accounts.");
+    ar.assertLoggedIn("Must be logged in to list the sites.");
 
     Vector<NGBook> allAccounts = NGBook.getAllAccounts();
     if (allAccounts==null) {
@@ -31,11 +31,11 @@
 %>
 <%@ include file="Header.jsp"%>
 
-    <h1>Account List</h1>
+    <h1>Site List</h1>
 
     <div class="section">
             <div class="section_title">
-                <h1 class="left">Accounts at this site</h1>
+                <h1 class="left">Sites at this site</h1>
                 <div class="section_date right"></div>
                 <div class="clearer">&nbsp;</div>
             </div>
@@ -51,7 +51,7 @@
                 <col width="400">
 
                 <tr>
-                    <td>Account Id</td>
+                    <td>Site Id</td>
                     <td>#prj</td>
                     <td>#docs</td>
                     <td>#notes</td>

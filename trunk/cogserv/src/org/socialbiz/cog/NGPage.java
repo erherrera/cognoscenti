@@ -52,7 +52,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     public String address;
     protected String[] displayNames;
     protected Vector<NGSection> sectionElements = null;
-    protected NGBook account;
+    protected NGBook prjSite;
     protected Vector<String> existingIds = null;
 
 
@@ -67,7 +67,7 @@ public class NGPage extends ContainerCommon implements NGContainer
 
     // Data path must be known, and this is gotten from the session
     // It can not change over the course of a server instance, so
-    // we can cache it here for use to find other data files (accounts).
+    // we can cache it here for use to find other data files.
     protected static String    dataPath;
 
 
@@ -96,27 +96,27 @@ public class NGPage extends ContainerCommon implements NGContainer
         displayNames = pageInfo.getPageNames();
 
         //When creating a NGPage for the first time, there is a period of time
-        //that it has no account key.  account==null is the result.
+        //that it has no site key.  site==null is the result.
         String accountKey = pageInfo.getBookKey();
         boolean hasNonDefaultAccount = (accountKey!=null && accountKey.length()>0);
         if (hasNonDefaultAccount) {
-            //schema migration, at one time the default account was "main"
+            //schema migration, at one time the default site was "main"
             //but later changed to "mainbook".  Only one server still has this
             //problem.  Time to fix that server and remove this code.
             if ("main".equals(accountKey)) {
                 accountKey = "mainbook";
                 pageInfo.setBookKey(accountKey);
             }
-            account = NGBook.readBookByKey(accountKey);
+            prjSite = NGBook.readBookByKey(accountKey);
         }
         else {
             //this is schema migration for very old project files from a time that the server did
-            //not set account keys in all cases.  The only valid default account is "mainbook"
-            //If no account with that name, this might return null, but that will be OK
+            //not set account keys in all cases.  The only valid default site is "mainbook"
+            //If no site with that name, this might return null, but that will be OK
             //when creating pages for the first time.
-            account = NGBook.getDefaultAccount();
-            if (account!=null) {
-                pageInfo.setBookKey(account.getKey());
+            prjSite = NGBook.getDefaultAccount();
+            if (prjSite!=null) {
+                pageInfo.setBookKey(prjSite.getKey());
             }
         }
 
@@ -434,8 +434,8 @@ public class NGPage extends ContainerCommon implements NGContainer
         try {
             setLastModify(ar);
             save();
-            if (account!=null) {
-                account.saveFile(ar, comment);
+            if (prjSite!=null) {
+                prjSite.saveFile(ar, comment);
             }
 
             // commit the modified files to the CVS.
@@ -866,11 +866,11 @@ public class NGPage extends ContainerCommon implements NGContainer
 
     public NGBook getAccount()
     {
-        if (account==null) {
+        if (prjSite==null) {
             //this will prove that this always returns a non-null value.
-            throw new RuntimeException("Program Logic Error: something is wrong with NGPage object which has a null account ... this should never happen.");
+            throw new RuntimeException("Program Logic Error: something is wrong with NGPage object which has a null site ... this should never happen.");
         }
-        return account;
+        return prjSite;
     }
     public String getAccountKey()
     {
@@ -881,10 +881,10 @@ public class NGPage extends ContainerCommon implements NGContainer
     public void setAccount(NGBook ngb)
     {
         if (ngb==null) {
-            throw new RuntimeException("setAccount called with null parameter.   Should not be using the 'default account' concept any more, this exception is checking to see if it ever happens");
+            throw new RuntimeException("setAccount called with null parameter.   Should not be using the 'default site' concept any more, this exception is checking to see if it ever happens");
         }
         pageInfo.setBookKey(ngb.getKey());
-        account = ngb;
+        prjSite = ngb;
     }
 
 
@@ -1179,7 +1179,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
     /**
-    * implemented special functionality for projects ... there are account
+    * implemented special functionality for projects ... there are site
     * executives, and there are task assignees to consider.
     */
     public boolean primaryOrSecondaryPermission(UserRef user) throws Exception {
@@ -1489,8 +1489,8 @@ public class NGPage extends ContainerCommon implements NGContainer
     */
     public String getThemePath()
     {
-        if (account!=null) {
-            return account.getThemePath();
+        if (prjSite!=null) {
+            return prjSite.getThemePath();
         }
         return "theme/blue/";
     }

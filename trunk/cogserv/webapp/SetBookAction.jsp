@@ -13,14 +13,14 @@
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
 %><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
-    ar.assertLoggedIn("Unable to set account.");
+    ar.assertLoggedIn("Unable to set site.");
 
     String p = ar.reqParam("p");
     String key = ar.reqParam("key");
 
     NGPage ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    ar.assertAuthor("Unable to set the account for this project.");
+    ar.assertAuthor("Unable to set the site for this project.");
 
     String go = ar.defParam("go", null);
     if (go==null)
@@ -43,7 +43,7 @@
         UserProfile up = ar.getUserProfile();
         ngb.getPrimaryRole().addPlayer(up);
         ngb.getSecondaryRole().addPlayer(up);
-        ngb.saveBookAs(ngb.getKey(), ar.getUserProfile(), "Set Account Action");
+        ngb.saveBookAs(ngb.getKey(), ar.getUserProfile(), "Set Site Action");
     }
     else if (key.equals("/"))
     {
@@ -56,11 +56,11 @@
 
     if (ngb==null)
     {
-        throw new Exception("program logic error: did not find the account '"+key+"'");
+        throw new Exception("program logic error: did not find the site '"+key+"'");
     }
 
     ngp.setAccount(ngb);
-    ngp.saveFile(ar, "Set Account");
+    ngp.saveFile(ar, "Set Site");
     response.sendRedirect(go);%>
 
 <%@ include file="functions.jsp"%>

@@ -87,7 +87,7 @@
             </td>
         </tr>
         <tr>
-            <td>Account:</td>
+            <td>Site:</td>
             <td class="odd">
         <%
             //we have to make sure that a valid account name was sent

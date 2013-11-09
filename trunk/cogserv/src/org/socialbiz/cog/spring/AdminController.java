@@ -53,8 +53,8 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 public class AdminController extends BaseController {
 
-    @RequestMapping(value = "/{account}/{project}/changeGoal.form", method = RequestMethod.POST)
-    public ModelAndView changeGoalHandler(@PathVariable String account,@PathVariable String project,
+    @RequestMapping(value = "/{siteId}/{project}/changeGoal.form", method = RequestMethod.POST)
+    public ModelAndView changeGoalHandler(@PathVariable String siteId,@PathVariable String project,
             HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
@@ -75,54 +75,14 @@ public class AdminController extends BaseController {
             ngp.saveFile(ar, "Changed Goal and/or Purpose of Project");
             NGPageIndex.refreshOutboundLinks(ngp);
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.admin.change.goal", new Object[]{project,account} , ex);
+            throw new NGException("nugen.operation.fail.admin.change.goal", new Object[]{project,siteId} , ex);
         }
         return new ModelAndView(new RedirectView( "admin.htm"));
     }
 
-    @RequestMapping(value = "/{account}/{project}/deleteProject.htm", method = RequestMethod.POST)
-    public ModelAndView deleteProjectHandler(@PathVariable String account,@PathVariable String project,
-            HttpServletRequest request,
-            HttpServletResponse response)
-    throws Exception {
-        throw new Exception("This handler 'deleteProject' is never used");
-        /*
-        ModelAndView modelAndView = null;
-        try{
-            AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            ar.assertLoggedIn("User must be logged in to delete project.");
 
-            String action   = ar.reqParam("action");
-            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(project);
-            ar.setPageAccessLevels(ngp);
-            ar.assertAuthor("Unable to delete this page. ");
-
-            //first, handle cancel operation.
-            if ("Delete Project".equals(action))
-            {
-                ngp.markDeleted(ar);
-            }
-            else if ("Un-Delete Project".equals(action))
-            {
-                ngp.markUnDeleted(ar);
-            }
-            else
-            {
-                throw new NGException("nugen.exceptionhandling.system.not.understand.action", new Object[]{action});
-            }
-            ngp.savePage(ar, action);
-
-            modelAndView = new ModelAndView(new RedirectView( "admin.htm"));
-        }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.admin.delete.project", new Object[]{project,account} , ex);
-        }
-        return modelAndView;
-        */
-
-    }
-
-    @RequestMapping(value = "/{account}/{project}/changeProjectName.form", method = RequestMethod.POST)
-    public ModelAndView changeProjectNameHandler(@PathVariable String account,@PathVariable String project,
+    @RequestMapping(value = "/{siteId}/{project}/changeProjectName.form", method = RequestMethod.POST)
+    public ModelAndView changeProjectNameHandler(@PathVariable String siteId,@PathVariable String project,
             HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
@@ -156,13 +116,13 @@ public class AdminController extends BaseController {
 
             modelAndView = new ModelAndView(new RedirectView( "admin.htm"));
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.admin.change.project.name", new Object[]{project,account} , ex);
+            throw new NGException("nugen.operation.fail.admin.change.project.name", new Object[]{project,siteId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{account}/{project}/deletePreviousProjectName.htm", method = RequestMethod.GET)
-    public ModelAndView deletePreviousAccountNameHandler(@PathVariable String account, @PathVariable String project,
+    @RequestMapping(value = "/{siteId}/{project}/deletePreviousProjectName.htm", method = RequestMethod.GET)
+    public ModelAndView deletePreviousAccountNameHandler(@PathVariable String siteId, @PathVariable String project,
             HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
@@ -189,21 +149,21 @@ public class AdminController extends BaseController {
 
             modelAndView = new ModelAndView(new RedirectView( "admin.htm") );
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.admin.delete.previous.project.name", new Object[]{project,account} , ex);
+            throw new NGException("nugen.operation.fail.admin.delete.previous.project.name", new Object[]{project,siteId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{account}/$/changeAccountName.form", method = RequestMethod.POST)
-    public ModelAndView changeAccountNameHandler(@PathVariable String account,
+    @RequestMapping(value = "/{siteId}/$/changeAccountName.form", method = RequestMethod.POST)
+    public ModelAndView changeAccountNameHandler(@PathVariable String siteId,
             HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            ar.assertLoggedIn("User must be logged in to delete previous name of account.");
-            NGBook ngb = (NGBook)NGPageIndex.getContainerByKeyOrFail(account);
+            ar.assertLoggedIn("User must be logged in to delete previous name of site.");
+            NGBook ngb = (NGBook)NGPageIndex.getContainerByKeyOrFail(siteId);
             ar.setPageAccessLevels(ngb);
             ar.assertAuthor("Unable to change the name of this page.");
 
@@ -227,13 +187,13 @@ public class AdminController extends BaseController {
 
             modelAndView = new ModelAndView(new RedirectView( "admin.htm"));
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.admin.change.account.name", new Object[]{account} , ex);
+            throw new NGException("nugen.operation.fail.admin.change.account.name", new Object[]{siteId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/$/changeAccountDescription.form", method = RequestMethod.POST)
-    public ModelAndView changeAccountDescriptionHandler(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/changeAccountDescription.form", method = RequestMethod.POST)
+    public ModelAndView changeAccountDescriptionHandler(@PathVariable String siteId,
             HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
@@ -241,31 +201,31 @@ public class AdminController extends BaseController {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            ar.assertLoggedIn("User must be logged in to change description of account.");
-            NGBook account = (NGBook)NGPageIndex.getContainerByKeyOrFail(accountId);
-            ar.setPageAccessLevels(account);
+            ar.assertLoggedIn("User must be logged in to change description of site.");
+            NGBook site = (NGBook)NGPageIndex.getContainerByKeyOrFail(siteId);
+            ar.setPageAccessLevels(site);
             String action = ar.reqParam("action");
-            ar.assertAuthor("Unable to change account settings.");
+            ar.assertAuthor("Unable to change site settings.");
             if(action.equals("Change Description")){
                 String newDesc = ar.reqParam("desc");
-                account.setDescription( newDesc );
+                site.setDescription( newDesc );
             }else if(action.equals("Change Theme")){
                 String theme = ar.reqParam("theme");
-                account.setThemePath(BookInfoRecord.themePath(Integer.parseInt(theme)));
+                site.setThemePath(BookInfoRecord.themePath(Integer.parseInt(theme)));
             }
 
-            account.saveFile(ar, "Change Account Settings");
+            site.saveFile(ar, "Change Site Settings");
 
             modelAndView = new ModelAndView(new RedirectView( "admin.htm"));
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.admin.change.account.description", new Object[]{accountId} , ex);
+            throw new NGException("nugen.operation.fail.admin.change.account.description", new Object[]{siteId} , ex);
         }
         return modelAndView;
 
     }
 
-    @RequestMapping(value = "/{accountId}/$/deletePreviousAccountName.htm", method = RequestMethod.GET)
-    public ModelAndView deletePreviousProjectNameHandler(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/deletePreviousAccountName.htm", method = RequestMethod.GET)
+    public ModelAndView deletePreviousProjectNameHandler(@PathVariable String siteId,
             HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
@@ -273,27 +233,27 @@ public class AdminController extends BaseController {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            ar.assertLoggedIn("User must be logged in to delete previous name of account.");
-            NGBook account = (NGBook)NGPageIndex.getContainerByKeyOrFail(accountId);
-            ar.setPageAccessLevels(account);
+            ar.assertLoggedIn("User must be logged in to delete previous name of site.");
+            NGBook site = (NGBook)NGPageIndex.getContainerByKeyOrFail(siteId);
+            ar.setPageAccessLevels(site);
             ar.assertAuthor("Unable to change the name of this page.");
 
             String oldName = ar.reqParam("oldName");
 
-            String[] nameSet = account.getAccountNames();
+            String[] nameSet = site.getAccountNames();
             int oldPos = findString(nameSet, oldName);
 
             if (oldPos>=0)
             {
                 nameSet = shrink(nameSet, oldPos);
-                account.setAccountNames(nameSet);
+                site.setAccountNames(nameSet);
             }
 
-            account.saveFile(ar, "Change Name Action");
+            site.saveFile(ar, "Change Name Action");
 
             modelAndView = new ModelAndView(new RedirectView( "admin.htm") );
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.admin.delete.previous.account.name", new Object[]{accountId} , ex);
+            throw new NGException("nugen.operation.fail.admin.delete.previous.account.name", new Object[]{siteId} , ex);
         }
         return modelAndView;
     }
@@ -440,8 +400,8 @@ public class AdminController extends BaseController {
         EmailSender.simpleEmail(NGWebUtils.getSuperAdminMailList(ar), null, "Error report", bodyWriter.toString());
     }
 
-    @RequestMapping(value = "/{account}/{project}/updateProjectSettings.ajax", method = RequestMethod.POST)
-    public void updateProjectSettings(@PathVariable String account,@PathVariable String project,
+    @RequestMapping(value = "/{siteId}/{project}/updateProjectSettings.ajax", method = RequestMethod.POST)
+    public void updateProjectSettings(@PathVariable String siteId,@PathVariable String project,
             HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
@@ -474,8 +434,8 @@ public class AdminController extends BaseController {
         NGWebUtils.sendResponse(ar, responseMessage);
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/updateProjectSettings.form", method = RequestMethod.POST)
-    public ModelAndView updateProjectSettingsForm(@PathVariable String accountId,@PathVariable String pageId,
+    @RequestMapping(value = "/{siteId}/{pageId}/updateProjectSettings.form", method = RequestMethod.POST)
+    public ModelAndView updateProjectSettingsForm(@PathVariable String siteId,@PathVariable String pageId,
             HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
@@ -513,13 +473,13 @@ public class AdminController extends BaseController {
 
             NGPageIndex.refreshOutboundLinks(ngp);
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.admin.update.project.settings", new Object[]{accountId,pageId} , ex);
+            throw new NGException("nugen.operation.fail.admin.update.project.settings", new Object[]{siteId,pageId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{account}/{project}/changeProjectSettings.form", method = RequestMethod.POST)
-    public ModelAndView changeProjectSettings(@PathVariable String account,@PathVariable String project,
+    @RequestMapping(value = "/{siteId}/{project}/changeProjectSettings.form", method = RequestMethod.POST)
+    public ModelAndView changeProjectSettings(@PathVariable String siteId,@PathVariable String project,
             HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
@@ -589,7 +549,8 @@ public class AdminController extends BaseController {
             ngp.saveFile(ar, "Changed Goal and/or Purpose of Project");
             NGPageIndex.refreshOutboundLinks(ngp);
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.admin.update.project.settings", new Object[]{project,account} , ex);
+            throw new NGException("nugen.operation.fail.admin.update.project.settings",
+                    new Object[]{project,siteId} , ex);
         }
         return new ModelAndView(new RedirectView( "admin.htm"));
     }

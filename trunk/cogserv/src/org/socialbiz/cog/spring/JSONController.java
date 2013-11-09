@@ -102,14 +102,14 @@ public class JSONController extends BaseController {
 
 
 
-    @RequestMapping(value = "/{accountId}/isProjectExist.ajax", method = RequestMethod.POST)
-    public void isProjectExist(@RequestParam String accountId,
+    @RequestMapping(value = "/{siteId}/isProjectExist.ajax", method = RequestMethod.POST)
+    public void isProjectExist(@RequestParam String siteId,
             ModelMap model, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         try {
             ar.assertLoggedIn("Must be logged in to check project name.");
-            String message=projectNameValidity(accountId, ar,context);
+            String message=projectNameValidity(siteId, ar,context);
             sendJSONResponse(ar, message);
         }
         catch (Exception e) {
@@ -120,8 +120,8 @@ public class JSONController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/isProjectExistOnSystem.ajax", method = RequestMethod.GET)
-    public void isProjectExistOnSystem(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/isProjectExistOnSystem.ajax", method = RequestMethod.GET)
+    public void isProjectExistOnSystem(@PathVariable String siteId,
             @RequestParam String projectname, HttpServletRequest request,
             HttpServletResponse response)
             throws Exception {
@@ -131,7 +131,7 @@ public class JSONController extends BaseController {
         try{
             ar = NGWebUtils.getAuthRequest(request, response,"Could not check project name.");
 
-            message=projectNameValidity(accountId, ar,context);
+            message=projectNameValidity(siteId, ar,context);
 
         }catch(Exception ex){
             ar.logException(message, ex);

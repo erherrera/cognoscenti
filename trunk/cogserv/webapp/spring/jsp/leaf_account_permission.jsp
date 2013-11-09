@@ -8,7 +8,7 @@
 /*
 Required parameters:
 
-    1. accountName : This is the id of an account;
+    1. accountName : This is the id of a site;
 */
 
     String accountName   = ar.reqParam("accountId");
@@ -157,7 +157,7 @@ Required parameters:
                 <table width="100%">
                    <tr>
                        <td class="pageHeading">
-                         <fmt:message key="nugen.projectsettings.heading.Roles"/> of Project
+                         <fmt:message key="nugen.projectsettings.heading.Roles"/> of Site
                        </td>
                          <td></td>
                          <td align="right">

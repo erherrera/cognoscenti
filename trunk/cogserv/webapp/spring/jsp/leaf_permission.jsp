@@ -194,7 +194,7 @@
         <div class="generalSettings"><a name="inheritedRoles"></a>
             <table width="100%">
                 <tr>
-                    <td class="pageHeading">Roles inherited from Account '<%ar.writeHtml(ngp.getAccount().getFullName());%>'</td>
+                    <td class="pageHeading">Roles inherited from Site '<%ar.writeHtml(ngp.getAccount().getFullName());%>'</td>
                 </tr>
                 <tr><td style="height:5px;"></td></tr>
                 <tr><td class="horizontalSeperatorBlue"></td></tr>

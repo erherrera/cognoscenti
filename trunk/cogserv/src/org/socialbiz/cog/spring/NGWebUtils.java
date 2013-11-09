@@ -301,7 +301,7 @@ public class NGWebUtils {
         clone.retPath = ar.baseURL;
         clone.write("<html><body>\n");
         clone.write("<p>This message was sent automatically from Cognoscenti to keep you up ");
-        clone.write("to date on the status of your Account.</p>");
+        clone.write("to date on the status of your Site.</p>");
         clone.write("\n<table>");
         clone.write("\n<tr><td>Purpose: &nbsp;</td><td>You requested a new account</td></tr>\n");
 
@@ -314,7 +314,7 @@ public class NGWebUtils {
         clone.write("\n<tr><td>Result: &nbsp;</td><td>");
         clone.writeHtml(accountDetails.getStatus());
         clone.write("</td></tr>");
-        clone.write("\n<tr><td>Account Name: &nbsp;</td><td><a href=\"");
+        clone.write("\n<tr><td>Site Name: &nbsp;</td><td><a href=\"");
         clone.write(ar.baseURL);
         clone.write("v/approveAccountThroughMail.htm?requestId=");
         clone.write(accountDetails.getRequestId());
@@ -333,7 +333,7 @@ public class NGWebUtils {
                 .getUniversalId())));
 
         EmailSender.simpleEmail(v, null,
-                "Account Approval for " + owner.getName(),
+                "Site Approval for " + owner.getName(),
                 bodyWriter.toString());
     }
 

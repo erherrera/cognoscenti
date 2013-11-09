@@ -348,20 +348,20 @@
         <put-attribute name="body" value="/spring/jsp/leaf_account_personal.jsp" />
     </definition>
     <definition name="accountHomePage" extends="baseLayout">
-        <put-attribute name="title" value="Account" />
+        <put-attribute name="title" value="Site" />
         <put-attribute name="body" value="/spring/jsp/UserAccountHome.jsp" />
     </definition>
     <definition name="accountListProjects" extends="baseLayout">
-        <put-attribute name="title" value="account" />
+        <put-attribute name="title" value="List of Site Projects" />
         <put-attribute name="body" value="/spring/jsp/accountListProjects.jsp" />
     </definition>
     <definition name="accountCreateProject" extends="baseLayout">
-        <put-attribute name="title" value="account" />
+        <put-attribute name="title" value="Create Project" />
         <put-attribute name="body" value="/spring/jsp/accountCreateProject.jsp" />
     </definition>
     <definition name="UserAccountSetting" extends="baseLayout">
         <put-attribute name="title" value="Admin" />
-        <put-attribute name="headerType" value="account" />
+        <put-attribute name="headerType" value="site" />
         <put-attribute name="body" value="/spring/jsp/UserAccountSetting.jsp" />
     </definition>
     <definition name="leaf_project" extends="baseLayout">
@@ -379,7 +379,7 @@
     </definition>
 
     <definition name="UserAccounts" extends="baseLayout">
-        <put-attribute name="title" value="User Accounts" />
+        <put-attribute name="title" value="User Sites" />
         <put-attribute name="body" value="/spring/jsp/UserAccounts.jsp" />
     </definition>
 
@@ -389,7 +389,7 @@
     </definition>
 
     <definition name="account_history" extends="baseLayout">
-        <put-attribute name="title" value="Account History" />
+        <put-attribute name="title" value="Site History" />
         <put-attribute name="body" value="/spring/jsp/leaf_account_history.jsp" />
     </definition>
 
@@ -429,12 +429,12 @@
     </definition>
 
     <definition name="approveAccountThroughMail" extends="baseLayoutWithoutLeftPanel">
-        <put-attribute name="title" value="Account Approval Form" />
+        <put-attribute name="title" value="Site Approval Form" />
         <put-attribute name="body" value="/spring/jsp/AccountApproval.jsp" />
     </definition>
 
     <definition name="RequestAccount" extends="baseLayout">
-        <put-attribute name="title" value="Account Request Form" />
+        <put-attribute name="title" value="Site Request Form" />
         <put-attribute name="body" value="/spring/jsp/RequestAccount.jsp" />
     </definition>
 
@@ -642,7 +642,7 @@
     </definition>
 
     <definition name="newAccounts" extends="baseLayout">
-        <put-attribute name="title" value="New Accounts"/>
+        <put-attribute name="title" value="New Sites"/>
         <put-attribute name="body" value="/spring/jsp/newAccounts.jsp"/>
     </definition>
 
@@ -652,12 +652,12 @@
     </definition>
 
     <definition name="requestedAccounts" extends="baseLayout">
-        <put-attribute name="title" value="Requested Accounts"/>
+        <put-attribute name="title" value="Requested Sites"/>
         <put-attribute name="body" value="/spring/jsp/requestedAccounts.jsp"/>
     </definition>
 
     <definition name="deniedAccounts" extends="baseLayout">
-        <put-attribute name="title" value="Denied Accounts"/>
+        <put-attribute name="title" value="Denied Sites"/>
         <put-attribute name="body" value="/spring/jsp/deniedAccounts.jsp"/>
     </definition>
 

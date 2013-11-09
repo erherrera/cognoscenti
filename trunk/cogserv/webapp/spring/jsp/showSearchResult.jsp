@@ -61,7 +61,7 @@ Parameters:
                         %>
                             <tr>
                                 <td>
-                                    <a href="#" onclick="return goToLink('<%=ar.baseURL%><%=searchResultRecord[i].getPageLink()%>')" title='Access Project/Account'>
+                                    <a href="#" onclick="return goToLink('<%=ar.baseURL%><%=searchResultRecord[i].getPageLink()%>')" title='Access Project/Site'>
                                         <%ar.writeHtml(searchResultRecord[i].getPageName());%>
                                     </a>
                                 </td>
@@ -95,7 +95,7 @@ Parameters:
             YAHOO.example.EnhanceFromMarkup = function()
             {
                 var myColumnDefs = [
-                    {key:"Project_Account_Name",label:"Project/Account Name",sortable:true,resizeable:true},
+                    {key:"Project_Account_Name",label:"Project/Site Name",sortable:true,resizeable:true},
                     {key:"Note_Subject",label:"Note Subject",sortable:true,resizeable:true}
                     ];
 

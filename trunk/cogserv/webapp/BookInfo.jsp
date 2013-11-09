@@ -22,7 +22,7 @@
     ngb = NGPageIndex.getAccountByKeyOrFail(b);
 
 
-    //search and find all the accounts files on disk
+    //search and find all the sites files on disk
     ServletContext sc = session.getServletContext();
     String configPath = sc.getRealPath("/");
     File root = ConfigFile.getFolderOrFail(configPath);
@@ -30,7 +30,7 @@
 
     List<AddressListEntry> book_members  = ngb.getPrimaryRole().getDirectPlayers();
 
-    pageTitle = "Account: "+ngb.getName();
+    pageTitle = "Site: "+ngb.getName();
 %>
 
 
@@ -39,7 +39,7 @@
 
         <div class="pagenavigation">
             <div class="pagenav">
-                <div class="left"><%ar.writeHtml(ngb.getName());%> &raquo; Account Info</div>
+                <div class="left"><%ar.writeHtml(ngb.getName());%> &raquo; Site Info</div>
                 <div class="right"></div>
                 <div class="clearer">&nbsp;</div>
             </div>
@@ -59,7 +59,7 @@
                 <col width="20%"/>
                 <col width="80%"/>
                 <tr>
-                    <td>Account Key:</td>
+                    <td>Site Key:</td>
                     <td class="odd"><%ar.writeHtml(ngb.getKey());%></td>
                 </tr>
                 <tr>
@@ -93,7 +93,7 @@
 <div class="section">
 <!-- ------------------------------------------------- -->
     <div class="section_title">
-    Users of this Account
+    Users of this Site
     </div>
     <div class="section_body">
 

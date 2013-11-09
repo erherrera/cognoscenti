@@ -2,9 +2,9 @@
 %><%@ include file="administration.jsp"
 %><%
 
-    ar.assertLoggedIn("New Account page should never be accessed when not logged in");
+    ar.assertLoggedIn("New Site page should never be accessed when not logged in");
     if (!ar.isSuperAdmin()) {
-        throw new Exception("New Account page should only be accessed by Super Admin");
+        throw new Exception("New Site page should only be accessed by Super Admin");
     }
     if (newAccounts==null) {
         throw new Exception("Program Logic Error: The 'newAccounts' object must be set up for newAccounts.jsp");
@@ -17,30 +17,30 @@
 <div class="content tab04" style="display:block;">
     <div class="section_body">
         <div style="height:10px;"></div>
-        <div class="generalHeading">List of newly created Accounts</div>
+        <div class="generalHeading">List of newly created Sites</div>
         <div id="newAccountContainer">
             <table id="newAccountList">
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Account Name</th>
-                        <th>Account Description</th>
+                        <th>Site Name</th>
+                        <th>Site Description</th>
                     </tr>
                 </thead>
                 <tbody>
                     <%
                     int i = 0;
-                    for (NGBook account : newAccounts) {
+                    for (NGBook site : newAccounts) {
                         i++;
-                        String accountLink = ar.baseURL + "v/" + account.getKey() + "/$/accountListProjects.htm";
+                        String accountLink = ar.baseURL + "v/" + site.getKey() + "/$/accountListProjects.htm";
                     %>
                     <tr>
                         <td><% ar.writeHtml(String.valueOf(i));%></td>
-                        <td><a href="<%ar.writeHtml(accountLink); %>" title="navigate to the account">
-                            <%writeHtml(out, account.getName());%>
+                        <td><a href="<%ar.writeHtml(accountLink); %>" title="navigate to the site">
+                            <%writeHtml(out, site.getName());%>
                         </a></td>
                         <td>
-                            <%writeHtml(out, account.getDescription());%>
+                            <%writeHtml(out, site.getDescription());%>
                         </td>
                     </tr>
                     <%
@@ -58,8 +58,8 @@
         {
             var newAccountCD = [
                 {key:"no",label:"No",formatter:YAHOO.widget.DataTable.formatNumber,sortable:true,resizeable:true},
-                {key:"accountname",label:"Account Name", sortable:true,resizeable:true},
-                {key:"description",label:" Account Description", sortable:true,resizeable:true}
+                {key:"accountname",label:"Site Name", sortable:true,resizeable:true},
+                {key:"description",label:" Site Description", sortable:true,resizeable:true}
 
             ];
 
@@ -140,7 +140,7 @@
         {
             var accountRequestCD = [
                 {key:"requesteId",label:"Request Id",sortable:true,resizeable:true},
-                {key:"accountName",label:"Account Name",sortable:false,resizeable:true},
+                {key:"accountName",label:"Site Name",sortable:false,resizeable:true},
                 {key:"state",label:"<fmt:message key='nugen.attachment.State'/>",sortable:true,resizeable:true},
                 {key:"description",label:"Description",sortable:false,resizeable:true},
                 {key:"date",label:"Date",formatter:YAHOO.widget.DataTable.formatDate,sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
@@ -212,7 +212,7 @@
                                                         '</tr>'+
                                                         '<tr><td style="height:10px"></td></tr>'+
                                                         '<tr>'+
-                                                            '<td class="gridTableColummHeader"><B>Account Name: </B></td>'+
+                                                            '<td class="gridTableColummHeader"><B>Site Name: </B></td>'+
                                                             '<td style="width:20px;"></td>'+
                                                             '<td>'+
                                                                 accountName+

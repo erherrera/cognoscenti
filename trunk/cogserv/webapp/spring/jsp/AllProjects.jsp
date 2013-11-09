@@ -13,15 +13,15 @@
     if(bookList!=null && bookList.size()<1){
     %>
        <div class="guideVocal">
-           You have not created any projects, and you do not have any access to accounts to create one in.
+           You have not created any projects, and you do not have any access to sites to create one in.
            <br/>
            When you create projects, they will be listed here.<br/>
            <br/>
-           In order to create a project, you need to be an "Owner" or an "Executive" of an "Account".<br/>
+           In order to create a project, you need to be an "Owner" or an "Executive" of an "Site".<br/>
            <br/>
-           Use <button class="inputBtn" onClick="location.href='userAccounts.htm'">Settings &gt; Accounts</button>
-           to view your accounts, or request a new account from the system administrator.
-           If approved you will be the owner of that new account,
+           Use <button class="inputBtn" onClick="location.href='userAccounts.htm'">Settings &gt; Sites</button>
+           to view your sites, or request a new site from the system administrator.
+           If approved you will be the owner of that new site,
            and can create new projects within it.
 
        </div>
@@ -206,7 +206,7 @@
         }();
     });
 
-    var projectName = '<%=projectName%>';
+    var projectName = '<%=UtilityMethods.quote4JS(projectName)%>';
     if(projectName!="" && projectName!=null){
         document.getElementById("projectname").value = projectName;
         updateVal();

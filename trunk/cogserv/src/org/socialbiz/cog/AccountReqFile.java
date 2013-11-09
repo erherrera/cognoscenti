@@ -32,7 +32,7 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.spring.AccountRequest;
 
 /**
- * Actually holds New Account Requests
+ * Actually holds New Site Requests
  *
  */
 public class AccountReqFile extends DOMFile {
@@ -58,14 +58,14 @@ public class AccountReqFile extends DOMFile {
 
 
     /**
-    * Save the one file holding all the account requests
+    * Save the one file holding all the site requests
     */
     public static void saveAll()
         throws Exception
     {
         if (accountRequestFile==null)
         {
-            throw new ProgramLogicError("Program logic Error: attempting to save account request records "
+            throw new ProgramLogicError("Program logic Error: attempting to save site request records "
             +"when they have not been read yet.");
         }
         accountRequestFile.save();
@@ -113,10 +113,10 @@ public class AccountReqFile extends DOMFile {
     }
 
     /**
-     * Create new request for new account with the specified name and description.
+     * Create new request for new site with the specified name and description.
      * And save the file.
      */
-    public static AccountRequest requestForNewAccount(String accountId, String displayName,
+    public static AccountRequest requestForNewAccount(String siteId, String displayName,
             String description, AuthRequest ar) throws Exception
     {
         if (allRequests==null) {
@@ -124,35 +124,35 @@ public class AccountReqFile extends DOMFile {
         }
 
         if(displayName.length()<4){
-            throw new NGException("nugen.exception.account.name.length",null);
+            throw new NGException("nugen.exception.site.name.length",null);
         }
-        if (accountId==null) {
+        if (siteId==null) {
             throw new Exception("AccountId parameter can not be null");
         }
-        if (accountId.length()<4 || accountId.length()>8) {
-            throw new Exception("AccountId must be four to eight charcters/numbers long.  Received ("+accountId+")");
+        if (siteId.length()<4 || siteId.length()>8) {
+            throw new Exception("AccountId must be four to eight charcters/numbers long.  Received ("+siteId+")");
         }
-        for (int i=0; i<accountId.length(); i++) {
-            char ch = accountId.charAt(i);
+        for (int i=0; i<siteId.length(); i++) {
+            char ch = siteId.charAt(i);
             if (ch < '0'  ||   (ch>'9' && ch<'A') || (ch>'Z' && ch<'a') || ch>'z') {
-                throw new Exception("AccountId must have only letters and numbers - no spaces or punctuation.  Received ("+accountId+")");
+                throw new Exception("AccountId must have only letters and numbers - no spaces or punctuation.  Received ("+siteId+")");
             }
         }
 
         //to avoid file system problems all ids need to be lower case.
-        accountId = accountId.toLowerCase();
+        siteId = siteId.toLowerCase();
 
-        //now, lets see if there is an account already with that ID
-        NGContainer account = NGPageIndex.getContainerByKey(accountId);
-        if (account!=null) {
-            throw new Exception("Sorry, there already exists an account with that ID ("+accountId+").  Please try again with a different ID.");
+        //now, lets see if there is a site already with that ID
+        NGContainer site = NGPageIndex.getContainerByKey(siteId);
+        if (site!=null) {
+            throw new Exception("Sorry, there already exists an site with that ID ("+siteId+").  Please try again with a different ID.");
         }
 
         String status = "requested";
         String universalId = ar.getUserProfile().getUniversalId();
         String modUser = ar.getUserProfile().getKey();
 
-        AccountRequest accountReq = accountRequestFile.createAccount(accountId, displayName,
+        AccountRequest accountReq = accountRequestFile.createAccount(siteId, displayName,
                 description, status, universalId, ar.nowTime, modUser);
 
         saveAll();
@@ -190,13 +190,13 @@ public class AccountReqFile extends DOMFile {
         }
     }
 
-    private AccountRequest createAccount(String accountId, String displayName,
+    private AccountRequest createAccount(String siteId, String displayName,
             String description, String status, String universalId,
             long modTime, String modUser) throws Exception
     {
-        if (accountId == null) {
+        if (siteId == null) {
             throw new RuntimeException(
-                    "createAccount was passed a null accountId parameter");
+                    "createAccount was passed a null siteId parameter");
         }
         if (displayName == null || displayName.equals("")) {
             throw new RuntimeException(
@@ -213,7 +213,7 @@ public class AccountReqFile extends DOMFile {
 
         newRequest.setName(displayName);
         newRequest.setDescription(description);
-        newRequest.setAccountId(accountId);
+        newRequest.setAccountId(siteId);
         newRequest.setUniversalId(universalId);
         allRequests.add(newRequest);
         return newRequest;
@@ -223,7 +223,7 @@ public class AccountReqFile extends DOMFile {
 
 
     /**
-    * Read the account request file, and automatically remove old requests
+    * Read the site request file, and automatically remove old requests
     * from the in-memory version.
     */
     private static synchronized void initializeAccountlist() throws Exception {
@@ -261,8 +261,8 @@ public class AccountReqFile extends DOMFile {
         File theFile = NGPage.getRealPath("requeted.account");
         try {
             Document newDoc = readOrCreateFile(theFile, "accounts-request");
-            AccountReqFile account = new AccountReqFile(theFile, newDoc);
-            return account;
+            AccountReqFile site = new AccountReqFile(theFile, newDoc);
+            return site;
         } catch (Exception e) {
             throw new NGException("nugen.exception.unable.load.account.request.file",new Object[]{theFile},e);
         }

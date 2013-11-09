@@ -9,25 +9,27 @@ Required Parameters:
 
     subprocess  : This request attribute is used to check if process is subprocess or parent-process.
     pageId      : This is the id of Project which is used to get details of Project.
+    TypeOfGoalPage :  provides the title
 
 */
 
     String subprocess  = ar.defParam("subprocess", "true");
-    String pageId      = ar.reqParam("pageId");%><%!String pageTitle = "";
+    String pageId      = ar.reqParam("pageId");
+%><%!
+    String pageTitle = "";
     boolean displayMyTask;
-    UserProfile uProf=null;%><%uProf = ar.getUserProfile();
+    UserProfile uProf=null;
+%><%
+    String typeOfGoalPage = (String) request.getAttribute("TypeOfGoalPage");
+    uProf = ar.getUserProfile();
 
     String cpath = request.getContextPath();
     NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
     ar.setPageAccessLevels(ngp);
     NGBook ngb = ngp.getAccount();
-    pageTitle = ngp.getFullName();
+    //pageTitle = ngp.getFullName();
+    pageTitle = typeOfGoalPage;
     List<GoalRecord> taskList = ngp.getAllGoals();
-
-    //Map<Integer,String> priority=new HashMap<Integer,String>();
-    //for (int i=0; i<3; i++) {
-    //    priority.put(i, BaseRecord.getPriorityStr(i);
-    //}
 
     //Declaration  for Status report page
     ar.setPageAccessLevels(ngp);
@@ -426,7 +428,7 @@ function generateReoprt(){
 
     <!-- Content Area Starts Here -->
     <div class="generalArea">
-        <div class="pageHeading">Project Goals</div>
+        <div class="pageHeading"><%=typeOfGoalPage%></div>
         <div class="pageSubHeading">
             <table width="100%">
                 <tr>

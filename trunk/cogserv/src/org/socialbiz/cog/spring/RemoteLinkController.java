@@ -54,13 +54,13 @@ public class RemoteLinkController extends BaseController {
     public static final String PAGE_ID = "pageId";
 
 
-    @RequestMapping(value = "/{accountId}/{pageId}/syncSharePointAttachment.htm", method = RequestMethod.GET)
-    protected void syncAttachmentAction(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/syncSharePointAttachment.htm", method = RequestMethod.GET)
+    protected void syncAttachmentAction(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
+            NGPage ngp = registerRequiredProject(ar, siteId, pageId);
             if(!ar.isLoggedIn()){
                 sendRedirectToLogin(ar, "message.login.sync.attachment",null);
                 return;
@@ -93,11 +93,11 @@ public class RemoteLinkController extends BaseController {
             }
 
             ngp.saveFile(ar, "Modified attachments");
-            response.sendRedirect(ar.baseURL+"t/"+accountId+"/"+pageId+"/attachment.htm");
+            response.sendRedirect(ar.baseURL+"t/"+siteId+"/"+pageId+"/attachment.htm");
 
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.sync.share.point.attachment.page",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
@@ -111,13 +111,13 @@ public class RemoteLinkController extends BaseController {
         return val;
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/syncSharePointAttachmentDisplay.htm", method = RequestMethod.GET)
-    protected ModelAndView syncAttachment(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/SyncAttachment.htm", method = RequestMethod.GET)
+    protected ModelAndView syncAttachment(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
 
             ModelAndView modelAndView= memberCheckViews(ar);
             if (modelAndView!=null) {
@@ -129,7 +129,7 @@ public class RemoteLinkController extends BaseController {
             return new ModelAndView("SyncAttachment");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.sync.share.point.attachment.page",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
@@ -153,15 +153,15 @@ public class RemoteLinkController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/Synchronize.form", method = RequestMethod.POST)
-    protected void Synchronize(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/Synchronize.form", method = RequestMethod.POST)
+    protected void Synchronize(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
-            request.setAttribute("book", accountId);
+            request.setAttribute("book", siteId);
             request.setAttribute("pageId", pageId);
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            NGPage ngp = registerRequiredProject(ar, accountId, pageId);
+            NGPage ngp = registerRequiredProject(ar, siteId, pageId);
             if(!ar.isLoggedIn()){
                 sendRedirectToLogin(ar, "message.login.sync.attachment",null);
                 return;
@@ -199,21 +199,21 @@ public class RemoteLinkController extends BaseController {
                    }
                }
             }
-            response.sendRedirect(ar.baseURL+"t/"+accountId+"/"+pageId+"/attachment.htm");
+            response.sendRedirect(ar.baseURL+"t/"+siteId+"/"+pageId+"/attachment.htm");
 
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.synchronize",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/linkToRepository.htm", method = RequestMethod.GET)
-    protected ModelAndView linkToRepository(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/linkToRepository.htm", method = RequestMethod.GET)
+    protected ModelAndView linkToRepository(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
             ModelAndView modelAndView= memberCheckViews(ar);
             if (modelAndView!=null) {
                 return modelAndView;
@@ -221,21 +221,21 @@ public class RemoteLinkController extends BaseController {
 
             request.setAttribute("isNewUpload", "yes");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            return createNamedView(accountId, pageId, ar, "LinkDocFromRepositoryForm", "Project Documents");
+            return createNamedView(siteId, pageId, ar, "LinkDocFromRepositoryForm", "Project Documents");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.link.to.repository.page",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/submitWebDevURL.form", method = RequestMethod.POST)
-    protected ModelAndView submitWebDevURL(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/submitWebDevURL.form", method = RequestMethod.POST)
+    protected ModelAndView submitWebDevURL(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
             ModelAndView modelAndView = null;
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.must.be.login.to.perform.action");
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
 
             String rLink = ar.reqParam("rLink");
 
@@ -243,19 +243,19 @@ public class RemoteLinkController extends BaseController {
             modelAndView.addObject("rLink", rLink);
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.link.to.repository",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/webDevURL.form", method = RequestMethod.POST)
-    protected ModelAndView webDevURL(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/webDevURL.form", method = RequestMethod.POST)
+    protected ModelAndView webDevURL(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
             ModelAndView modelAndView = null;
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.must.be.login.to.perform.action");
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
             String action = ar.reqParam("action");
             String rlink = ar.reqParam("rlink");
 
@@ -275,19 +275,19 @@ public class RemoteLinkController extends BaseController {
 
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.link.to.repository.page",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/createConnection.form", method = RequestMethod.POST)
-    protected ModelAndView createConnection(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/createConnection.form", method = RequestMethod.POST)
+    protected ModelAndView createConnection(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
             ModelAndView modelAndView = null;
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.can.not.create.connection");
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
             String action = ar.reqParam("action");
             if(!action.equals("createConnection")){
                 throw new ProgramLogicError("createConnection.form does not understand the operation: "+ action);
@@ -312,38 +312,38 @@ public class RemoteLinkController extends BaseController {
             modelAndView.addObject("folderId", cSet.getId());
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.create.connection",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/problemDiagnosePage.htm",method = RequestMethod.GET)
-    protected ModelAndView problemDiagnosePage(@PathVariable String accountId, @PathVariable String pageId,
+    @RequestMapping(value = "/{siteId}/{pageId}/problemDiagnosePage.htm",method = RequestMethod.GET)
+    protected ModelAndView problemDiagnosePage(@PathVariable String siteId, @PathVariable String pageId,
             HttpServletRequest request, HttpServletResponse response) throws Exception{
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
             ModelAndView modelAndView= memberCheckViews(ar);
             if (modelAndView!=null) {
                 return modelAndView;
             }
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            return createNamedView(accountId, pageId, ar, "ProblemDiagnosePage", "Project Documents");
+            return createNamedView(siteId, pageId, ar, "ProblemDiagnosePage", "Project Documents");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.problem.diagnose.page",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/problemDiagnose.form", method = RequestMethod.POST)
-    protected ModelAndView problemDiagnose(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/problemDiagnose.form", method = RequestMethod.POST)
+    protected ModelAndView problemDiagnose(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         ModelAndView modelAndView = null;
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.must.be.login.to.perform.action");
-            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
+            NGPage nGPage = registerRequiredProject(ar, siteId, pageId);
             if(nGPage.isFrozen()){
                 throw new NGException("nugen.project.freezed.msg",null);
             }
@@ -381,7 +381,7 @@ public class RemoteLinkController extends BaseController {
 
                 String folderId = ar.reqParam("folderId");
                 fah.changePassword(folderId);
-                response.sendRedirect(ar.baseURL+"t/"+accountId+"/"+pageId+"/attachment.htm");
+                response.sendRedirect(ar.baseURL+"t/"+siteId+"/"+pageId+"/attachment.htm");
 
             }else if(action.equals("CreateCopy")){
 
@@ -391,12 +391,12 @@ public class RemoteLinkController extends BaseController {
                     throw new NGException("nugen.exception.unhealthy.connection", new Object[]{folderId});
                 }
                 fah.createCopyInRepository(null, nGPage, aid, ar.reqParam("rlink"), folderId,false);
-                response.sendRedirect(ar.baseURL+"t/"+accountId+"/"+pageId+"/attachment.htm");
+                response.sendRedirect(ar.baseURL+"t/"+siteId+"/"+pageId+"/attachment.htm");
 
             }else if(action.equals("UnlinkFromRepository")){
 
                 AttachmentHelper.unlinkDocFromRepository(ar, aid, nGPage);
-                response.sendRedirect(ar.baseURL+"t/"+accountId+"/"+pageId+"/attachment.htm");
+                response.sendRedirect(ar.baseURL+"t/"+siteId+"/"+pageId+"/attachment.htm");
 
             }else if(action.equals("ChangeURL")){
 
@@ -406,7 +406,7 @@ public class RemoteLinkController extends BaseController {
                 String newRelativePath = cType.getInternalPathOrFail(newPath);
                 String rFilename = newRelativePath.substring(newRelativePath.lastIndexOf('/') + 1);
                 AttachmentHelper.updateRemoteAttachment(ar, nGPage, null, newRelativePath, folderId, rFilename, null);
-                response.sendRedirect(ar.baseURL+"t/"+accountId+"/"+pageId+"/attachment.htm");
+                response.sendRedirect(ar.baseURL+"t/"+siteId+"/"+pageId+"/attachment.htm");
 
             }else{
                 throw new ProgramLogicError("problemDiagnose.form does not understand the operation: "+ action);
@@ -414,18 +414,18 @@ public class RemoteLinkController extends BaseController {
 
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.problem.diagnose",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/WebDevURLForm.htm", method = RequestMethod.GET)
-    protected ModelAndView getWebDevURLForm(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/WebDevURLForm.htm", method = RequestMethod.GET)
+    protected ModelAndView getWebDevURLForm(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
             ModelAndView modelAndView= memberCheckViews(ar);
             if (modelAndView!=null) {
                 return modelAndView;
@@ -433,21 +433,21 @@ public class RemoteLinkController extends BaseController {
 
             request.setAttribute("isNewUpload", "yes");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            return createNamedView(accountId, pageId, ar, "WebDevURLForm", "Project Documents");
+            return createNamedView(siteId, pageId, ar, "WebDevURLForm", "Project Documents");
 
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.link.to.repository",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/createLinkToRepositoryForm.htm", method = RequestMethod.GET)
-    protected ModelAndView getLinkFromRepositoryForm(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/createLinkToRepositoryForm.htm", method = RequestMethod.GET)
+    protected ModelAndView getLinkFromRepositoryForm(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
             ModelAndView modelAndView= memberCheckViews(ar);
             if (modelAndView!=null) {
                 return modelAndView;
@@ -467,20 +467,20 @@ public class RemoteLinkController extends BaseController {
             request.setAttribute("symbol", remoteFile.getSymbol());
             request.setAttribute("atype", ar.defParam("atype","2"));
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            return createNamedView(accountId, pageId, ar, "linkfromrepository_form", "Project Documents");
+            return createNamedView(siteId, pageId, ar, "linkfromrepository_form", "Project Documents");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.link.to.repository.page",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/createNewConnection.htm", method = RequestMethod.GET)
-    protected ModelAndView createNewConnection(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/createNewConnection.htm", method = RequestMethod.GET)
+    protected ModelAndView createNewConnection(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
             ModelAndView modelAndView= memberCheckViews(ar);
             if (modelAndView!=null) {
                 return modelAndView;
@@ -492,21 +492,21 @@ public class RemoteLinkController extends BaseController {
             request.setAttribute("rlink", rlink);
             request.setAttribute("atype", ar.defParam("atype", "2"));
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            return createNamedView(accountId, pageId, ar, "CreateNewConnection_form", "Project Documents");
+            return createNamedView(siteId, pageId, ar, "CreateNewConnection_form", "Project Documents");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.create.new.connection.page",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/CreateCopyForm.form", method = RequestMethod.POST)
-    protected ModelAndView createCopyForm(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/CreateCopyForm.form", method = RequestMethod.POST)
+    protected ModelAndView createCopyForm(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
             ModelAndView modelAndView = null;
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.must.be.login.to.perform.action");
-            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
+            NGPage nGPage = registerRequiredProject(ar, siteId, pageId);
             if(nGPage.isFrozen()){
                 throw new NGException("nugen.project.freezed.msg",null);
             }
@@ -550,18 +550,18 @@ public class RemoteLinkController extends BaseController {
             }
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.create.copy.from",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/ChooseFolder.htm", method = RequestMethod.GET)
-    protected ModelAndView chooseFolder(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/ChooseFolder.htm", method = RequestMethod.GET)
+    protected ModelAndView chooseFolder(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
             ModelAndView modelAndView= memberCheckViews(ar);
             if (modelAndView!=null) {
                 return modelAndView;
@@ -577,21 +577,21 @@ public class RemoteLinkController extends BaseController {
             request.setAttribute("folderId", folderId);
             request.setAttribute("path", path);
             request.setAttribute("fndDefLoctn", fndDefLoctn);
-            return createNamedView(accountId, pageId, ar, "ChooseFolder", "Project Documents");
+            return createNamedView(siteId, pageId, ar, "ChooseFolder", "Project Documents");
 
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.choose.folder.page",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/pushToRepository.htm", method = RequestMethod.GET)
-    protected ModelAndView pushToRepository(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/pushToRepository.htm", method = RequestMethod.GET)
+    protected ModelAndView pushToRepository(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
             ModelAndView modelAndView= memberCheckViews(ar);
             if (modelAndView!=null) {
                 return modelAndView;
@@ -605,21 +605,21 @@ public class RemoteLinkController extends BaseController {
             request.setAttribute("folderId", folderId);
             request.setAttribute("path", path);
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            return createNamedView(accountId, pageId, ar, "PushToRepository", "Project Documents");
+            return createNamedView(siteId, pageId, ar, "PushToRepository", "Project Documents");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.push.to.repository.page",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/PushToRepository.form", method = RequestMethod.POST)
-    protected ModelAndView pushToRepositoryForm(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/PushToRepository.form", method = RequestMethod.POST)
+    protected ModelAndView pushToRepositoryForm(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
             ModelAndView modelAndView = null;
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.can.not.push.doc.to.repository");
-            NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
+            NGPage nGPage = registerRequiredProject(ar, siteId, pageId);
             if(nGPage.isFrozen()){
                 throw new NGException("nugen.project.freezed.msg",null);
             }
@@ -648,7 +648,7 @@ public class RemoteLinkController extends BaseController {
 
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.push.to.repository",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
     }
@@ -795,13 +795,13 @@ public class RemoteLinkController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/createConForExistingFile.htm", method = RequestMethod.GET)
-    protected ModelAndView createConForExistingFile(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/createConForExistingFile.htm", method = RequestMethod.GET)
+    protected ModelAndView createConForExistingFile(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
             ModelAndView modelAndView= memberCheckViews(ar);
             if (modelAndView!=null) {
                 return modelAndView;
@@ -810,21 +810,21 @@ public class RemoteLinkController extends BaseController {
             request.setAttribute("subTabId", "nugen.projecthome.subtab.emailreminder");
             request.setAttribute("aid", ar.reqParam("aid"));
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            return createNamedView(accountId, pageId, ar, "CreateNewConnection", "Project Documents");
+            return createNamedView(siteId, pageId, ar, "CreateNewConnection", "Project Documents");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.create.connection.for.existing.file",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/createConnectionToPushDoc.form", method = RequestMethod.POST)
-    protected ModelAndView createConnectionToPushDoc(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/createConnectionToPushDoc.form", method = RequestMethod.POST)
+    protected ModelAndView createConnectionToPushDoc(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
             ModelAndView modelAndView = null;
         try{
             AuthRequest ar = getLoggedInAuthRequest(request, response, "message.can.not.create.connection");
-            NGPageIndex.assertBook(accountId);
+            NGPageIndex.assertBook(siteId);
             NGPageIndex.getProjectByKeyOrFail(pageId);
             String action = ar.reqParam("action");
             String aid = ar.defParam("aid", null);
@@ -842,18 +842,18 @@ public class RemoteLinkController extends BaseController {
 
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.create.connection.to.push.document",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/fileExists.htm", method = RequestMethod.GET)
-    protected ModelAndView fileExists(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/fileExists.htm", method = RequestMethod.GET)
+    protected ModelAndView fileExists(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            registerRequiredProject(ar, accountId, pageId);
+            registerRequiredProject(ar, siteId, pageId);
             ModelAndView modelAndView= memberCheckViews(ar);
             if (modelAndView!=null) {
                 return modelAndView;
@@ -866,20 +866,20 @@ public class RemoteLinkController extends BaseController {
             request.setAttribute("path", verifyEnt.getFullPath());
             request.setAttribute("folderId", verifyEnt.getFolderId());
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            return createNamedView(accountId, pageId, ar, "FileExist", "Project Documents");
+            return createNamedView(siteId, pageId, ar, "FileExist", "Project Documents");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.check.file.exists.page",
-                    new Object[]{pageId,accountId} , ex);
+                    new Object[]{pageId,siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/fileExists.form", method = RequestMethod.POST)
-    protected ModelAndView fileExistsForm(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/{pageId}/fileExists.form", method = RequestMethod.POST)
+    protected ModelAndView fileExistsForm(@PathVariable String siteId,
             @PathVariable String pageId, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
             ModelAndView modelAndView = null;
         AuthRequest ar = getLoggedInAuthRequest(request, response, "message.must.be.login.to.perform.action");
-        NGPage nGPage = registerRequiredProject(ar, accountId, pageId);
+        NGPage nGPage = registerRequiredProject(ar, siteId, pageId);
         String aid = ar.reqParam("aid");
         String path = ar.reqParam("path");
         try{

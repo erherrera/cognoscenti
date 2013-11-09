@@ -7,7 +7,7 @@
 
 Required Parameters:
 
-    1. memberOfAccounts : This parameter provide the list of those accounts which belong to user.
+    1. memberOfAccounts : This parameter provide the list of those sites which belong to user.
 
 */
 
@@ -18,7 +18,7 @@ Required Parameters:
         throw new ProgramLogicError("memberOfAccounts setting is null.");
     }
 
-    ar.assertLoggedIn("You must be logged in to see user account information");
+    ar.assertLoggedIn("You must be logged in to see user site information");
 
     //note, this page only displays info for the current logged in user, regardless of URL
     UserProfile  userProfile =ar.getUserProfile();
@@ -49,7 +49,7 @@ Required Parameters:
     if (accReqs==null)
     {
         //this should never happen, and if it does it is not the users fault
-        throw new ProgramLogicError("user profile returned a null for account requests.");
+        throw new ProgramLogicError("user profile returned a null for site requests.");
     }
     ngb = null;
 
@@ -62,7 +62,7 @@ Required Parameters:
         <%
         if(memberOfAccounts.size()>0) {
         %>
-        <div class="generalHeadingBorderLess">List of Accounts</div>
+        <div class="generalHeadingBorderLess">List of Sites</div>
         <div class="generalContent">
             <div id="accountPaging"></div>
             <div id="accountsContainer">
@@ -70,8 +70,8 @@ Required Parameters:
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Account Name</th>
-                            <th>Account Description</th>
+                            <th>Site Name</th>
+                            <th>Site Description</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -94,7 +94,7 @@ Required Parameters:
                                 <%=(i)%>
                             </td>
                             <td>
-                                <a href="<%ar.writeHtml(accountLink); %>" title="navigate to the account"><%writeHtml(out, account.getName());%></a>
+                                <a href="<%ar.writeHtml(accountLink); %>" title="navigate to the site"><%writeHtml(out, account.getName());%></a>
                             </td>
                             <td>
                                 <%writeHtml(out, account.getDescription());%>
@@ -110,7 +110,7 @@ Required Parameters:
             <br/>
             <div>
                 <form name="createAccountForm" method="GET" action="requestAccount.htm">
-                    <input type="submit" class="inputBtn"  Value="Request New Account">
+                    <input type="submit" class="inputBtn"  Value="Request New Site">
                 </form>
             </div>
         </div>
@@ -133,7 +133,7 @@ Required Parameters:
             <fmt:message key="noaccount.message.1"/>
             <fmt:message key="noaccount.message.2"/>
             <form name="createAccountForm" method="GET" action="requestAccount.htm">
-                <input type="submit" class="inputBtn"  Value="Request New Account">
+                <input type="submit" class="inputBtn"  Value="Request New Site">
             </form>
             <fmt:message key="noaccount.message.3"/>
             <fmt:message key="noaccount.message.4"/>
@@ -143,7 +143,7 @@ Required Parameters:
         //only produce this section if you have some outstanding requests
         if (myAccountRequests.size()>0) {
         %>
-        <div class="generalHeadingBorderLess"><br/>Status of Your Account Requests</div>
+        <div class="generalHeadingBorderLess"><br/>Status of Your Site Requests</div>
         <div class="generalContent">
             <div id="accountRequestPaging"></div>
             <div id="accountRequestDiv">
@@ -194,8 +194,8 @@ Required Parameters:
             {
                 var accountColumnDefs = [
                     {key:"no",label:"No",formatter:YAHOO.widget.DataTable.formatNumber,sortable:true,resizeable:true},
-                    {key:"accountname",label:"Account Name",sortable:true,resizeable:true},
-                    {key:"description",label:"Account Description",sortable:true,resizeable:true}];
+                    {key:"accountname",label:"Site Name",sortable:true,resizeable:true},
+                    {key:"description",label:"Site Description",sortable:true,resizeable:true}];
 
                 var accountDS = new YAHOO.util.DataSource(YAHOO.util.Dom.get("accountList"));
                 accountDS.responseType = YAHOO.util.DataSource.TYPE_HTMLTABLE;

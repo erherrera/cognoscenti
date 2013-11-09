@@ -10,12 +10,12 @@ Parameter used :
     1. pageTitle    : Used to retrieve the page title from request.
     2. userKey      : This is Key of user who is logged in.
     3. pageId       : Id of a Project, used to fetch details of Project (NGPage).
-    4. book         : This is key of an account, used here to get details of an Account (NGBook).
+    4. book         : This is key of a site, used here to get details of an Site (NGBook).
     5. viewingSelf  : This parameter is used to check if user is viewing himself/herself or other profile.
-    6. headerType   : Used to check the header type whether it is from account , project or user on the basis of
+    6. headerType   : Used to check the header type whether it is from site, project or user on the basis of
                       it corrosponding tabs are displayed
     7. tabId        : This is tabId when the page ie rendered Tab with this id will be selected.
-    8. accountId    : This is key of an account, used here to get details of an Account (NGBook).
+    8. accountId    : This is key of a site, used here to get details of an Site (NGBook).
 
 */
 %><%!
@@ -293,7 +293,7 @@ Parameter used :
         <link href="<%=ar.retPath%>css/ie7styles.css" rel="styleSheet" type="text/css" media="screen" />
     <![endif]-->
 
-<% if (!headerType.equals("account")) { %>
+<% if (!headerType.equals("site")) { %>
     <script>
         var specialTab='<%=tabId%>';
         headerType = "<%=headerType%>";
@@ -313,7 +313,7 @@ Parameter used :
         }
     </style>
 
-<% } else if(headerType.equals("account")){ %>
+<% } else if(headerType.equals("site")){ %>
      <script>
         var specialTab='<%=tabId%>';
         headerType = "<%=headerType%>";
@@ -336,8 +336,8 @@ Parameter used :
         <img id="logoInterstage" src="<%=ar.retPath%>assets/logo_interstage.gif" alt="Interstage" width="145" height="38" />
         <div id="consoleName">
            <% if(ngb!=null){ %>
-           Account: <a href="<%=ar.retPath%>v/<%ar.writeURLData(ngb.getKey());%>/$/public.htm"
-                     title="View the Account for this page"><%ar.writeHtml(ngb.getName());%></a>
+           Site: <a href="<%=ar.retPath%>v/<%ar.writeURLData(ngb.getKey());%>/$/public.htm"
+                     title="View the Site for this page"><%ar.writeHtml(ngb.getName());%></a>
 
            <% } %>
            <br />
@@ -355,14 +355,14 @@ Parameter used :
                     ar.write("</span>");
                 }
             }
-            else if(headerType.equals("account")) {
+            else if(headerType.equals("site")) {
                 if(pageTitle!=null){
                     if(pageTitle.length()>60){
                         trncatePageTitle=pageTitle.substring(0,60)+"...";
                     }else{
                         trncatePageTitle=pageTitle;
                     }
-                    ar.write("Account: <span title=\"");
+                    ar.write("Site: <span title=\"");
                     ar.write(pageTitle);
                     ar.write("\">");
                     ar.writeHtml(trncatePageTitle);
@@ -479,7 +479,7 @@ Parameter used :
                 <ul id="ddsubmenu3" class="ddsubmenustyle"> </ul>
                 <ul id="ddsubmenu4" class="ddsubmenustyle"></ul>
 
-           <!--Top Drop Down Menu for Account section HTML Starts Here -->
+           <!--Top Drop Down Menu for Site section HTML Starts Here -->
                 <ul id="accountSubMenu1" class="ddsubmenustyle"/></ul>
                 <ul id="accountSubMenu2" class="ddsubmenustyle"></ul>
                 <ul id="accountSubMenu4" class="ddsubmenustyle"> </ul>

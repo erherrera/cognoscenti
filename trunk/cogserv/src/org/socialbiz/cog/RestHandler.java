@@ -29,10 +29,10 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 public class RestHandler {
 
     AuthRequest ar;
-    String accountId;
+    String siteId;
     String projectId;
     String resource;
-    NGBook account;
+    NGBook prjSite;
     NGPage ngp;
 
     /**
@@ -63,8 +63,8 @@ public class RestHandler {
         if (slashPos<1) {
             throw new ProgramLogicError("could not find a second slash in: " + path);
         }
-        accountId = path.substring(1, slashPos);
-        account = NGPageIndex.getAccountByKeyOrFail(accountId);
+        siteId = path.substring(1, slashPos);
+        prjSite = NGPageIndex.getAccountByKeyOrFail(siteId);
         int nextSlashPos = path.indexOf("/",slashPos+1);
         if (nextSlashPos<0) {
             throw new ProgramLogicError("could not find a third slash in: " + path);

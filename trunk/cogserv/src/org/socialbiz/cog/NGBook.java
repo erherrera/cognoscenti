@@ -32,9 +32,9 @@ import org.socialbiz.cog.util.CVSUtil;
 import org.w3c.dom.Document;
 
 /**
- * An account is a collection of pages. This allows a collection of pages to
+ * An site is a collection of pages. This allows a collection of pages to
  * share a single set of members, and a particular look and feel. For archaic
- * reasons called NGBook, should be NGAccount
+ * reasons called NGBook, should be NGSite
  */
 public class NGBook extends ContainerCommon implements NGContainer {
     public String key;
@@ -67,7 +67,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         memberRole = getRequiredRole("Executives");
         ownerRole = getRequiredRole("Owners");
 
-        // just in case this is an old account object, we need to look for and
+        // just in case this is an old site object, we need to look for and
         // copy members from the members tag into the role itself
         moveOldMembersToRole();
 
@@ -116,12 +116,12 @@ public class NGBook extends ContainerCommon implements NGContainer {
         if (keyToBook == null) {
             // this should never happen, but if it does....
             throw new ProgramLogicError(
-                    "in readBookByKey called before the account index initialzed.");
+                    "in readBookByKey called before the site index initialzed.");
         }
         if (key == null) {
             // used to pass a null in to get the default book
             // however, this should no longer be used.  TEST to see.
-            throw new Exception("Program Logic Error: Account key of null is no longer allowed.");
+            throw new Exception("Program Logic Error: Site key of null is no longer allowed.");
             //return defaultBook;
         }
 
@@ -372,10 +372,10 @@ public class NGBook extends ContainerCommon implements NGContainer {
         keyToBook = tKeyToBook;
         allAccounts = tAllBooks;
 
-        //now figure out the default account needed for migrating early pages
-        //the only valid default account in the past was 'mainbook' and any server
-        //that requires a default account should have one with this key.
-        //otherwise, the server should not need a default account.
+        //now figure out the default site needed for migrating early pages
+        //the only valid default site in the past was 'mainbook' and any server
+        //that requires a default site should have one with this key.
+        //otherwise, the server should not need a default site.
         defaultAccount = tKeyToBook.get("mainbook");
     }
 
@@ -387,7 +387,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         File theFile = NGPage.getRealPath(key + ".book");
         if (theFile.exists()) {
             throw new Exception(
-                    "Unable to create new account, an account with that ID already exists.");
+                    "Unable to create new site, a site with that ID already exists.");
         }
 
         Document newDoc = readOrCreateFile(theFile, "book");
@@ -398,7 +398,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         newBook.setStyleSheet("PageViewer.css");
         newBook.setLogo("logo.gif");
 
-        // where is the account going to go?
+        // where is the site going to go?
         String[] libFolders = ConfigFile.getArrayProperty("libFolder");
         if (libFolders.length > 0) {
             File domFolder = new File(libFolders[0]);
@@ -409,7 +409,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
             }
             File newAccountFolder = new File(domFolder, key);
             if (newAccountFolder.exists()) {
-                throw new Exception("Can't create account because folder alread exists: ("
+                throw new Exception("Can't create site because folder already exists: ("
                         + newAccountFolder + ")");
             }
             newAccountFolder.mkdirs();
@@ -528,11 +528,11 @@ public class NGBook extends ContainerCommon implements NGContainer {
     // ////////////////// NOTES /////////////////////////
 
     public License getLicense(String id) throws Exception {
-        throw new Exception("getLicense is not supported on account containers");
+        throw new Exception("getLicense is not supported on site containers");
     }
 
     public void setLastModify(AuthRequest ar) throws Exception {
-        ar.assertLoggedIn("Must be logged in in order to modify account.");
+        ar.assertLoggedIn("Must be logged in in order to modify site.");
         bookInfoRecord.setModTime(ar.nowTime);
         bookInfoRecord.setModUser(ar.getBestUserId());
     }
@@ -610,71 +610,39 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public void writeDocumentLink(AuthRequest ar, String documentId, int len) throws Exception {
-        throw new Exception("writeDocumentLink should no longer be used on an Account");
-        /*
-        AttachmentRecord att = findAttachmentByID(documentId);
-        if (att == null) {
-            ar.write("(Document ");
-            ar.write(documentId);
-            ar.write(")");
-            return;
-        }
-        String nameOfLink = trimName(att.getDisplayName(), len);
-        writeAccountUrl(ar);
-        ar.write("/docinfo");
-        ar.writeURLData(documentId);
-        ar.write(".htm\">");
-        ar.writeHtml(nameOfLink);
-        ar.write("</a>");
-        */
+        throw new Exception("writeDocumentLink should no longer be used on an Site");
     }
 
     public void writeReminderLink(AuthRequest ar, String reminderId, int len) throws Exception {
-        throw new Exception("writeReminderLink should no longer be used on an Account");
-        /*
-        ReminderRecord att = getReminderMgr().findReminderByID(reminderId);
-        if (att == null) {
-            ar.write("(Reminder ");
-            ar.write(reminderId);
-            ar.write(")");
-            return;
-        }
-        String nameOfLink = trimName(att.getFileDesc(), len);
-        writeAccountUrl(ar);
-        ar.write("/sendemailReminder.htm?rid=");
-        ar.writeURLData(reminderId);
-        ar.write("\">");
-        ar.writeHtml(nameOfLink);
-        ar.write("</a>");
-        */
+        throw new Exception("writeReminderLink should no longer be used on an Site");
     }
 
     /**
-     * overridden in Account to make sure this is never needed
+     * overridden in Site to make sure this is never needed
      */
     public AttachmentRecord findAttachmentByID(String id) throws Exception {
-        throw new Exception("findAttachmentByID should never be needed on Account");
+        throw new Exception("findAttachmentByID should never be needed on Site");
     }
     public AttachmentRecord findAttachmentByIDOrFail(String id) throws Exception {
-        throw new Exception("findAttachmentByIDOrFail should never be needed on Account");
+        throw new Exception("findAttachmentByIDOrFail should never be needed on Site");
     }
     public AttachmentRecord findAttachmentByName(String name) throws Exception {
-        throw new Exception("findAttachmentByName should never be needed on Account");
+        throw new Exception("findAttachmentByName should never be needed on Site");
     }
     public AttachmentRecord findAttachmentByNameOrFail(String name) throws Exception {
-        throw new Exception("findAttachmentByNameOrFail should never be needed on Account");
+        throw new Exception("findAttachmentByNameOrFail should never be needed on Site");
     }
     public AttachmentRecord createAttachment() throws Exception {
-        throw new Exception("createAttachment should never be needed on Account");
+        throw new Exception("createAttachment should never be needed on Site");
     }
     public void deleteAttachment(String id,AuthRequest ar) throws Exception {
-        throw new Exception("deleteAttachment should never be needed on Account");
+        throw new Exception("deleteAttachment should never be needed on Site");
     }
     public void unDeleteAttachment(String id) throws Exception {
-        throw new Exception("unDeleteAttachment should never be needed on Account");
+        throw new Exception("unDeleteAttachment should never be needed on Site");
     }
     public void eraseAttachmentRecord(String id) throws Exception {
-        throw new Exception("eraseAttachmentRecord should never be needed on Account");
+        throw new Exception("eraseAttachmentRecord should never be needed on Site");
     }
 
 
@@ -682,8 +650,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
 
     public void writeTaskLink(AuthRequest ar, String taskId, int len) throws Exception {
-        throw new ProgramLogicError("This account does not have a task '" + taskId
-                + "' or any other task.  Accounts don't have tasks.");
+        throw new ProgramLogicError("This site does not have a task '" + taskId
+                + "' or any other task.  Sites don't have tasks.");
     }
 
     public void writeNoteLink(AuthRequest ar, String noteId, int len) throws Exception {
@@ -717,7 +685,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     /**
-     * Different accounts can have different style sheets (themes)
+     * Different sites can have different style sheets (themes)
      */
     public String getThemePath() {
         String val = bookInfoRecord.getThemePath();
@@ -733,7 +701,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     /**
      * This is the path to a folder (on disk) that new projects should be
-     * created in for this account. Not all projects will actually be there
+     * created in for this site. Not all projects will actually be there
      * because older ones may have been created elsewhere, or moved, but new
      * ones created there. If this has a value, then a new folder is created
      * inside this one for the project.

@@ -29,7 +29,7 @@ import org.w3c.dom.Element;
 
 /**
 * A NoteRecord represents a Note in a Container.
-* Notes exist on project and accounts as quick ways for people to
+* Notes exist on project and sites as quick ways for people to
 * write and exchange information about the project.
 * Leaflet is the old term for this, we prefer the term Note now everywhere.
 * (Used to be called LeafletRecord, but name changed March 2013)

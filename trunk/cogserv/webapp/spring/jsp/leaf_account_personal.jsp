@@ -34,7 +34,7 @@
             <br>
             <table width="100%" class="gridTable" >
                 <tr>
-                    <td colspan="2" ><b>Roles of project:</b><br></td>
+                    <td colspan="2" ><b>Roles of site:</b><br></td>
                 </tr>
 
     <%

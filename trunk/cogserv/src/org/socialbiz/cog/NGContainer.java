@@ -54,7 +54,7 @@ public interface NGContainer
 
     /**
     * notes are the basic block of rich text (wiki) that appear on the userinterface.
-    * Notes can appear on projects (NGPage), accounts (NGBook) or user (UserPage).
+    * Notes can appear on projects (NGPage), sites (NGBook) or user (UserPage).
     */
     public List<NoteRecord> getAllNotes() throws Exception;
 
@@ -84,7 +84,7 @@ public interface NGContainer
 
 
     /**
-    * An attachment is a document attached to a project (NGPage), an account (NGBook)
+    * An attachment is a document attached to a project (NGPage), a site (NGBook)
     * or a user (UserPage)
     */
     public List<AttachmentRecord> getAllAttachments() throws Exception;
@@ -128,7 +128,7 @@ public interface NGContainer
 
     /**
     * A role is a collection of user reference objects with a name, description
-    * and some other metadata.  Roles can exist on projects (NGPage), accounts (NGBook)
+    * and some other metadata.  Roles can exist on projects (NGPage), sites (NGBook)
     * or user profiles (UserPage).  In this last case, the role object holds what
     * might better be called a "Relationship".
     *

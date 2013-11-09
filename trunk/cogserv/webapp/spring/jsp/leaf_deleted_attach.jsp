@@ -4,9 +4,9 @@
     String encodedLoginMsg = URLEncoder.encode("Can't open form","UTF-8");
     String encodedDeleteMsg = URLEncoder.encode("Can't delete attachment","UTF-8");
 %>
-<script type="text/javascript">
-    var isLoggedIn = "<%=ar.isLoggedIn()%>";
-</script>
+<div class="pageHeading">Deleted Documents</div>
+<div class="pageSubHeading">Old documents marked as 'deleted' can be accessed from this page.</div>
+
 <link rel="stylesheet" type="text/css" href="<%=ar.baseURL%>yui/build/container/assets/skins/sam/container.css">
 <script type="text/javascript" src="<%=ar.baseURL%>yui/build/yahoo-dom-event/yahoo-dom-event.js"></script>
 <script type="text/javascript" src="<%=ar.baseURL%>yui/build/animation/animation-min.js"></script>

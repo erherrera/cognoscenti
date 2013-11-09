@@ -30,7 +30,7 @@
 
     List<AddressListEntry> book_members  = ngb.getPrimaryRole().getDirectPlayers();
 
-    pageTitle = "Account: "+ngb.getName();
+    pageTitle = "Site: "+ngb.getName();
 %>
 
 
@@ -39,7 +39,7 @@
 
         <div class="pagenavigation">
             <div class="pagenav">
-                <div class="left"><%ar.writeHtml(ngb.getName());%> &raquo; Edit Account Info</div>
+                <div class="left"><%ar.writeHtml(ngb.getName());%> &raquo; Edit Site Info</div>
                 <div class="right"></div>
                 <div class="clearer">&nbsp;</div>
             </div>
@@ -59,14 +59,14 @@
                 <input type="hidden" name="b" value="<%ar.writeHtml(b);%>">
                 <input type="hidden" name="go" value="BookInfo.jsp?b=<% ar.writeURLData(b); %>">
                 <input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
-                <button type="submit" id="actBtn1" name="actBtn1" value="Update Account Settings">Update Book Settings</button>
+                <button type="submit" id="actBtn1" name="actBtn1" value="Update Site Settings">Update Book Settings</button>
                 <br/><br/>
 
                 <table width="65%" class="Design8">
                     <col width="20%"/>
                     <col width="80%"/>
                     <tr>
-                        <td>Account Key:</td>
+                        <td>Site Key:</td>
                         <td class="odd"><%ar.writeHtml(ngb.getKey());%></td>
                     </tr>
                     <tr>
@@ -131,7 +131,7 @@
 <div class="section">
 <!-- ------------------------------------------------- -->
     <div class="section_title">
-    Users of this Account
+    Users of this Site
     </div>
     <div class="section_body">
 

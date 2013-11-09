@@ -95,8 +95,8 @@ public class AccountController extends BaseController {
         clone.setNewUI(true);
         clone.retPath = ar.baseURL;
         clone.write("<html><body>\n");
-        clone.write("<table>\n<tr><td>Purpose: &nbsp;</td><td>New Account Request</td></tr>");
-        clone.write("\n<tr><td>Account Name: &nbsp;</td><td>");
+        clone.write("<table>\n<tr><td>Purpose: &nbsp;</td><td>New Site Request</td></tr>");
+        clone.write("\n<tr><td>Site Name: &nbsp;</td><td>");
         clone.writeHtml(accountDetails.getName());
         clone.write("</td></tr>");
         clone.write("\n<tr><td>Description: &nbsp;</td><td>");
@@ -128,16 +128,16 @@ public class AccountController extends BaseController {
         clone.write("</body></html>");
 
         EmailSender.simpleEmail(NGWebUtils.getSuperAdminMailList(ar), null,
-                "Account Approval for " + ar.getBestUserId(),
+                "Site Approval for " + ar.getBestUserId(),
                 bodyWriter.toString());
     }
 
     /**
-    * This displays the page of account requests that have been made by others
+    * This displays the page of site requests that have been made by others
     * and their current status.  Thus, only current executives and owners should see this.
     */
-    @RequestMapping(value = "/{accountId}/$/roleRequest.htm", method = RequestMethod.GET)
-    public ModelAndView remindersTab(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/roleRequest.htm", method = RequestMethod.GET)
+    public ModelAndView remindersTab(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
@@ -145,7 +145,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -153,12 +153,12 @@ public class AccountController extends BaseController {
 
             modelAndView = new ModelAndView("account_role_request");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Settings");
+            request.setAttribute("tabId", "Site Settings");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.role.request");
-            request.setAttribute("pageTitle", account.getFullName());
+            request.setAttribute("pageTitle", site.getFullName());
             return modelAndView;
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.role.request.page", new Object[]{accountId} , ex);
+            throw new NGException("nugen.operation.fail.account.role.request.page", new Object[]{siteId} , ex);
         }
     }
 
@@ -207,14 +207,14 @@ public class AccountController extends BaseController {
             String description = ar.defParam("description", "");
             if ("Granted".equals(action)) {
 
-                //Create new Account
+                //Create new Site
                 NGBook ngb = NGBook.createNewAccount(accountDetails.getAccountId(), accountDetails.getName());
                 ngb.setKey(accountDetails.getAccountId());
                 ngb.getPrimaryRole().addPlayer(ale);
                 ngb.getSecondaryRole().addPlayer(ale);
                 ngb.setDescription(description);
 
-                ngb.saveFile(ar, "New Account created");
+                ngb.saveFile(ar, "New Site created");
                 NGPageIndex.makeIndex(ngb);
 
                 //Change the status accepted
@@ -253,8 +253,8 @@ public class AccountController extends BaseController {
     }
 
     //this URL address is deprecated, but keep the redirect in case someone can stored a URL someplace
-    @RequestMapping(value = "/{accountId}/$/accountHome.htm", method = RequestMethod.GET)
-    public ModelAndView redirectToPublic1(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/accountHome.htm", method = RequestMethod.GET)
+    public ModelAndView redirectToPublic1(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         ModelAndView modelAndView = new ModelAndView( new RedirectView("public.htm"));
@@ -262,16 +262,16 @@ public class AccountController extends BaseController {
     }
 
     //this URL address is deprecated, but keep the redirect in case someone can stored a URL someplace
-    @RequestMapping(value = "/{accountId}/$/account_public.htm", method = RequestMethod.GET)
-    public ModelAndView redirectToPublic2(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/account_public.htm", method = RequestMethod.GET)
+    public ModelAndView redirectToPublic2(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         ModelAndView modelAndView = new ModelAndView( new RedirectView("public.htm"));
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/$/accountListProjects.htm", method = RequestMethod.GET)
-    public ModelAndView showAccountTaskTab(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/accountListProjects.htm", method = RequestMethod.GET)
+    public ModelAndView showAccountTaskTab(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
@@ -279,7 +279,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -287,16 +287,16 @@ public class AccountController extends BaseController {
 
             modelAndView = new ModelAndView("accountListProjects");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Projects");
-            request.setAttribute("pageTitle", account.getFullName());
+            request.setAttribute("tabId", "Site Projects");
+            request.setAttribute("pageTitle", site.getFullName());
             return modelAndView;
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.process.page", new Object[]{accountId} , ex);
+            throw new NGException("nugen.operation.fail.account.process.page", new Object[]{siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/$/accountCreateProject.htm", method = RequestMethod.GET)
-    public ModelAndView accountCreateProject(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/accountCreateProject.htm", method = RequestMethod.GET)
+    public ModelAndView accountCreateProject(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
@@ -304,30 +304,30 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
             }
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Projects");
-            request.setAttribute("pageTitle", account.getFullName());
+            request.setAttribute("tabId", "Site Projects");
+            request.setAttribute("pageTitle", site.getFullName());
             return new ModelAndView("accountCreateProject");
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.process.page", new Object[]{accountId} , ex);
+            throw new NGException("nugen.operation.fail.account.process.page", new Object[]{siteId} , ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/$/account_attachment.htm", method = RequestMethod.GET)
-    public ModelAndView showAccountDocumentTab(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/account_attachment.htm", method = RequestMethod.GET)
+    public ModelAndView showAccountDocumentTab(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         AuthRequest ar = AuthRequest.getOrCreate(request, response);
         return showWarningView(ar, "nugen.deprecatedView");
     }
-    @RequestMapping(value = "/{accountId}/$/admin.htm", method = RequestMethod.GET)
-    public ModelAndView showAccountSettingTab(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/admin.htm", method = RequestMethod.GET)
+    public ModelAndView showAccountSettingTab(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
@@ -335,7 +335,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -343,18 +343,18 @@ public class AccountController extends BaseController {
 
             modelAndView = new ModelAndView("UserAccountSetting");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Settings");
+            request.setAttribute("tabId", "Site Settings");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.Admin");
             request.setAttribute("visibility_value", "3");
-            request.setAttribute("pageTitle", account.getFullName());
+            request.setAttribute("pageTitle", site.getFullName());
             return modelAndView;
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.admin.page", new Object[]{accountId}, ex);
+            throw new NGException("nugen.operation.fail.account.admin.page", new Object[]{siteId}, ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/$/account_settings.htm", method = RequestMethod.GET)
-    public ModelAndView showProjectSettingsTab(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/account_settings.htm", method = RequestMethod.GET)
+    public ModelAndView showProjectSettingsTab(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         ModelAndView modelAndView = new ModelAndView(new RedirectView("personal.htm"));
@@ -397,8 +397,8 @@ public class AccountController extends BaseController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/$/CreateAccountRole.form", method = RequestMethod.POST)
-    public ModelAndView createRole(@PathVariable String accountId,HttpServletRequest request,
+    @RequestMapping(value = "/{siteId}/$/CreateAccountRole.form", method = RequestMethod.POST)
+    public ModelAndView createRole(@PathVariable String siteId,HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
         try {
@@ -406,7 +406,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -415,17 +415,17 @@ public class AccountController extends BaseController {
             String roleName=ar.reqParam("rolename");
             String des=ar.reqParam("description");
 
-            account.createRole(roleName,des);
-            account.saveFile(ar, "Add New Role "+roleName+" to roleList");
+            site.createRole(roleName,des);
+            site.saveFile(ar, "Add New Role "+roleName+" to roleList");
 
             return new ModelAndView(new RedirectView("permission.htm"));
         } catch (Exception e) {
-            throw new NGException("nugen.operation.fail.account.create.role",new Object[]{accountId}, e);
+            throw new NGException("nugen.operation.fail.account.create.role",new Object[]{siteId}, e);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/$/public.htm", method = RequestMethod.GET)
-    public ModelAndView viewAccountPublic(@PathVariable String accountId,HttpServletRequest request,
+    @RequestMapping(value = "/{siteId}/$/public.htm", method = RequestMethod.GET)
+    public ModelAndView viewAccountPublic(@PathVariable String siteId,HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
         try{
@@ -433,22 +433,22 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
 
             ModelAndView modelAndView=new ModelAndView("account_public");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Notes");
+            request.setAttribute("tabId", "Site Notes");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.public");
             request.setAttribute("visibility_value", "1");
-            request.setAttribute("pageTitle", account.getFullName());
+            request.setAttribute("pageTitle", site.getFullName());
             return modelAndView;
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.public.page", new Object[]{accountId}, ex);
+            throw new NGException("nugen.operation.fail.account.public.page", new Object[]{siteId}, ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/$/member.htm", method = RequestMethod.GET)
-    public ModelAndView viewAccountMember(@PathVariable String accountId,HttpServletRequest request,
+    @RequestMapping(value = "/{siteId}/$/member.htm", method = RequestMethod.GET)
+    public ModelAndView viewAccountMember(@PathVariable String siteId,HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
         try{
@@ -456,7 +456,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -464,18 +464,18 @@ public class AccountController extends BaseController {
 
             modelAndView = new ModelAndView("account_member");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Notes");
+            request.setAttribute("tabId", "Site Notes");
             request.setAttribute("subTabId", "nugen.projecthome.subtab.member");
             request.setAttribute("visibility_value", "1");
-            request.setAttribute("pageTitle", account.getFullName());
+            request.setAttribute("pageTitle", site.getFullName());
             return modelAndView;
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.member.page", new Object[]{accountId}, ex);
+            throw new NGException("nugen.operation.fail.account.member.page", new Object[]{siteId}, ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/$/account_history.htm", method = RequestMethod.GET)
-    public ModelAndView viewAccountHistory(@PathVariable String accountId,HttpServletRequest request,
+    @RequestMapping(value = "/{siteId}/$/account_history.htm", method = RequestMethod.GET)
+    public ModelAndView viewAccountHistory(@PathVariable String siteId,HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
         try{
@@ -483,7 +483,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -491,13 +491,13 @@ public class AccountController extends BaseController {
 
             modelAndView = new ModelAndView("account_history");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Notes");
+            request.setAttribute("tabId", "Site Notes");
             request.setAttribute("subTabId", "nugen.accounthome.subtab.accountbulletin");
             request.setAttribute("visibility_value", "1");
-            request.setAttribute("pageTitle", account.getFullName());
+            request.setAttribute("pageTitle", site.getFullName());
             return modelAndView;
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.history.page", new Object[]{accountId}, ex);
+            throw new NGException("nugen.operation.fail.account.history.page", new Object[]{siteId}, ex);
         }
     }
 
@@ -522,7 +522,7 @@ public class AccountController extends BaseController {
 
             ModelAndView modelAndView = new ModelAndView("RequestAccount");
             request.setAttribute("userKey", userKey);
-            request.setAttribute("pageTitle", "New Account Request Form");
+            request.setAttribute("pageTitle", "New Site Request Form");
             request.setAttribute("tabId", "Settings");
             return modelAndView;
         }catch(Exception ex){
@@ -530,21 +530,21 @@ public class AccountController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{accountId}/$/leafletResponse.htm", method = RequestMethod.POST)
-    public ModelAndView handleLeafletResponse(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/leafletResponse.htm", method = RequestMethod.POST)
+    public ModelAndView handleLeafletResponse(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
             }
             String lid = ar.reqParam("lid");
-            NoteRecord note = account.getNoteOrFail(lid);
+            NoteRecord note = site.getNoteOrFail(lid);
 
             String go = ar.reqParam("go");
             String action = ar.reqParam("action");
@@ -568,24 +568,24 @@ public class AccountController extends BaseController {
                 llr.setData(data);
                 llr.setChoice(choice);
                 llr.setLastEdited(ar.nowTime);
-                account.saveContent(ar, "Updated response to note");
+                site.saveContent(ar, "Updated response to note");
             }
             modelAndView=new ModelAndView(new RedirectView(ar.retPath+go ));
             return modelAndView;
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.note", new Object[]{accountId}, ex);
+            throw new NGException("nugen.operation.fail.account.note", new Object[]{siteId}, ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/$/addmemberrole.htm", method = RequestMethod.GET)
-    public ModelAndView addMemberRole(@PathVariable String accountId,HttpServletRequest request,
+    @RequestMapping(value = "/{siteId}/$/addmemberrole.htm", method = RequestMethod.GET)
+    public ModelAndView addMemberRole(@PathVariable String siteId,HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -595,26 +595,26 @@ public class AccountController extends BaseController {
 
             String roleName = ar.reqParam("roleList");
 
-            account.addMemberToRole(roleName,roleMember);
-            NGWebUtils.sendInviteEmail( ar, accountId, roleMember, roleName );
-            account.saveFile(ar, "Add New Member ("+roleMember+") to Role "+roleName);
+            site.addMemberToRole(roleName,roleMember);
+            NGWebUtils.sendInviteEmail( ar, siteId, roleMember, roleName );
+            site.saveFile(ar, "Add New Member ("+roleMember+") to Role "+roleName);
 
             String emailIds = ar.reqParam("rolemember");
             NGWebUtils.updateUserContactAndSaveUserPage(ar, "Add", emailIds);
 
             modelAndView = new ModelAndView(new RedirectView("permission.htm"));
-            modelAndView.addObject("page", account);
+            modelAndView.addObject("page", site);
             request.setAttribute("tabId", "Project Settings");
-            request.setAttribute("pageId", accountId);
-            request.setAttribute("pageTitle", account.getFullName());
+            request.setAttribute("pageId", siteId);
+            request.setAttribute("pageTitle", site.getFullName());
             return modelAndView;
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.add.member.role", new Object[]{accountId}, ex);
+            throw new NGException("nugen.operation.fail.account.add.member.role", new Object[]{siteId}, ex);
         }
     }
 
-    @RequestMapping(value = "/{accountId}/$/permission.htm", method = RequestMethod.GET)
-    public ModelAndView showPermissionTab(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/permission.htm", method = RequestMethod.GET)
+    public ModelAndView showPermissionTab(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
@@ -622,26 +622,26 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
             }
             modelAndView = new ModelAndView("account_permission");
-            request.setAttribute("headerType", "account");
+            request.setAttribute("headerType", "site");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Settings");
+            request.setAttribute("tabId", "Site Settings");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.Permissions");
-            request.setAttribute("pageTitle", account.getFullName());
+            request.setAttribute("pageTitle", site.getFullName());
             return modelAndView;
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.permission.page", new Object[]{accountId}, ex);
+            throw new NGException("nugen.operation.fail.account.permission.page", new Object[]{siteId}, ex);
         }
     }
 
 
-    @RequestMapping(value = "/{accountId}/$/personal.htm", method = RequestMethod.GET)
-    public ModelAndView showPersonalTab(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/personal.htm", method = RequestMethod.GET)
+    public ModelAndView showPersonalTab(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
@@ -649,19 +649,19 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook account = prepareAccountView(ar, accountId);
+            NGBook site = prepareAccountView(ar, siteId);
             //personal view is available to everyone, regardless of whether they
             //have a role or access to that project.  This is the page that
             //one can request access.
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Settings");
+            request.setAttribute("tabId", "Site Settings");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.personal");
             request.setAttribute("visibility_value", "4");
-            request.setAttribute("pageTitle", account.getFullName());
+            request.setAttribute("pageTitle", site.getFullName());
             return new ModelAndView("account_personal");
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.personal.page", new Object[]{accountId}, ex);
+            throw new NGException("nugen.operation.fail.account.personal.page", new Object[]{siteId}, ex);
         }
     }
 
@@ -686,15 +686,16 @@ public class AccountController extends BaseController {
         return assigness;
     }
 
-    @RequestMapping(value = "/{accountId}/$/getUsers.ajax", method = RequestMethod.GET)
-    public void getUsers(HttpServletRequest request, HttpServletResponse response, @PathVariable String accountId) throws Exception {
+    @RequestMapping(value = "/{siteId}/$/getUsers.ajax", method = RequestMethod.GET)
+    public void getUsers(HttpServletRequest request, HttpServletResponse response,
+            @PathVariable String siteId) throws Exception {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             if(!ar.isLoggedIn()){
                 sendRedirectToLogin(ar, "message.loginalert.get.userlist",null);
                 return;
             }
-            NGPageIndex.assertBook(accountId);
+            NGPageIndex.assertBook(siteId);
             String matchKey = ar.defParam("matchkey", "");
             String users = UserManager.getUserFullNameList(matchKey);
             users = users.replaceAll("\"", "");
@@ -704,8 +705,8 @@ public class AccountController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{accountId}/$/EditRoleBook.htm", method = RequestMethod.GET)
-    public ModelAndView editRoleBook(@PathVariable String accountId,
+    @RequestMapping(value = "/{siteId}/$/EditRoleBook.htm", method = RequestMethod.GET)
+    public ModelAndView editRoleBook(@PathVariable String siteId,
             @RequestParam String roleName, @RequestParam String projectName,
             HttpServletRequest request,
             HttpServletResponse response)
@@ -715,26 +716,26 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            prepareAccountView(ar, accountId);
+            prepareAccountView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
             }
             modelAndView=new ModelAndView("editRoleAccount");
-            request.setAttribute("headerType", "account");
+            request.setAttribute("headerType", "site");
             request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("tabId", "Account Settings");
+            request.setAttribute("tabId", "Site Settings");
             request.setAttribute("roleName", roleName);
             request.setAttribute("projectName", projectName);
             return modelAndView;
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.editrolebook",new Object[]{accountId});
+            throw new NGException("nugen.operation.fail.account.editrolebook",new Object[]{siteId});
         }
     }
 
-    @RequestMapping(value="/{accountId}/$/a/{docId}.{ext}", method = RequestMethod.GET)
+    @RequestMapping(value="/{siteId}/$/a/{docId}.{ext}", method = RequestMethod.GET)
     public void loadDocument(
-          @PathVariable String accountId,
+          @PathVariable String siteId,
           @PathVariable String docId,
           @PathVariable String ext,
           HttpServletRequest request,
@@ -746,17 +747,17 @@ public class AccountController extends BaseController {
                return;
            }
 
-           NGPageIndex.assertBook(accountId);
+           NGPageIndex.assertBook(siteId);
 
            String attachmentName = URLDecoder.decode(docId,"UTF-8")+"."+ext;
 
-           NGBook ngb = NGPageIndex.getAccountByKeyOrFail(accountId);
+           NGBook ngb = NGPageIndex.getAccountByKeyOrFail(siteId);
            ar.setPageAccessLevels(ngb);
            String version = ar.reqParam("version");
            AttachmentHelper.serveUpFileNewUI(ar, ngb, attachmentName,Integer.parseInt(version));
 
        }catch(Exception ex){
-           throw new NGException("nugen.operation.fail.account.download.document", new Object[]{docId, accountId}, ex);
+           throw new NGException("nugen.operation.fail.account.download.document", new Object[]{docId, siteId}, ex);
        }
    }
 

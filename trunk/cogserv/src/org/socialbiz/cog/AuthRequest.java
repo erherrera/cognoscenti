@@ -1731,7 +1731,7 @@ public class AuthRequest
 
 
     /**
-    * Different users/projects/accounts can have different style sheets (themes)
+    * Different users/projects/sites can have different style sheets (themes)
     */
     public String getThemePath()
     {

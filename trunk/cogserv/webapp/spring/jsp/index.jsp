@@ -50,7 +50,7 @@
                                         With a few keystrokes you make a place for a project which can be accessed from anywhere,
                                         but only the people you designate.
                                         Goals can be assigned to anyone with an email address,<br>and automatic email notification
-                                        keeps everyone informed.<br>It is quick and easy to sign up for a free account.
+                                        keeps everyone informed.<br>It is quick and easy to sign up for a free site.
                                     </td>
                                 </tr>
                             </table>

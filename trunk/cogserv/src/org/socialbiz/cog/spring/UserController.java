@@ -562,14 +562,14 @@ public class UserController extends BaseController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{accountId}/{pageId}/CreateRole.form", method = RequestMethod.POST)
-    public ModelAndView createRole(@PathVariable String accountId,@PathVariable String pageId,HttpServletRequest request,
+    @RequestMapping(value = "/{siteId}/{pageId}/CreateRole.form", method = RequestMethod.POST)
+    public ModelAndView createRole(@PathVariable String siteId,@PathVariable String pageId,HttpServletRequest request,
             HttpServletResponse response)
     throws Exception
     {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request,  response ,null);
-            NGPage project  = registerRequiredProject(ar, accountId, pageId);
+            NGPage project  = registerRequiredProject(ar, siteId, pageId);
             ar.assertLoggedIn("Can't create a Role.");
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
@@ -589,7 +589,7 @@ public class UserController extends BaseController {
             return redirectBrowser(ar,"permission.htm");
 
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.user.create.role.page", new Object[]{pageId,accountId} , ex);
+            throw new NGException("nugen.operation.fail.user.create.role.page", new Object[]{pageId,siteId} , ex);
         }
     }
 
@@ -978,7 +978,7 @@ public class UserController extends BaseController {
         UserProfile up = null;
         try{
             ar = AuthRequest.getOrCreate(request, response);
-            ar.assertLoggedIn("Need to log in to see a user's accounts.");
+            ar.assertLoggedIn("Need to log in to see a user's sites.");
             up = UserManager.getUserProfileOrFail(userKey);
 
             request.setAttribute("subTabId", "nugen.usersettings.subtab.accounts");
@@ -998,7 +998,7 @@ public class UserController extends BaseController {
 
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            ar.assertLoggedIn("Need to log in to see a user's accounts.");
+            ar.assertLoggedIn("Need to log in to create a project.");
             UserProfile up = UserManager.getUserProfileOrFail(userKey);
 
             request.setAttribute("memberOfAccounts", findAllMemberAccounts(ar.getUserProfile()));

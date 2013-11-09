@@ -65,7 +65,7 @@ public class AccountRequest extends DOMFace {
     }
 
     /*
-     * This returns email id of the user who has requested account.
+     * This returns email id of the user who has requested site.
      */
     public String getUniversalId() {
         return getScalar("universalId");

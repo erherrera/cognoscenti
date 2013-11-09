@@ -42,7 +42,7 @@ public class PageInfoRecord extends DOMFace
     }
 
     /**
-    * Book Key is the Account Key
+    * Book Key is the Site Key
     */
     public String getBookKey() {
         return getAttribute("book");

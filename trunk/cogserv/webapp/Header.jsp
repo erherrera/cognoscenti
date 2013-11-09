@@ -148,9 +148,9 @@
                         else if (ngb!=null)
                         {
                             makeTab(ar, "BookPages.jsp?b="+URLEncoder.encode(ngb.getKey(), "UTF-8"),
-                                        "Account Projects");
+                                        "Site Projects");
                             makeTab(ar, "BookInfo.jsp?b="+URLEncoder.encode(ngb.getKey(), "UTF-8"),
-                                        "Account Info");
+                                        "Site Info");
                         }
                         else if (uProf!=null)
                         {
@@ -255,7 +255,7 @@
             }
         }
         if (ngp != null) return ngp.getFullName();
-        if (ngb != null) return "Account: "+ngb.getName();
+        if (ngb != null) return "Site: "+ngb.getName();
 
         return title;
     }
