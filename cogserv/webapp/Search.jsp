@@ -53,7 +53,7 @@
         <input type="radio" name="scope" value="book"<%=bookscoping%>>
         <%ar.writeHtml( bookName );%> or
         <input type="radio" name="scope" value="global"<%=globalscoping%>>
-        All Accounts
+        All Sites
         </h3>
         <input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
         <input type="hidden" name="b"          value="<%ar.writeHtml(b);%>">

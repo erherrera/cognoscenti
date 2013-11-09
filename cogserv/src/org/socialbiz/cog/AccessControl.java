@@ -254,7 +254,7 @@ public class AccessControl {
         }
 
         //now, check the query parameters, and if appropriate, set up the special access
-        //url must have "mnaccountrequest"  (magic number for account request)
+        //url must have "mnaccountrequest"  (magic number for site request)
         String mndoc = ar.defParam("mnaccountrequest", null);
         if (mndoc == null) {
             //no magic number, no luck

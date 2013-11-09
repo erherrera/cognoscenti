@@ -15,8 +15,8 @@
     <div class="generalArea">
         <div class="generalContent">
             <br/>
-            In order to see the member notes of the account, you need to be
-            logged in, and you need to be an executive of the account.
+            In order to see the member notes of the site, you need to be
+            logged in, and you need to be an executive of the site.
             <br/>
             <br/>
             <br/>

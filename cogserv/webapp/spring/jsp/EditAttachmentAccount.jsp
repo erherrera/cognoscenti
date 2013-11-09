@@ -6,7 +6,7 @@
 /*
 Required parameters:
 
-    1. accountId : This is the id of an project and here it is used to retrieve NGBook (Account's Details).
+    1. accountId : This is the id of an project and here it is used to retrieve NGBook (Site's Details).
     2. aid : This is document/attachment id which is used to get information of the attachment being downloaded.
 
 */

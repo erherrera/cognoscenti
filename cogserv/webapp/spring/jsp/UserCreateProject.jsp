@@ -7,10 +7,10 @@
 
 Required Parameters:
 
-    1. memberOfAccounts : This parameter provide the list of those accounts which belong to user.
+    1. memberOfAccounts : This parameter provide the list of those sites which belong to user.
 
 */
-    ar.assertLoggedIn("You must be logged in to see user account information");
+    ar.assertLoggedIn("You must be logged in to create a project");
 
     //note, this page only displays info for the current logged in user, regardless of URL
     UserProfile  userProfile =ar.getUserProfile();
@@ -41,19 +41,19 @@ Required Parameters:
 <%
 if(memberOfAccounts.size()>0) {
 %>
-        <div class="generalHeadingBorderLess">Choose Account for Project</div>
+        <div class="generalHeadingBorderLess">Choose Site for Project</div>
         <div class="generalContent">
             <div id="accountPaging"></div>
             <div id="accountsContainer">
-                A new project must be created inside an account.
-                Choose from the list below the account you would like to create
+                A new project must be created inside an site.
+                Choose from the list below the site you would like to create
                 this new project in.
                 <br/><br/>
                 <table class="acctList">
                 <tr>
-                <th class="acctListHead">Account Name</th>
+                <th class="acctListHead">Site Name</th>
                 <th></th>
-                <th class="acctListHead">Account Description</th>
+                <th class="acctListHead">Site Description</th>
                 </tr>
 
                 <%
@@ -81,13 +81,13 @@ if(memberOfAccounts.size()>0) {
 %>
         <div class="generalContent">
             To create a project, you must have a space for that
-            project in an account.  You have no accounts at this time.
-            Each project has to belong to an account, and you can only create a
-            project in an account if you have been given access to do so.
+            project in an account.  You have no sites at this time.
+            Each project has to belong to a site, and you can only create a
+            project in an site if you have been given access to do so.
             <br/>
-            Create an Account in order to create a project<br/>.
+            Create a Site in order to create a project<br/>.
             <form action="userAccounts.htm">
-            <input type="submit" value="View Your Accounts" class="inputBtn">
+            <input type="submit" value="View Your Sites" class="inputBtn">
             </form>
         </div>
 <%

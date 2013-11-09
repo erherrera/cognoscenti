@@ -16,7 +16,7 @@
 %><%@page import="org.w3c.dom.Element"
 %><%
     AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
-    ar.assertLoggedIn("Unable to set account.");
+    ar.assertLoggedIn("Unable to set site.");
 
     String p = ar.reqParam("p");
     String go = ar.reqParam("go");
@@ -41,15 +41,15 @@
 %>
 <html>
 <head>
-    <title>Set Account</title>
+    <title>Set Site</title>
     <link href="mystyle.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-<h3>Select the Account for this Page</h3>
+<h3>Select the Site for this Page</h3>
 <%
     if (!ar.isAdmin())
     {
-        %><p><b>Note: you are not Admin of this project, you will not be able to change the account setting.</b></p><%
+        %><p><b>Note: you are not Admin of this project, you will not be able to change the site setting.</b></p><%
     }
     if (ngb!=null)
     {
@@ -57,7 +57,7 @@
     }
     else
     {
-        %><p>account is null</p><%
+        %><p>site is null</p><%
     }
 %>
 <table>
@@ -95,13 +95,13 @@
     }
 %>
 <tr><td><input type="radio" name="key" value="/">
-Clear Setting (Project has no account) </td></tr>
+Clear Setting (Project has no site) </td></tr>
 <tr><td><input type="radio" name="key" value="*">
-Create New Account: <input type="text" name="newName" value=""></td></tr>
+Create New Site: <input type="text" name="newName" value=""></td></tr>
 
 
 <tr><td>
-<input type="submit" value="Update Account Setting">
+<input type="submit" value="Update Site Setting">
 </td></tr>
 </form>
 </table>

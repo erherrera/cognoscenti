@@ -28,7 +28,7 @@
     ngb.setName(bookname);
     ngb.setDescription(desc);
     ngb.setPreferredProjectLocation(ar.defParam("prefLoc", null));
-    ngb.saveFile(ar, "Account Info Action");
+    ngb.saveFile(ar, "Site Info Action");
     response.sendRedirect(go);
 %>
 

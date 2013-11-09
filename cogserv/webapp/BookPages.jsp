@@ -25,7 +25,7 @@
     {
         isMember = ngb.primaryOrSecondaryPermission(uProf);
     }
-    pageTitle = "Account: "+ngb.getName();
+    pageTitle = "Site: "+ngb.getName();
 %>
 
 

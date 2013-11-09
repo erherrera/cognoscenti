@@ -4,7 +4,7 @@
 /*
 Required parameter:
 
-    1. accountId : This is the id of an account and used to retrieve NGBook.
+    1. accountId : This is the id of a site and used to retrieve NGBook.
 
 */
 
@@ -37,8 +37,7 @@ Required parameter:
 
      function isProjectExist(){
          var projectName = document.getElementById('projectname').value;
-         var acct = '<%=accountKey%>';
-         var url="../isProjectExist.ajax?projectname="+projectName+"&accountId="+acct;
+         var url="../isProjectExist.ajax?projectname="+projectName+"&siteId=<% ar.writeURLData(accountKey); %>";
          var transaction = YAHOO.util.Connect.asyncRequest('POST',url, projectValidationResponse);
          return false;
      }
@@ -75,7 +74,7 @@ Required parameter:
 <body class="yui-skin-sam">
 
 
-<div class="pageHeading">Create Project in this Account</div>
+<div class="pageHeading">Create Project in this Site</div>
 <div class="pageSubHeading"></div>
 
 <div class="generalContent">

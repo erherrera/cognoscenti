@@ -12,6 +12,10 @@
 %>
 
 
+    <div class="pageHeading">List Documents</div>
+    <div class="pageSubHeading">
+        These documents are attached to this project.
+    </div>
 <script type="text/javascript">
     var isLoggedIn = "<%=ar.isLoggedIn()%>";
     function onClickAction(flag){
@@ -25,7 +29,7 @@
                 document.getElementById("createDocForm").action = "emailReminder.htm";
                 document.getElementById("createDocForm").submit();
             }else if(flag == "syncDocuments"){
-                document.getElementById("createDocForm").action = "syncSharePointAttachmentDisplay.htm";
+                document.getElementById("createDocForm").action = "SyncAttachment.htm";
                 document.getElementById("createDocForm").submit();
             }else if(flag == "sendDocsByEmail"){
                openWin('sendDocsByEmail.htm?oid=x');

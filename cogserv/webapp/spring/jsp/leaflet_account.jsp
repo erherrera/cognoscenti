@@ -58,8 +58,8 @@ Required parameter:
     <div class="generalArea">
         <div class="generalContent">
             <br/>
-            In order to see the a member note of the account, you need to be
-            logged in, and you need to be a member of the project.
+            In order to see the a member note of the site, you need to be
+            logged in, and you need to be a executive of the site.
             <br/>
             <br/>
             <br/>
@@ -74,8 +74,8 @@ Required parameter:
     {
     %>
     <div class="generalContent">
-    In order to see a member note for an account,
-    you need to be an executive for the account.
+    In order to see a member note for an site,
+    you need to be an executive for the site.
     User '<% ar.getUserProfile().writeLink(ar); %>' is not a member.
     <br/>
     </div>

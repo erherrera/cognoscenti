@@ -1,8 +1,8 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="ISO-8859-1"
 %><%@page errorPage="/spring/jsp/error.jsp"
+%><%@page import="org.socialbiz.cog.NGRole"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="functions.jsp"
-%><%@page import="org.socialbiz.cog.NGRole"
 %><%
 /*
 Required parameters:
@@ -15,6 +15,7 @@ Required parameters:
     String book   = ar.reqParam("accountId");
     String roleName = ar.reqParam("roleName");
     String projectName = ar.reqParam("projectName");
+    //String projectName = book;
 
 %><%!
     String pageTitle="";
@@ -31,8 +32,9 @@ Required parameters:
 
     String go = ar.getCompleteURL();
 
-    %>
-    <script type="text/javascript" language = "JavaScript">
+%>
+
+<script type="text/javascript" language = "JavaScript">
     function submitRole(){
         var rolename =  document.getElementById("rolename");
 
@@ -43,7 +45,7 @@ Required parameters:
          <%if(roles!=null){
            Iterator  it=roles.iterator();
             while(it.hasNext()){%>
-                if(rolename.value=='<%=((NGRole)it.next()).getName()%>'){
+                if(rolename.value=='<%=UtilityMethods.quote4JS(((NGRole)it.next()).getName())%>'){
                     alert("Role Name already exist");
                    return false;
                }
@@ -66,7 +68,7 @@ Required parameters:
 
     function addRoleMember(op,id){
 
-        var role ='<%=roleName%>';
+        var role ='<%=UtilityMethods.quote4JS(roleName)%>';
         var member =document.getElementById("rolemember");
 
         if(!(!member.value=='' || !member.value==null)){
@@ -74,7 +76,7 @@ Required parameters:
             return false;
         }
         updateRole(op,id);
-        }
+    }
 
 </script>
 <%

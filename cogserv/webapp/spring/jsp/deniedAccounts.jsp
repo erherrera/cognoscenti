@@ -2,9 +2,9 @@
 %><%@ include file="administration.jsp"
 %><%
 
-    ar.assertLoggedIn("New Account page should never be accessed when not logged in");
+    ar.assertLoggedIn("New Site page should never be accessed when not logged in");
     if (!ar.isSuperAdmin()) {
-        throw new Exception("New Account page should only be accessed by Super Admin");
+        throw new Exception("New Site page should only be accessed by Super Admin");
     }
     if (uProf==null) {
         throw new Exception("Program Logic Error: The 'uProf' object must be set up for newAccounts.jsp");
@@ -19,9 +19,9 @@
             <table id="pagelist">
                 <thead>
                     <tr>
-                        <th>Account Name</th>
-                        <th>Account Description</th>
-                        <th>Account Status</th>
+                        <th>Site Name</th>
+                        <th>Site Description</th>
+                        <th>Site Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,9 +62,9 @@
         YAHOO.example.EnhanceFromMarkup = function()
         {
             var deniedAccountCD = [
-                {key:"accountName",label:"Account Name",sortable:true,resizeable:true},
-                {key:"members",label:"Account Description",sortable:true,resizeable:true},
-                {key:"desc",label:"Account Status",sortable:false,resizeable:true}];
+                {key:"accountName",label:"Site Name",sortable:true,resizeable:true},
+                {key:"members",label:"Site Description",sortable:true,resizeable:true},
+                {key:"desc",label:"Site Status",sortable:false,resizeable:true}];
 
             var deniedAccountDS = new YAHOO.util.DataSource(YAHOO.util.Dom.get("pagelist"));
             deniedAccountDS.responseType = YAHOO.util.DataSource.TYPE_HTMLTABLE;

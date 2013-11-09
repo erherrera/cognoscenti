@@ -3,19 +3,22 @@
 <%!
     String pageTitle="";
 %>
+<div class="pageHeading">Deleted Notes</div>
 <%displayCreatLeaf(ar,ngp);%>
 
- <div class="content tab01">
+    <div class="content tab01">
     <%
-        displayDeletedNotes(ar, ngp);
+        int numNotes = displayDeletedNotes(ar, ngp);
     %>
+    </div>
 </div>
-    <%
-        out.flush();
-    %>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
+
+<%
+    out.flush();
+    if (numNotes==0) {
+%>
+        <div class="guideVocal">This project does not have any deleted notes.
+        </div>
+<%
+    }
+%>

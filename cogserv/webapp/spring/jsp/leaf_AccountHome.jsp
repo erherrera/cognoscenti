@@ -4,7 +4,7 @@
 /*
 Required parameters:
 
-    1. accountId : This is the id of an account and here it is used to retrieve NGBook.
+    1. accountId : This is the id of an site and here it is used to retrieve NGBook.
 
 */
 
@@ -19,7 +19,7 @@ Required parameters:
     int COUNT_OF_PUBLIC_NOTES = NGWebUtils.getNotesCount(ngb,ar,SectionDef.PUBLIC_ACCESS);
     int COUNT_OF_MEMBER_NOTES = NGWebUtils.getNotesCount(ngb,ar,SectionDef.MEMBER_ACCESS);
 
-    String specialTab = "Account Home Content";
+    String specialTab = "Site Home Content";
 
     if(ngb!=null){
         //TODO: should be translatable

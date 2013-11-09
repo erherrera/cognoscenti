@@ -5,17 +5,15 @@
     int countRows = 0;
 %>
 <script type="text/javascript">
-    var isfreezed = '<%=ngp.isFrozen() %>';
-    var isLoggedIn = "<%=ar.isLoggedIn()%>";
 
     function onClickAction(flag){
 
            if(flag == "Synchronize"){
-               if(isfreezed == 'false'){
+               <% if (!ngp.isFrozen()) { %>
                    document.getElementById("attachmentForm").submit();
-               }else{
-                    openFreezeMessagePopup();
-               }
+               <% }else{ %>
+                   openFreezeMessagePopup();
+               <% } %>
            }else if(flag == "Cancel"){
                location.href = "attachment.htm";
            }
@@ -60,6 +58,10 @@
     }
 
 </script>
+    <div class="pageHeading">Synchronize Documents</div>
+    <div class="pageSubHeading">
+        Check to see if there are newer or older documents linked to these documents.
+    </div>
     <form name="attachmentForm" id="attachmentForm" action="Synchronize.form" method="post">
         <table width="100%">
             <tr>

@@ -260,8 +260,6 @@ int count=100;
     public void displayCreatLeaf(AuthRequest ar, NGContainer ngc) throws Exception{
         if(ar.isLoggedIn()){
             ar.write("\n<div class=\"createLeaf\">");
-            //in Developement
-            String serverMode = ConfigFile.getProperty("serverMode");
 
             String editorUrl = ar.retPath + "t/texteditor.htm?pid="+SectionUtil.encodeURLData(ngc.getKey())
                 + "&nid=" +"&visibility_value="+ar.defParam("visibility_value","0");
@@ -281,7 +279,7 @@ int count=100;
             ar.write("</a>");
 
             if(ngc instanceof NGPage){
-                //Adding Export to PDF for NGPage only, will add in Account as well if required
+                //Adding Export to PDF for NGPage only, will add in Site as well if required
                 String pdflink =ar.retPath + "t/" + ((NGPage)ngc).getAccount().getKey()+"/"+ngc.getKey()+"/exportPDF.htm";
                 ar.write("&nbsp;&nbsp;&nbsp;<a id=\"exportToPdf\" href=\"");
                 ar.writeHtml(pdflink);
@@ -290,77 +288,40 @@ int count=100;
                 ar.write("assets/iconPrint.gif\">&nbsp;Generate PDF");
                 ar.write("</a>&nbsp;&nbsp;&nbsp;");
             }
+            ar.write("</div>");
         }
-        ar.write("</div>");
     }
-    public void displayAllLeaflets(AuthRequest ar, NGContainer ngp, int displayLevel)
-    throws Exception
-    {
-
-        List <NoteRecord> notes = ngp.getVisibleNotes(ar,displayLevel);
-        Vector<NoteRecord> nl = new Vector<NoteRecord>();
-        boolean canCreate = false;
-        ar.write("\n<div class=\"leafLetArea\"> ");
-
-        nl.addAll(notes);
-        NoteRecord.sortCommentsByPinOrder(nl);
-        firstLeafLet = true;
-        for (Iterator<NoteRecord> iterator1 = nl.iterator(); iterator1.hasNext();)
-        {
-            NoteRecord noteRec = (NoteRecord) iterator1.next();
-            displayNewLeafletUI(ar,noteRec, count++,ngp);
-            firstLeafLet = false;
-            ar.flush();
-        }
-
-        ar.write("</div>");
+    public int displayAllLeaflets(AuthRequest ar, NGContainer ngp, int displayLevel)
+            throws Exception {
+        return displayListOfNotes(ar, ngp, ngp.getVisibleNotes(ar,displayLevel));
     }
 
 
-    public void displayDeletedNotes(AuthRequest ar, NGContainer ngp)
-    throws Exception
-    {
+    public int displayDeletedNotes(AuthRequest ar, NGContainer ngp)
+            throws Exception {
+        return displayListOfNotes(ar, ngp, ngp.getDeletedNotes(ar));
+    }
 
-        List <NoteRecord> notes = ngp.getDeletedNotes(ar);
+
+    public int displayDraftNotes(AuthRequest ar, NGContainer ngp)
+            throws Exception {
+        return displayListOfNotes(ar, ngp, ngp.getDraftNotes(ar));
+    }
+
+    private int displayListOfNotes(AuthRequest ar, NGContainer ngp, List <NoteRecord> notes)
+            throws Exception {
+
         Vector<NoteRecord> nl = new Vector<NoteRecord>();
-        boolean canCreate = false;
         ar.write("\n<div class=\"leafLetArea\"> ");
-
         nl.addAll(notes);
         NoteRecord.sortCommentsByPinOrder(nl);
-        firstLeafLet = true;
         for (NoteRecord noteRec : nl)
         {
             displayNewLeafletUI(ar,noteRec, count++,ngp);
-            firstLeafLet = false;
             ar.flush();
         }
-
         ar.write("</div>");
-    }
-
-
-    public void displayDraftNotes(AuthRequest ar, NGContainer ngp)
-    throws Exception
-    {
-
-        List <NoteRecord> notes = ngp.getDraftNotes(ar);
-        Vector<NoteRecord> nl = new Vector<NoteRecord>();
-        boolean canCreate = false;
-        ar.write("\n<div class=\"leafLetArea\"> ");
-
-        nl.addAll(notes);
-        NoteRecord.sortCommentsByPinOrder(nl);
-        firstLeafLet = true;
-        for (Iterator<NoteRecord> iterator1 = nl.iterator(); iterator1.hasNext();)
-        {
-            NoteRecord noteRec = (NoteRecord) iterator1.next();
-            displayNewLeafletUI(ar,noteRec, count++,ngp);
-            firstLeafLet = false;
-            ar.flush();
-        }
-
-        ar.write("</div>");
+        return nl.size();
     }
 
     private void writeOneLeaflet(NGContainer ngp, AuthRequest ar, int accessLevel, NoteRecord cr)

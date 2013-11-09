@@ -3,19 +3,30 @@
 %><%!
     String pageTitle="";
 %>
+<div class="pageHeading">Your Draft Notes</div>
 <%displayCreatLeaf(ar,ngp);%>
 
- <div class="content tab01">
+    <div class="content tab01">
     <%
-        displayDraftNotes(ar, ngp);
+        int numNotes = displayDraftNotes(ar, ngp);
     %>
+    </div>
 </div>
-    <%
-        out.flush();
-    %>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
+
+
+<%
+    out.flush();
+    if (numNotes==0) {
+%>
+        <div class="guideVocal">You do not have any draft notes in this project.
+            Draft notes can be created and edited without letting anyone else see
+            them.  Later, they can be published to the members or to the public.<br/>
+            <br/>
+            Use the <button class="inputBtn"
+            onClick="window.open('<%=ar.retPath%>t/texteditor.htm?pid=<% ar.writeURLData(ngp.getKey());%>&nid=&visibility_value=2')">
+            Create Note </button> link above
+            to create notes and the "Save as Draft" option will create a draft note.
+        </div>
+<%
+    }
+%>

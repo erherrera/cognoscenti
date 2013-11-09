@@ -1695,7 +1695,7 @@ version: 2.6.0
             }
 
             if (this.body && ! Dom.inDocument(this.body)) {
-                // There is a body, but it's not in the DOM yet. Need to add it.		
+                // There is a body, but it's not in the DOM yet. Need to add it.        
                 if (this.footer && Dom.isAncestor(this.moduleElement, this.footer)) {
                     moduleElement.insertBefore(this.body, this.footer);
                 } else {
@@ -3407,7 +3407,7 @@ version: 2.6.0
          *
          * @param {Number} x The X coordinate value to be constrained
          * @return {Number} The constrained x coordinate
-         */		
+         */     
         getConstrainedX: function (x) {
 
             var oOverlay = this,
@@ -3477,7 +3477,7 @@ version: 2.6.0
                 if ((oOverlay.cfg.getProperty("x") - scrollX) > nContextElX) {
                     return (nRightRegionWidth - nViewportOffset);
                 }
-                else {	// The Overlay is to the left of the context element
+                else {  // The Overlay is to the left of the context element
                     return (nLeftRegionWidth - nViewportOffset);
                 }
             
@@ -3525,7 +3525,7 @@ version: 2.6.0
 
 
             if (this.cfg.getProperty("preventcontextoverlap") && aContext && 
-				oOverlapPositions[(aContext[1] + aContext[2])]) {
+                oOverlapPositions[(aContext[1] + aContext[2])]) {
 
                 if (bCanConstrain) {
 
@@ -3573,7 +3573,7 @@ version: 2.6.0
          *
          * @param {Number} y The Y coordinate value to be constrained
          * @return {Number} The constrained y coordinate
-         */		
+         */     
         getConstrainedY: function (y) {
 
             var oOverlay = this,
@@ -3617,7 +3617,7 @@ version: 2.6.0
                 if ((oOverlay.cfg.getProperty("y") - scrollY) > nContextElY) { 
                     nNewY = (nContextElY - nOverlayOffsetHeight);
                 }
-                else {	// The Overlay is above the context element, flip it below
+                else {  // The Overlay is above the context element, flip it below
                     nNewY = (nContextElY + nContextElHeight);
                 }
     
@@ -3637,10 +3637,10 @@ version: 2.6.0
 
                 // The Overlay is below the context element
                 if ((oOverlay.cfg.getProperty("y") - scrollY) > nContextElY) {
-                    return (nBottomRegionHeight - nViewportOffset);				
+                    return (nBottomRegionHeight - nViewportOffset);             
                 }
-                else {	// The Overlay is above the context element
-                    return (nTopRegionHeight - nViewportOffset);				
+                else {  // The Overlay is above the context element
+                    return (nTopRegionHeight - nViewportOffset);                
                 }
         
             };
@@ -3689,7 +3689,7 @@ version: 2.6.0
 
 
             if (this.cfg.getProperty("preventcontextoverlap") && aContext && 
-            	oOverlapPositions[(aContext[1] + aContext[2])]) {
+                oOverlapPositions[(aContext[1] + aContext[2])]) {
 
                 if (bCanConstrain) {
 

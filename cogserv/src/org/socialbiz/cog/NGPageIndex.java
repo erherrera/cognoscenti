@@ -118,7 +118,7 @@ public class NGPageIndex
     private static Vector<String> projectsWithEmailToSend = new Vector<String>();
 
     /**
-    * containerType is the type of container whether it is Account, Project or User
+    * containerType is the type of container whether it is Site, Project or User
     * See constants below
     */
     private int containerType = 0;
@@ -284,8 +284,8 @@ public class NGPageIndex
 
     /**
     * Returns a vector of NGPageIndex objects which represent projects
-    * which are all part of a single account.
-    * Should be called get all projects in account
+    * which are all part of a single site.
+    * Should be called get all projects in site
     */
     public static Vector<NGPageIndex> getAllProjectsInAccount(String accountKey) throws Exception
     {
@@ -303,7 +303,7 @@ public class NGPageIndex
             }
             if (!accountKey.equals(ngpi.pageBookKey))
             {
-                //only consider if the project is in the account we look for
+                //only consider if the project is in the site we look for
                 continue;
             }
             if (ngpi.isDeleted)
@@ -947,14 +947,14 @@ public class NGPageIndex
         return (containerType == CONTAINER_TYPE_PROJECT||containerType == CONTAINER_TYPE_PAGE);
     }
 
-    public static void assertBook(String accountId) throws Exception {
+    public static void assertBook(String siteId) throws Exception {
         try {
-            NGPageIndex ngpi = NGPageIndex.getContainerIndexByKeyOrFail( accountId );
+            NGPageIndex ngpi = NGPageIndex.getContainerIndexByKeyOrFail( siteId );
             if (ngpi.containerType != CONTAINER_TYPE_ACCOUNT) {
                 throw new NGException("nugen.exception.not.account.container",null);
             }
         } catch (Exception e) {
-            throw new NGException("nugen.exception.account.with.key.not.found", new Object[]{accountId}, e);
+            throw new NGException("nugen.exception.site.with.key.not.found", new Object[]{siteId}, e);
         }
     }
 
@@ -1178,7 +1178,7 @@ public class NGPageIndex
 
 
     /**
-    * The container (project or account) can have any number of names.
+    * The container (project or site) can have any number of names.
     * For each name, an associated term is found,
     * and that term is made to point to this container.
     */

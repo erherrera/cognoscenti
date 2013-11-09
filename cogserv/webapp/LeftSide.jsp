@@ -82,7 +82,7 @@
                     ar.write(ar.retPath);
                     ar.write("BookPages.jsp?b=");
                     ar.writeURLData(ngb.getKey());
-                    ar.write("\" title=\"view a list of projects in this account\">Account: ");
+                    ar.write("\" title=\"view a list of projects in this site\">Site: ");
                     ar.writeHtml(ngb.getName());
                     ar.write("</a><br/>\n");
 
@@ -107,7 +107,7 @@
                 {
                     ar.write("<a href=\"");
                     ar.write(ar.retPath);
-                    ar.write("list.jsp\" title=\"List all of the accounts in this server\">List all Accounts</a><br/>\n");
+                    ar.write("list.jsp\" title=\"List all of the sites in this server\">List all Sites</a><br/>\n");
                 }
                 String newUISetting = ar.getSystemProperty("NewUI");
                 boolean showNewUI = (newUISetting==null || !newUISetting.equals("hide"));

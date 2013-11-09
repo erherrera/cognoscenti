@@ -180,7 +180,7 @@ public class BookInfoRecord  extends DOMFace
     }
 
     /**
-    * Different accounts can have different style sheets (themes)
+    * Different sites can have different style sheets (themes)
     * This is the path to the folder that holds the theme files
     */
     public String getThemePath()
@@ -193,7 +193,7 @@ public class BookInfoRecord  extends DOMFace
     }
 
     /**
-    * Different accounts can have different logos at the top
+    * Different sites can have different logos at the top
     * Returns the name of the file
     public String getAccountLogo()
     {

@@ -47,7 +47,8 @@ public class BaseController {
     public static final String PAGE_ID = "pageId";
 
     @ExceptionHandler(Exception.class)
-    public ModelAndView handleException(Exception ex, HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView handleException(Exception ex, HttpServletRequest request,
+            HttpServletResponse response) {
 
         //if a ServletExit has been thrown, then the browser has already been redirected,
         //so just return null and get out of here.
@@ -92,27 +93,27 @@ public class BaseController {
      *
      * Will ALSO set two request attributes needed by the JSP files.
      */
-    public static NGPage registerRequiredProject(AuthRequest ar, String accountId, String projectId) throws Exception
+    public static NGPage registerRequiredProject(AuthRequest ar, String siteId, String projectId) throws Exception
     {
         ar.req.setAttribute("pageId",     projectId);
-        ar.req.setAttribute("book",       accountId);
+        ar.req.setAttribute("book",       siteId);
         ar.req.setAttribute("headerType", "project");
-        NGPageIndex.assertBook(accountId);
+        NGPageIndex.assertBook(siteId);
         NGPage ngp = NGPageIndex.getProjectByKeyOrFail( projectId );
-        if (!accountId.equals(ngp.getAccountKey())) {
-            throw new NGException("nugen.operation.fail.account.match", new Object[]{projectId,accountId});
+        if (!siteId.equals(ngp.getAccountKey())) {
+            throw new NGException("nugen.operation.fail.account.match", new Object[]{projectId,siteId});
         }
         ar.setPageAccessLevels(ngp);
         ar.req.setAttribute("title", ngp.getFullName());
         return ngp;
     }
 
-    public static NGBook prepareAccountView(AuthRequest ar, String accountId) throws Exception
+    public static NGBook prepareAccountView(AuthRequest ar, String siteId) throws Exception
     {
-        ar.req.setAttribute("accountId", accountId);
-        ar.req.setAttribute("book",      accountId);
-        ar.req.setAttribute("headerType", "account");
-        NGBook account = NGPageIndex.getAccountByKeyOrFail( accountId );
+        ar.req.setAttribute("accountId", siteId);
+        ar.req.setAttribute("book",      siteId);
+        ar.req.setAttribute("headerType", "site");
+        NGBook account = NGPageIndex.getAccountByKeyOrFail( siteId );
         ar.setPageAccessLevels(account);
         ar.req.setAttribute("title", account.getFullName());
         return account;
@@ -131,10 +132,10 @@ public class BaseController {
         return new ModelAndView(new RedirectView(redirectAddress));
     }
 
-    public ModelAndView createNamedView(String accountId, String pageId,
+    public ModelAndView createNamedView(String siteId, String pageId,
             AuthRequest ar,  String viewName, String tabId)
             throws Exception {
-        ar.req.setAttribute(ACCOUNT_ID, accountId);
+        ar.req.setAttribute(ACCOUNT_ID, siteId);
         ar.req.setAttribute(TAB_ID, tabId);
         ar.req.setAttribute(PAGE_ID, pageId);
         ar.req.setAttribute("realRequestURL", ar.getRequestURL());

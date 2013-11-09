@@ -59,10 +59,10 @@ Optional Parameter:
             <select style="width:200px" name="b">
                 <option value="All Books" selected="selected"><fmt:message key="nugen.serach.filter.AllAccounts"/></option>
                 <%
-                for(NGBook account : NGBook.getAllAccounts())
+                for(NGBook site : NGBook.getAllAccounts())
                 {
-                    String aname = account.getName();
-                    String akey = account.getKey();
+                    String aname = site.getName();
+                    String akey = site.getKey();
                     %>
                         <option value="<%ar.writeHtml(akey);%>"><%ar.writeHtml(aname);%></option>
                     <%

@@ -1,12 +1,11 @@
-<%@page import="org.socialbiz.cog.spring.Account"
-%><%@page errorPage="/spring/jsp/error.jsp"
+<%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@page import="org.socialbiz.cog.spring.AccountRequest"
 %><%
 /*
 Required parameter:
 
-    1. requestId : This is the id of requested account and here it is used to retrieve requested Account's request Details.
+    1. requestId : This is the id of requested site and here it is used to retrieve requested Site's request Details.
 
     Optional Parameter:
 
@@ -60,7 +59,7 @@ String pageTitle="";
                     <tr><td style="height:20px"></td></tr>
                     <tr>
                         <td colspan="3" class="generalHeading">
-                            Request of new account has been <%ar.writeHtml(accountDetails.getStatus());%>.
+                            Request of new site has been <%ar.writeHtml(accountDetails.getStatus());%>.
                         </td>
                     </tr>
                     <tr><td style="height:30px"></td></tr>
@@ -73,7 +72,7 @@ String pageTitle="";
                     </tr>
                     <tr><td style="height:5px"></td></tr>
                     <tr>
-                        <td width="148" class="gridTableColummHeader">Account Name:</td>
+                        <td width="148" class="gridTableColummHeader">Site Name:</td>
                         <td style="width:20px;"></td>
                         <td>
                         <%
@@ -85,7 +84,7 @@ String pageTitle="";
                             ar.write(accountDetails.getAccountId());
                             ar.write("/$/public.htm\">");
                             ar.writeHtml(accountDetails.getName());
-                            ar.write(" (click here to visit account)</a>");
+                            ar.write(" (click here to visit site)</a>");
                         }
                         else
                         {

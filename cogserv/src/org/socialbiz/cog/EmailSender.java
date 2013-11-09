@@ -497,7 +497,7 @@ public class EmailSender extends TimerTask {
         clone.write("<table width=\"80%\" class=\"Design8\">");
         clone.write("<thead>");
         clone.write("<tr>");
-        clone.write("<th>Account Name</th>");
+        clone.write("<th>Site Name</th>");
         clone.write("<th>Requested By</th>");
         clone.write("<th>Requested Date</th>");
         clone.write("<th>Action</th>");

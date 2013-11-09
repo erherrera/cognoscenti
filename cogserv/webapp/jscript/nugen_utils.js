@@ -89,11 +89,11 @@ function createTabs(){
             arrayOfTabs.push(new TabRef(retPath+"v/"+userKey+"/emailListnerSettings.htm","Administration","userSubMenu4"));
         }
     }
-    else if(headerType == "account") {
+    else if(headerType == "site") {
         arrayOfTabs = [
-            new TabRef(retPath+"t/"+accountId+"/$/public.htm","Account Notes","accountSubMenu1"),
-            new TabRef(retPath+"t/"+accountId+"/$/accountListProjects.htm","Account Projects","accountSubMenu2"),
-            new TabRef(retPath+"t/"+accountId+"/$/account_settings.htm","Account Settings","accountSubMenu4")
+            new TabRef(retPath+"t/"+accountId+"/$/public.htm","Site Notes","accountSubMenu1"),
+            new TabRef(retPath+"t/"+accountId+"/$/accountListProjects.htm","Site Projects","accountSubMenu2"),
+            new TabRef(retPath+"t/"+accountId+"/$/account_settings.htm","Site Settings","accountSubMenu4")
         ];
     }
     else if(headerType == "project") {
@@ -129,16 +129,16 @@ function createTabs(){
             newli.className = 'mainNavLink1';
         }
 
-        if(arrayOfTabs[i].name=="Account Notes" ){
+        if(arrayOfTabs[i].name=="Site Notes" ){
             newli.className = 'mainNavLink1';
         }
-        if(specialTab=="null" && ((arrayOfTabs[i].name=="Project Stream")||(arrayOfTabs[i].name=="Projects") ||(arrayOfTabs[i].name=="Account Notes"))){
+        if(specialTab=="null" && ((arrayOfTabs[i].name=="Project Stream")||(arrayOfTabs[i].name=="Projects") ||(arrayOfTabs[i].name=="Site Notes"))){
             newli.className = 'mainNavLink1 selected';
         }
         else if(specialTab==arrayOfTabs[i].name){
             if( (arrayOfTabs[i].name=="Project Stream")||
                 (arrayOfTabs[i].name=="Projects")||
-                (arrayOfTabs[i].name=="Account Notes") ){
+                (arrayOfTabs[i].name=="Site Notes") ){
                 newli.className = 'mainNavLink1 selected';
             }
             else {
@@ -165,11 +165,11 @@ function createSubLinks(){
     var arrayOfSubMenu=0;
     var arrayOfMainMenu=0;
     
-    if(headerType == "account") {
+    if(headerType == "site") {
     
         var accountSubMenu1 = [new Tab(retPath+"t/"+accountId+"/$/public.htm","Public Notes"),
             new Tab(retPath+"t/"+accountId+"/$/member.htm","Member Notes"),
-            new Tab(retPath+"t/"+accountId+"/$/account_history.htm","Account Bulletin")
+            new Tab(retPath+"t/"+accountId+"/$/account_history.htm","Site Bulletin")
         ];
         var accountSubMenu2 = [new Tab(retPath+"t/"+accountId+"/$/accountListProjects.htm","List Projects"),
             new Tab(retPath+"t/"+accountId+"/$/accountCreateProject.htm","Create New Project")
@@ -200,7 +200,7 @@ function createSubLinks(){
         var arrayOfTabs3 = [new Tab(retPath+"v/"+userKey+"/userSettings.htm","Personal"),
             new Tab(retPath+"v/"+userKey+"/userContacts.htm","Contacts"),
             new Tab(retPath+"v/"+userKey+"/userConnections.htm","Connections"),
-            new Tab(retPath+"v/"+userKey+"/userAccounts.htm","Accounts"),
+            new Tab(retPath+"v/"+userKey+"/userAccounts.htm","Sites"),
             new Tab(retPath+"v/"+userKey+"/notificationSettings.htm","Unsubscribe")
         ];
 
@@ -208,10 +208,10 @@ function createSubLinks(){
             var arrayOfTabs4 = [new Tab(retPath+"v/"+userKey+"/emailListnerSettings.htm","Email"),
                 new Tab(retPath+"v/"+userKey+"/lastNotificationSend.htm","Last Notification Send"),
                 new Tab(retPath+"v/"+userKey+"/errorLog.htm",      "Error Log"),
-                new Tab(retPath+"v/"+userKey+"/newAccounts.htm",   "New Accounts"),
+                new Tab(retPath+"v/"+userKey+"/newAccounts.htm",   "New Sites"),
                 new Tab(retPath+"v/"+userKey+"/newUsers.htm",      "New Users"),
-                new Tab(retPath+"v/"+userKey+"/requestedAccounts.htm","Requested Accounts"),
-                new Tab(retPath+"v/"+userKey+"/deniedAccounts.htm","Denied Accounts")
+                new Tab(retPath+"v/"+userKey+"/requestedAccounts.htm","Requested Sites"),
+                new Tab(retPath+"v/"+userKey+"/deniedAccounts.htm","Denied Sites")
             ];
             arrayOfSubMenu  =["userSubMenu1","userSubMenu2","userSubMenu3","userSubMenu4"];
             arrayOfMainMenu =[ arrayOfTabs1,  arrayOfTabs2,  arrayOfTabs3,  arrayOfTabs4]
@@ -247,7 +247,7 @@ function createSubLinks(){
         var arrayOfTabs3 = [
             new Tab(retPath+"t/"+book+"/"+pageId+"/attachment.htm",        "List Documents"),
             new Tab(retPath+"t/"+book+"/"+pageId+"/addDocument.htm",       "Add Document"),
-            new Tab(retPath+"t/"+book+"/"+pageId+"/syncSharePointAttachmentDisplay.htm","Synchonize") ,
+            new Tab(retPath+"t/"+book+"/"+pageId+"/SyncAttachment.htm",    "Synchonize") ,
             new Tab(retPath+"t/"+book+"/"+pageId+"/reminders.htm",         "Reminders"),
             new Tab(retPath+"t/"+book+"/"+pageId+"/emailReminder.htm",     "Send Email Reminder"),
             new Tab(retPath+"t/"+book+"/"+pageId+"/deletedAttachments.htm","Deleted Documents"),
@@ -366,7 +366,7 @@ http://bobcat:8080/cog/t/texteditor.htm?pid=copy-of-development-meeting&nid=&vis
                 new Tab(retPath+"t/"+book+"/"+pageId+"/linkURLToProject.htm",tab1_upload_attachments),
                 new Tab(retPath+"t/"+book+"/"+pageId+"/emailReminder.htm",tab2_upload_attachments),
                 new Tab(retPath+"t/"+book+"/"+pageId+"/linkRepository.htm",tab3_upload_attachments),
-                new Tab(retPath+"t/"+book+"/"+pageId+"/syncSharePointAttachmentDisplay.htm",tab7_upload_attachments)
+                new Tab(retPath+"t/"+book+"/"+pageId+"/SyncAttachment.htm",tab7_upload_attachments)
             ];
         }else if(home == "_projectTasks"){
             first_tab = tab0_projectTasks;
@@ -772,7 +772,7 @@ var formSubmitResponse ={
         first_tab=tab0_home;
         arrayOfTabs = [new Tab(retPath+"t/"+accountId+"/$/public.htm",tab0_home +' ('+account_public_notes_count+')'),
             new Tab(retPath+"t/"+accountId+"/$/member.htm",tab2_home+' ('+account_member_notes_count+')'),
-            new Tab(retPath+"t/"+accountId+"/$/account_history.htm","Account Bulletin")];
+            new Tab(retPath+"t/"+accountId+"/$/account_history.htm","Site Bulletin")];
     }else{
         first_tab=tab0_edit_attachments;
         arrayOfTabs = [new Tab(retPath+"t"+"/"+accountId+"/$/editDetails"+aid+".htm",tab0_edit_attachments),

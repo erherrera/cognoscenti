@@ -2,29 +2,29 @@
 %><%@ include file="administration.jsp"
 %><%
 
-    ar.assertLoggedIn("New Account page should never be accessed when not logged in");
+    ar.assertLoggedIn("New Site page should never be accessed when not logged in");
     if (!ar.isSuperAdmin()) {
-        throw new Exception("New Account page should only be accessed by Super Admin");
+        throw new Exception("New Site page should only be accessed by Super Admin");
     }
     if (newAccounts==null) {
-        throw new Exception("Program Logic Error: The 'newAccounts' object must be set up for newAccounts.jsp");
+        throw new Exception("Program Logic Error: The 'newAccounts' object must be set up for requestedAccounts.jsp");
     }
     if (uProf==null) {
-        throw new Exception("Program Logic Error: The 'uProf' object must be set up for newAccounts.jsp");
+        throw new Exception("Program Logic Error: The 'uProf' object must be set up for requestedAccounts.jsp");
     }
 
 %>
 <div class="content tab04" style="display:block;">
     <div class="section_body">
         <div style="height:10px;"></div>
-        <div class="generalHeadingBorderLess"><br>System Administrator: Account Requests</div>
+        <div class="generalHeadingBorderLess"><br>System Administrator: Site Requests</div>
         <div id="accountRequestPaging"></div>
         <div id="accountRequestDiv">
             <table id="pagelist11">
                 <thead>
                     <tr>
                         <th >Request Id</th>
-                        <th >Account Name</th>
+                        <th >Site Name</th>
                         <th >State</th>
                         <th >Description</th>
                         <th >Date</th>
@@ -70,8 +70,8 @@
         {
             var newAccountCD = [
                 {key:"no",label:"No",formatter:YAHOO.widget.DataTable.formatNumber,sortable:true,resizeable:true},
-                {key:"accountname",label:"Account Name", sortable:true,resizeable:true},
-                {key:"description",label:" Account Description", sortable:true,resizeable:true}
+                {key:"accountname",label:"Site Name", sortable:true,resizeable:true},
+                {key:"description",label:" Site Description", sortable:true,resizeable:true}
 
             ];
 
@@ -152,7 +152,7 @@
         {
             var accountRequestCD = [
                 {key:"requesteId",label:"Request Id",sortable:true,resizeable:true},
-                {key:"accountName",label:"Account Name",sortable:false,resizeable:true},
+                {key:"accountName",label:"Site Name",sortable:false,resizeable:true},
                 {key:"state",label:"<fmt:message key='nugen.attachment.State'/>",sortable:true,resizeable:true},
                 {key:"description",label:"Description",sortable:false,resizeable:true},
                 {key:"date",label:"Date",formatter:YAHOO.widget.DataTable.formatDate,sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
@@ -224,7 +224,7 @@
                                                         '</tr>'+
                                                         '<tr><td style="height:10px"></td></tr>'+
                                                         '<tr>'+
-                                                            '<td class="gridTableColummHeader"><B>Account Name: </B></td>'+
+                                                            '<td class="gridTableColummHeader"><B>Site Name: </B></td>'+
                                                             '<td style="width:20px;"></td>'+
                                                             '<td>'+
                                                                 accountName+
