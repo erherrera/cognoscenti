@@ -883,6 +883,14 @@ public class MainTabsViewControler extends BaseController {
                 return showWarningView(ar, "nugen.project.personal.login.msg");
             }
 
+            //signing up as member or other operations require name and email address
+            if (needsToSetName(ar)) {
+                return new ModelAndView("requiredName");
+            }
+            if (needsToSetEmail(ar)) {
+                return new ModelAndView("requiredEmail");
+            }
+
             ModelAndView modelAndView = new ModelAndView("personal");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.personal");
             request.setAttribute("visibility_value", "4");
@@ -909,6 +917,14 @@ public class MainTabsViewControler extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "nugen.project.login.msg");
             }
+            //signing up as member or other operations require name and email address
+            if (needsToSetName(ar)) {
+                return new ModelAndView("requiredName");
+            }
+            if (needsToSetEmail(ar)) {
+                return new ModelAndView("requiredEmail");
+            }
+
 
             request.setAttribute("tabId", "Project Settings");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.Admin");

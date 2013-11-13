@@ -31,8 +31,8 @@
 
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    boolean isMember = isMember(ar, ngp);
-    boolean isAdmin = isAdmin(ar, ngp);
+    boolean isMember = ar.isMember();
+    boolean isAdmin = ar.isAdmin();
 
     ngb = ngp.getAccount();
     pageTitle = ngp.getFullName() + ": Status Report";

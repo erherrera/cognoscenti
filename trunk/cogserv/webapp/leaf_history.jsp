@@ -24,8 +24,8 @@
     String p = ar.reqParam("p");
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    boolean isMember = isMember(ar, ngp);
-    boolean isAdmin = isAdmin(ar, ngp);
+    boolean isMember = ar.isMember();
+    boolean isAdmin = ar.isAdmin();
 
     String go = ar.defParam("go", null);
     if (go==null)

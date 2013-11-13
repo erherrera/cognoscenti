@@ -49,7 +49,7 @@
         ngp = NGPageIndex.getProjectByKeyOrFail(p);
         NGPage hookProj = NGPageIndex.getProjectByKeyOrFail(hook);
         ar.setPageAccessLevels(hookProj);
-        if (!isAdmin(ar, hookProj)) {
+        if (!ar.isAdmin()) {
             throw new Exception("You must be administrator of the hooked project in order to move resources out of that project.!");
         }
 

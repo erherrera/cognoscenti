@@ -381,7 +381,9 @@ public class NGLeafServlet extends javax.servlet.http.HttpServlet {
             ar.writeHtml(e.toString());
             ar.write("</li></ul>\n");
             ar.write("<hr/>\n");
-            ar.write("<a href=\"main.jsp\" title=\"Access the main page\">Main</a>\n");
+            ar.write("<a href=\"");
+            ar.write(ar.retPath);
+            ar.write("\" title=\"Access the root\">Main</a>\n");
             ar.write("<hr/>\n<pre>");
             e.printStackTrace(new PrintWriter(new HTMLWriter(ar.w)));
             ar.write("</pre></body></html>\n");

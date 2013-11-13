@@ -36,7 +36,7 @@
     ar.setPageAccessLevels(ngp);
     ar.assertMember("unable to synchronize this project");
 
-    boolean isAdmin = isAdmin(ar, ngp);
+    boolean isAdmin = ar.isAdmin();
 
     pageTitle = "Project Sync: "+ngp.getFullName();
     specialTab = "Admin";

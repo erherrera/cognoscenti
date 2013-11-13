@@ -26,8 +26,8 @@
     String p = ar.reqParam("p");
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    boolean isMember = isMember(ar, ngp);
-    boolean isAdmin = isAdmin(ar, ngp);
+    boolean isMember = ar.isMember();
+    boolean isAdmin = ar.isAdmin();
 
     ngb = ngp.getAccount();
 
@@ -182,7 +182,7 @@
 
         List<AttachmentRecord> attachmentList = ngp.getAllAttachments();
         SectionAttachments.sortByName(attachmentList);
-        boolean isMember = isMember(ar, ngp);
+        boolean isMember = ar.isMember();
         int i=0;
         for(AttachmentRecord attachment : attachmentList)
         {
