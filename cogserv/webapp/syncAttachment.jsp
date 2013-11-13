@@ -58,7 +58,7 @@
 
     ngb = ngp.getAccount();
     pageTitle = ngp.getFullName();
-    boolean isMember = isMember(ar, ngp);
+    boolean isMember = ar.isMember();
 %>
 
 <%@ include file="Header.jsp"%>
@@ -83,7 +83,7 @@ if (!ar.isLoggedIn())
     <%
 
 }
-else if (!isMember(ar, ngp))
+else if (!ar.isMember())
 {
     %>
     <div class="pagenavigation">

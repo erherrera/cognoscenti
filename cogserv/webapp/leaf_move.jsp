@@ -24,8 +24,8 @@
     String p = ar.reqParam("p");
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    boolean isMember = isMember(ar, ngp);
-    boolean isAdmin = isAdmin(ar, ngp);
+    boolean isMember = ar.isMember();
+    boolean isAdmin = ar.isAdmin();
 
     String go = ar.defParam("go", null);
     if (go==null)
@@ -77,7 +77,7 @@ else
     if (hookPage==null) {
 %><p>Hook a project to get its resources to appear here to be moved.</p><%
     }
-    else if (!isAdmin(ar, hookPage)) {
+    else if (!ar.isAdmin()) {
 %><p>You have to be administrator of the hooked project in order to move resources from it.</p><%
     }
     else {

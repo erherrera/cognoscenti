@@ -866,25 +866,15 @@
     }
 
 
+    //don't need this method any more
     public static boolean isMember(AuthRequest ar, NGContainer ngc)
-        throws Exception
-    {
-        UserProfile up = ar.getUserProfile();
-        if (up==null)
-        {
-            return false;
-        }
-        return ngc.primaryOrSecondaryPermission(up);
+            throws Exception {
+        return ar.isMember();
     }
+    //don't need this method any more
     public static boolean isAdmin(AuthRequest ar, NGContainer ngc)
-        throws Exception
-    {
-        UserProfile up = ar.getUserProfile();
-        if (up==null)
-        {
-            return false;
-        }
-        return ngc.secondaryPermission(up);
+            throws Exception {
+        return ar.isAdmin();
     }
 
 
