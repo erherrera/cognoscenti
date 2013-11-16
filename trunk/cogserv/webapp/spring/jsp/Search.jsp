@@ -251,7 +251,7 @@ Optional Parameter:
                 }
             };
 
-            var servletURL = "<%ar.write(servletURL);%>";
+            var servletURL = "<%ar.write(UtilityMethods.quote4JS(servletURL));%>";
 
             var getXML = YAHOO.util.Connect.asyncRequest("GET",servletURL, connectionCallback);
 

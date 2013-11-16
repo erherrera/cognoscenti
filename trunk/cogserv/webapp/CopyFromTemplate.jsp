@@ -29,7 +29,7 @@
 
     for (GoalRecord tr : templatePage.getAllGoals()) {
 
-        GoalRecord newTask = ngp.createTask();
+        GoalRecord newTask = ngp.createGoal();
         newTask.setSynopsis( tr.getSynopsis() );
         newTask.setDescription( tr.getDescription() );
         newTask.setPriority( tr.getPriority() );

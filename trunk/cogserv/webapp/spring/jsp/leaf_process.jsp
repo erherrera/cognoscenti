@@ -582,76 +582,74 @@ function generateReoprt(){
 
             var json = eval('(' + respText+')');
 
-            if(json.msgType == "success"){
-                if(json.taskId != "" ){
-                    var taskId = json.taskId;
-                    var index=json.index;
-                    var status = json.taskState;
-                    var statusIMG = json.stateImage;
-                    document.getElementById(taskId+"_"+index).src= "<%=ar.retPath%>assets/images/"+statusIMG;
-                    //indexAll=taskId+"_"+4;
-                    //document.getElementById(indexAll).src= "<%=ar.retPath%>assets/images/"+statusIMG;
-
-                    var startActBtn = document.getElementById(taskId+'_startActBtn');
-                    var acceptActBtn = document.getElementById(taskId+'_acceptActBtn');
-                    var completeActBtn = document.getElementById(taskId+'_completeActBtn');
-                    var rejectActBtn = document.getElementById(taskId+'_rejectActBtn');
-                    var approveActBtn = document.getElementById(taskId+'_approveActBtn');
-
-
-                    if(status == '<%=BaseRecord.STATE_UNSTARTED%>'){
-                        startActBtn.setAttribute("class", "");
-                        acceptActBtn.setAttribute("class", "");
-                        completeActBtn.setAttribute("class","");
-                        rejectActBtn.setAttribute("class", "hiddenlink");
-                        approveActBtn.setAttribute("class", "hiddenlink");
-                    }
-                    else if(status == '<%=BaseRecord.STATE_STARTED%>'){
-                        startActBtn.setAttribute("class", "hiddenlink");
-                        acceptActBtn.setAttribute("class", "");
-                        completeActBtn.setAttribute("class","");
-                        rejectActBtn.setAttribute("class", "hiddenlink");
-                        approveActBtn.setAttribute("class", "hiddenlink");
-                    }
-                    else if(status == '<%=BaseRecord.STATE_ACCEPTED%>'){
-                        startActBtn.setAttribute("class", "hiddenlink");
-                        acceptActBtn.setAttribute("class", "hiddenlink");
-                        completeActBtn.setAttribute("class","");
-                        rejectActBtn.setAttribute("class", "hiddenlink");
-                        approveActBtn.setAttribute("class", "hiddenlink");
-                    }
-                    else if(status == '<%=BaseRecord.STATE_COMPLETE%>'){
-                        startActBtn.setAttribute("class", "");
-                        acceptActBtn.setAttribute("class", "hiddenlink");
-                        completeActBtn.setAttribute("class","hiddenlink");
-                        rejectActBtn.setAttribute("class", "");
-                        approveActBtn.setAttribute("class", "");
-                    }
-                    else if(status == '<%=BaseRecord.STATE_WAITING%>'){
-                        startActBtn.setAttribute("class", "hiddenlink");
-                        acceptActBtn.setAttribute("class", "hiddenlink");
-                        completeActBtn.setAttribute("class","");
-                        rejectActBtn.setAttribute("class", "hiddenlink");
-                        approveActBtn.setAttribute("class", "hiddenlink");
-                    }
-                    else if(status == '<%=BaseRecord.STATE_REVIEW%>'){
-                        startActBtn.setAttribute("class", "");
-                        acceptActBtn.setAttribute("class", "hiddenlink");
-                        completeActBtn.setAttribute("class","hiddenlink");
-                        rejectActBtn.setAttribute("class", "");
-                        approveActBtn.setAttribute("class", "");
-                    }
-
-                    return false;
-                }
-                else{
-                    window.location.reload();
-                }
-            }
-            else{
+            if(json.msgType != "success"){
                 alert(json.comments);
                 showErrorMessage("Unable to Perform Action", json.msg , json.comments );
+                return false;
             }
+            if(json.taskId == "" ){
+                window.location.reload();
+                return false;
+            }
+
+            var taskId = json.taskId;
+            var index=json.index;
+            var status = json.taskState;
+            var statusIMG = json.stateImage;
+            var taskImageElement = document.getElementById(taskId+"_stimg");
+            taskImageElement.src= "<%=ar.retPath%>assets/images/"+statusIMG;
+
+            var startActBtn = document.getElementById(taskId+'_startActBtn');
+            var acceptActBtn = document.getElementById(taskId+'_acceptActBtn');
+            var completeActBtn = document.getElementById(taskId+'_completeActBtn');
+            var rejectActBtn = document.getElementById(taskId+'_rejectActBtn');
+            var approveActBtn = document.getElementById(taskId+'_approveActBtn');
+
+
+            if(status == '<%=BaseRecord.STATE_UNSTARTED%>'){
+                startActBtn.setAttribute("class", "");
+                acceptActBtn.setAttribute("class", "");
+                completeActBtn.setAttribute("class","");
+                rejectActBtn.setAttribute("class", "hiddenlink");
+                approveActBtn.setAttribute("class", "hiddenlink");
+            }
+            else if(status == '<%=BaseRecord.STATE_STARTED%>'){
+                startActBtn.setAttribute("class", "hiddenlink");
+                acceptActBtn.setAttribute("class", "");
+                completeActBtn.setAttribute("class","");
+                rejectActBtn.setAttribute("class", "hiddenlink");
+                approveActBtn.setAttribute("class", "hiddenlink");
+            }
+            else if(status == '<%=BaseRecord.STATE_ACCEPTED%>'){
+                startActBtn.setAttribute("class", "hiddenlink");
+                acceptActBtn.setAttribute("class", "hiddenlink");
+                completeActBtn.setAttribute("class","");
+                rejectActBtn.setAttribute("class", "hiddenlink");
+                approveActBtn.setAttribute("class", "hiddenlink");
+            }
+            else if(status == '<%=BaseRecord.STATE_COMPLETE%>'){
+                startActBtn.setAttribute("class", "");
+                acceptActBtn.setAttribute("class", "hiddenlink");
+                completeActBtn.setAttribute("class","hiddenlink");
+                rejectActBtn.setAttribute("class", "");
+                approveActBtn.setAttribute("class", "");
+            }
+            else if(status == '<%=BaseRecord.STATE_WAITING%>'){
+                startActBtn.setAttribute("class", "hiddenlink");
+                acceptActBtn.setAttribute("class", "hiddenlink");
+                completeActBtn.setAttribute("class","");
+                rejectActBtn.setAttribute("class", "hiddenlink");
+                approveActBtn.setAttribute("class", "hiddenlink");
+            }
+            else if(status == '<%=BaseRecord.STATE_REVIEW%>'){
+                startActBtn.setAttribute("class", "");
+                acceptActBtn.setAttribute("class", "hiddenlink");
+                completeActBtn.setAttribute("class","hiddenlink");
+                rejectActBtn.setAttribute("class", "");
+                approveActBtn.setAttribute("class", "");
+            }
+
+            return false;
         },
         failure: function(o) {
             alert("updatedStatus Error:" +o.responseText);
@@ -1134,7 +1132,9 @@ function reOrderIndex(id){
             ar.write(BaseRecord.stateImg(state));
             ar.write(" \" alt=\"");
             ar.write(BaseRecord.stateName(state));
-            ar.write("\"/></a>");
+            ar.write("\" id=\"");
+            ar.write(task.getId());
+            ar.write("_stimg\"/></a>");
         }
 
 

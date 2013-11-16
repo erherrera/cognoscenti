@@ -20,19 +20,16 @@
 
 package org.socialbiz.cog;
 
-import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.AuthRequest;
-import org.socialbiz.cog.NGPage;
-import org.socialbiz.cog.NGPageIndex;
-import org.socialbiz.cog.SearchResultRecord;
-import org.socialbiz.cog.SectionUtil;
 import java.util.List;
 import java.util.Vector;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -106,7 +103,7 @@ public class DataFeedServlet extends HttpServlet {
     private void handleSearchOperation(AuthRequest ar) throws Exception {
         String qs = ar.reqParam(PARAM_SEARCHSTRING);
 
-        SearchResultRecord[] records = performLuceneSearchOperation(ar, qs);
+        List<SearchResultRecord> records = performLuceneSearchOperation(ar, qs);
         writeSearchRecordsToResponse(ar, qs, records);
     }
 
@@ -129,7 +126,7 @@ public class DataFeedServlet extends HttpServlet {
     }
 
     /************************ internal methods. ************************/
-    private void writeSearchRecordsToResponse(AuthRequest ar, String query, SearchResultRecord[] records)
+    private void writeSearchRecordsToResponse(AuthRequest ar, String query, List<SearchResultRecord> records)
             throws Exception {
         if (ar == null || records == null) {
             throw new ProgramLogicError("writeSearchRecordsToResponse parameter must not be null");
@@ -139,10 +136,12 @@ public class DataFeedServlet extends HttpServlet {
         Document doc = DOMUtils.createDocument("ResultSet");
         Element resultSetEle = doc.getDocumentElement();
 
-        for (int i = 0; i < records.length; i++) {
-            SearchResultRecord sr = records[i];
+        int count=0;
+        for ( SearchResultRecord sr : records) {
+            count++;
+            //seems like the following code should be internal to SearchResultRecord
             Element resultEle = DOMUtils.createChildElement(doc, resultSetEle, "Result");
-            DOMUtils.createChildElement(doc, resultEle, "No", String.valueOf((i + 1)));
+            DOMUtils.createChildElement(doc, resultEle, "No", Integer.toString(count));
             DOMUtils.createChildElement(doc, resultEle, "PageName", sr.getPageName());
             DOMUtils.createChildElement(doc, resultEle, "PageKey", sr.getPageKey());
             DOMUtils.createChildElement(doc, resultEle, "PageLink", sr.getPageLink());
@@ -166,14 +165,14 @@ public class DataFeedServlet extends HttpServlet {
                 timeVal = "unknown";
             }
             DOMUtils.createChildElement(doc, resultEle, "LastModifiedTime", timeVal);
-            DOMUtils.createChildElement(doc, resultEle, "UserLink", sr.getUserLink());
-            DOMUtils.createChildElement(doc, resultEle, "timePeriod", sr.getTimePeriod());
+//            DOMUtils.createChildElement(doc, resultEle, "UserLink", "bogus user link");
+//            DOMUtils.createChildElement(doc, resultEle, "timePeriod", "8888");
         }
 
         // TODO Duplicate Code.
         resultSetEle.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        resultSetEle.setAttribute("totalResultsAvailable", Integer.toString(records.length));
-        resultSetEle.setAttribute("totalResultsReturned", Integer.toString(records.length));
+        resultSetEle.setAttribute("totalResultsAvailable", Integer.toString(records.size()));
+        resultSetEle.setAttribute("totalResultsReturned", Integer.toString(records.size()));
         resultSetEle.setAttribute("firstResultPosition", "0");
         resultSetEle.setAttribute("query", query);
 
@@ -243,7 +242,7 @@ public class DataFeedServlet extends HttpServlet {
 
     }
 
-    public static SearchResultRecord[] performLuceneSearchOperation(AuthRequest ar,
+    public static List<SearchResultRecord> performLuceneSearchOperation(AuthRequest ar,
             String searchText) throws Exception {
         // String b = ar.defParam("b", "All Books");
         // boolean isGlobal = "All Books".equals(b);
@@ -253,12 +252,7 @@ public class DataFeedServlet extends HttpServlet {
             ar.setNewUI(true);
         }
         SearchManager.initializeIndex();
-        List<SearchResultRecord> temp = SearchManager.performSearch(ar, searchText);
-        SearchResultRecord[] records = new SearchResultRecord[temp.size()];
-        for (int i = 0; i < temp.size(); i++) {
-            records[i] = temp.get(i);
-        }
-        return records;
+        return SearchManager.performSearch(ar, searchText);
     }
 
     // operation get task list.
@@ -389,11 +383,6 @@ public class DataFeedServlet extends HttpServlet {
         // recommended in many forums.
         String modVal = new String(val.getBytes("iso-8859-1"), "UTF-8");
         return modVal;
-    }
-
-    public static SearchResultRecord[] performLuceneSearchOperationForPublicNotes(AuthRequest ar,
-            String searchText) throws Exception {
-        return performLuceneSearchOperation(ar, searchText);
     }
 }
 

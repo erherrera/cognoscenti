@@ -473,15 +473,14 @@ public class ResourcePage implements NGResource
     public void performSearch(String searchText)throws Exception
     {
         ltype = NGResource.TYPE_XML;
-        SearchResultRecord[] records = DataFeedServlet.performLuceneSearchOperation(lar, searchText);
+        List<SearchResultRecord> records = DataFeedServlet.performLuceneSearchOperation(lar, searchText);
         loutdoc = DOMUtils.createDocument("searchresults");
         Element resultSetEle = loutdoc.getDocumentElement();
         String schema = lserverURL + NGResource.SCHEMA_SEARCH;
         DOMUtils.setSchemAttribute(resultSetEle, schema);
         DOMUtils.createChildElement(loutdoc,resultSetEle, "searchstring", searchText);
-        DOMUtils.createChildElement(loutdoc,resultSetEle, "hitcount", String.valueOf(records.length));
-        for (int i=0; i<records.length; i++) {
-            SearchResultRecord sr = records[i];
+        DOMUtils.createChildElement(loutdoc,resultSetEle, "hitcount", String.valueOf(records.size()));
+        for (SearchResultRecord sr : records) {
             Element resultEle = DOMUtils.createChildElement(loutdoc, resultSetEle, "searchrecord");
             DOMUtils.createChildElement(loutdoc, resultEle, "pagename" , sr.getPageName());
             String pageAddr = lserverURL + "p/" + sr.getPageKey() + "/leaf.xml";

@@ -18,20 +18,20 @@
     </div>
 <script type="text/javascript">
     var isLoggedIn = "<%=ar.isLoggedIn()%>";
-    function onClickAction(flag){
+    function onClickAction(flagX){
         <%if(ngp.isFrozen()){%>
             openFreezeMessagePopup();
         <%}else{%>
-            if(flag == "addDocument"){
+            if(flagX == "addDocument"){
                 document.getElementById("createDocForm").action = "addDocument.htm";
                 document.getElementById("createDocForm").submit();
-            }else if(flag == "emailReminder"){
+            }else if(flagX == "emailReminder"){
                 document.getElementById("createDocForm").action = "emailReminder.htm";
                 document.getElementById("createDocForm").submit();
-            }else if(flag == "syncDocuments"){
+            }else if(flagX == "syncDocuments"){
                 document.getElementById("createDocForm").action = "SyncAttachment.htm";
                 document.getElementById("createDocForm").submit();
-            }else if(flag == "sendDocsByEmail"){
+            }else if(flagX == "sendDocsByEmail"){
                openWin('sendDocsByEmail.htm?oid=x');
             }
         <% } %>
@@ -390,10 +390,10 @@
                     myContextMenu.contextEventTarget = oArgs.target;
                     myDataTable.unselectAllCells();
                     myDataTable.selectCell(oArgs.target);
-                    if(flag){
+                    if(okForContextMenu){
                         myContextMenu.show();
                     }
-                    flag = true;
+                    okForContextMenu = true;
                  }
                 });
 
@@ -434,7 +434,7 @@
                 };
             } ();
         });
-        var flag = true;
+        var okForContextMenu = true;
         var downloadAttachmentFormater = function(elCell, oRecord, oColumn, sData)
         {
             var href = '';
@@ -443,8 +443,7 @@
                 href = '#';
                 onclick = 'return handleURIClick(\''+oRecord.getData("encodedAccessName") +'\');';
             }else{
-                href = '<%=ar.baseURL%>t/<%=ngb.getKey()%>/<%= ngp.getKey()%>/a/'+oRecord.getData("encodedAccessName") +'?version='
-                        + oRecord.getData("version");
+                href = '<%=ar.baseURL%>t/<%=ngb.getKey()%>/<%= ngp.getKey()%>/a/'+oRecord.getData("encodedAccessName");
                 onclick = 'return handleClick()';
             }
             elCell.innerHTML = '<a id="downloadLink'+oRecord.getData("downloadLinkCount")
@@ -457,18 +456,18 @@
         var permissionFormater = function(elCell, oRecord, oColumn, sData)
         {
             if(oRecord.getData("visibility") == '1'){
-                elCell.innerHTML = '<img src="<%=ar.baseURL%>assets/images/iconPublic.png" name="PUB" alt="Public" title="Public "/>';
+                elCell.innerHTML = '<a href="editDetails'+oRecord.getData("aid")+'.htm"><img src="<%=ar.baseURL%>assets/images/iconPublic.png" name="PUB" alt="Public" title="Public "/></a>';
             }else{
-                elCell.innerHTML = '<img src="<%=ar.baseURL%>assets/images/iconMember.png" name="MEM" alt="Member" title="Member" />';
+                elCell.innerHTML = '<a href="editDetails'+oRecord.getData("aid")+'.htm"><img src="<%=ar.baseURL%>assets/images/iconMember.png" name="MEM" alt="Member" title="Member" /></a>';
             }
         }
         function handleURIClick(url){
-            flag = false;
+            okForContextMenu = false;
             openWin(url);
             return true;
         }
         function handleClick(){
-            flag = false;
+            okForContextMenu = false;
             return true;
         }
 </script>

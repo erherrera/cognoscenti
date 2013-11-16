@@ -113,7 +113,8 @@ public class SearchManager {
         iWriter.close();
     }
 
-    public static synchronized List<SearchResultRecord> performSearch(AuthRequest ar, String queryStr) throws Exception {
+    public static synchronized List<SearchResultRecord> performSearch(AuthRequest ar, String queryStr)
+            throws Exception {
 
         Vector<SearchResultRecord> vec = new Vector<SearchResultRecord>();
 
@@ -168,9 +169,8 @@ public class SearchManager {
             sr.setPageKey(key);
             sr.setBookName(hitDoc.get("ACCTNAME"));
             sr.setNoteSubject(noteSubject);
-            sr.setPageLink(linkAddr);
-            sr.setTimePeriod("8888");
-            sr.setUserLink("bogus user link");
+            sr.setNoteLink(linkAddr);
+            sr.setPageLink(ar.getResourceURL(ngp, "public.htm"));
             sr.setLastModifiedTime(DOMFace.safeConvertLong(hitDoc.get("LASTMODIFIEDTIME")));
             sr.setLastModifiedBy(hitDoc.get("LASTMODIFIEDUSER"));
             vec.add(sr);
