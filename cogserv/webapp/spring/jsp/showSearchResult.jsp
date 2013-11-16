@@ -23,7 +23,7 @@ Parameters:
 
 */
 
-    SearchResultRecord[] searchResultRecord  = (SearchResultRecord[])request.getAttribute("searchResultRecord");
+    List<SearchResultRecord> searchResults  = (List<SearchResultRecord>)request.getAttribute("searchResults");
 %>
 
 <body class="yui-skin-sam">
@@ -57,17 +57,17 @@ Parameters:
                          </thead>
                          <tbody>
                         <%
-                        for(int i=0; i < searchResultRecord.length ;i++){
+                        for(SearchResultRecord srr : searchResults){
                         %>
                             <tr>
                                 <td>
-                                    <a href="#" onclick="return goToLink('<%=ar.baseURL%><%=searchResultRecord[i].getPageLink()%>')" title='Access Project/Site'>
-                                        <%ar.writeHtml(searchResultRecord[i].getPageName());%>
+                                    <a href="#" onclick="return goToLink('<%=ar.baseURL%><%=srr.getPageLink()%>')" title='Access Project/Site'>
+                                        <%ar.writeHtml(srr.getPageName());%>
                                     </a>
                                 </td>
                                 <td>
-                                    <a href="#" onclick="return goToLink('<%=ar.baseURL%><%=searchResultRecord[i].getNoteLink()%>')" title='Access Note'>
-                                        <%ar.writeHtml(searchResultRecord[i].getNoteSubject());%>
+                                    <a href="#" onclick="return goToLink('<%=ar.baseURL%><%=srr.getNoteLink()%>')" title='Access Note'>
+                                        <%ar.writeHtml(srr.getNoteSubject());%>
                                     </a>
                                 </td>
                             </tr>

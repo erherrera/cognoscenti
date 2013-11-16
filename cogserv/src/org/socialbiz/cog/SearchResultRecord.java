@@ -28,9 +28,7 @@ public class SearchResultRecord
     private String pageLink = "";
     private long lastModifiedTime = System.currentTimeMillis();
     private String lastModifiedBy = "";
-    private String NO_DATA = "";
-    private String userLink = "";
-    private String timePeriod = "";
+    private static final String NO_DATA = "";
 
     //Not sure below two properties should be in this class or need to create another class but for time being added here
     private String noteSubject = "";
@@ -47,6 +45,9 @@ public class SearchResultRecord
         return noteSubject;
     }
     public void setNoteSubject(String noteSubject) {
+        if (noteSubject==null || noteSubject.length()==0) {
+            noteSubject = "No Subject";
+        }
         this.noteSubject = noteSubject;
     }
     public String getBookName() {
@@ -54,7 +55,7 @@ public class SearchResultRecord
     }
     public void setBookName(String value) {
         if (value == null || value.length() == 0) {
-            value = NO_DATA;
+            value = "No Site Name";
         }
         bookName = value;
     }
@@ -64,7 +65,7 @@ public class SearchResultRecord
     }
     public void setPageKey(String value) {
         if (value == null || value.length() == 0) {
-            value = NO_DATA;
+            value = "";
         }
         pageKey = value;
     }
@@ -75,7 +76,7 @@ public class SearchResultRecord
     }
     public void setPageName(String value) {
         if (value == null || value.length() == 0) {
-            value = NO_DATA;
+            value = "No Project Name";
         }
         pageName = value;
     }
@@ -107,14 +108,6 @@ public class SearchResultRecord
         lastModifiedBy = value;
     }
 
-    public String getUserLink(){
-        return userLink;
-    }
-
-    public void setUserLink(String uLink){
-        userLink = uLink;
-    }
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("Page Name = ").append(getPageName()).append("\n");
@@ -123,15 +116,7 @@ public class SearchResultRecord
         sb.append("Page Link = ").append(getPageLink()).append("\n");
         sb.append("Last By").append(getLastModifiedBy()).append("\n");
         sb.append("Last Modified").append(String.valueOf(getLastModifiedTime())).append("\n");
-        sb.append("User Link = ").append(getUserLink()).append("\n");
-        sb.append("Time Period = ").append(getTimePeriod()).append("\n");
         return sb.toString();
     }
 
-    public String getTimePeriod() {
-        return timePeriod;
-    }
-    public void setTimePeriod(String timePeriod) {
-        this.timePeriod = timePeriod;
-    }
 }

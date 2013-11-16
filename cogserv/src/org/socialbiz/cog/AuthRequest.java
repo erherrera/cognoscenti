@@ -1198,6 +1198,16 @@ public class AuthRequest
         }
     }
 
+
+    public void writeJSLiteral(String data)
+            throws Exception
+    {
+        //TODO: put the actual conversion here, and eliminate elsewhere if possible
+        w.write(UtilityMethods.quote4JS(data));
+    }
+
+
+
     static char[] hexchars = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
             '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
@@ -1205,10 +1215,10 @@ public class AuthRequest
 
     /**
     * sometimes TomCat will fail to decode the parameters as UTF-8
-    * because the indication that the paramters are in UTF-8 come
+    * because the indication that the parameters are in UTF-8 come
     * in TOO LATE for the parsing.  So, instead of re-parsing the parameters
     * according to the desired character set, it leaves them in ISO-8859-1
-    * which is the default asdefined by the servlet spec.
+    * which is the default as defined by the servlet spec.
     * This flag indicates that we have detected this situation, and if it
     * is set to true, it will do an extra decoding of the parameter from
     * 8859-1 to UTF-8.
@@ -1281,8 +1291,8 @@ public class AuthRequest
         if (val == null || val.length()==0)
         {
             //The exception that is thrown will not be seen by users.  Once all of the pages
-            //have proper URLs constricted for redirecting to other pages, this error will
-            //not occur.  Therefor, there is no need to localize this exception.
+            //have proper URLs constructed for redirecting to other pages, this error will
+            //not occur.  Therefore, there is no need to localize this exception.
             throw new NGException("nugen.exception.parameter.required",new Object[]{paramName,getRequestURL()});
         }
         return val;

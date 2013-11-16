@@ -36,7 +36,6 @@ import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AuthDummy;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.DOMFace;
-import org.socialbiz.cog.DataFeedServlet;
 import org.socialbiz.cog.EmailSender;
 import org.socialbiz.cog.HistoryRecord;
 import org.socialbiz.cog.HtmlToWikiConverter;
@@ -51,6 +50,7 @@ import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.OptOutAddr;
 import org.socialbiz.cog.OptOutDirectAddress;
 import org.socialbiz.cog.ProfileRequest;
+import org.socialbiz.cog.SearchManager;
 import org.socialbiz.cog.SearchResultRecord;
 import org.socialbiz.cog.SectionAttachments;
 import org.socialbiz.cog.SectionDef;
@@ -1020,6 +1020,10 @@ public class MainTabsViewControler extends BaseController {
         }
     }
 
+    /**
+     * This is search page that you get when NOT LOGGED IN from the
+     * landing page.  However, you can also see this when logged in.
+     */
     @RequestMapping(value = "/searchPublicNotes.htm")
     public ModelAndView searchPublicNotes(
               HttpServletRequest request, HttpServletResponse response)
@@ -1028,8 +1032,9 @@ public class MainTabsViewControler extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             String searchText   = ar.reqParam("searchText");
-            SearchResultRecord[] searchResultRecord = DataFeedServlet.performLuceneSearchOperationForPublicNotes(ar, searchText);
-            request.setAttribute("searchResultRecord",searchResultRecord);
+            SearchManager.initializeIndex();
+            List<SearchResultRecord> searchResults = SearchManager.performSearch(ar, searchText);
+            request.setAttribute("searchResults",searchResults);
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.search.public.note.page", null , ex);
         }
