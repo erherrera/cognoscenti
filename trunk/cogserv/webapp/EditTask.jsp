@@ -152,7 +152,7 @@
                 <td>State</td>
                 <td class="Odd">
 <%
-    for (int i=0; i<8; i++)
+    for (int i=0; i<=9; i++)
         {
 
             String checked = "";

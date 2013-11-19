@@ -370,7 +370,7 @@ Required parameters:
                                     <td>
                                         <select name="states" id="states" class="specialx" tabindex=5 >
                                         <%
-                                            for(int i=1;i<=8;i++){
+                                            for(int i=1;i<=9;i++){
                                                 String selected = "";
                                                 if (i==currentTaskRecord.getState()) {
                                                     selected = "selected=\"selected\"";
