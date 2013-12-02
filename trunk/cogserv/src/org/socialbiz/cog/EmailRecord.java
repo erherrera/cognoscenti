@@ -20,12 +20,11 @@
 
 package org.socialbiz.cog;
 
+import java.util.Vector;
+
+import org.socialbiz.cog.exception.NGException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import org.socialbiz.cog.DOMFace;
-import org.socialbiz.cog.exception.NGException;
-import java.util.Vector;
 
 public class EmailRecord extends DOMFace
 {
@@ -186,15 +185,5 @@ public class EmailRecord extends DOMFace
     public void setAttachmentIds(Vector<String> ids) {
         setVector("attachid", ids);
     }
-
-
-    /**
-    * Either this sends the email message, and marks it as sent, or it fails
-    * to send the message, and marks it as failed.
-    public void sendThisMessage() throws Exception {
-        EmailSender emailSender = EmailSender.getInstance();
-        emailSender.sendPreparedMessageImmediately(this);
-    }
-    */
 
 }

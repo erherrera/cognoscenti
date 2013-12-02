@@ -2,6 +2,7 @@
 %><%@ include file="EditAttachment.jsp"
 %><%@page import="java.io.StringWriter"
 %><%@page import="org.socialbiz.cog.AuthDummy"
+%><%@page import="org.socialbiz.cog.AccessControl"
 %><%@page import="org.socialbiz.cog.spring.Constant"
 %><%@page import="org.socialbiz.cog.dms.RemoteLinkCombo"
 %>
@@ -206,6 +207,18 @@
             %>
 
             <tr><td style="height:20px"></td></tr>
+            <tr>
+                <td class="gridTableColummHeader">Accessible Link:</td>
+                <td style="width:20px;"></td>
+                <td>
+                <%
+                    String docLink=ar.retPath+ar.getResourceURL(ngp, "docinfo" + attachment.getId()
+                          + ".htm?")+AccessControl.getAccessDocParams(ngp, attachment);
+                %>
+                Copy this link ( <a href="<%=docLink%>"><% writeHtml(out, name); %></a> ) for unauthenticated access to attachment
+                </td>
+            </tr>
+            <tr><td style="height:5px"></td></tr>
             <tr>
                 <td class="gridTableColummHeader">Storage Name:</td>
                 <td style="width:20px;"></td>
