@@ -6,6 +6,7 @@
     if (!ar.isSuperAdmin()) {
         throw new Exception("New Site page should only be accessed by Super Admin");
     }
+    List<NGBook> newAccounts = SuperAdminLogFile.getInstance().getAllNewAccounts();
     if (newAccounts==null) {
         throw new Exception("Program Logic Error: The 'newAccounts' object must be set up for newAccounts.jsp");
     }
@@ -31,6 +32,9 @@
                     <%
                     int i = 0;
                     for (NGBook site : newAccounts) {
+                        if (site==null) {
+                            throw new Exception("how did I get a null from a collection for sites?");
+                        }
                         i++;
                         String accountLink = ar.baseURL + "v/" + site.getKey() + "/$/accountListProjects.htm";
                     %>

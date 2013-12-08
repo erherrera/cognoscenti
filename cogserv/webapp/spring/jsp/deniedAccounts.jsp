@@ -7,7 +7,7 @@
         throw new Exception("New Site page should only be accessed by Super Admin");
     }
     if (uProf==null) {
-        throw new Exception("Program Logic Error: The 'uProf' object must be set up for newAccounts.jsp");
+        throw new Exception("Program Logic Error: The 'uProf' object must be set up for deniedAccounts.jsp");
     }
 
 %>

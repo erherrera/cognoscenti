@@ -24,7 +24,6 @@
 
     boolean isSuper = ar.isSuperAdmin();
     List<AccountRequest> allaccounts = AccountReqFile.getAccountsStatus();
-    List<NGBook> newAccounts = SuperAdminLogFile.getInstance().getAllNewAccounts();
     List<AccountRequest> deniedAccounts = AccountReqFile.scanAllDeniedAccountRequests();
     List<AccountRequest> superRequests = new ArrayList<AccountRequest>();
     for (AccountRequest accountDetails: allaccounts)

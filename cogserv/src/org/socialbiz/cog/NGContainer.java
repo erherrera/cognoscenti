@@ -20,6 +20,7 @@
 
 package org.socialbiz.cog;
 
+import java.io.File;
 import java.util.List;
 
 import org.socialbiz.cog.dms.ResourceEntity;
@@ -203,7 +204,11 @@ public interface NGContainer
 
     public long getLastModifyTime()throws Exception;
 
-    public String getAddress() throws Exception;
+    /**
+     * This is the actual local file that the container is stored in.
+     * This is defined identically to DOMFile method.
+     */
+    public File getFilePath();
 
     public String[] getContainerNames();
 

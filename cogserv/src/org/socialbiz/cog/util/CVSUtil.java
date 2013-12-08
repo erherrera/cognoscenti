@@ -23,6 +23,7 @@ import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.NGPage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 
 public class CVSUtil
@@ -81,16 +82,16 @@ public class CVSUtil
     public static NGPage getLatestCopyFromCVS(NGPage ngp) throws Exception
     {
         if (ngp == null) {
-            return ngp;
+            return null;
         }
         // get the latest copy of the file before editing.
-        String filePath = ngp.getPageFilePath();
+        File filePath = ngp.getFilePath();
         // do a cvs update.
         CVSUtil.update(filePath);
         // do a cvs edit.
         CVSUtil.edit(filePath);
         // reconstruct the page from the updated content.
-        ngp = NGPage.readPageAbsolutePath(new java.io.File(filePath));
+        ngp = NGPage.readPageAbsolutePath(filePath);
         return ngp;
     }
 
@@ -180,14 +181,12 @@ public class CVSUtil
         return CVSUtil.isProcessSuccess(process);
     }
 
-    public static Process add(String file, String userName, String comment) throws Exception
+    public static Process add(File filePath, String userName, String comment) throws Exception
     {
-        if (!cvsEnabled)
-        {
+        if (!cvsEnabled) {
             return null;  //silently do nothing if not enabled
         }
-        if (file == null || file.length() == 0)
-        {
+        if (filePath == null || !filePath.exists()) {
             throw new NGException("nugen.exception.file.missing.to.add",null);
         }
         if (userName == null) {
@@ -197,27 +196,26 @@ public class CVSUtil
             comment = "";
         }
 
-        file = convertBStoFWS(file);
+        String file = convertBStoFWS(filePath);
         // get the parent directory name from the file path.
-        String dirName = file.substring(file.lastIndexOf("/")+1);
+        File parent = filePath.getParentFile();
+        String dirName = parent.getPath().replace('\\', '/');
 
         // for adding a file into CVS one has to be in any of the CVS directory to execute the command.
         Process p1 = CVSUtil.executeCVSCommand("CD " + dirName + " && " + CVSUtil.ADD + CVSUtil.SPACE + DBL_QUOTE + file + DBL_QUOTE);
         Process p2 = null;
         if (CVSUtil.isProcessSuccess(p1)) {
-            p2 = CVSUtil.commit(file, userName, (comment + " :: " +  "(" + userName + ")") );
+            p2 = CVSUtil.commit(filePath, userName, (comment + " :: " +  "(" + userName + ")") );
         }
         return ((p2 == null)? p1 : p2);
     }
 
-    public static Process commit(String file, String userName, String comment) throws Exception
+    public static Process commit(File filePath, String userName, String comment) throws Exception
     {
-        if (!cvsEnabled)
-        {
+        if (!cvsEnabled) {
             return null;  //silently do nothing if not enabled
         }
-        if (file == null || file.length() == 0)
-        {
+        if (filePath == null || !filePath.exists()) {
             throw new NGException("nugen.exception.file.missing.to.commit",null);
         }
 
@@ -231,52 +229,46 @@ public class CVSUtil
         return CVSUtil.executeCVSCommand(CVSUtil.COMMIT + CVSUtil.SPACE
                     + "-m" + CVSUtil.SPACE
                     + CVSUtil.quote4CMDLine(comment + " :: (" + userName + ")" )
-                    + CVSUtil.SPACE + DBL_QUOTE + convertBStoFWS(file) + DBL_QUOTE );
+                    + CVSUtil.SPACE + DBL_QUOTE + convertBStoFWS(filePath) + DBL_QUOTE );
     }
 
-    public static Process update(String file) throws Exception
+    public static Process update(File filePath) throws Exception
     {
-        if (!cvsEnabled)
-        {
+        if (!cvsEnabled) {
             return null;  //silently do nothing if not enabled
         }
-        if (file == null || file.length() == 0)
-        {
+        if (filePath == null || !filePath.exists()) {
             throw new NGException("nugen.exception.file.missing.to.update",null);
         }
 
         return CVSUtil.executeCVSCommand(CVSUtil.UPDATE + CVSUtil.SPACE + DBL_QUOTE
-                    + convertBStoFWS(file) + DBL_QUOTE);
+                    + convertBStoFWS(filePath) + DBL_QUOTE);
     }
 
-    public static Process checkOut(String file) throws Exception
+    public static Process checkOut(File filePath) throws Exception
     {
-        if (!cvsEnabled)
-        {
+        if (!cvsEnabled) {
             return null;  //silently do nothing if not enabled
         }
-        if (file == null || file.length() == 0)
-        {
-            throw new NGException("nugen.exception.file.missing.to.checkout",null);
+        if (filePath == null || !filePath.exists()) {
+            throw new NGException("nugen.exception.file.missing.to.add",null);
         }
 
         return CVSUtil.executeCVSCommand(CVSUtil.CHECKOUT + CVSUtil.SPACE + DBL_QUOTE
-                     + convertBStoFWS(file) + DBL_QUOTE);
+                     + convertBStoFWS(filePath) + DBL_QUOTE);
     }
 
-    public static Process edit(String file) throws Exception
+    public static Process edit(File filePath) throws Exception
     {
-        if (!cvsEnabled)
-        {
+        if (!cvsEnabled) {
             return null;  //silently do nothing if not enabled
         }
-        if (file == null || file.length() == 0)
-        {
-            throw new NGException("nugen.exception.file.missing.to.edit",null);
+        if (filePath == null || !filePath.exists()) {
+            throw new NGException("nugen.exception.file.missing.to.add",null);
         }
 
         return CVSUtil.executeCVSCommand(CVSUtil.EDIT + CVSUtil.SPACE + DBL_QUOTE
-                     + convertBStoFWS(file) + DBL_QUOTE);
+                     + convertBStoFWS(filePath) + DBL_QUOTE);
     }
 
     public static Process executeCVSCommand(String command) throws Exception
@@ -293,13 +285,12 @@ public class CVSUtil
         return process;
     }
 
-    private static String convertBStoFWS(String str)
+    private static String convertBStoFWS(File filePath)
     {
-        if (str == null || str.length() == 0)
-        {
-            return str;
+        if (filePath == null) {
+            return "";
         }
-        return str.replace('\\', '/');
+        return filePath.getPath().replace('\\', '/');
     }
 
     public static boolean isCVSEnabled() throws Exception
@@ -307,9 +298,7 @@ public class CVSUtil
         return cvsEnabled;
     }
 
-    public static String
-    quote4CMDLine(String str)
-    {
+    public static String quote4CMDLine(String str) {
         //passing a null in results a no output, no quotes, nothing
         if (str == null) {
             return "\"\"";
@@ -349,9 +338,6 @@ public class CVSUtil
     {
         try
         {
-            //Runtime r1 = Runtime.getRuntime();
-            //Process p1 = r1.exec("cmd.exe /c cd C:\\testcvs\\ps\\ && cvs -d:pserver:kumar:kumar@133.164.97.10:2401/space/cvs add \"C:\\testcvs\\ps\\nugen\\cvstest.txt\"");
-
             Runtime r2 = Runtime.getRuntime();
             r2.exec("cmd.exe /c cvs -d:pserver:kumar:kumar@133.164.97.10:2401/space/cvs commit -m \"test\" \"C:\\testcvs\\ps\\nugen\\cvstest.txt\"");
         }

@@ -339,10 +339,6 @@ public class UserPage extends ContainerCommon
     {
         throw new ProgramLogicError("getLastModifyTime not implemented on UserPage");
     }
-    public String getAddress() throws Exception
-    {
-        throw new ProgramLogicError("getAddress not implemented on UserPage");
-    }
     public String[] getContainerNames()
     {
         throw new RuntimeException("getContainerNames not implemented on UserPage");
@@ -376,8 +372,7 @@ public class UserPage extends ContainerCommon
 
 
     public void setContainerNames(String[] nameSet) {
-        // TODO Auto-generated method stub
-
+        throw new ProgramLogicError("You can not set the container names of a user page");
     }
 
     public ConnectionSettings createConnectionSettings()throws Exception
