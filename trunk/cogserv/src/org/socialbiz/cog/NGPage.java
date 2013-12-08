@@ -49,7 +49,6 @@ public class NGPage extends ContainerCommon implements NGContainer
     public PageInfoRecord pageInfo;
     public ReminderMgr reminderMgr;
 
-    public String address;
     protected String[] displayNames;
     protected Vector<NGSection> sectionElements = null;
     protected NGBook prjSite;
@@ -76,17 +75,9 @@ public class NGPage extends ContainerCommon implements NGContainer
     {
         super(theFile, newDoc);
 
-        address = theFile.getPath().replace('\\','/');
-
-        //for now page names consist entirely of address
-        int lastSlash = address.lastIndexOf("/");
-        String smallName = address;
-        if (lastSlash>=0)
-        {
-            smallName = address.substring(lastSlash);
-        }
-        if (smallName.endsWith(".sp"))
-        {
+        //initially page names consist entirely of address
+        String smallName = theFile.getName();
+        if (smallName.endsWith(".sp")) {
             smallName = smallName.substring(0, smallName.length()-3);
         }
         displayNames = new String[] {smallName};
@@ -439,7 +430,7 @@ public class NGPage extends ContainerCommon implements NGContainer
             }
 
             // commit the modified files to the CVS.
-            CVSUtil.commit(address, ar.getBestUserId(), comment);
+            CVSUtil.commit(getFilePath(), ar.getBestUserId(), comment);
 
             // update the inmemory index because the file has changed
             NGPageIndex.refreshOutboundLinks(this);
@@ -450,7 +441,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         }
         catch (Exception e) {
             throw new NGException("nugen.exception.unable.to.write.file",
-                    new Object[] { address }, e);
+                    new Object[] { getFilePath().toString() }, e);
         }
     }
 
@@ -465,7 +456,7 @@ public class NGPage extends ContainerCommon implements NGContainer
             save();
 
             // commit the modified files to the CVS.
-            CVSUtil.commit(address, modUser, comment);
+            CVSUtil.commit(getFilePath(), modUser, comment);
 
             //update the in memory index because the file has changed
             NGPageIndex.refreshOutboundLinks(this);
@@ -475,7 +466,8 @@ public class NGPage extends ContainerCommon implements NGContainer
         }
         catch (Exception e)
         {
-            throw new NGException("nugen.exception.unable.to.write.file", new Object[]{address}, e);
+            throw new NGException("nugen.exception.unable.to.write.file",
+                    new Object[]{getFilePath().toString()}, e);
         }
     }
 
@@ -710,21 +702,10 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
-    /**
-    * returns the path to the file that holds this page
-    */
-    public String getPageFilePath()
-    {
-        return address;
-    }
-
-
-    public String getKey()
-    {
+    public String getKey() {
         //for a page named "Foo Bar.sp" this will return "foobar"
-        int start = address.lastIndexOf("/")+1;
-        int end = address.length()-3;
-        return SectionUtil.sanitize(address.substring(start,end));
+        String fileName = getFilePath().getName();
+        return SectionUtil.sanitize(fileName.substring(0,fileName.length()-3));
     }
 
 
@@ -1261,11 +1242,6 @@ public class NGPage extends ContainerCommon implements NGContainer
 
     public void saveContent(AuthRequest ar, String comment) throws Exception{
         saveFile( ar, comment );
-    }
-
-
-    public String getAddress() throws Exception {
-        return address;
     }
 
 

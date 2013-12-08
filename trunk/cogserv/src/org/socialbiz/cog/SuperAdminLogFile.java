@@ -66,7 +66,10 @@ public class SuperAdminLogFile extends DOMFile {
             if (event.getContext().equals(AdminEvent.ACCOUNT_CREATED)) {
                 NGBook site = (NGBook) NGPageIndex.getContainerByKey(event
                         .getObjectId());
-                newAccounts.add(site);
+                if (site!=null) {
+                    //TODO: is this a bad error situation if null??
+                    newAccounts.add(site);
+                }
             }
         }
         return newAccounts;
@@ -88,6 +91,7 @@ public class SuperAdminLogFile extends DOMFile {
                 UserProfile profile = UserManager.getUserProfileByKey(event
                         .getObjectId());
                 if (profile != null) {
+                    //TODO: is this a bad error situation if null??
                     newUsers.add(profile);
                 }
             }

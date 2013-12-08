@@ -6,9 +6,6 @@
     if (!ar.isSuperAdmin()) {
         throw new Exception("New Site page should only be accessed by Super Admin");
     }
-    if (newAccounts==null) {
-        throw new Exception("Program Logic Error: The 'newAccounts' object must be set up for requestedAccounts.jsp");
-    }
     if (uProf==null) {
         throw new Exception("Program Logic Error: The 'uProf' object must be set up for requestedAccounts.jsp");
     }

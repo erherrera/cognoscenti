@@ -133,8 +133,8 @@
             ar.write("\n<li><a href=\"");
             ar.writeHtml(ar.getResourceURL(ngpi,"public.htm"));
             ar.write("\">");
-            ar.writeHtml(ngpi.containerPath);
-            File deadFile = new File(ngpi.containerPath);
+            ar.writeHtml(ngpi.containerPath.toString());
+            File deadFile = ngpi.containerPath;
             ar.write("</a>");
             if (deadFile.exists())
             {

@@ -208,7 +208,7 @@ public class AccountController extends BaseController {
             if ("Granted".equals(action)) {
 
                 //Create new Site
-                NGBook ngb = NGBook.createNewAccount(accountDetails.getAccountId(), accountDetails.getName());
+                NGBook ngb = NGBook.createNewSite(accountDetails.getAccountId(), accountDetails.getName());
                 ngb.setKey(accountDetails.getAccountId());
                 ngb.getPrimaryRole().addPlayer(ale);
                 ngb.getSecondaryRole().addPlayer(ale);

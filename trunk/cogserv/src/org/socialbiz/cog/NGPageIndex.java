@@ -106,8 +106,7 @@ public class NGPageIndex
     public boolean  isDeleted;
     public String[] admins;   //a.k.a. authors
 
-    //TODO: change this to a File object
-    public String   containerPath;
+    public File   containerPath;
     public String   containerName;    //The nicest name to use for this container
     public String   containerKey;
 
@@ -416,9 +415,9 @@ public class NGPageIndex
     {
         setLock();
         if(containerType == CONTAINER_TYPE_PROJECT){
-            return NGProj.readProjAbsolutePath(new File(containerPath));
+            return NGProj.readProjAbsolutePath(containerPath);
         }else if(containerType == CONTAINER_TYPE_PAGE){
-            return NGPage.readPageAbsolutePath(new File(containerPath));
+            return NGPage.readPageAbsolutePath(containerPath);
         }else if(containerType == CONTAINER_TYPE_ACCOUNT){
             return NGBook.readBookByKey(containerKey);
         }
@@ -569,6 +568,7 @@ public class NGPageIndex
     public static synchronized void scanAllPages()
         throws Exception
     {
+        Vector<File> allProjectFiles = new Vector<File>();
         String rootDirectory = ConfigFile.getProperty("dataFolder");
         if (rootDirectory!=null && rootDirectory.length()>0) {
             File root = ConfigFile.getFolderOrFail(rootDirectory);
@@ -581,77 +581,77 @@ public class NGPageIndex
                 makeIndex(acct);
             }
 
-            File[] children = root.listFiles();
-            for (int i=0; i<children.length; i++)
-            {
-                File child = children[i];
-                String fileName = child.getName();
-                if (!fileName.endsWith(".sp"))
-                {
-                    //ignore all files except those that end in .sp
-                    continue;
-                }
-                try {
-                    NGPage aPage = NGPage.readPageAbsolutePath(child);
-                    makeIndex(aPage);
-                }
-                catch (Exception eig) {
-                    //ignore exceptions due to bad files
-                    //simply ignore unparseable files.
-                    //this is initialization, and an exception beacuse of one bad
-                    //file would prevent the server from starting.
-                    //BUT log it so the admin knows
-                    AuthRequest dummy = AuthDummy.serverBackgroundRequest();
-                    Exception wrapper = new Exception("Failure reading file during Initialization: "+child.toString(), eig);
-                    dummy.logException("Initialization Loop Continuing After Failure", wrapper);
+            for (File child : root.listFiles()) {
+                if (child.getName().endsWith(".sp")) {
+                    allProjectFiles.add(child);
                 }
             }
         }
 
         String[] libFolders = ConfigFile.getArrayProperty("libFolder");
-        Vector<File> allProjectFiles = new Vector<File>();
-        Vector<File> allAccountFiles = new Vector<File>();
+        Vector<File> allSiteFiles = new Vector<File>();
 
         for (String libFolder : libFolders) {
-
             File libDirectory = new File(libFolder);
-
             if (!libDirectory.exists()) {
                 throw new Exception("Configuration error: LibFolder does not exist: "+libFolder);
             }
-
-            seekProjectsAndAccounts(libDirectory, allProjectFiles, allAccountFiles);
+            seekProjectsAndSites(libDirectory, allProjectFiles, allSiteFiles);
         }
 
+        //now process the site files if any
+        for (File aSitePath : allSiteFiles) {
+            try {
+                NGBook ngb = NGBook.readSiteAbsolutePath(aSitePath);
+                NGBook.registerSite(ngb);
+                makeIndex(ngb);
+            }
+            catch (Exception eig) {
+                reportUnparseableFile(aSitePath, eig);
+            }
+        }
         //now process the project files if any
         for (File aProjPath : allProjectFiles) {
-            NGProj aProj = NGProj.readProjAbsolutePath(aProjPath);
-            makeIndex(aProj);
+            try {
+                NGProj aProj = NGProj.readProjAbsolutePath(aProjPath);
+                makeIndex(aProj);
+            }
+            catch (Exception eig) {
+                reportUnparseableFile(aProjPath, eig);
+            }
         }
 
     }
 
 
-    private static void seekProjectsAndAccounts(File folder, Vector<File> pjs, Vector<File> acts)
+    private static void reportUnparseableFile(File badFile, Exception eig) {
+        AuthRequest dummy = AuthDummy.serverBackgroundRequest();
+        Exception wrapper = new Exception("Failure reading file during Initialization: "
+                +badFile.toString(), eig);
+        dummy.logException("Initialization Loop Continuing After Failure", wrapper);
+    }
+
+    private static void seekProjectsAndSites(File folder, Vector<File> pjs, Vector<File> acts)
             throws Exception {
 
-        //only use the first ".sp" file or ".acct" file in a given folder
+        //only use the first ".sp" file or ".site" file in a given folder
         boolean foundOne = false;
 
         for (File child : folder.listFiles()) {
-
-            String name = child.getName();
             if (child.isDirectory()) {
-                seekProjectsAndAccounts(child, pjs, acts);
+                seekProjectsAndSites(child, pjs, acts);
+                continue;
             }
-            else if (foundOne) {
+            if (foundOne) {
                 //ignore all files after one is found
+                continue;
             }
-            else if (name.endsWith(".sp")) {
+            String name = child.getName();
+            if (name.endsWith(".sp")) {
                 pjs.add(child);
                 foundOne = true;
             }
-            else if (name.endsWith(".acct")) {
+            else if (name.endsWith(".site")) {
                 acts.add(child);
                 foundOne = true;
             }
@@ -935,7 +935,7 @@ public class NGPageIndex
 
     public void deleteContainerFile()
     {
-        File deadFile = new File(containerPath);
+        File deadFile = containerPath;
         if (deadFile.exists())
         {
             deadFile.delete();
@@ -1118,35 +1118,28 @@ public class NGPageIndex
 
         //consistency check, either the nameTerms or refTerms vectors must
         //be missing or empty.
-        if (nameTerms!=null && nameTerms.size()>0)
-        {
+        if (nameTerms!=null && nameTerms.size()>0) {
             throw new RuntimeException("Program logic is asking for building nameTerms links when it already has some.");
         }
-        if (refTerms!=null && refTerms.size()>0)
-        {
+        if (refTerms!=null && refTerms.size()>0) {
             throw new RuntimeException("Program logic is asking for building refTerms links when it already has some.");
         }
 
-        containerPath   = container.getAddress();//container.address;
+        containerPath   = container.getFilePath();
+        containerKey = container.getKey();
 
-        //calculate the page key
-        String fileName = container.getAddress();
-        int slashPos = fileName.lastIndexOf("/")+1;
-
-        if (fileName.endsWith(".sp")){
-            containerKey = SectionWiki.sanitize(fileName.substring(slashPos, fileName.length()-3));
+        if (container instanceof NGPage){
             if (container instanceof NGProj) {
                 containerType = CONTAINER_TYPE_PROJECT;
             } else {
                 containerType = CONTAINER_TYPE_PAGE;
             }
         }
-        else if(fileName.endsWith(".book")){
-            containerKey = fileName.substring(slashPos, fileName.length()-5);
+        else if(container instanceof NGBook){
             containerType = CONTAINER_TYPE_ACCOUNT;
         }
         else {
-            throw new Exception("Program Logic Error: don't know what kind of container this is: "+fileName);
+            throw new Exception("Program Logic Error: don't know what kind of container this is: "+containerPath);
         }
 
 
@@ -1159,8 +1152,7 @@ public class NGPageIndex
         List<AddressListEntry> v = adminRole.getExpandedPlayers(container);
         admins = new String[v.size()];
         int i=0;
-        for (AddressListEntry ale : v)
-        {
+        for (AddressListEntry ale : v) {
             admins[i++] = ale.getUniversalId();
         }
 

@@ -70,7 +70,7 @@ public void deleteMarkedPages()
 {
     for (NGPageIndex ngpi : NGPageIndex.getDeletedContainers())
     {
-        File deadFile = new File(ngpi.containerPath);
+        File deadFile = ngpi.containerPath;
         if (deadFile.exists()) {
             deadFile.delete();
         }

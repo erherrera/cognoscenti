@@ -41,11 +41,12 @@ public class NGBook extends ContainerCommon implements NGContainer {
     public ReminderMgr reminderMgr;
     // The following are the indices which are used by book finding and
     // reading. Initialized by scanAllBooks() method.
-    private static Hashtable<String, NGBook> keyToBook = null;
-    private static Vector<NGBook> allAccounts = null;
+    private static Hashtable<String, NGBook> keyToSite = null;
+    private static Vector<NGBook> allSites = null;
+
+    //TODO: I think this is not needed any more
     private static NGBook defaultAccount;
 
-    private String address;
     private Vector<String> existingIds = null;
     private String[] displayNames;
     private BookInfoRecord bookInfoRecord;
@@ -54,7 +55,6 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     public NGBook(File path, Document newDoc, String nKey) throws Exception {
         super(path, newDoc);
-        address = path.getPath().replace('\\', '/');
         bookInfoRecord = requireChild("bookInfo", BookInfoRecord.class);
         displayNames = bookInfoRecord.getPageNames();
 
@@ -113,7 +113,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public static NGBook readBookByKey(String key) throws Exception {
-        if (keyToBook == null) {
+        if (keyToSite == null) {
             // this should never happen, but if it does....
             throw new ProgramLogicError(
                     "in readBookByKey called before the site index initialzed.");
@@ -125,32 +125,37 @@ public class NGBook extends ContainerCommon implements NGContainer {
             //return defaultBook;
         }
 
-        NGBook retVal = keyToBook.get(key);
+        NGBook retVal = keyToSite.get(key);
         if (retVal == null) {
             throw new NGException("nugen.exception.book.not.found", new Object[] { key });
         }
         return retVal;
     }
 
+    public static NGBook readSiteAbsolutePath(File theFile) throws Exception {
+        String fileName = theFile.getName();
+        String key = fileName.substring(0, fileName.length() - 5);
+        return NGBook.readBookAbsolutePath(key, theFile);
+    }
     private static NGBook readBookAbsolutePath(String key, File theFile) throws Exception {
-        if (!theFile.exists()) {
-            throw new NGException("nugen.exception.file.not.exist", new Object[] { theFile });
-        }
         try {
+            if (!theFile.exists()) {
+                throw new NGException("nugen.exception.file.not.exist", new Object[] { theFile });
+            }
             Document newDoc = readOrCreateFile(theFile, "book");
             NGBook newBook = new NGBook(theFile, newDoc, key);
             return newBook;
         }
         catch (Exception e) {
-            throw new NGException("nugen.exception.unable.to.read.file", new Object[] { theFile },
-                    e);
+            throw new NGException("nugen.exception.unable.to.read.file",
+                    new Object[] { theFile }, e);
         }
     }
 
     public static Vector<NGBook> getAllAccounts() {
         // might do a copy here if we fear that the receiver will corrupt this
         // vector
-        return allAccounts;
+        return allSites;
     }
 
     /**
@@ -159,10 +164,15 @@ public class NGBook extends ContainerCommon implements NGContainer {
     public static NGBook createNewBook(String name) throws Exception {
         String key = IdGenerator.generateKey();
         NGBook ngb = createBookByKey(key, name);
-        allAccounts.add(ngb);
-        keyToBook.put(key, ngb);
+        registerSite(ngb);
         return ngb;
     }
+    public static void registerSite(NGBook foundSite) throws Exception {
+        allSites.add(foundSite);
+        keyToSite.put(foundSite.getKey(), foundSite);
+    }
+
+
 
     /**
      * Creates the special default book This should be kept in sync with above
@@ -199,7 +209,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
             key = newKey;
 
             // Add & commit the new file the CVS.
-            CVSUtil.add(associatedFile.getAbsolutePath(), user.getName(), comment);
+            CVSUtil.add(associatedFile, user.getName(), comment);
         }
         catch (Exception e) {
             throw new NGException("nugen.exception.unable.to.write.file.for.key",
@@ -279,8 +289,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * reinitialized.
      */
     public synchronized static void clearAllStaticVars() {
-        keyToBook = null;
-        allAccounts = null;
+        keyToSite = null;
+        allSites = null;
     }
 
     /**
@@ -329,8 +339,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
         // holding any old values that need to be cleared, also to make
         // sure that they are not set as a side effect of this code,
         // or code on another thread that may be running.
-        keyToBook = null;
-        allAccounts = null;
+        keyToSite = null;
+        allSites = null;
 
         Hashtable<String, NGBook> tKeyToBook = new Hashtable<String, NGBook>();
         Vector<NGBook> tAllBooks = new Vector<NGBook>();
@@ -352,7 +362,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
             tKeyToBook.put(key, ngb);
         }
 
-        if (keyToBook != null || allAccounts != null) {
+        if (keyToSite != null || allSites != null) {
             // this is the 'self-destruct' message. Either something in
             // the logic above, or something on a different thread
             // has manipulated the static variables during execution.
@@ -369,8 +379,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
 
         // now make them live
-        keyToBook = tKeyToBook;
-        allAccounts = tAllBooks;
+        keyToSite = tKeyToBook;
+        allSites = tAllBooks;
 
         //now figure out the default site needed for migrating early pages
         //the only valid default site in the past was 'mainbook' and any server
@@ -379,12 +389,32 @@ public class NGBook extends ContainerCommon implements NGContainer {
         defaultAccount = tKeyToBook.get("mainbook");
     }
 
+    //TODO; I think this is not needed and does not work any more
     public static NGBook getDefaultAccount() {
         return defaultAccount;
     }
 
-    public static NGBook createNewAccount(String key, String name) throws Exception {
-        File theFile = NGPage.getRealPath(key + ".book");
+    public static NGBook createNewSite(String key, String name) throws Exception {
+        // where is the site going to go?
+        String[] libFolders = ConfigFile.getArrayProperty("libFolder");
+        if (libFolders.length == 0) {
+            throw new Exception("You must have a setting for 'libFolder' in order to create a new site.");
+        }
+
+        File domFolder = new File(libFolders[0]);
+        if (!domFolder.exists()) {
+            throw new Exception(
+                    "Config setting 'libFolder' is not correct, first value must be an existing folder: ("
+                            + domFolder + ")");
+        }
+        File newAccountFolder = new File(domFolder, key);
+        if (newAccountFolder.exists()) {
+            throw new Exception("Can't create site because folder already exists: ("
+                    + newAccountFolder + ")");
+        }
+        newAccountFolder.mkdirs();
+
+        File theFile = new File(newAccountFolder, key + ".site");
         if (theFile.exists()) {
             throw new Exception(
                     "Unable to create new site, a site with that ID already exists.");
@@ -394,30 +424,13 @@ public class NGBook extends ContainerCommon implements NGContainer {
         NGBook newBook = new NGBook(theFile, newDoc, key);
 
         // set default values
+        //TODO: change this to pass a file here
+        newBook.setPreferredProjectLocation(newAccountFolder.toString());
         newBook.setName(name);
         newBook.setStyleSheet("PageViewer.css");
         newBook.setLogo("logo.gif");
 
-        // where is the site going to go?
-        String[] libFolders = ConfigFile.getArrayProperty("libFolder");
-        if (libFolders.length > 0) {
-            File domFolder = new File(libFolders[0]);
-            if (!domFolder.exists()) {
-                throw new Exception(
-                        "Config setting 'libFolder' is not correct, first value is not existing folder: ("
-                                + domFolder + ")");
-            }
-            File newAccountFolder = new File(domFolder, key);
-            if (newAccountFolder.exists()) {
-                throw new Exception("Can't create site because folder already exists: ("
-                        + newAccountFolder + ")");
-            }
-            newAccountFolder.mkdirs();
-            newBook.setPreferredProjectLocation(newAccountFolder.toString());
-        }
-
-        allAccounts.add(newBook);
-        keyToBook.put(key, newBook);
+        registerSite(newBook);
         return newBook;
     }
 
@@ -542,20 +555,16 @@ public class NGBook extends ContainerCommon implements NGContainer {
             setLastModify(ar);
             save();
             // commit the modified files to the CVS.
-            CVSUtil.commit(address, ar.getBestUserId(), comment);
+            CVSUtil.commit(getFilePath(), ar.getBestUserId(), comment);
         }
         catch (Exception e) {
             throw new NGException("nugen.exception.unable.to.write.account.file",
-                    new Object[] { address }, e);
+                    new Object[] { getFilePath().toString() }, e);
         }
     }
 
     public void saveContent(AuthRequest ar, String comment) throws Exception {
         saveFile(ar, comment);
-    }
-
-    public String getAddress() throws Exception {
-        return address;
     }
 
     public String[] getContainerNames() {
@@ -779,6 +788,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     // //////////////////// DEPRECATED METHODS//////////////////
 
+
     public String getAllowPublic() throws Exception {
         return bookInfoRecord.getAllowPublic();
     }
@@ -793,13 +803,14 @@ public class NGBook extends ContainerCommon implements NGContainer {
             bookInfoRecord.setModUser(modUser);
             save();
             // commit the modified files to the CVS.
-            CVSUtil.commit(address, modUser, comment);
+            CVSUtil.commit(getFilePath(), modUser, comment);
         }
         catch (Exception e) {
             throw new NGException("nugen.exception.unable.to.write.account.file",
-                    new Object[] { address }, e);
+                    new Object[] { getFilePath().toString() }, e);
         }
 
     }
+
 
 }
