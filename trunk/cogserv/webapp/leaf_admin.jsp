@@ -268,7 +268,7 @@ else
 <div class="section">
 <!-- ------------------------------------------------- -->
     <div class="section_title">
-    REST API of this page
+    REST API for this project
     </div>
     <div class="section_body">
 

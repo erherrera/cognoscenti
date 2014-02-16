@@ -21,8 +21,6 @@
 package org.socialbiz.cog.spring;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,7 +46,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -189,43 +186,8 @@ public class CreateProjectController extends BaseController {
     }
 
 
-    @RequestMapping(value = "/{siteId}/{pageId}/createProjectFromTask.htm", method = RequestMethod.GET)
-    public ModelAndView createProjectFromTask(@PathVariable String siteId,@PathVariable String pageId,
-            @RequestParam String newTaskname,@RequestParam String parentProcess,@RequestParam String goToUrl,
-            HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-
-        ModelAndView  modelAndView =null;
-        try{
-            AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            if(!ar.isLoggedIn()){
-                return showWarningView(ar, "message.loginalert.see.page");
-            }
-
-            modelAndView = new ModelAndView("CreateProjectFromTask");
-
-            List<NGBook> memberOfAccounts = new ArrayList<NGBook>();
-            for(NGBook aBook : NGBook.getAllAccounts()) {
-                if (aBook.primaryOrSecondaryPermission(ar.getUserProfile())) {
-                    memberOfAccounts.add(aBook);
-                }
-            }
-
-            request.setAttribute("newTaskname",newTaskname);
-            request.setAttribute("bookList",memberOfAccounts);
-            request.setAttribute("goUrl",goToUrl);
-            request.setAttribute("book",siteId);
-
-            String realRequestURL = request.getRequestURL().toString();
-            request.setAttribute("realRequestURL", realRequestURL);
-        }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.create.project.from.task", new Object[]{pageId,siteId} , ex);
-        }
-        return modelAndView;
-    }
-
-    @RequestMapping(value = "/{siteId}/{pageId}/createTemplateProject.form", method = RequestMethod.POST)
-    public void createTemplateProject(@PathVariable String siteId,String pageId,
+    @RequestMapping(value = "/{siteId}/{pageId}/createProjectFromTask.form", method = RequestMethod.POST)
+    public void createProjectFromTask(@PathVariable String siteId,String pageId,
             ModelMap model, HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
@@ -246,24 +208,6 @@ public class CreateProjectController extends BaseController {
             response.sendRedirect(goUrl);
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.create.template.project", new Object[]{pageId,siteId} , ex);
-        }
-    }
-
-    @RequestMapping(value = "/{userKey}/createProject.form", method = RequestMethod.POST)
-    public void createProject(@PathVariable String userKey, HttpServletRequest request,
-            HttpServletResponse response) throws Exception
-    {
-        try {
-            AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            if(!ar.isLoggedIn()){
-                sendRedirectToLogin(ar, "message.login.create.project",null);
-                return;
-            }
-            String siteId = ar.reqParam("siteId");
-            NGPage project= createTemplateProject(ar,siteId);
-            response.sendRedirect(ar.retPath+"t/"+siteId+"/"+project.getKey()+"/public.htm");
-        }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.create.project", null , ex);
         }
     }
 
@@ -309,22 +253,46 @@ public class CreateProjectController extends BaseController {
     }
 
 
-    private static NGPage createPage(AuthRequest ar, NGBook ngb)
+    private static NGPage createPage(AuthRequest ar, NGBook site)
             throws Exception {
 
-        if (!ngb.primaryOrSecondaryPermission(ar.getUserProfile())) {
+        if (!site.primaryOrSecondaryPermission(ar.getUserProfile())) {
             throw new NGException("nugen.exception.not.member.of.account",
-                    new Object[]{ngb.getName()});
+                    new Object[]{site.getName()});
         }
 
-        String projectName = ar.reqParam("projectname");
-        String projectFileName = findGoodFileName(projectName);
+        String loc = ar.defParam("loc", null);
+        NGPage ngPage = null;
+        if (loc==null){
+            String projectName = ar.reqParam("projectname");
+            String projectFileName = findGoodFileName(projectName);
+            String pageAddress = SectionWiki.sanitize(projectFileName) + ".sp";
+            ngPage = NGPage.createPage(ar, pageAddress, site);
+            String[] nameSet = new String[] { projectName };
+            ngPage.setPageNames(nameSet);
+        }
+        else {
+            //in this case, loc is a path from the root of the site
+            //to a folder that the project should be created in.
+            File siteRoot = site.getSiteRootFolder();
+            if (siteRoot == null) {
+                throw new Exception("Failed to create project at specified site because site does "
+                        +"not have a root folder for some reason: "+site.getName());
+            }
+            File expectedLoc = new File(siteRoot, loc);
+            if (!expectedLoc.exists()) {
+                throw new Exception("Failed to create project because location does not exist: "
+                        + expectedLoc.toString());
+            }
+            String projectName = expectedLoc.getName();
+            String projectKey = SectionWiki.sanitize(projectName);
+            projectKey = site.findUniqueKeyInSite(projectKey);
+            File projectFile = new File(expectedLoc, projectKey+".sp");
+            ngPage = NGPage.createProjectAtPath(ar, projectFile, site);
+            String[] nameSet = new String[] { projectName };
+            ngPage.setPageNames(nameSet);
+        }
 
-        String pageAddress = projectFileName + ".sp";
-        NGPage ngPage = NGPage.createPage(ar, pageAddress, ngb);
-
-        String[] nameSet = new String[] { projectName };
-        ngPage.setPageNames(nameSet);
 
         //check for and set the upstream link
         String upstream = ar.defParam("upstream", null);
@@ -332,8 +300,8 @@ public class CreateProjectController extends BaseController {
             ngPage.setUpstreamLink(upstream);
         }
 
-        ngPage.setAccount(ngb);
-        ngPage.saveFile(ar, "Creating a page");
+        ngPage.setAccount(site);
+        ngPage.saveFile(ar, "Creating a project");
 
         NGPageIndex.makeIndex(ngPage);
         ar.setPageAccessLevels(ngPage);
@@ -342,51 +310,26 @@ public class CreateProjectController extends BaseController {
     }
 
     private static NGPage createTemplateProject(AuthRequest ar, String siteId) throws Exception {
-        NGPage project = null;
         try {
 
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(siteId);
-            if (!ngb.primaryOrSecondaryPermission(ar.getUserProfile())) {
+            NGBook site = NGPageIndex.getAccountByKeyOrFail(siteId);
+            if (!site.primaryOrSecondaryPermission(ar.getUserProfile())) {
                 throw new NGException("nugen.exception.not.a.member.of.account",
-                        new Object[] { ngb.getFullName() });
+                        new Object[] { site.getFullName() });
             }
 
-            String templateName = ar.defParam("templateName", "");
-            if (!"".equals(templateName)) {
-                NGPage template_ngp = (NGPage) NGPageIndex
-                        .getContainerByKeyOrFail(templateName);
+            NGPage project = createPage(ar, site);
 
-                String projectName = ar.reqParam("projectname");
-                String projectFileName = findGoodFileName(projectName);
-
-                String pageAddress = SectionWiki.sanitize(projectFileName)
-                        + ".sp";
-
-                project = NGPage.createFromTemplate(ar, pageAddress, ngb, template_ngp);
-
-                String[] nameSet = new String[] { projectName };
-
-                project.setPageNames(nameSet);
-
-                //check for and set the upstream link
-                String upstream = ar.defParam("upstream", null);
-                if (upstream!=null && upstream.length()>0) {
-                    project.setUpstreamLink(upstream);
-                }
-
-                project.setAccount(ngb);
-                project.saveFile(ar, "Creating a project");
-                NGPageIndex.makeIndex(project);
-            } else {
-                project = createPage(ar, ngb);
+            String templateName = ar.defParam("templateName", null);
+            if (templateName!=null && templateName.length()>0) {
+                NGPage template_ngp = NGPageIndex.getProjectByKeyOrFail(templateName);
+                project.injectTemplate(ar, template_ngp);
             }
-
-
+            return project;
         } catch (Exception ex) {
-            throw new Exception("Unable to create a project from template for account "
+            throw new Exception("Unable to create a project from template for site "
                     +siteId, ex);
         }
-        return project;
     }
 
     private static void linkSubProcessToTask(AuthRequest ar, NGPage subProject, String goalId,

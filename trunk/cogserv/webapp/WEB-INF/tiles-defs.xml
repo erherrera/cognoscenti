@@ -206,11 +206,6 @@
         <put-attribute name="body" value="/spring/jsp/MyTaskList.jsp" />
     </definition>
 
-    <definition name="UserProjects" extends="baseLayout">
-        <put-attribute name="title" value="User Projects" />
-        <put-attribute name="body" value="/spring/jsp/UserPages.jsp" />
-    </definition>
-
     <definition name="FillProfileForm" extends="baseLayout">
         <put-attribute name="title" value="Fill In User Details" />
         <put-attribute name="body" value="/spring/jsp/FillProfile.jsp" />
@@ -358,6 +353,10 @@
     <definition name="accountCreateProject" extends="baseLayout">
         <put-attribute name="title" value="Create Project" />
         <put-attribute name="body" value="/spring/jsp/accountCreateProject.jsp" />
+    </definition>
+    <definition name="convertFolderProject" extends="baseLayout">
+        <put-attribute name="title" value="Convert Folder" />
+        <put-attribute name="body" value="/spring/jsp/convertFolderProject.jsp" />
     </definition>
     <definition name="UserAccountSetting" extends="baseLayout">
         <put-attribute name="title" value="Admin" />
