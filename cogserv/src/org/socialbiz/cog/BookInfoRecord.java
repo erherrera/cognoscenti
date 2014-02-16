@@ -27,9 +27,9 @@ import org.w3c.dom.Element;
 
 public class BookInfoRecord  extends DOMFace
 {
-    DOMFace userList;
-    DOMFace roleList;
-    DOMFace roleRequestList;
+    private DOMFace userList;
+    private DOMFace roleList;
+    private DOMFace roleRequestList;
 
     public final static int THEME_BLUE     = 0;
     public final static int THEME_BROWN    = 1;
@@ -191,20 +191,6 @@ public class BookInfoRecord  extends DOMFace
     {
         setScalar("theme", newName);
     }
-
-    /**
-    * Different sites can have different logos at the top
-    * Returns the name of the file
-    public String getAccountLogo()
-    {
-        return getScalar("logo");
-    }
-    public void setAccountLogo(String newName)
-    {
-        setScalar("logo", newName);
-    }
-    */
-
 
     public static String themeName(int theme)
     {

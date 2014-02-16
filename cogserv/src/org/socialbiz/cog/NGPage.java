@@ -312,6 +312,14 @@ public class NGPage extends ContainerCommon implements NGContainer
         String sanitizedKey = SectionUtil.sanitize(p.substring(0,p.length()-3));
 
         File newFilePath = ngb.getNewProjectPath(sanitizedKey);
+
+        return createProjectAtPath(ar, newFilePath, ngb);
+    }
+
+    public static NGPage createProjectAtPath(AuthRequest ar, File newFilePath, NGBook ngb) throws Exception {
+        if (!ar.isLoggedIn()) {
+            throw new ProgramLogicError("Have to be logged in to create a new project");
+        }
         if (newFilePath.exists()) {
             throw new ProgramLogicError("Somehow the file given already exists: "+newFilePath);
         }
@@ -348,15 +356,20 @@ public class NGPage extends ContainerCommon implements NGContainer
         return newPage;
     }
 
-    public static NGPage createFromTemplate(AuthRequest ar, String p, NGBook ngb, NGPage template)
+    /**
+     * To an existing project, add all the (1) Goals (2) Roles of an
+     * existing project.
+     * @param ar is needed to get the current logged in user and the current time
+     * @param template is the project to get the Goals/Roles from
+     */
+    public void injectTemplate(AuthRequest ar, NGPage template)
         throws Exception
     {
-        NGPage newPage = createPage(ar, p, ngb);
         String bestId = ar.getBestUserId();
 
         //copy all of the tasks, but no status.
         for (GoalRecord templateGoal : template.getAllGoals()) {
-            GoalRecord newGoal = newPage.createGoal();
+            GoalRecord newGoal = createGoal();
             newGoal.setSynopsis(templateGoal.getSynopsis());
             newGoal.setDescription(templateGoal.getDescription());
             newGoal.setPriority(templateGoal.getPriority());
@@ -371,14 +384,26 @@ public class NGPage extends ContainerCommon implements NGContainer
         //copy all of the roles - without the players
         for (NGRole role : template.getAllRoles()) {
             String roleName = role.getName();
-            NGRole alreadyExisting = newPage.getRole(roleName);
+            NGRole alreadyExisting = getRole(roleName);
             if (alreadyExisting==null) {
-                newPage.createRole(roleName,role.getDescription());
+                createRole(roleName,role.getDescription());
             }
         }
 
+    }
+
+
+    /**
+     * NOTE: this is just a call to createPage, followed by a call to addTemplate
+     */
+    public static NGPage createFromTemplate(AuthRequest ar, String p, NGBook ngb, NGPage template)
+            throws Exception {
+        NGPage newPage = createPage(ar, p, ngb);
+        newPage.injectTemplate(ar, template);
         return newPage;
     }
+
+
 
     public static NGPage readPageAbsolutePath(File theFile) throws Exception {
         if (dataPath==null) {

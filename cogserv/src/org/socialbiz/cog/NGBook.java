@@ -724,24 +724,56 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     /**
+     * Modern sites have a folder on disk, and all the projects are inside that
+     * folder.  If this site has such a folder, return it, otherwise, return
+     * null
+     */
+    public File getSiteRootFolder() {
+        String prefLocStr = getPreferredProjectLocation();
+        if (prefLocStr == null || prefLocStr.length() == 0) {
+            return null;
+        }
+        File prefLoc =  new File(prefLocStr);
+        if (prefLoc.exists()) {
+            return prefLoc;
+        }
+        return null;
+    }
+
+    /**
+     * Just a security measure, if given a path on the file system this check
+     * quickly to see if the path is a valid folder within the file system.
+     */
+    public boolean isPathInSite(File testPath) throws Exception {
+        File siteRoot = getSiteRootFolder();
+        if (siteRoot==null) {
+            //if no preferred location, then site has no root, and always false
+            return false;
+        }
+        String rootPath = siteRoot.getCanonicalPath();
+        String testStr = testPath.getCanonicalPath();
+        return (testStr.startsWith(rootPath));
+    }
+
+    /**
      * Given a new project with a key 'p', this will return the File for the new
      * project file (which does not exist yet). There are two methods:
      *
      * 1) if a preferred location has been set, then a new folder in that will
-     * be created, and the project NGProj placed within that. 2) if no preferred
-     * location, then a regular NGPage will be created in datapath folder.
+     * be created, and the project NGProj placed within that.
+     * 2) if no preferred location, then a regular NGPage will
+     * be created in datapath folder.
      *
      * Note: p is NOT the name of the file, but the sanitized key. The returned
      * name should have the .sp suffix on it.
      */
     public File getNewProjectPath(String p) throws Exception {
-        String prefLocStr = getPreferredProjectLocation();
-        if (prefLocStr != null && prefLocStr.length() > 0) {
-            File prefLoc = new File(prefLocStr);
-            if (prefLoc.exists()) {
-                return newProjFileInPreferredLocation(prefLoc, p);
-            }
+        File rootFolder = getSiteRootFolder();
+        if (rootFolder!=null) {
+            return newProjFolderByKey(rootFolder, p);
         }
+
+        //No site root, this is an OLDSTYLE site in the data path
 
         if (NGPage.dataPath == null) {
             throw new NGException("nugen.exception.datapath.not.initialized", null);
@@ -767,7 +799,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     /**
      * Will create a new folder to put the project into based on the key
      */
-    private File newProjFileInPreferredLocation(File prefLoc, String key) throws Exception {
+    private File newProjFolderByKey(File prefLoc, String key) throws Exception {
 
         File newFolder = new File(prefLoc, key);
 
@@ -780,6 +812,45 @@ public class NGBook extends ContainerCommon implements NGContainer {
         newFolder.mkdirs();
         File newProjFile = new File(newFolder, key + ".sp");
         return newProjFile;
+    }
+
+    /**
+     * Confirm that this is a good unique key, or extend  the passed value until
+     * is is good by adding hyphen and a number on the end.
+     */
+    public String findUniqueKeyInSite(String key) throws Exception {
+
+        //if it is already unique, use that.  This tests ALL sites currently
+        //loaded, but might consider a site-specific test when there is a
+        //site specific search for a project.
+        NGContainer ngc = NGPageIndex.getContainerByKey(key);
+        if (ngc==null) {
+            return key;
+        }
+
+        //NOPE, there is a container already with that key, so we have to find
+        //another one.  If there is already a numeral on the end, strip it off
+        //so that the new numeral will most likely be one more that that, but only
+        //for single digit numerals after a hyphen.  Not worth dealling with more elaborate
+        //than that
+        if (key.length()>6) {
+            if (key.charAt(key.length()-2)=='-') {
+                char lastChar = key.charAt(key.length()-1);
+                if (lastChar>='0' && lastChar<='9') {
+                    key = key.substring(0,key.length()-2);
+                }
+            }
+        }
+
+        int testNum = 1;
+        while (true) {
+            String testKey = key + "-" + Integer.toString(testNum);
+            ngc = NGPageIndex.getContainerByKey(testKey);
+            if (ngc==null) {
+                return testKey;
+            }
+            testNum++;
+        }
     }
 
     public boolean isFrozen() throws Exception {

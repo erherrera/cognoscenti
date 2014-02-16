@@ -407,45 +407,6 @@ public class UserController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{userKey}/userProjects.htm", method = RequestMethod.GET)
-    public ModelAndView loadUserProjects(@PathVariable String userKey,
-            HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-
-        AuthRequest ar = null;
-        UserProfile up = null;
-        try{
-            ar = AuthRequest.getOrCreate(request, response);
-            ar.assertLoggedIn("Need to log in to see a user's projects page.");
-            up = UserManager.getUserProfileOrFail(userKey);
-
-            /*
-             * This is to handle the case when two users are accessing same project. First user creates
-             * a project using link in a note. Another user will not be able to see that change without
-             * refreshing the page, he may also try to create same project using that link. In that case user
-             * will be redirected directly to that project.
-             */
-
-            String isRequestingForNewProjectUsingLinks = ar.defParam( "projectName", null );
-            String bookForNewProject = ar.defParam( "bookKey", null );
-
-            if(isRequestingForNewProjectUsingLinks!=null && bookForNewProject!=null){
-                Vector<NGPageIndex> foundPages = NGPageIndex.getPageIndexByName(isRequestingForNewProjectUsingLinks);
-                if(foundPages.size()>0){
-                    NGPageIndex foundPage = foundPages.get( 0 );
-                    return redirectBrowser(ar,ar.retPath+"t/"+bookForNewProject+"/"+foundPage.containerKey+"/projectHome.htm" );
-                }
-            }
-
-            request.setAttribute("bookList",findAllMemberAccounts(ar.getUserProfile()));
-            request.setAttribute("book",    null);
-            request.setAttribute("title",   up.getName());
-
-            return createModelAndView(ar, up, "My Projects", "UserProjects");
-        }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.userproject.page", new Object[]{userKey} , ex);
-        }
-    }
 
     @RequestMapping(value = "/handlePersonalSubscriptions.ajax", method = RequestMethod.POST)
     public void handlePersonalSubscriptions(HttpServletRequest request, HttpServletResponse response)

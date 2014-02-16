@@ -604,7 +604,7 @@ Required parameters:
                         }
                         else
                         {
-                            String actionPath=ar.retPath+"t/"+ngp.getAccount().getKey()+"/"+ngp.getKey()+"/createTemplateProject.form";
+                            String actionPath=ar.retPath+"t/"+ngp.getAccount().getKey()+"/"+ngp.getKey()+"/createProjectFromTask.form";
                             String goToUrl =ar.getRequestURL()+"?taskId="+taskId;
                     %>
                             <form name="projectform" action='<%=actionPath%>' method="post" autocomplete="off" >
