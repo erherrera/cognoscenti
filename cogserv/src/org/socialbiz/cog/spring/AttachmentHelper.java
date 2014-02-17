@@ -23,6 +23,7 @@ package org.socialbiz.cog.spring;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.AttachmentRecord;
+import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.HistoryRecord;
 import org.socialbiz.cog.NGContainer;
@@ -165,6 +166,18 @@ public class AttachmentHelper {
             throw new ProgramLogicError("Need to implement operation"+action);
         } else if ("Remove".equals(action)) {
             ngp.deleteAttachment(aid, ar);
+        } else if ("Add".equals(action)) {
+            attachment.setType("FILE");
+            AttachmentVersion aVer = attachment.getLatestVersion(ngp);
+            if (aVer!=null) {
+                File curFile = aVer.getLocalFile();
+                attachment.setAttachTime(curFile.lastModified());
+                attachment.setModifiedDate(curFile.lastModified());
+            }
+            attachment.setModifiedBy(ar.getBestUserId());
+            attachment.commitWorkingCopy(ngp);
+        } else if ("RefreshWorking".equals(action)) {
+            throw new Exception("Refresh from backup is not implemented yet.");
         } else {
             throw new ProgramLogicError("Don't understand the operation: " + action);
         }

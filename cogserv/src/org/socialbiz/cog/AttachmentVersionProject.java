@@ -37,7 +37,7 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 * appending the version number to that ID.
 * For example the following might exist in the file system:
 *
-*     great-cars/CarStatistics.xls    (this is version 5)
+*     great-cars/CarStatistics.xls    (this is equal to version 5)
 *     great-cars/.cog/9987-1.xls
 *     great-cars/.cog/9987-2.xls
 *     great-cars/.cog/9987-3.xls
@@ -70,6 +70,39 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 * There is no record of who made the change, and other helpful metadata that
 * you would get in a real versioning system.  Might think about adding another
 * structure in the .cog folder to track that.
+*
+* The attachment can be in some funny states.  (FILE, EXTRA, GONE, or URL)
+*
+* "FILE" is the normal situation, there is a file in the main folder, and there
+* is at least one version in the COG folder that exactly equals it.
+*
+* "URL" is data only, there are no files on the disk.
+*
+* "EXTRA" is when a file exists in the folder, but NO file in the COG folder
+* This means that the file has appeared through user saving it.  User might
+* want to commit this to make a version in the COG folder.
+*
+*     great-cars/CarStatistics.xls
+*
+* "GONE" means that there is one or more versions in the COG folder,
+* but there is nothing in the main folder.  There are two options to
+* rectify: delete the file, or restore from latest committed version.
+*
+*     great-cars/.cog/9987-1.xls
+*     great-cars/.cog/9987-2.xls
+*     great-cars/.cog/9987-3.xls
+*
+* "GHOST" - this state does not exist, but it means that there is an attachment
+* record, and there is no file at all, neither in the main folder, nor in the COG.
+* In this case the attachment record should be ignored?
+*
+* "DELETED" - this state is when the user deleted the file.  There should still be
+* files in the COG folder.
+*
+* "MODIFIED" is when there are all the normal files, but the file has been modified
+* in the main folder so that it is NOT the same as the highest numbered version in
+* the COG folder.  In this case the list of versions is extended and one more
+* is included to represent the file in the folder.
 */
 public class AttachmentVersionProject implements AttachmentVersion {
     private File      actualFile;
@@ -86,79 +119,35 @@ public class AttachmentVersionProject implements AttachmentVersion {
     */
     public static List<AttachmentVersion> getProjectVersions(File projectfolder,  String attachName,
             String attachmentId) throws Exception  {
-        if (projectfolder==null)
-        {
+        if (projectfolder==null)  {
             throw new ProgramLogicError("null project folder sent to getProjectVersions");
         }
-        if (attachName==null)
-        {
+        if (attachName==null) {
             throw new ProgramLogicError("null attachment Name sent to getProjectVersions");
         }
-        if (attachmentId==null)
-        {
+        if (attachmentId==null) {
             throw new ProgramLogicError("null attachment Id sent to getProjectVersions");
         }
-        if (!projectfolder.exists())
-        {
+        if (!projectfolder.exists()) {
             throw new ProgramLogicError("getProjectVersions needs to be passed a valid projectfolder.  This does not exist: "+projectfolder.toString());
         }
         List<AttachmentVersion> list = new ArrayList<AttachmentVersion>();
 
+        AttachmentVersionProject highestInternal = fillListReturnHighestInternalVersion(
+                list, projectfolder,  attachName, attachmentId);
 
-        File cogfolder = new File(projectfolder, ".cog");
         int highestVersionSeen = 0;
-        File highestVersionFile = null;
-
-        if (cogfolder.exists())
-        {
-            // Here we make up a name to store the file on the server by combining the
-            // page key, the attachment key, and then an integer that indicates how many
-            // time the attachment has been modified.
-            String storageNameBase = "att"+attachmentId+"-";
-            int len = storageNameBase.length();
-
-            for (File testFile : cogfolder.listFiles())
-            {
-                String testName = testFile.getName();
-                if (testName.startsWith(storageNameBase))
-                {
-                    String tail = testName.substring(len);
-                    //the version number is everything up to the dot
-                    //if no dot, then it is the entire rest of the name
-                    int dotPos = tail.indexOf(".");
-                    int ver = highestVersionSeen+1;
-                    if (dotPos>0)
-                    {
-                        ver = DOMFace.safeConvertInt(tail.substring(0, dotPos));
-                    }
-                    else
-                    {
-                        ver = DOMFace.safeConvertInt(tail);
-                    }
-                    if (ver==0) {
-                        //what do we do if this is zero????
-                        //ignore the file because it is not validly named, it does not have a
-                        //version number, and so should not include in the list of files
-                        continue;
-                    }
-                    if (ver>highestVersionSeen) {
-                        highestVersionSeen = ver;
-                        highestVersionFile = testFile;
-                    }
-                    list.add(new AttachmentVersionProject(testFile, ver, true, false));
-                }
-            }
+        if (highestInternal!=null) {
+            highestVersionSeen = highestInternal.getNumber();
         }
 
         //This is needed only if there have been recent edits to the display copy
         //this is detected by comparing lengths
-        for (File testFile : projectfolder.listFiles())
-        {
+        for (File testFile : projectfolder.listFiles()) {
             String testName = testFile.getName();
-            if (attachName.equalsIgnoreCase(testName))
-            {
+            if (attachName.equalsIgnoreCase(testName)) {
                 //only add to the list of versions if it is a different length
-                if (highestVersionFile==null || highestVersionFile.length()!=testFile.length()) {
+                if (highestInternal==null || highestInternal.getFileSize()!=testFile.length()) {
                     list.add(new AttachmentVersionProject(testFile, highestVersionSeen+1, true, true));
                 }
                 break;
@@ -168,6 +157,52 @@ public class AttachmentVersionProject implements AttachmentVersion {
         return list;
     }
 
+    public static AttachmentVersionProject fillListReturnHighestInternalVersion(
+            List<AttachmentVersion> list, File projectfolder,  String attachName,
+            String attachmentId) {
+        File cogfolder = new File(projectfolder, ".cog");
+        if (!cogfolder.exists()) {
+            return null;
+        }
+
+        int highestVersionSeen = 0;
+        AttachmentVersionProject highestVersion = null;
+        // Here we make up a name to store the file on the server by combining the
+        // page key, the attachment key, and then an integer that indicates how many
+        // time the attachment has been modified.
+        String storageNameBase = "att"+attachmentId+"-";
+        int len = storageNameBase.length();
+
+        for (File testFile : cogfolder.listFiles()) {
+            String testName = testFile.getName();
+            if (testName.startsWith(storageNameBase)) {
+                String tail = testName.substring(len);
+                //the version number is everything up to the dot
+                //if no dot, then it is the entire rest of the name
+                int dotPos = tail.indexOf(".");
+                int ver = highestVersionSeen+1;
+                if (dotPos>0) {
+                    ver = DOMFace.safeConvertInt(tail.substring(0, dotPos));
+                }
+                else {
+                    ver = DOMFace.safeConvertInt(tail);
+                }
+                if (ver==0) {
+                    //what do we do if this is zero????
+                    //ignore the file because it is not validly named, it does not have a
+                    //version number, and so should not include in the list of files
+                    continue;
+                }
+                AttachmentVersionProject avp = new AttachmentVersionProject(testFile, ver, true, false);
+                list.add(avp);
+                if (ver>highestVersionSeen) {
+                    highestVersionSeen = ver;
+                    highestVersion = avp;
+                }
+            }
+        }
+        return highestVersion;
+    }
 
     /**
     * This static method does the right thing for project versioning system to get a new
@@ -330,12 +365,12 @@ public class AttachmentVersionProject implements AttachmentVersion {
 
     public void commitLocalFile() {
         //for the file system implementation, nothing needs to be done because all
-        //of the versions are simply files in the local folder.
+        //of the versions are simply files in the COG folder.
     }
 
     public void releaseLocalFile() {
         //for the file system implementation, nothing needs to be done because all
-        //of the versions are simply files in the local folder.
+        //of the versions are simply files in the COG folder.
     }
 
 }

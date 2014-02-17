@@ -1,7 +1,6 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/attachment_forms.jsp"
-%>
-<%!
+%><%!
     int countRows = 0;
 %>
 <script type="text/javascript">
@@ -82,7 +81,7 @@
            <table id="pagelist">
                <tbody>
                <%
-               attachmentDisplay(ar, ngp);
+               attachmentDisplay(ar, (NGPage) ngp);
                %>
                </tbody>
            </table>
@@ -146,9 +145,10 @@
 </script>
 
 <%!
-    public void attachmentDisplay(AuthRequest ar, NGContainer _ngp) throws Exception
+    public void attachmentDisplay(AuthRequest ar, NGPage _ngp) throws Exception
     {
         this.ngp = _ngp;
+        _ngp.scanForNewFiles();
         FolderAccessHelper fdah = new FolderAccessHelper(ar);
         for(AttachmentRecord attachment : ngp.getAllAttachments())
         {

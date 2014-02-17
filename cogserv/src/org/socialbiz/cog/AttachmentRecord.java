@@ -380,7 +380,10 @@ public class AttachmentRecord extends DOMFace {
     /**
      * Just get the last version. This is the one the user is most often
      * interested in. Can also get this by passing negative version number into
-     * getSpecificVersion
+     * getSpecificVersion.
+     *
+     * Can return null if the file has been found missing, and there are no
+     * committed versions.
      */
     public AttachmentVersion getLatestVersion(NGContainer ngc) throws Exception {
 
@@ -398,10 +401,10 @@ public class AttachmentRecord extends DOMFace {
         List<AttachmentVersion> list = getVersions(ngc);
 
         if (list.size() == 0) {
-            // TODO: this should be translateable
-            throw new ProgramLogicError( "Attachment " + getId()
-                    + " does not have any versions at all, not even an initial version.  "
-                    + "This should not happen.  Container = " + ngc.getFullName());
+            //this can happen if a folder had files, a refresh allowed the attachment
+            //record to get created, and then the user deletes the file before
+            //it gets checked in.  Technically this makes the attachment a "GHOST"
+            return null;
         }
 
         return list.get(list.size() - 1);
@@ -438,6 +441,61 @@ public class AttachmentRecord extends DOMFace {
         }
 
         return null;
+    }
+
+    /**
+     * In some versioning schemes, there is a 'checked-out' copy of the file that
+     * is the working version -- the user can modify that directly.  This gets
+     * a version object pointing to it.
+     *
+     * Returns null if versioning system does not have working copy.
+     */
+    public AttachmentVersion getWorkingCopy(NGContainer ngc) throws Exception {
+        //the simple version system does not have any working copy, and therefor
+        //can not return anything for this.
+        return null;
+    }
+
+    /**
+     * Takes the working copy, and make a new internal, backed up copy.
+     */
+    public void commitWorkingCopy(NGContainer ngc) throws Exception {
+        //the simple version system does not have any working copy, and therefor
+        //can not return anything for this.
+        return;
+    }
+
+    /**
+     * Pass the version list in to find out whether this attachment is
+     * has uncommitted changes.
+     */
+    public boolean hasUncommittedChanges( List<AttachmentVersion> list) {
+        AttachmentVersionProject externalCopy = null;
+        AttachmentVersionProject latestInternal = null;
+        int ver = -1;
+        for (AttachmentVersion av : list) {
+            if (av instanceof AttachmentVersionProject) {
+                AttachmentVersionProject avp = (AttachmentVersionProject) av;
+                if (avp.isInMainFolder) {
+                    externalCopy = avp;
+                }
+                else if (avp.getNumber()>ver) {
+                    ver = avp.getNumber();
+                    latestInternal = avp;
+                }
+            }
+        }
+        if (externalCopy==null) {
+            //no external, nothing to commit
+            return false;
+        }
+        if (latestInternal == null) {
+            //external, but no internal, then you need commit
+            return true;
+        }
+        long externalLen = externalCopy.getFileSize();
+        long internalLen = latestInternal.getFileSize();
+        return (externalLen != internalLen);
     }
 
     /**
@@ -755,6 +813,19 @@ public class AttachmentRecord extends DOMFace {
             }
         }
         return false;
+    }
+
+    /**
+     * Given the current name of this attachment, figure out what the
+     * file extension is.  The last dot and the stuff that is after the dot.
+     */
+    public String getFileExtension() {
+        String attachName = getNiceName();
+        int dotPos = attachName.lastIndexOf(".");
+        if (dotPos>0) {
+            return attachName.substring(dotPos);
+        }
+        return "";
     }
 
     /**

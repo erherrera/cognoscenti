@@ -37,11 +37,13 @@
     }
 
     Vector<File> folders = new Vector<File>();
-    if (children!=null) {
-        for (File poss : children) {
-            if (poss.isDirectory()) {
-                folders.add(poss);
-            }
+    int fileCount = 0;
+    for (File poss : children) {
+        if (poss.isDirectory()) {
+            folders.add(poss);
+        }
+        else {
+            fileCount++;
         }
     }
 
@@ -99,6 +101,12 @@
 
 <div class="generalContent">
    <table class="popups">
+       <tr>
+            <td class="gridTableColummHeader_2">Site:</td>
+            <td style="width:20px;"></td>
+            <td ><% ar.writeHtml(siteRoot.toString()); %></td>
+       </tr>
+       <tr><td style="height:10px"></td></tr>
 
        <% if (parentPath!=null) {
            String parentVisual = parentPath;
@@ -119,23 +127,50 @@
 
 
        <% if (folders.size()>0) { %>
-       <tr><td style="height:10px"></td></tr>
-       <form action="convertFolderProject.htm" method="get">
-       <tr>
-           <td class="gridTableColummHeader_2"><input class="inputBtn" type="submit" value="Drill Down"></td>
-           <td style="width:20px;"></td>
-           <td >
-           <select name="path" class="selectGeneral">
-               <% for (File aFolder : folders) {
-               String thisPath = aFolder.toString().substring(stripLen).replace("\\","/"); %>
-                   <option value="<% ar.writeHtml(thisPath); %>"><% ar.writeHtml(thisPath); %></option>
-               <% } %>
-           </td>
-       </tr>
-       </form>
-       <% } %>
+           <tr><td style="height:10px"></td></tr>
+           <form action="convertFolderProject.htm" method="get">
+           <tr>
+               <td class="gridTableColummHeader_2"><input class="inputBtn" type="submit" value="Drill Down"></td>
+               <td style="width:20px;"></td>
+               <td >
+               <select name="path" class="selectGeneral">
+                   <% for (File aFolder : folders) {
+                   String thisPath = aFolder.toString().substring(stripLen).replace("\\","/"); %>
+                       <option value="<% ar.writeHtml(thisPath); %>"><% ar.writeHtml(thisPath); %></option>
+                   <% } %>
+               </td>
+           </tr>
+           </form>
+       <% } else { %>
+           <tr>
+                <td class="gridTableColummHeader_2"></td>
+                <td style="width:20px;"></td>
+                <td>There are no folders to browse down to.</td>
+           </tr>
+       <% }  %>
 
+       <% if (hasProject(target)) { %>
+           <tr>
+                <td class="gridTableColummHeader_2"></td>
+                <td style="width:20px;"></td>
+                <td>This folder already has a project in it.</td>
+           </tr>
+           <tr><td style="height:10px"></td></tr>
+           <tr>
+                <td class="gridTableColummHeader_2">Folder:</td>
+                <td style="width:20px;"></td>
+                <td ><%ar.writeHtml(target.toString()); %> (<%=children.length%> files)</td>
+                <input type="hidden" name="loc" value="<%ar.writeHtml(path); %>">
+           </tr>
 
+       <% } else if (false && target.equals(siteRoot)) { %>
+           <tr>
+                <td class="gridTableColummHeader_2"></td>
+                <td style="width:20px;"></td>
+                <td>You can't create a project in the root folder of a site.</td>
+           </tr>
+
+       <% } else { %>
 
        <form name="projectform" action="createprojectFromTemplate.form" method="post" autocomplete="off">
 
@@ -160,7 +195,7 @@
        <tr>
             <td class="gridTableColummHeader_2">Folder:</td>
             <td style="width:20px;"></td>
-            <td ><%ar.writeHtml(path); %> (<%=children.length%> files)</td>
+            <td ><%ar.writeHtml(target.toString()); %> (<%=fileCount%> files)</td>
             <input type="hidden" name="loc" value="<%ar.writeHtml(path); %>">
        </tr>
         <tr>
@@ -173,8 +208,7 @@
                     <td><Select class="selectGeneral" id="templateName" name="templateName">
                             <option value="" selected>Select</option>
                             <%
-                            for (NGPageIndex ngpi : templates)
-                            {
+                            for (NGPageIndex ngpi : templates) {
                                 %>
                                 <option value="<%ar.writeHtml(ngpi.containerKey);%>" ><%ar.writeHtml(ngpi.containerName);%></option>
                                 <%
@@ -214,11 +248,14 @@
            </td>
         </tr>
         </form>
+        <script language="javascript">
+              initCal();
+        </script>
+
+       <% }  %>
+
    </table>
 
-<script language="javascript">
-      initCal();
-</script>
 <script type="text/javascript">
     function trim(s) {
         var temp = s;
@@ -228,3 +265,20 @@
 </script>
 
 </body>
+
+<%!
+
+    public boolean hasProject(File folder) {
+        for (File child : folder.listFiles()) {
+            String name = child.getName();
+            if (".cog".equals(name)) {
+                return true;
+            }
+            if (name.endsWith(".sp")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+%>
