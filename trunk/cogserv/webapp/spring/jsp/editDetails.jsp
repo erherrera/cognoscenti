@@ -5,7 +5,24 @@
 %><%@page import="org.socialbiz.cog.AccessControl"
 %><%@page import="org.socialbiz.cog.spring.Constant"
 %><%@page import="org.socialbiz.cog.dms.RemoteLinkCombo"
+%><%@page import="org.socialbiz.cog.AttachmentVersion"
+%><%
+
+
+
+
+    String atype = attachment.getType();
+    boolean isExtra    = atype.equals("EXTRA");
+    boolean isGone     = atype.equals("GONE");
+    List<AttachmentVersion> vers = attachment.getVersions(ngp);
+    boolean isGhost = vers.size()==0;
+    boolean isModified = attachment.hasUncommittedChanges(vers);
+
+
 %>
+<style>
+    .attentionBox {border:1px solid #f30000;padding:20px;margin:20px;background-color:#fef9d8;}
+</style>
 
 <div class="content tab01">
     <form name="attachmentForm" method="post" action="updateAttachment.form" enctype="multipart/form-data" onSubmit="return enableAllControls()">
@@ -18,17 +35,15 @@
                 <td>
                     <input type="hidden" name="ftype" value="<%ar.writeHtml(type);%>">
                     <%
-                    if (isFile)
-                    {
-                        if(!attachment.getReadOnlyType().equals("on"))
-                        {
+                    if (isFile) {
+                        if(!attachment.getReadOnlyType().equals("on")) {
                             out.write("File");
-                        }else{
+                        }
+                        else {
                             out.write("Read Only File");
                         }
                     }
-                    else if (isURL)
-                    {
+                    else if (isURL) {
                        out.write("URL");
                     }
                     %>
@@ -71,7 +86,62 @@
                     <textarea name="comment" class="textAreaGeneral" rows="4"><% writeHtml(out, comment); %></textarea>
                 </td>
             </tr>
-            <tr><td style="height:15px"></td></tr>
+            <tr><td style="height:10px"></td></tr>
+
+
+            <% if (isURL) {}
+               else if (isGhost) { %>
+            <tr class="attentionBox">
+                <td class="gridTableColummHeader" >ATTENTION:</td>
+                <td style="width:20px;"></td>
+                <td>
+                    Document has disappeared without a trace.
+                    The next time you synchronize it will be removed from the list of attachments.
+                </td>
+            </tr>
+            <% } else if (isGone) { %>
+            <tr class="attentionBox">
+                <td class="gridTableColummHeader" >ATTENTION:</td>
+                <td style="width:20px;"></td>
+                <td>
+                    <table><tr><td width="200">
+                    <button type="submit" class="inputBtn" name="actionType" value="Remove">Remove</button>
+                    <br/>
+                    <button type="submit" class="inputBtn" name="actionType" value="RefreshWorking">Refresh from History</button>
+                    </td><td>
+                    Document has disappeared from the directory.  Do you want to mark it as deleted in the
+                    project, or refresh from the latest backed up copy?
+                    </td></tr></table>
+                </td>
+            </tr>
+            <% } else if (isExtra) { %>
+            <tr class="attentionBox">
+                <td class="gridTableColummHeader" >ATTENTION:</td>
+                <td style="width:20px;"></td>
+                <td>
+                    <table><tr><td width="100">
+                    <button type="submit" class="inputBtn" name="actionType" value="Add">Add</button>
+                    </td><td>
+                    Document has appeared in the project folder. <br/>Do you want to add it as an attachment?
+                    </td></tr></table>
+                </td>
+            </tr>
+            <% } else if (isModified) { %>
+            <tr class="attentionBox">
+                <td class="gridTableColummHeader" >ATTENTION:</td>
+                <td style="width:20px;"></td>
+                <td>
+                    <table><tr><td width="200">
+                    <button type="submit" class="inputBtn" name="actionType" value="Commit">Commit Changes</button>
+                    </td><td>
+                    Document has been modified in the project directory.  Do you want to commit these
+                    changes for safekeeping?
+                    </td></tr></table>
+                </td>
+            </tr>
+            <% } %>
+
+            <tr><td style="height:10px"></td></tr>
             <tr>
                 <td class="gridTableColummHeader" >Last Modified:</td>
                 <td style="width:20px;"></td>

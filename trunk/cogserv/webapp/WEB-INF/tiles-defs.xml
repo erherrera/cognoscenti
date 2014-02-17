@@ -141,7 +141,7 @@
         <put-attribute name="body" value="/spring/jsp/emailReminder.jsp" />
     </definition>
 
-    <definition name="attachment_forms" extends="baseLayout">
+    <definition name="YYY_attachment_forms" extends="baseLayout">
         <put-attribute name="title" value="Upload Attachments" />
         <put-attribute name="body" value="/spring/jsp/attachment_forms.jsp" />
     </definition>

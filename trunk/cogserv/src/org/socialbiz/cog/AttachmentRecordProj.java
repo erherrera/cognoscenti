@@ -23,6 +23,8 @@ package org.socialbiz.cog;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
+
+import org.socialbiz.cog.exception.NGException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -37,10 +39,10 @@ import org.w3c.dom.Element;
 * documents automatically become part of the project.  This record implements the
 * special attachment behavior that projects need.
 */
-public class ProjectAttachment extends AttachmentRecord
+public class AttachmentRecordProj extends AttachmentRecord
 {
 
-    public ProjectAttachment(Document doc, Element definingElement, DOMFace attachmentContainer) {
+    public AttachmentRecordProj(Document doc, Element definingElement, DOMFace attachmentContainer) {
         super (doc, definingElement, attachmentContainer);
     }
 
@@ -80,7 +82,8 @@ public class ProjectAttachment extends AttachmentRecord
     public List<AttachmentVersion> getVersions(NGContainer ngc)
         throws Exception {
         if (!(ngc instanceof NGProj)) {
-            throw new Exception("Problem: ProjectAttachment should only belong to NGProject, but somehow got a different kind of container.");
+            throw new Exception("Problem: ProjectAttachment should only belong to NGProject, "
+                    +"but somehow got a different kind of container.");
         }
 
         File projectFolder = ((NGProj)ngc).containingFolder;
@@ -123,6 +126,59 @@ public class ProjectAttachment extends AttachmentRecord
         setModifiedBy(ar.getBestUserId());
 
         return av;
+    }
+
+    /**
+     * In some versioning schemes, there is a 'checked-out' copy of the file that
+     * is the working version -- the user can modify that directly.  This gets
+     * a version object pointing to it.
+     *
+     * Returns null if versioning system does not have working copy.
+     */
+    public AttachmentVersion getWorkingCopy(NGContainer ngc) throws Exception {
+        File projectFolder = ((NGProj)ngc).containingFolder;
+        String attachName = getDisplayName();
+        for (File testFile : projectFolder.listFiles())
+        {
+            String testName = testFile.getName();
+            if (attachName.equalsIgnoreCase(testName)) {
+                return new AttachmentVersionProject(testFile, -1, true, true);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Takes the working copy, and make a new internal, backed up copy.
+     */
+    public void commitWorkingCopy(NGContainer ngc) throws Exception {
+        File projectFolder = ((NGProj)ngc).containingFolder;
+        if (!projectFolder.exists()) {
+            throw new Exception("Strange, this project's folder does not exist.  "
+                    + "Something must be wrong: "+projectFolder);
+        }
+        File cogFolder = new File(projectFolder,".cog");
+        if (!cogFolder.exists()) {
+            //this might be the first thing in the COG folder
+            cogFolder.mkdirs();
+        }
+        if (!cogFolder.exists()) {
+            throw new Exception("Unable to create the COG folder: "+cogFolder);
+        }
+        AttachmentVersion workCopy = getWorkingCopy(ngc);
+        String attachmentId = getId();
+        String fileExtension = getFileExtension();
+        File tempCogFile = File.createTempFile("~newP_"+attachmentId, fileExtension, cogFolder);
+        File workFile = workCopy.getLocalFile();
+        AttachmentVersionProject.copyFileContents(workFile, tempCogFile);
+
+        //rename the special copy to have the right version number
+        String specialVerFileName = "att"+attachmentId+"-"+workCopy.getNumber()+fileExtension;
+        File specialVerFile = new File(cogFolder, specialVerFileName);
+        if (!tempCogFile.renameTo(specialVerFile)) {
+            throw new NGException("nugen.exception.unable.to.rename.temp.file",
+                new Object[]{tempCogFile,specialVerFile});
+        }
     }
 
 }

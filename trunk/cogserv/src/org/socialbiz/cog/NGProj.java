@@ -26,6 +26,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
+import java.util.Vector;
+
 import org.w3c.dom.Document;
 
 /**
@@ -63,7 +65,7 @@ public class NGProj extends NGPage
     public List<AttachmentRecord> getAllAttachments() throws Exception {
         @SuppressWarnings("unchecked")
         List<AttachmentRecord> list = (List<AttachmentRecord>)(List<?>)
-                attachParent.getChildren("attachment", ProjectAttachment.class);
+                attachParent.getChildren("attachment", AttachmentRecordProj.class);
         for (AttachmentRecord att : list) {
             att.setContainer(this);
             String atype = att.getType();
@@ -89,7 +91,7 @@ public class NGProj extends NGPage
     }
 
     public AttachmentRecord createAttachment() throws Exception {
-        AttachmentRecord attach = attachParent.createChild("attachment", ProjectAttachment.class);
+        AttachmentRecord attach = attachParent.createChild("attachment", AttachmentRecordProj.class);
         String newId = getUniqueOnPage();
         attach.setId(newId);
         attach.setContainer(this);
@@ -129,9 +131,15 @@ public class NGProj extends NGPage
             att.setType("EXTRA");
             list.add(att);
         }
+        List<AttachmentRecord> ghosts = new Vector<AttachmentRecord>();
         for (AttachmentRecord knownAtt : list) {
+            if ("URL".equals(knownAtt.getType())) {
+                continue;   //ignore URL attachments
+            }
             AttachmentVersion aVer = knownAtt.getLatestVersion(this);
             if (aVer==null) {
+                // this is a ghost if there are no versions at all.  Remove it
+                ghosts.add(knownAtt);
                 continue;
             }
             File attFile = aVer.getLocalFile();
@@ -139,19 +147,26 @@ public class NGProj extends NGPage
                 knownAtt.setType("GONE");
             }
         }
+
+        //delete the ghosts, if any exist
+        for (AttachmentRecord ghost : ghosts) {
+            //it disappears without a trace.  But what else can we do?
+            attachParent.removeChild(ghost);
+        }
     }
 
 
     public void removeExtrasByName(String name) throws Exception
     {
-        List<ProjectAttachment> list = attachParent.getChildren("attachment", ProjectAttachment.class);
-        for (ProjectAttachment att : list) {
+        List<AttachmentRecordProj> list = attachParent.getChildren("attachment", AttachmentRecordProj.class);
+        for (AttachmentRecordProj att : list) {
             if (att.getType().equals("EXTRA") && att.getDisplayName().equals(name)) {
                 attachParent.removeChild(att);
                 break;
             }
         }
     }
+
 
     public void saveFile(AuthRequest ar, String comment) throws Exception {
         super.saveFile(ar, comment);

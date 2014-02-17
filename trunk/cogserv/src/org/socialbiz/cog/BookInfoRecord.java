@@ -27,10 +27,6 @@ import org.w3c.dom.Element;
 
 public class BookInfoRecord  extends DOMFace
 {
-    private DOMFace userList;
-    private DOMFace roleList;
-    private DOMFace roleRequestList;
-
     public final static int THEME_BLUE     = 0;
     public final static int THEME_BROWN    = 1;
     public final static int THEME_YELLOW   = 2;
@@ -69,8 +65,8 @@ public class BookInfoRecord  extends DOMFace
     {
         super(nDoc, nEle, p);
         //assure that the user list element is there
-        roleList = requireChild("roleList", DOMFace.class);
-        roleRequestList = requireChild("Role-Requests", DOMFace.class);
+        requireChild("roleList", DOMFace.class);
+        requireChild("Role-Requests", DOMFace.class);
 
     }
 
