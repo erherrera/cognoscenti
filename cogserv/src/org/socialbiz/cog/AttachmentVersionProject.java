@@ -204,6 +204,8 @@ public class AttachmentVersionProject implements AttachmentVersion {
         return highestVersion;
     }
 
+
+
     /**
     * This static method does the right thing for project versioning system to get a new
     * version file. Calculates the name of the new file, and it streams the entire contents
@@ -371,6 +373,10 @@ public class AttachmentVersionProject implements AttachmentVersion {
     public void releaseLocalFile() {
         //for the file system implementation, nothing needs to be done because all
         //of the versions are simply files in the COG folder.
+    }
+
+    public boolean isWorkingCopy() {
+        return isInMainFolder;
     }
 
 }

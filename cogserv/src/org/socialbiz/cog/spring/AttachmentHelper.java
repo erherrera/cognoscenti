@@ -176,6 +176,8 @@ public class AttachmentHelper {
             }
             attachment.setModifiedBy(ar.getBestUserId());
             attachment.commitWorkingCopy(ngp);
+        } else if ("Commit".equals(action)) {
+            attachment.commitWorkingCopy(ngp);
         } else if ("RefreshWorking".equals(action)) {
             throw new Exception("Refresh from backup is not implemented yet.");
         } else {

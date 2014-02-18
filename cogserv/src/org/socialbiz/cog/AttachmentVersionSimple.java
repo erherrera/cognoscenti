@@ -254,4 +254,8 @@ public class AttachmentVersionSimple implements AttachmentVersion
         //of the versions are simply files in the local folder.
     }
 
+    public boolean isWorkingCopy() {
+        //simple does not have any working copy, never true
+        return false;
+    }
 }

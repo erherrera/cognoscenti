@@ -136,13 +136,18 @@ public class AttachmentRecordProj extends AttachmentRecord
      * Returns null if versioning system does not have working copy.
      */
     public AttachmentVersion getWorkingCopy(NGContainer ngc) throws Exception {
+        AttachmentVersion highest = getHighestCommittedVersion(ngc);
+        int ver = 0;
+        if (highest!=null) {
+            ver = highest.getNumber();
+        }
         File projectFolder = ((NGProj)ngc).containingFolder;
         String attachName = getDisplayName();
         for (File testFile : projectFolder.listFiles())
         {
             String testName = testFile.getName();
             if (attachName.equalsIgnoreCase(testName)) {
-                return new AttachmentVersionProject(testFile, -1, true, true);
+                return new AttachmentVersionProject(testFile, ver+1, true, true);
             }
         }
         return null;
@@ -173,7 +178,8 @@ public class AttachmentRecordProj extends AttachmentRecord
         AttachmentVersionProject.copyFileContents(workFile, tempCogFile);
 
         //rename the special copy to have the right version number
-        String specialVerFileName = "att"+attachmentId+"-"+workCopy.getNumber()+fileExtension;
+        String specialVerFileName = "att"+attachmentId+"-"+Integer.toString(workCopy.getNumber())
+                +fileExtension;
         File specialVerFile = new File(cogFolder, specialVerFileName);
         if (!tempCogFile.renameTo(specialVerFile)) {
             throw new NGException("nugen.exception.unable.to.rename.temp.file",

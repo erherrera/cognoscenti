@@ -89,27 +89,21 @@ public class NGPage extends ContainerCommon implements NGContainer
         //When creating a NGPage for the first time, there is a period of time
         //that it has no site key.  site==null is the result.
         String accountKey = pageInfo.getBookKey();
-        boolean hasNonDefaultAccount = (accountKey!=null && accountKey.length()>0);
-        if (hasNonDefaultAccount) {
-            //schema migration, at one time the default site was "main"
-            //but later changed to "mainbook".  Only one server still has this
-            //problem.  Time to fix that server and remove this code.
-            if ("main".equals(accountKey)) {
-                accountKey = "mainbook";
-                pageInfo.setBookKey(accountKey);
-            }
-            prjSite = NGBook.readBookByKey(accountKey);
+        //boolean hasNonDefaultAccount = (accountKey!=null && accountKey.length()>0);
+        if (accountKey==null || accountKey.length()==0) {
+            accountKey="mainbook";   //silly archaic default that old files assumed
         }
-        else {
-            //this is schema migration for very old project files from a time that the server did
-            //not set account keys in all cases.  The only valid default site is "mainbook"
-            //If no site with that name, this might return null, but that will be OK
-            //when creating pages for the first time.
-            prjSite = NGBook.getDefaultAccount();
-            if (prjSite!=null) {
-                pageInfo.setBookKey(prjSite.getKey());
-            }
+
+        //schema migration, at one time the default site was "main"
+        //but later changed to "mainbook".  Only one server still has this
+        //problem.  Time to fix that server and remove this code.
+        else if ("main".equals(accountKey)) {
+            accountKey = "mainbook";
+            pageInfo.setBookKey(accountKey);
         }
+
+        //this throws an exception if book not found
+        prjSite = NGBook.readBookByKey(accountKey);
 
         NGSection mAtt = getRequiredSection("Attachments");
         SectionAttachments.assureSchemaMigration(mAtt, this);
@@ -878,6 +872,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         }
         return prjSite;
     }
+
     public String getAccountKey()
     {
         return pageInfo.getBookKey();
