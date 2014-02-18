@@ -568,6 +568,7 @@ public class NGPageIndex
     public static synchronized void scanAllPages()
         throws Exception
     {
+        Vector<File> allPageFiles = new Vector<File>();
         Vector<File> allProjectFiles = new Vector<File>();
         String rootDirectory = ConfigFile.getProperty("dataFolder");
         if (rootDirectory!=null && rootDirectory.length()>0) {
@@ -583,7 +584,7 @@ public class NGPageIndex
 
             for (File child : root.listFiles()) {
                 if (child.getName().endsWith(".sp")) {
-                    allProjectFiles.add(child);
+                    allPageFiles.add(child);
                 }
             }
         }
@@ -608,6 +609,16 @@ public class NGPageIndex
             }
             catch (Exception eig) {
                 reportUnparseableFile(aSitePath, eig);
+            }
+        }
+        //page files for data folder
+        for (File aProjPath : allPageFiles) {
+            try {
+                NGPage aPage = NGPage.readPageAbsolutePath(aProjPath);
+                makeIndex(aPage);
+            }
+            catch (Exception eig) {
+                reportUnparseableFile(aProjPath, eig);
             }
         }
         //now process the project files if any

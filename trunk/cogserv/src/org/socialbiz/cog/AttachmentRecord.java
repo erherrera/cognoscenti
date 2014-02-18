@@ -456,6 +456,19 @@ public class AttachmentRecord extends DOMFace {
         return null;
     }
 
+    public AttachmentVersion getHighestCommittedVersion(NGContainer ngc) throws Exception {
+        List<AttachmentVersion> list = getVersions(ngc);
+        AttachmentVersion highest = null;
+        int ver = 0;
+        for (AttachmentVersion av : list) {
+            if (av.getNumber()>ver) {
+                ver = av.getNumber();
+                highest = av;
+            }
+        }
+        return highest;
+    }
+
     /**
      * Takes the working copy, and make a new internal, backed up copy.
      */
@@ -470,19 +483,16 @@ public class AttachmentRecord extends DOMFace {
      * has uncommitted changes.
      */
     public boolean hasUncommittedChanges( List<AttachmentVersion> list) {
-        AttachmentVersionProject externalCopy = null;
-        AttachmentVersionProject latestInternal = null;
+        AttachmentVersion externalCopy = null;
+        AttachmentVersion latestInternal = null;
         int ver = -1;
         for (AttachmentVersion av : list) {
-            if (av instanceof AttachmentVersionProject) {
-                AttachmentVersionProject avp = (AttachmentVersionProject) av;
-                if (avp.isInMainFolder) {
-                    externalCopy = avp;
-                }
-                else if (avp.getNumber()>ver) {
-                    ver = avp.getNumber();
-                    latestInternal = avp;
-                }
+            if (av.isWorkingCopy()) {
+                externalCopy = av;
+            }
+            else if (av.getNumber()>ver) {
+                ver = av.getNumber();
+                latestInternal = av;
             }
         }
         if (externalCopy==null) {
@@ -632,19 +642,6 @@ public class AttachmentRecord extends DOMFace {
         }
     }
 
-    /**
-     * @deprecated use getRemoteCombo instead
-     */
-    public String getRemoteLink() {
-        return getAttribute(ATTACHMENT_ATTB_RLINK);
-    }
-
-    /**
-     * @deprecated use setRemoteCombo instead
-     */
-    public void setRemoteLink(String rlink) {
-        setAttribute(ATTACHMENT_ATTB_RLINK, rlink);
-    }
 
     /**
      * This is the time that the user actually made the attachment, regardless
@@ -857,5 +854,19 @@ public class AttachmentRecord extends DOMFace {
     /** @deprecated */
     public boolean isAssignee(UserRef up) {
         return up.hasAnyId(getAttribute("assignee"));
+    }
+
+    /**
+     * @deprecated use getRemoteCombo instead
+     */
+    public String getRemoteLink() {
+        return getAttribute(ATTACHMENT_ATTB_RLINK);
+    }
+
+    /**
+     * @deprecated use setRemoteCombo instead
+     */
+    public void setRemoteLink(String rlink) {
+        setAttribute(ATTACHMENT_ATTB_RLINK, rlink);
     }
 }

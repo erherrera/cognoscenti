@@ -82,7 +82,7 @@ public interface AttachmentVersion
     * must call commit in order to actually save the contents to the versioning system.
     * This will also release and clean up any unnecessary temporary files or resources.
     */
-    public void commitLocalFile();
+    //public void commitLocalFile();
 
     /**
     * If you called "getLocalFile" then it is possible that a temporary file has been created
@@ -90,5 +90,16 @@ public interface AttachmentVersion
     * free up the resources help to access the old version.
     */
     public void releaseLocalFile();
+
+    /**
+     * Some versioning systems have a 'working copy' of the file hanging around in
+     * the project folder, and not checked into the archive folder.  This working
+     * copy is represented as a version of the document with a version number
+     * one greater than the highest in the repository.
+     *
+     * Returns true if this AttachmentVersion record is referring to a working copy
+     * Returns false if this is a version that is checked in.
+     */
+    public boolean isWorkingCopy();
 
 }

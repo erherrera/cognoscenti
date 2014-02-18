@@ -389,11 +389,6 @@ public class NGBook extends ContainerCommon implements NGContainer {
         defaultAccount = tKeyToBook.get("mainbook");
     }
 
-    //TODO; I think this is not needed and does not work any more
-    public static NGBook getDefaultAccount() {
-        return defaultAccount;
-    }
-
     public static NGBook createNewSite(String key, String name) throws Exception {
         // where is the site going to go?
         String[] libFolders = ConfigFile.getArrayProperty("libFolder");
