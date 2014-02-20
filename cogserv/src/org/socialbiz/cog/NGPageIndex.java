@@ -568,6 +568,7 @@ public class NGPageIndex
     public static synchronized void scanAllPages()
         throws Exception
     {
+        System.out.println("Beginning SCAN for all pages in system.");
         Vector<File> allPageFiles = new Vector<File>();
         Vector<File> allProjectFiles = new Vector<File>();
         String rootDirectory = ConfigFile.getProperty("dataFolder");
@@ -577,7 +578,7 @@ public class NGPageIndex
             keyToContainer = new Hashtable<String,NGPageIndex>();
             allContainers = new Vector<NGPageIndex>();
 
-            NGBook.scanAllBooks(rootDirectory);
+            NGBook.scanAllBooks(root);
             for (NGBook acct : NGBook.getAllAccounts()) {
                 makeIndex(acct);
             }
@@ -587,6 +588,9 @@ public class NGPageIndex
                     allPageFiles.add(child);
                 }
             }
+        }
+        else {
+            System.out.println("Skipped scanning the data folder because no setting for 'datafolder'");
         }
 
         String[] libFolders = ConfigFile.getArrayProperty("libFolder");
@@ -631,6 +635,7 @@ public class NGPageIndex
                 reportUnparseableFile(aProjPath, eig);
             }
         }
+        System.out.println("Concluded SCAN for all pages in system.");
 
     }
 
@@ -648,17 +653,36 @@ public class NGPageIndex
         //only use the first ".sp" file or ".site" file in a given folder
         boolean foundOne = false;
 
+        File cogFolder = new File(folder, ".cog");
+        if (cogFolder.exists()) {
+            File projectFile = new File(cogFolder, "ProjInfo.xml");
+            if (projectFile.exists()) {
+                pjs.add(projectFile);
+                foundOne = true;
+            }
+            File siteFile = new File(cogFolder, "SiteInfo.xml");
+            if (siteFile.exists()) {
+                acts.add(siteFile);
+                foundOne = true;
+            }
+        }
+
         for (File child : folder.listFiles()) {
+            String name = child.getName();
             if (child.isDirectory()) {
-                seekProjectsAndSites(child, pjs, acts);
+                //only drill down if not the cog folder
+                if (!name.equalsIgnoreCase(".cog")) {
+                    seekProjectsAndSites(child, pjs, acts);
+                }
                 continue;
             }
             if (foundOne) {
                 //ignore all files after one is found
                 continue;
             }
-            String name = child.getName();
             if (name.endsWith(".sp")) {
+                //this is the migration case, a .sp file exists, but the .cog/ProjInfo.xml
+                //does not exist, so move the file there immediately.
                 pjs.add(child);
                 foundOne = true;
             }

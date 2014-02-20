@@ -33,13 +33,15 @@ import org.w3c.dom.Document;
 /**
 * NGProj is a Container that represents a Project.
 * This kind of project exists anywhere in a library hierarchy.
-* The old project (NGPage) existed only in a single date folder, and all the attachments existed in the attachment folder.
+* The old project (NGPage) existed only in a single date folder, and all the attachments
+* existed in the attachment folder.
+*
 * This project is represented by a folder anywhere on disk,
 * and the attachments are just files within that folder.
-* The project file itself has a reserved name "ProjectDetails.xml"
+* The project file itself has a reserved name ".cog/ProjInfo.xml"
+* and the old versions of attachments are in the ".cog" folder as well.
 */
-public class NGProj extends NGPage
-{
+public class NGProj extends NGPage {
     /**
     * This project inhabits a folder on disk, and this is the path to the folder.
     */
@@ -49,7 +51,52 @@ public class NGProj extends NGPage
     public NGProj(File theFile, Document newDoc) throws Exception {
         super(theFile, newDoc);
 
-        containingFolder = theFile.getParentFile();
+        String name = theFile.getName();
+        File cogFolder = theFile.getParentFile();
+        if (name.endsWith(".sp")) {
+            //this is a non-migrated case ... remove this code
+            containingFolder = theFile.getParentFile();
+        }
+        else if (name.equalsIgnoreCase("ProjInfo.xml")) {
+            if (!cogFolder.getName().equalsIgnoreCase(".cog")) {
+                throw new Exception("Something is wrong with the data folder structure.  "
+                        +"Tried to open a NGProj file named "+name
+                        +" except it should be in a folder named .cog, however "
+                        +"it was in a folder named "+cogFolder.getName());
+            }
+            containingFolder = cogFolder.getParentFile();
+        }
+        else {
+            throw new Exception("Something is wrong with the data folder structure.  "
+                    +"Tried to open a NGProj file named "+name
+                    +" and don't know what to do with that.");
+        }
+
+    }
+
+    @Override
+    protected void migrateKeyValue(File theFile) throws Exception {
+        if (theFile.getName().equalsIgnoreCase("ProjInfo.xml")) {
+            File cogFolder = theFile.getParentFile();
+            for (File child : cogFolder.listFiles()) {
+                String childName = child.getName();
+                if (childName.startsWith("key_")) {
+                    String fileKey = SectionUtil.sanitize(childName.substring(4));
+                    setKey(fileKey);
+                }
+            }
+        }
+        else if (theFile.getName().endsWith(".sp")) {
+            super.migrateKeyValue(theFile);
+        }
+        else {
+            throw new Exception("don't know how to make key for "+theFile);
+        }
+
+        //debug code to identify why projects are becoming named pageinfo
+        if (getKey().equalsIgnoreCase("pageinfo")) {
+            throw new Exception("for some reason this page is STILL called pageinfo ... should not be: "+theFile);
+        }
     }
 
 
@@ -99,20 +146,20 @@ public class NGProj extends NGPage
         return attach;
     }
 
-    public void scanForNewFiles() throws Exception
-    {
+    public void scanForNewFiles() throws Exception {
         File[] children = containingFolder.listFiles();
         List<AttachmentRecord> list = getAllAttachments();
-        for (File child : children)
-        {
+        for (File child : children) {
             if (child.isDirectory()) {
                 continue;
             }
             String fname = child.getName();
             if (fname.endsWith(".sp")) {
+                //ignoring other possible project files
                 continue;
             }
-            if (fname.startsWith(".cog")) {
+            if (fname.equalsIgnoreCase(".cog")) {
+                //in case there is a file named this...
                 continue;
             }
 
@@ -156,8 +203,7 @@ public class NGProj extends NGPage
     }
 
 
-    public void removeExtrasByName(String name) throws Exception
-    {
+    public void removeExtrasByName(String name) throws Exception {
         List<AttachmentRecordProj> list = attachParent.getChildren("attachment", AttachmentRecordProj.class);
         for (AttachmentRecordProj att : list) {
             if (att.getType().equals("EXTRA") && att.getDisplayName().equals(name)) {
