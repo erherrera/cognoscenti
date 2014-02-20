@@ -30,7 +30,6 @@ public class SendEmailThread extends TimerTask {
 
     public void run() {
         try {
-            System.out.println("SendEmailThread: Checking for email to send");
             EmailRecord eRec=null;
             NGPage possiblePage = null;
 

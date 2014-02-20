@@ -57,6 +57,20 @@ public class PageInfoRecord extends DOMFace
         setAttribute("book", newKey);
     }
 
+    /**
+    * This is the unique ID of the entire project
+    * across all sites.  It is up to the system to
+    * make sure this is created and maintained unique
+    * and it must never be changed (or links will be
+    * broken).  Linking should be by name if possible.
+    */
+    public String getKey() {
+        return getAttribute("key");
+    }
+    public void setKey(String newKey) {
+        setAttribute("key", newKey);
+    }
+
     public long getModTime()
     {
         return safeConvertLong(getAttribute("modTime"));

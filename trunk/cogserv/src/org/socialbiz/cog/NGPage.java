@@ -70,10 +70,17 @@ public class NGPage extends ContainerCommon implements NGContainer
     protected static String    dataPath;
 
 
-    public NGPage(File theFile, Document newDoc)
-        throws Exception
+    public NGPage(File theFile, Document newDoc) throws Exception
     {
         super(theFile, newDoc);
+
+        //migration code from a time when the key was ONLY the file name.
+        //need to store the key in the file itself, and get that from the
+        //filename properly
+        String key = getKey();
+        if (key==null || key.length()==0) {
+            migrateKeyValue(theFile);
+        }
 
         //initially page names consist entirely of address
         String smallName = theFile.getName();
@@ -178,6 +185,12 @@ public class NGPage extends ContainerCommon implements NGContainer
         cleanUpTaskUniversalId();
     }
 
+    //this is the NGPage version, and a different approach is used for NGProj
+    protected void migrateKeyValue(File theFile) throws Exception {
+        String fileName = theFile.getName();
+        String fileKey = SectionUtil.sanitize(fileName.substring(0,fileName.length()-3));
+        setKey(fileKey);
+    }
 
     private void migrateSectionToNoteIfExists(String name)
         throws Exception
@@ -406,14 +419,12 @@ public class NGPage extends ContainerCommon implements NGContainer
         if (!theFile.exists()) {
             throw new NGException("nugen.exception.file.not.exist", new Object[]{theFile});
         }
-        try
-        {
+        try {
             String cacheKey = theFile.toString();
 
             //look in the cache
             NGPage newPage = (NGPage) pageCache.recall(cacheKey);
-            if (newPage==null)
-            {
+            if (newPage==null) {
                 Document newDoc;
                 InputStream is = new FileInputStream(theFile);
                 newDoc = DOMUtils.convertInputStreamToDocument(is, false, false);
@@ -451,7 +462,7 @@ public class NGPage extends ContainerCommon implements NGContainer
             // commit the modified files to the CVS.
             CVSUtil.commit(getFilePath(), ar.getBestUserId(), comment);
 
-            // update the inmemory index because the file has changed
+            // update the in memory index because the file has changed
             NGPageIndex.refreshOutboundLinks(this);
 
             // Update blocking Queue
@@ -721,10 +732,18 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
+    /**
+    * This is the unique ID of the entire project
+    * across all sites.  It is up to the system to
+    * make sure this is created and maintained unique
+    * and it must never be changed (or links will be
+    * broken).  Linking should be by name if possible.
+    */
     public String getKey() {
-        //for a page named "Foo Bar.sp" this will return "foobar"
-        String fileName = getFilePath().getName();
-        return SectionUtil.sanitize(fileName.substring(0,fileName.length()-3));
+        return pageInfo.getKey();
+    }
+    public void setKey(String newKey) {
+        pageInfo.setKey(newKey);
     }
 
 

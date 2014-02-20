@@ -44,21 +44,38 @@ public class NGBook extends ContainerCommon implements NGContainer {
     private static Hashtable<String, NGBook> keyToSite = null;
     private static Vector<NGBook> allSites = null;
 
-    //TODO: I think this is not needed any more
-    private static NGBook defaultAccount;
-
     private Vector<String> existingIds = null;
     private String[] displayNames;
     private BookInfoRecord bookInfoRecord;
     private NGRole memberRole;
     private NGRole ownerRole;
 
-    public NGBook(File path, Document newDoc, String nKey) throws Exception {
-        super(path, newDoc);
+    public NGBook(File theFile, Document newDoc) throws Exception {
+        super(theFile, newDoc);
         bookInfoRecord = requireChild("bookInfo", BookInfoRecord.class);
         displayNames = bookInfoRecord.getPageNames();
 
-        key = nKey;
+        //migration code, make sure there is a stored value for key
+        key = bookInfoRecord.getScalar("key");
+        if (key==null || key.length()==0) {
+            String fileName = theFile.getName();
+            if (fileName.equalsIgnoreCase("SiteInfo.xml")){
+                //use the name of the containing folder to set the key
+                File cogFolder = theFile.getParentFile();
+                File containingFolder = cogFolder.getParentFile();
+                key = SectionUtil.sanitize(containingFolder.getName());
+                bookInfoRecord.setScalar("key", key);
+            }
+            else if (fileName.endsWith(".book") || fileName.endsWith(".site")) {
+                key = fileName.substring(0,fileName.length()-5);
+                bookInfoRecord.setScalar("key", key);
+            }
+            else {
+                throw new Exception("Site is missing key, and unable to generate one: "+theFile);
+            }
+        }
+        System.out.println("Cached site ("+key+") from : "+theFile);
+
         requireChild("notes", DOMFace.class);
         requireChild("attachments", DOMFace.class);
         requireChild("process", DOMFace.class);
@@ -119,10 +136,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
                     "in readBookByKey called before the site index initialzed.");
         }
         if (key == null) {
-            // used to pass a null in to get the default book
-            // however, this should no longer be used.  TEST to see.
             throw new Exception("Program Logic Error: Site key of null is no longer allowed.");
-            //return defaultBook;
         }
 
         NGBook retVal = keyToSite.get(key);
@@ -133,22 +147,19 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public static NGBook readSiteAbsolutePath(File theFile) throws Exception {
-        String fileName = theFile.getName();
-        String key = fileName.substring(0, fileName.length() - 5);
-        return NGBook.readBookAbsolutePath(key, theFile);
+        return NGBook.readBookAbsolutePath(theFile);
     }
-    private static NGBook readBookAbsolutePath(String key, File theFile) throws Exception {
+    private static NGBook readBookAbsolutePath(File theFile) throws Exception {
         try {
             if (!theFile.exists()) {
                 throw new NGException("nugen.exception.file.not.exist", new Object[] { theFile });
             }
             Document newDoc = readOrCreateFile(theFile, "book");
-            NGBook newBook = new NGBook(theFile, newDoc, key);
-            return newBook;
+            return new NGBook(theFile, newDoc);
         }
         catch (Exception e) {
             throw new NGException("nugen.exception.unable.to.read.file",
-                    new Object[] { theFile }, e);
+                    new Object[] { theFile.toString() }, e);
         }
     }
 
@@ -179,13 +190,15 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * routine.
      */
     private static NGBook createBookByKey(String key, String name) throws Exception {
+
+        //TODO: this only creates in the main folder.  Archaic
         File theFile = NGPage.getRealPath(key + ".book");
         if (theFile.exists()) {
             throw new NGException("nugen.exception.cant.crete.new.book", new Object[] { key });
         }
         Document newDoc = readOrCreateFile(theFile, "book");
 
-        NGBook newBook = new NGBook(theFile, newDoc, key);
+        NGBook newBook = new NGBook(theFile, newDoc);
 
         // set default values
         newBook.setName(name);
@@ -331,21 +344,20 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * there might be an operation that causes the regeneration of such data.
      * This is more problematic since that constructed data might have a mixture
      * of old and new links. So this method checks to see if anything has
-     * created cached values in the mean time, and throws it's own self-descruct
+     * created cached values in the mean time, and throws it's own self-destruct
      * exception.
      */
-    public synchronized static void scanAllBooks(String rootDirectory) throws Exception {
+    public synchronized static void scanAllBooks(File root) throws Exception {
         // clear the statics first of all to make sure they are not
         // holding any old values that need to be cleared, also to make
         // sure that they are not set as a side effect of this code,
         // or code on another thread that may be running.
         keyToSite = null;
         allSites = null;
+        System.out.println("Scanning for book files: "+root);
 
         Hashtable<String, NGBook> tKeyToBook = new Hashtable<String, NGBook>();
         Vector<NGBook> tAllBooks = new Vector<NGBook>();
-
-        File root = ConfigFile.getFolderOrFail(rootDirectory);
 
         for (File child : root.listFiles()) {
             String fileName = child.getName();
@@ -354,11 +366,15 @@ public class NGBook extends ContainerCommon implements NGContainer {
                 continue;
             }
 
-            String key = fileName.substring(0, fileName.length() - 5);
-
-            NGBook ngb = readBookAbsolutePath(key, child);
+            NGBook ngb = readBookAbsolutePath(child);
 
             tAllBooks.add(ngb);
+            String key = ngb.getKey();
+
+            //check for uniqueness just to be sure
+            if (tKeyToBook.containsKey(key)) {
+                throw new Exception("found a new book with a key ("+key+") that duplicates another book: "+child);
+            }
             tKeyToBook.put(key, ngb);
         }
 
@@ -381,12 +397,6 @@ public class NGBook extends ContainerCommon implements NGContainer {
         // now make them live
         keyToSite = tKeyToBook;
         allSites = tAllBooks;
-
-        //now figure out the default site needed for migrating early pages
-        //the only valid default site in the past was 'mainbook' and any server
-        //that requires a default site should have one with this key.
-        //otherwise, the server should not need a default site.
-        defaultAccount = tKeyToBook.get("mainbook");
     }
 
     public static NGBook createNewSite(String key, String name) throws Exception {
@@ -416,7 +426,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
 
         Document newDoc = readOrCreateFile(theFile, "book");
-        NGBook newBook = new NGBook(theFile, newDoc, key);
+        NGBook newBook = new NGBook(theFile, newDoc);
 
         // set default values
         //TODO: change this to pass a file here

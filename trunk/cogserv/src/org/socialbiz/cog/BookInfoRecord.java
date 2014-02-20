@@ -70,6 +70,7 @@ public class BookInfoRecord  extends DOMFace
 
     }
 
+    /**
     public String getBookKey()
     {
         return getAttribute("book");
@@ -78,6 +79,7 @@ public class BookInfoRecord  extends DOMFace
     {
         setAttribute("book", newKey);
     }
+    */
 
     public long getModTime()
     {
