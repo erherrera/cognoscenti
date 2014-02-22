@@ -683,7 +683,16 @@ public class NGPageIndex
             if (name.endsWith(".sp")) {
                 //this is the migration case, a .sp file exists, but the .cog/ProjInfo.xml
                 //does not exist, so move the file there immediately.
-                pjs.add(child);
+                if (!cogFolder.exists()) {
+                    cogFolder.mkdirs();
+                }
+                String key = name.substring(0, name.length()-3);
+                File keyFile = new File(cogFolder, "key_"+key);
+                keyFile.createNewFile();
+                File projInfoFile = new File(cogFolder, "ProjInfo.xml");
+                UtilityMethods.copyFileContents(child, projInfoFile);
+                child.delete();
+                pjs.add(projInfoFile);
                 foundOne = true;
             }
             else if (name.endsWith(".site")) {

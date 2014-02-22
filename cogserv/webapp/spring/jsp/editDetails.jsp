@@ -205,25 +205,26 @@
                        String publicNotAllowedMsg = "";
                        if("yes".equals(ngp.getAllowPublic())){
                 %>
-                           <input type="radio" name="visibility"  value="PUB"/>
+                           <input type="checkbox" name="visPublic"  value="PUB"/>
                            <img src="<%=ar.retPath %>assets/images/iconPublic.png" name="PUB" alt="Public"
-                                title="Public"/ > Public Access&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <%
+                                title="Public"/ > Public Access
+                <%
                        }else{
                            publicNotAllowedMsg = ar.getMessageFromPropertyFile("public.attachments.not.allowed", null);
+                           ar.writeHtml(publicNotAllowedMsg);
                        }
-                    %>
-                       <input type="radio" name="visibility" value="MEM" checked="checked"/>
-                       <img src="<%=ar.retPath %>assets/images/iconMember.png" name="MEM" alt="Member"
-                       title="Member"/ > Member Only Access
-
-                       <div style="color: gray;padding-top: 5px;" ><%ar.writeHtml(publicNotAllowedMsg); %></div>
-                <% } else { %>
-                       <input type="radio" name="visibility" value="PUB" checked="checked"/>
+                   } else {
+                %>
+                       <input type="checkbox" name="visPublic" value="PUB" checked="checked"/>
                        <img src="<%=ar.retPath %>assets/images/iconPublic.png" name="PUB" alt="Public" title="Public"/ > Public Access
-                       <input type="radio" name="visibility" value="MEM"/>
-                       <img src="<%=ar.retPath %>assets/images/iconMember.png" name="MEM" alt="Member" title="Member"/ > Member Only Access
                 <% } %>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="checkbox" name="visMember" value="MEM" checked="checked" disabled="disabled"/>
+                <img src="<%=ar.retPath %>assets/images/iconMember.png" name="MEM" alt="Member" title="Member"/ > Member Access
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="checkbox" name="visUpstream" value="UPS"
+                       <%if(attachment.isUpstream()){%> checked="checked" <%}%>/>
+                <img src="<%=ar.retPath %>assets/images/iconUpstream.png" /> Upstream Sync
                 </td>
             </tr>
             <tr>

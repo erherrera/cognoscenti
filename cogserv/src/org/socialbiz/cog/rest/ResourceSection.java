@@ -41,6 +41,7 @@ import org.socialbiz.cog.SectionGeospatial;
 import org.socialbiz.cog.SectionLink;
 import org.socialbiz.cog.SectionTask;
 import org.socialbiz.cog.GoalRecord;
+import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.UtilityMethods;
 import java.util.Enumeration;
 import java.util.List;
@@ -520,10 +521,21 @@ public class ResourceSection  implements NGResource
             if(!isRequested(id, dataIds)) {
                 continue;
             }
+            String attachmentType = arec.getType();
+            if (!"FILE".equals(attachmentType) && !"URL".equals(attachmentType)) {
+                //only include files and URL types.  do NOT include GONE, DELETED, or EXTRA files
+                continue;
+            }
+            if (arec.isDeleted()) {
+                //skip any deleted files
+                continue;
+            }
+
+
             Element sec_attchment = DOMUtils.createChildElement(loutdoc, sec_attchments, "attachment");
             sec_attchment.setAttribute("id", id);
 
-            //NOTE: temporary just get the very first license in the list ... do better later
+            //TODO: temporary just get the very first license in the list ... do better later
             NGPage ngp = (NGPage)ngc;
             License lr = ngp.getLicenses().get(0);
 
@@ -534,7 +546,7 @@ public class ResourceSection  implements NGResource
             DOMUtils.createChildElement(loutdoc, sec_attchment, "remark", arec.getComment());
             DOMUtils.createChildElement(loutdoc, sec_attchment, "name", arec.getNiceName());
 
-            if ("FILE".equals(arec.getType())) {
+            if ("FILE".equals(attachmentType)) {
                 String size = Long.toString(arec.getFileSize(ngc));
                 DOMUtils.createChildElement(loutdoc, sec_attchment, "size", size);
             }
@@ -602,8 +614,7 @@ public class ResourceSection  implements NGResource
         {
             Element ei = (Element)nl.item(i);
             String owner = DOMUtils.getChildText(ei,"owner").trim();
-            if(UtilityMethods.equalsOpenId(au.getBestUserId(), owner))
-            {
+            if(UserProfile.equalsOpenId(au.getBestUserId(), owner)) {
                 noteElem = ei;
                 break;
             }

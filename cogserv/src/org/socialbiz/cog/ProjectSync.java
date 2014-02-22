@@ -63,6 +63,15 @@ public class ProjectSync
             if (att.isDeleted()) {
                 continue;
             }
+            if (!att.isUpstream()) {
+                //simply ignore any attachments not marked for upstream.
+                //this has the problem that if you UNCHECK the upstream,
+                //then it will think you need to download another version
+                //of the document.  However, that seems like the only
+                //option, otherwise the document would 'hide' the upstream
+                //document.  User has control and it is consistent.
+                continue;
+            }
             String attName = att.getUniversalId();
             docNames.add(attName);
         }
@@ -106,9 +115,15 @@ public class ProjectSync
             if (docName.equals(attName)) {
                 retval.isRemote = true;
                 retval.nameRemote = att2.getScalar("name");
-                retval.timeRemote = UtilityMethods.getDateTimeFromXML(att2.getScalar("modifiedtime"));
-                retval.urlRemote = att2.getScalar("address");
                 retval.idRemote = att2.getAttribute("id");
+                String timeVal = att2.getScalar("modifiedtime");
+                retval.timeRemote = UtilityMethods.getDateTimeFromXML(timeVal);
+                if (retval.timeRemote==0) {
+                    throw new Exception("Something is wrong with information about remote document ("
+                            +retval.nameRemote+") (id="+retval.idRemote
+                            +") because the timestamp is zero: "+timeVal);
+                }
+                retval.urlRemote = att2.getScalar("address");
                 retval.sizeRemote = DOMFace.safeConvertLong(att2.getScalar("size"));
                 retval.editorRemote = att2.getAttribute("modifieduser");
                 retval.descRemote = att2.getAttribute("remark");
@@ -341,13 +356,23 @@ public class ProjectSync
         Vector<SyncStatus> docsNeedingDown  = getToDownload(SyncStatus.TYPE_DOCUMENT);
 
         for (SyncStatus docStat : docsNeedingDown) {
+            if (docStat.timeRemote==0) {
+                throw new Exception("Something is wrong with information about remote document ("
+                        +docStat.nameRemote+") because the timestamp is zero");
+            }
             AttachmentRecord newAtt;
             if (docStat.isLocal) {
                 newAtt = local.findAttachmentByID(docStat.idLocal);
+                if (!newAtt.isUpstream()) {
+                    throw new Exception("Synchronization error with document ("+docStat.idLocal
+                            +") because local version has been marked as NOT being sychronized upstream.");
+                }
             }
             else {
                 newAtt = local.createAttachment();
                 newAtt.setUniversalId(docStat.universalId);
+                //this document came from upstream, so set to synch in the future upstream
+                newAtt.setUpstream(true);
             }
             newAtt.setDisplayName(docStat.nameRemote);
             URL link = new URL(docStat.urlRemote);

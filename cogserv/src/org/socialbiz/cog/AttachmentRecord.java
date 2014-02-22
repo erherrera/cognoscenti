@@ -603,6 +603,31 @@ public class AttachmentRecord extends DOMFace {
     }
 
     /**
+     * Specifies whether this document should be synchronized with the upstream
+     * project or not.  If 'true' then this document should be shared and
+     * synchronized upstream.  If 'false' then this project is NOT sharing this
+     * document with the upstream project.
+     */
+    public boolean isUpstream() {
+        return "true".equals(getAttribute("upstream"));
+    }
+    public void setUpstream(boolean bVal) {
+        if (bVal) {
+            setAttribute("upstream", "true");
+            if (!isUpstream()) {
+                throw new RuntimeException("tried to set upstream and it didn't work");
+            }
+        }
+        else {
+            setAttribute("upstream", null);
+            if (isUpstream()) {
+                throw new RuntimeException("Can't figure out why setting the attribute is not working");
+            }
+        }
+    }
+
+
+    /**
      * when a doc is moved to another project, use this to record where it was
      * moved to, so that we can link there.
      */

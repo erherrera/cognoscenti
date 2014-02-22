@@ -22,6 +22,19 @@
     String thisPage = ar.getResourceURL(ngp,"admin.htm");
     String allTasksPage = ar.getResourceURL(ngp,"projectAllTasks.htm");
 
+    String upstreamLink = ngp.getUpstreamLink();
+    Exception upstreamError = null;
+    RemoteProject rp = null;
+    ProjectSync ps = null;
+    try {
+        rp = new RemoteProject(upstreamLink);
+        ps = new ProjectSync(ngp, rp, ar, ngp.getLicenses().get(0).getId());
+    }
+    catch (Exception uu) {
+        upstreamError = uu;
+    }
+
+
 %>
 <script type="text/javascript" language="JavaScript">
     var isfreezed = '<%=ngp.isFrozen() %>';
@@ -330,13 +343,13 @@ String thisPageAddress = ar.getResourceURL(ngp,"admin.htm");
             <div class="generalContent">
                 <div class="generalHeading paddingTop">Synchronize with Upstream Project</div>
                 <%
-                String link = ngp.getUpstreamLink();
-                if (link==null || link.length()==0) {
+                if (upstreamLink==null || upstreamLink.length()==0) {
                     %><i>Please set an Upstream link (above) in order to synchronize with an upstream project.</i><%
                 }
+                else if (upstreamError!=null)  {
+                    %><i>Encountered an error accessing the upstream project: <%ar.writeHtml(upstreamError.toString());%></i><%
+                }
                 else {
-                    RemoteProject rp = new RemoteProject(link);
-                    ProjectSync ps = new ProjectSync(ngp, rp, ar, ngp.getLicenses().get(0).getId());
                     int docsNeedingDown  = ps.getToDownload(SyncStatus.TYPE_DOCUMENT).size();
                     int docsNeedingUp    = ps.getToUpload(SyncStatus.TYPE_DOCUMENT).size();
                     int docsEqual        = ps.getEqual(SyncStatus.TYPE_DOCUMENT).size();

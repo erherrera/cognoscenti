@@ -410,7 +410,6 @@ else
 
     </li>
     <li>Search <a href="<%=ar.retPath%>p/factory/search.xml?qs=nugen" target="restapi">p/factory/search.xml?qs=nugen</a></li>
-    <li>PATH <% ar.writeHtml(ngp.address); %></li>
     <li>CLASS <% ar.writeHtml(ngp.getClass().getSimpleName()); %></li>
 
 

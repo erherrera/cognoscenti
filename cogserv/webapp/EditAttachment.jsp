@@ -114,11 +114,15 @@
             <td>Visibility</td>
             <td class="Odd">
             <% if (attachment.getVisibility()>1) { %>
-                <input type="radio" name="visibility" value="PUB"/> Public Access
-                <input type="radio" name="visibility" value="MEM" checked="checked"/> Member Only Access
+                YES Public Access,
             <% } else { %>
-                <input type="radio" name="visibility" value="PUB" checked="checked"/> Public Access
-                <input type="radio" name="visibility" value="MEM"/> Member Only Access
+                NO Public Access,
+            <% } %>
+            YES Member Access,
+            <% if (attachment.isUpstream()) {%>
+                YES Upstream
+            <% } else { %>
+                NO Upstream
             <% } %>
             </td>
         </tr>

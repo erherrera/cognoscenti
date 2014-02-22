@@ -288,82 +288,6 @@ public class NGPage extends ContainerCommon implements NGContainer
 
 
     /**
-    * Tells you if this file is within the dataPath folder
-    */
-    public static boolean fileIsInDataPath(File testFile) {
-        String fullPath = testFile.getPath();
-        String cleanUp1 = fullPath.toLowerCase().replace('\\','/');
-        String cleanUp2 = dataPath.toLowerCase().replace('\\','/');
-        return cleanUp1.startsWith(cleanUp2);
-    }
-
-
-    /**
-    * NGPage object is created in memory, and can be manipulated in memory,
-    * but be sure to call "savePage" before finished otherwise nothing is created on disk.
-    */
-    public static NGPage createPage(AuthRequest ar, String p, NGBook ngb)
-        throws Exception
-    {
-        if (!ar.isLoggedIn()) {
-            throw new ProgramLogicError("Have to be logged in to create a new project");
-        }
-        if (p.indexOf('/')>=0) {
-            throw new ProgramLogicError("Expecting a file name, but got something with a slash in it: "+p);
-        }
-        if (!p.endsWith(".sp")) {
-            throw new ProgramLogicError("Expecting a file name ending with .sp, but got something else: "+p);
-        }
-
-        //get the sanitized form
-        String sanitizedKey = SectionUtil.sanitize(p.substring(0,p.length()-3));
-
-        File newFilePath = ngb.getNewProjectPath(sanitizedKey);
-
-        return createProjectAtPath(ar, newFilePath, ngb);
-    }
-
-    public static NGPage createProjectAtPath(AuthRequest ar, File newFilePath, NGBook ngb) throws Exception {
-        if (!ar.isLoggedIn()) {
-            throw new ProgramLogicError("Have to be logged in to create a new project");
-        }
-        if (newFilePath.exists()) {
-            throw new ProgramLogicError("Somehow the file given already exists: "+newFilePath);
-        }
-
-        Document newDoc = readOrCreateFile(newFilePath, "page");
-        NGPage newPage = null;
-        if (fileIsInDataPath(newFilePath)) {
-            newPage = new NGPage(newFilePath, newDoc);
-        }
-        else {
-            newPage = new NGProj(newFilePath, newDoc);
-        }
-        newPage.setAccount(ngb);
-
-        //make the current user the author, and member, of the new page
-        newPage.addMemberToRole("Administrators", ar.getBestUserId());
-        newPage.addMemberToRole("Members",        ar.getBestUserId());
-
-        //add in the default sections
-        newPage.createSection("Comments",        ar);
-        newPage.createSection("Attachments",     ar);
-        newPage.createSection("Tasks",           ar);
-        newPage.createSection("Folders",         ar);
-
-        //register this into the page index
-        NGPageIndex.makeIndex(newPage);
-
-        //add this new project into the user's watched projects list
-        //so it is easy for them to find later.
-        UserProfile up = ar.getUserProfile();
-        up.setWatch(newPage.getKey(), ar.nowTime);
-        UserManager.writeUserProfilesToFile();
-
-        return newPage;
-    }
-
-    /**
      * To an existing project, add all the (1) Goals (2) Roles of an
      * existing project.
      * @param ar is needed to get the current logged in user and the current time
@@ -400,18 +324,6 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
-    /**
-     * NOTE: this is just a call to createPage, followed by a call to addTemplate
-     */
-    public static NGPage createFromTemplate(AuthRequest ar, String p, NGBook ngb, NGPage template)
-            throws Exception {
-        NGPage newPage = createPage(ar, p, ngb);
-        newPage.injectTemplate(ar, template);
-        return newPage;
-    }
-
-
-
     public static NGPage readPageAbsolutePath(File theFile) throws Exception {
         if (dataPath==null) {
             throw new NGException("nugen.exception.datapath.not.initialized",null);
@@ -429,7 +341,7 @@ public class NGPage extends ContainerCommon implements NGContainer
                 InputStream is = new FileInputStream(theFile);
                 newDoc = DOMUtils.convertInputStreamToDocument(is, false, false);
                 is.close();
-                if (fileIsInDataPath(theFile)) {
+                if (NGBook.fileIsInDataPath(theFile)) {
                     newPage = new NGPage(theFile, newDoc);
                 }
                 else {
@@ -746,39 +658,22 @@ public class NGPage extends ContainerCommon implements NGContainer
         pageInfo.setKey(newKey);
     }
 
-
+    //TODO: this is dangerous, this address is old
     /**
-    * getPermaLink returns the best name to use for linking to this page
-    * that is guaranteed not to change.  This will be the name of the
-    * directory that the file is stored in, which might be randomly
-    * generated.  This will not necessarily be a descriptive name of
-    * the page.  But it will be one that does not change.
+    * Returns the HTTP relative address for normal resource
     */
-    public String getPermaLink(String pageResource)
-    {
-        return "p/"+getKey()+"/"+pageResource;
+    public String getPermaLink() {
+        return "p/"+getKey()+"/";
     }
 
     /**
-    * Returns the HTTP relative address for normal resource: public.htm
-    * Now the 'public.htm' does not need to be there, defaulted.
-    */
-    public String getPermaLink()
-    {
-        return getPermaLink("");
-    }
-
-    /**
-    * Returns the current full name of this page
-    */
-    public String getFullName()
-    {
-        if (displayNames==null)
-        {
+     * Returns the current full name of this page
+     */
+    public String getFullName() {
+        if (displayNames == null) {
             return "Uninitialized (displayNames is null)";
         }
-        if (displayNames.length==0)
-        {
+        if (displayNames.length == 0) {
             return "Uninitialized (displayNames contains zero items)";
         }
         return displayNames[0];
@@ -1248,7 +1143,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         DOMFace rolelist = pageInfo.requireChild("Role-Requests", DOMFace.class);
         RoleRequestRecord newRoleRequest = rolelist.createChild("requests", RoleRequestRecord.class);
         newRoleRequest.setRequestId(generateKey());
-        newRoleRequest.setModifiedDate(Long.toString(modifiedDate));
+        newRoleRequest.setModifiedDate(modifiedDate);
         newRoleRequest.setModifiedBy(modifiedBy);
         newRoleRequest.setState("Requested");
         newRoleRequest.setCompleted(false);

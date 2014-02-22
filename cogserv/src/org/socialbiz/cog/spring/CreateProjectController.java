@@ -266,8 +266,8 @@ public class CreateProjectController extends BaseController {
         if (loc==null){
             String projectName = ar.reqParam("projectname");
             String projectFileName = findGoodFileName(projectName);
-            String pageAddress = SectionWiki.sanitize(projectFileName) + ".sp";
-            ngPage = NGPage.createPage(ar, pageAddress, site);
+            String pageKey = SectionWiki.sanitize(projectFileName);
+            ngPage = site.createProjectByKey(ar, pageKey);
             String[] nameSet = new String[] { projectName };
             ngPage.setPageNames(nameSet);
         }
@@ -284,13 +284,8 @@ public class CreateProjectController extends BaseController {
                 throw new Exception("Failed to create project because location does not exist: "
                         + expectedLoc.toString());
             }
-            String projectName = expectedLoc.getName();
-            String projectKey = SectionWiki.sanitize(projectName);
-            projectKey = site.findUniqueKeyInSite(projectKey);
-            File projectFile = new File(expectedLoc, projectKey+".sp");
-            ngPage = NGPage.createProjectAtPath(ar, projectFile, site);
-            String[] nameSet = new String[] { projectName };
-            ngPage.setPageNames(nameSet);
+
+            ngPage = site.convertFolderToProj(ar, expectedLoc);
         }
 
 

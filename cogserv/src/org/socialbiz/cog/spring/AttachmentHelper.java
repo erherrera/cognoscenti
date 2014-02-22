@@ -80,64 +80,80 @@ public class AttachmentHelper {
         ngc.saveFile(ar, comment);
     }
 
-    public static void updateAttachment(AuthRequest ar,
-                                MultipartFile file,
-                                NGPage ngp ) throws Exception {
+    public static void updateAttachment(AuthRequest ar, MultipartFile file, NGPage ngp)
+            throws Exception {
 
         String aid = ar.reqParam("aid");
         AttachmentRecord attachment = ngp.findAttachmentByIDOrFail(aid);
 
         String action = ar.reqParam("actionType");
 
-        if(action.equals("renameDoc")){
+        if (action.equals("renameDoc")) {
             String accessName = ar.reqParam("accessName");
-            String proposedName = AttachmentHelper.assureExtension(accessName, attachment.getDisplayName());
+            String proposedName = AttachmentHelper.assureExtension(accessName,
+                    attachment.getDisplayName());
             attachment.setDisplayName(proposedName);
-        }else if(action.equals("changePermission")){
-            String visibility =  ar.reqParam("visibility");
-            if (visibility.equals("PUB")) {
-            attachment.setVisibility(1);
-            } else {
-            attachment.setVisibility(2);
+        }
+        else if (action.equals("changePermission")) {
+            String visPublic = ar.reqParam("visPublic");
+            if (visPublic.equals("PUB")) {
+                attachment.setVisibility(1);
             }
-        }else if(action.equals("UploadRevisedDoc")){
-            if(file.getSize() <= 0){
-                throw new NGException("nugen.exception.unexpectedly.got.zero.length.file.uploaded", new Object[]{"action", ngp.getFullName()});
+            else {
+                attachment.setVisibility(2);
             }
-            String comment_panel = ar.defParam("comment_panel","");
-            if(comment_panel == null){
-                throw new NGException("nugen.exception.parameter.required", new Object[]{"comment_panel", ngp.getFullName()});
+            throw new Exception("is 'changePermissions' still used.   If you see this exception, remove it from the code.");
+        }
+        else if (action.equals("UploadRevisedDoc")) {
+            if (file.getSize() <= 0) {
+                throw new NGException("nugen.exception.unexpectedly.got.zero.length.file.uploaded",
+                        new Object[] { "action", ngp.getFullName() });
+            }
+            String comment_panel = ar.defParam("comment_panel", "");
+            if (comment_panel == null) {
+                throw new NGException("nugen.exception.parameter.required", new Object[] {
+                        "comment_panel", ngp.getFullName() });
             }
             attachment.setComment(comment_panel);
-            AttachmentHelper.setDisplayName(ngp, attachment,AttachmentHelper.assureExtension(attachment.getDisplayName(), file.getOriginalFilename()));
+            AttachmentHelper.setDisplayName(
+                    ngp,
+                    attachment,
+                    AttachmentHelper.assureExtension(attachment.getDisplayName(),
+                            file.getOriginalFilename()));
             AttachmentHelper.saveUploadedFile(ar, attachment, file);
 
-        }else if ("Update".equals(action)) {
+        }
+        else if ("Update".equals(action)) {
 
-            String visibility = ar.reqParam("visibility");
             String ftype = ar.reqParam("ftype");
-            String comment = ar.defParam("comment","");
+            String comment = ar.defParam("comment", "");
             String name = ar.reqParam("name");
             attachment.setType(ftype);
             attachment.setComment(comment);
 
-            if (visibility.equals("PUB")) {
+            String visPublic = ar.defParam("visPublic", "NONE");
+            if (visPublic.equals("PUB")) {
                 attachment.setVisibility(1);
-            } else {
+            }
+            else {
                 attachment.setVisibility(2);
             }
-            if(ftype.equals("FILE") || ftype.equals("GONE")){
-                if(file != null && file.getSize() > 0){
+            String visUpstream = ar.defParam("visUpstream", "NONE");
+            attachment.setUpstream(visUpstream.equals("UPS"));
+
+            if (ftype.equals("FILE") || ftype.equals("GONE")) {
+                if (file != null && file.getSize() > 0) {
                     attachment.setModifiedBy(ar.getBestUserId());
                     attachment.setModifiedDate(ar.nowTime);
-                    AttachmentHelper.setDisplayName(ngp, attachment,AttachmentHelper.assureExtension(name, file.getOriginalFilename()));
+                    AttachmentHelper.setDisplayName(ngp, attachment,
+                            AttachmentHelper.assureExtension(name, file.getOriginalFilename()));
                     AttachmentHelper.saveUploadedFile(ar, attachment, file);
                 }
                 else {
                     AttachmentHelper.setDisplayName(ngp, attachment, name);
                 }
             }
-            else if(ftype.equals("URL")){
+            else if (ftype.equals("URL")) {
                 attachment.setModifiedBy(ar.getBestUserId());
                 attachment.setModifiedDate(ar.nowTime);
                 String taskUrl = ar.reqParam("taskUrl");
@@ -145,47 +161,56 @@ public class AttachmentHelper {
                 setDisplayName(ngp, attachment, name);
             }
             else {
-                throw new Exception("update not implemented for this attachment type: "+ftype);
+                throw new Exception("update not implemented for this attachment type: " + ftype);
             }
 
-            //handle the access by roles
+            // handle the access by roles
             String[] roleNames = ar.multiParam("role");
             Vector<NGRole> checkedRoles = new Vector<NGRole>();
             for (String aName : roleNames) {
                 NGRole possible = ngp.getRole(aName);
-                if (possible!=null) {
+                if (possible != null) {
                     checkedRoles.add(possible);
                 }
             }
             attachment.setAccessRoles(checkedRoles);
-        } else if ("Accept".equals(action)) {
-            throw new ProgramLogicError("Need to implement operation"+action);
-        } else if ("Reject".equals(action)) {
-            throw new ProgramLogicError("Need to implement operation"+action);
-        } else if ("Skipped".equals(action)) {
-            throw new ProgramLogicError("Need to implement operation"+action);
-        } else if ("Remove".equals(action)) {
+        }
+        else if ("Accept".equals(action)) {
+            throw new ProgramLogicError("Need to implement operation" + action);
+        }
+        else if ("Reject".equals(action)) {
+            throw new ProgramLogicError("Need to implement operation" + action);
+        }
+        else if ("Skipped".equals(action)) {
+            throw new ProgramLogicError("Need to implement operation" + action);
+        }
+        else if ("Remove".equals(action)) {
             ngp.deleteAttachment(aid, ar);
-        } else if ("Add".equals(action)) {
+        }
+        else if ("Add".equals(action)) {
             attachment.setType("FILE");
             AttachmentVersion aVer = attachment.getLatestVersion(ngp);
-            if (aVer!=null) {
+            if (aVer != null) {
                 File curFile = aVer.getLocalFile();
                 attachment.setAttachTime(curFile.lastModified());
                 attachment.setModifiedDate(curFile.lastModified());
             }
             attachment.setModifiedBy(ar.getBestUserId());
             attachment.commitWorkingCopy(ngp);
-        } else if ("Commit".equals(action)) {
+        }
+        else if ("Commit".equals(action)) {
             attachment.commitWorkingCopy(ngp);
-        } else if ("RefreshWorking".equals(action)) {
+        }
+        else if ("RefreshWorking".equals(action)) {
             throw new Exception("Refresh from backup is not implemented yet.");
-        } else {
+        }
+        else {
             throw new ProgramLogicError("Don't understand the operation: " + action);
         }
 
-        HistoryRecord.createHistoryRecord(ngp, attachment.getId(), HistoryRecord.CONTEXT_TYPE_DOCUMENT,
-        ar.nowTime, HistoryRecord.EVENT_DOC_UPDATED, ar, "");
+        HistoryRecord.createHistoryRecord(ngp, attachment.getId(),
+                HistoryRecord.CONTEXT_TYPE_DOCUMENT, ar.nowTime, HistoryRecord.EVENT_DOC_UPDATED,
+                ar, "");
 
         ngp.setLastModify(ar);
         ngp.saveFile(ar, "Modified attachments");
