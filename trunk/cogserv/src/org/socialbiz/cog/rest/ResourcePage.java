@@ -137,7 +137,6 @@ public class ResourcePage implements NGResource
     public void create() throws Exception
     {
         Element element_page = lindoc.getDocumentElement();
-        String pageAddress = IdGenerator.generateKey() + ".sp";
         String id = element_page.getAttribute("id");
         if(!"factory".equals(id))
         {
@@ -153,7 +152,9 @@ public class ResourcePage implements NGResource
             throw new NGException ("nugen.exception.user.not.executive", new Object[]{ngb.getKey()});
         }
 
-        NGPage ngp = NGPage.createPage(lar, pageAddress, ngb);
+        //TODO: surely we can do better than a purely random ID
+        String pageAddress = IdGenerator.generateKey();
+        NGPage ngp = ngb.createProjectByKey(lar, pageAddress);
 
         String name = DOMUtils.textValueOfChild(element_page, "name", true);
         String abbreviation = DOMUtils.textValueOfChild(element_page, "abbreviation", true);

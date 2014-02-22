@@ -40,8 +40,6 @@
         p = findGoodFileName(pt);
     }
 
-    String pageAddress = SectionWiki.sanitize(p)+".sp";
-
     if (wflink.equals("yes"))
     {
         //do the wfxml linking here
@@ -55,15 +53,12 @@
         throw new Exception("You must be a member of an account in order to create a project in it.  You are not a member of account "+ngb.getName());
     }
 
-    NGPage ngp = null;
-    if (template!=null && template.length()>0)
-    {
+    String pageKey = SectionWiki.sanitize(p);
+    NGPage ngp = ngb.createProjectByKey(ar, pageKey);
+    
+    if (template!=null && template.length()>0) {
         NGPage templatePage = NGPageIndex.getProjectByKeyOrFail(template);
-        ngp = NGPage.createFromTemplate(ar, pageAddress, ngb, templatePage);
-    }
-    else
-    {
-        ngp = NGPage.createPage(ar, pageAddress, ngb);
+        ngp.injectTemplate(ar, templatePage);
     }
 
     String[] nameSet = new String[1];

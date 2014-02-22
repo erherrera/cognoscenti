@@ -98,8 +98,7 @@ public class PollRecord extends DOMFace
         for (int j=0; j<lastj; j++)
         {
             VoteRecord vote = votes[j];
-            if (UtilityMethods.equalsOpenId(name, vote.getWho()))
-            {
+            if (UserProfile.equalsOpenId(name, vote.getWho())) {
                 return vote;
             }
         }

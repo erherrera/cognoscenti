@@ -21,6 +21,10 @@
 package org.socialbiz.cog;
 
 import org.socialbiz.cog.exception.ProgramLogicError;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -28,47 +32,36 @@ import java.util.Date;
 import java.util.Vector;
 import javax.servlet.http.HttpSession;
 
-public class UtilityMethods
-{
-    public static String subString(String s, int pos, int len)
-        throws Exception
-    {
+public class UtilityMethods {
+    public static String subString(String s, int pos, int len) throws Exception {
         try {
             return s.substring(pos, len);
         }
         catch (Exception e) {
-            throw new ProgramLogicError("Substring exception: ["
-                  +s+"] (len "+s.length()+") at "
-                  +pos+" for len "+len+"; "+e.getMessage());
+            throw new ProgramLogicError("Substring exception: [" + s + "] (len " + s.length()
+                    + ") at " + pos + " for len " + len + "; " + e.getMessage());
         }
     }
 
-
-    static public String[] splitOnDelimiter (String str, char delim)
-    {
+    static public String[] splitOnDelimiter(String str, char delim) {
         Vector<String> vec = splitString(str, delim);
         String[] result = new String[vec.size()];
-        for (int i=0; i<vec.size(); i++)
-        {
+        for (int i = 0; i < vec.size(); i++) {
             result[i] = (vec.elementAt(i));
         }
         return result;
     }
 
-
-    static public Vector<String> splitString (String str, char delim)
-    {
+    static public Vector<String> splitString(String str, char delim) {
         Vector<String> vec = new Vector<String>();
         int pos = 0;
         int last = str.length();
-        while (pos<last) {
+        while (pos < last) {
             int nextpos = str.indexOf(delim, pos);
-            if (nextpos >= pos)
-            {
+            if (nextpos >= pos) {
                 vec.add(str.substring(pos, nextpos).trim());
             }
-            else
-            {
+            else {
                 vec.add(str.substring(pos).trim());
                 break;
             }
@@ -77,19 +70,15 @@ public class UtilityMethods
         return vec;
     }
 
-
     /**
-    * Joins a vector of strings into a comma delimited list of values
-    * Make sure this is done on sets of strings that do not have commas in them!
-    */
-    static public String joinStrings(Vector<String> strSet)
-    {
+     * Joins a vector of strings into a comma delimited list of values Make sure
+     * this is done on sets of strings that do not have commas in them!
+     */
+    static public String joinStrings(Vector<String> strSet) {
         StringBuffer res = new StringBuffer();
         boolean needsComma = false;
-        for (String val : strSet)
-        {
-            if (needsComma)
-            {
+        for (String val : strSet) {
+            if (needsComma) {
                 res.append(", ");
             }
             res.append(val);
@@ -98,10 +87,7 @@ public class UtilityMethods
         return res.toString();
     }
 
-
-
-    public static String fool(String param)
-    {
+    public static String fool(String param) {
         StringBuffer test = new StringBuffer();
         test.append("testline1");
         test.append("testline2");
@@ -128,126 +114,111 @@ public class UtilityMethods
         return test.toString();
     }
 
-    public
-    static
-    void
-    writeHtml(Writer out, String t)
-        throws Exception
-    {
-        if (t==null) {
-            return;  //treat it like an empty string
+    public static void writeHtml(Writer out, String t) throws Exception {
+        if (t == null) {
+            return; // treat it like an empty string
         }
-        for (int i=0; i<t.length(); i++) {
+        for (int i = 0; i < t.length(); i++) {
 
             char c = t.charAt(i);
             switch (c) {
-                case '&':
-                    out.write("&amp;");
-                    continue;
-                case '<':
-                    out.write("&lt;");
-                    continue;
-                case '>':
-                    out.write("&gt;");
-                    continue;
-                case '"':
-                    out.write("&quot;");
-                    continue;
-                default:
-                    out.write(c);
-                    continue;
+            case '&':
+                out.write("&amp;");
+                continue;
+            case '<':
+                out.write("&lt;");
+                continue;
+            case '>':
+                out.write("&gt;");
+                continue;
+            case '"':
+                out.write("&quot;");
+                continue;
+            default:
+                out.write(c);
+                continue;
             }
 
         }
     }
 
-
-    public static void writeURLData(Writer w,String data)
-    throws Exception
-    {
-    // avoid NPE.
-    if (data == null || data.length() == 0)
-    {
-        return;
-    }
-
-    String encoded = URLEncoder.encode(data, "UTF-8");
-
-    //here is the problem: URL encoding says that spaces can be encoded using
-    //a plus (+) character.  But, strangely, sometimes this does not work, either
-    //in certain combinations of browser / tomcat version, using the plus as a
-    //space character does not WORK because the plus is not removed by Tomcat
-    //on the other side.
-    //
-    //Strangely, %20 will work, so we replace all occurrances of plus with %20.
-    //
-    //I am not sure where the problem is, but if you see a URL with plus symbols
-    //in mozilla, and the same URL with %20, they look different.  The %20 is
-    //replaced with spaces in the status bar, but the plus is not.
-    //
-    int plusPos = encoded.indexOf("+");
-    int startPos = 0;
-    while (plusPos>=startPos)
-    {
-        if (plusPos>startPos)
-        {
-            //third parameter is length of span, not end character
-            w.write(encoded, startPos, plusPos-startPos);
+    public static void writeURLData(Writer w, String data) throws Exception {
+        // avoid NPE.
+        if (data == null || data.length() == 0) {
+            return;
         }
-        w.write("%20");
-        startPos = plusPos+1;
-        plusPos = encoded.indexOf("+", startPos);
-    }
-    int last = encoded.length();
-    if (startPos<last)
-    {
-        //third parameter is length of span, not end character
-        w.write(encoded, startPos, last-startPos);
-    }
-}
 
-    public
-    static
-    void
-    writeHtmlWithLines(Writer out, String t)
-        throws Exception
-    {
-        if (t==null) {
-            return;  //treat it like an empty string
+        String encoded = URLEncoder.encode(data, "UTF-8");
+
+        // here is the problem: URL encoding says that spaces can be encoded
+        // using
+        // a plus (+) character. But, strangely, sometimes this does not work,
+        // either
+        // in certain combinations of browser / tomcat version, using the plus
+        // as a
+        // space character does not WORK because the plus is not removed by
+        // Tomcat
+        // on the other side.
+        //
+        // Strangely, %20 will work, so we replace all occurrances of plus with
+        // %20.
+        //
+        // I am not sure where the problem is, but if you see a URL with plus
+        // symbols
+        // in mozilla, and the same URL with %20, they look different. The %20
+        // is
+        // replaced with spaces in the status bar, but the plus is not.
+        //
+        int plusPos = encoded.indexOf("+");
+        int startPos = 0;
+        while (plusPos >= startPos) {
+            if (plusPos > startPos) {
+                // third parameter is length of span, not end character
+                w.write(encoded, startPos, plusPos - startPos);
+            }
+            w.write("%20");
+            startPos = plusPos + 1;
+            plusPos = encoded.indexOf("+", startPos);
         }
-        for (int i=0; i<t.length(); i++) {
+        int last = encoded.length();
+        if (startPos < last) {
+            // third parameter is length of span, not end character
+            w.write(encoded, startPos, last - startPos);
+        }
+    }
+
+    public static void writeHtmlWithLines(Writer out, String t) throws Exception {
+        if (t == null) {
+            return; // treat it like an empty string
+        }
+        for (int i = 0; i < t.length(); i++) {
 
             char c = t.charAt(i);
             switch (c) {
-                case '&':
-                    out.write("&amp;");
-                    continue;
-                case '<':
-                    out.write("&lt;");
-                    continue;
-                case '>':
-                    out.write("&gt;");
-                    continue;
-                case '"':
-                    out.write("&quot;");
-                    continue;
-                case '\n':
-                    out.write("<br/>\n");
-                    continue;
-                default:
-                    out.write(c);
-                    continue;
+            case '&':
+                out.write("&amp;");
+                continue;
+            case '<':
+                out.write("&lt;");
+                continue;
+            case '>':
+                out.write("&gt;");
+                continue;
+            case '"':
+                out.write("&quot;");
+                continue;
+            case '\n':
+                out.write("<br/>\n");
+                continue;
+            default:
+                out.write(c);
+                continue;
             }
 
         }
     }
 
-
-    public static String
-    getSessionString(HttpSession session,
-        String paramName,
-        String defaultValue)
-    {
+    public static String getSessionString(HttpSession session, String paramName, String defaultValue) {
         String val = (String) session.getAttribute(paramName);
         if (val == null) {
             session.setAttribute(paramName, defaultValue);
@@ -256,11 +227,7 @@ public class UtilityMethods
         return val;
     }
 
-    public static int
-    getSessionInt(HttpSession session,
-        String paramName,
-        int defaultValue)
-    {
+    public static int getSessionInt(HttpSession session, String paramName, int defaultValue) {
         Integer val = (Integer) session.getAttribute(paramName);
         if (val == null) {
             session.setAttribute(paramName, new Integer(defaultValue));
@@ -269,17 +236,11 @@ public class UtilityMethods
         return val.intValue();
     }
 
-    public static void
-    setSessionInt(HttpSession session,
-        String paramName,
-        int val)
-    {
+    public static void setSessionInt(HttpSession session, String paramName, int val) {
         session.setAttribute(paramName, new Integer(val));
     }
 
-
-    public static String getXMLDateFormat(long ms)
-    {
+    public static String getXMLDateFormat(long ms) {
         if (ms <= 0) {
             return "";
         }
@@ -288,29 +249,24 @@ public class UtilityMethods
         return sdf.format(dt);
     }
 
-    public static long getDateTimeFromXML(String date)
-        throws Exception
-    {
-        if(date == null) {
+    public static long getDateTimeFromXML(String date) throws Exception {
+        if (date == null) {
             return 0;
         }
-        if(date.trim().equals("")) {
+        if (date.trim().equals("")) {
             return 0;
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
         return sdf.parse(date).getTime();
     }
 
-
-    static char[] hexchars = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
-            '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-    static int[] hexvalue = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0,
-            0, 0, 0, 0, 0, 10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 13,
-            14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0 };
+    static char[] hexchars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C',
+            'D', 'E', 'F' };
+    static int[] hexvalue = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3,
+            4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 13, 14, 15, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     /**
      * Encodes a single <code>String</code> value to a JavaScript literal
@@ -330,10 +286,10 @@ public class UtilityMethods
      * </p>
      *
      * @param res
-     *                The <code>StringBuffer</code> object to which the
-     *                encoded String value is added.
+     *            The <code>StringBuffer</code> object to which the encoded
+     *            String value is added.
      * @param val
-     *                The <code>String</code> value to encode.
+     *            The <code>String</code> value to encode.
      * @return The JavaScript literal expression encoded from the supplied
      *         value.
      */
@@ -381,7 +337,8 @@ public class UtilityMethods
                     char firstHex = hexchars[(ch / 16) % 16];
                     char secondHex = hexchars[ch % 16];
                     trans = "\\x" + firstHex + secondHex;
-                } else {
+                }
+                else {
                     char firstHex = hexchars[(ch / 4096) % 16];
                     char secondHex = hexchars[(ch / 256) % 16];
                     char thirdHex = hexchars[(ch / 16) % 16];
@@ -437,29 +394,23 @@ public class UtilityMethods
      * </table>
      *
      * @param res
-     *                The <code>StringBuffer</code> object to which the
-     *                converted literalString is added.
+     *            The <code>StringBuffer</code> object to which the converted
+     *            literalString is added.
      * @param literalString
-     *                The JavaScript literal to be converted.
+     *            The JavaScript literal to be converted.
      * @return The String value generated from the supplied JavaScript literal.
      * @exception Exception
-     *                    Thrown if the supplied <em>literalString</em> value
-     *                    is empty, <code>null</code> or not surrounded by
-     *                    double quotes. Furthermore this exception is thrown if
-     *                    the supplied <em>res</em> value is null.
+     *                Thrown if the supplied <em>literalString</em> value is
+     *                empty, <code>null</code> or not surrounded by double
+     *                quotes. Furthermore this exception is thrown if the
+     *                supplied <em>res</em> value is null.
      */
-    public static void unquote4JS(StringBuffer res, String literalString)
-            throws Exception
-    {
-        if ((res == null) || (literalString == null))
-        {
-            throw new ProgramLogicError(
-                    "null parameter passed to unquote4JS");
+    public static void unquote4JS(StringBuffer res, String literalString) throws Exception {
+        if ((res == null) || (literalString == null)) {
+            throw new ProgramLogicError("null parameter passed to unquote4JS");
         }
-        if (literalString.length() == 0)
-        {
-            throw new ProgramLogicError(
-                    "Empty string was passed to unquote4JS");
+        if (literalString.length() == 0) {
+            throw new ProgramLogicError("Empty string was passed to unquote4JS");
         }
         if ((literalString.charAt(0) != '\"')
                 || (literalString.charAt(literalString.length() - 1) != '\"')) {
@@ -469,19 +420,16 @@ public class UtilityMethods
         int lenMinusTwo = literalString.length() - 2;
         int startPos = 1;
         int pos = 0;
-        while (pos < lenMinusTwo)
-        {
+        while (pos < lenMinusTwo) {
             pos++;
             char ch = literalString.charAt(pos);
-            if (ch != '\\')
-            {
+            if (ch != '\\') {
                 continue; // skip over normal characters
             }
 
             // ok, we got a slash, check the next character, but first check an
             // error condition
-            if (pos >= lenMinusTwo)
-            {
+            if (pos >= lenMinusTwo) {
                 throw new ProgramLogicError(
                         "Error decoding a JS expression, the last character is a backslash");
             }
@@ -539,7 +487,7 @@ public class UtilityMethods
      * expression.
      *
      * @param val
-     *                The <code>String</code> value to encode.
+     *            The <code>String</code> value to encode.
      * @return The JavaScript literal expression encoded from the supplied
      *         value.
      */
@@ -584,11 +532,11 @@ public class UtilityMethods
      * </table>
      *
      * @param val
-     *                The JavaScript literal to be converted.
+     *            The JavaScript literal to be converted.
      * @return The String value generated from the supplied JavaScript literal.
      * @exception Exception
-     *                    Thrown if the supplied value is not surrounded by
-     *                    double quotes or if the value is <code>null</code>.
+     *                Thrown if the supplied value is not surrounded by double
+     *                quotes or if the value is <code>null</code>.
      */
     public static String unquote4JS(String val) throws Exception {
         StringBuffer sb = new StringBuffer();
@@ -596,25 +544,33 @@ public class UtilityMethods
         return sb.toString();
     }
 
-
-
-
-    //DEPRECATED use UserProfile.equalsOpenId() instead
-    public static boolean equalsOpenId(String openId1, String openId2)
-    {
-        return UserProfile.equalsOpenId(openId1, openId2);
-    }
-
     /**
-     * This method is to calculate duration between two time periods and return value in
-     * number of days.
+     * This method is to calculate duration between two time periods and return
+     * value in number of days.
+     *
      * @param newTime
      * @param existingTime
      * @return
      */
-    public static long getDurationInDays(long newTime , long existingTime){
+    public static long getDurationInDays(long newTime, long existingTime) {
         long timeInterval = newTime - existingTime;
-        return  timeInterval/(24*60*60*1000);
+        return timeInterval / (24 * 60 * 60 * 1000);
+    }
+
+    public static void copyFileContents(File source, File dest) throws Exception {
+        if (dest.exists()) {
+            dest.delete();
+        }
+        FileInputStream fis = new FileInputStream(source);
+        FileOutputStream fos = new FileOutputStream(dest);
+        byte[] buf = new byte[6000];
+        int amt = fis.read(buf);
+        while (amt > 0) {
+            fos.write(buf, 0, amt);
+            amt = fis.read(buf);
+        }
+        fos.close();
+        fis.close();
     }
 
 }

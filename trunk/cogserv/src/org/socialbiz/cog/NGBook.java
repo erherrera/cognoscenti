@@ -493,7 +493,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         RoleRequestRecord newRoleRequest = rolelist
                 .createChild("requests", RoleRequestRecord.class);
         newRoleRequest.setRequestId(IdGenerator.generateKey());
-        newRoleRequest.setModifiedDate(Long.toString(modifiedDate));
+        newRoleRequest.setModifiedDate(modifiedDate);
         newRoleRequest.setModifiedBy(modifiedBy);
         newRoleRequest.setState("Requested");
         newRoleRequest.setCompleted(false);
@@ -761,6 +761,17 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     /**
+     * Returns true if this is a site with a folder structure that the
+     * projects should be put into.
+     *
+     * Returns false if this is a site & project in the datafolder
+     */
+    public boolean isSiteFolderStructure() {
+        return (getSiteRootFolder()!=null);
+    }
+
+
+    /**
      * Given a new project with a key 'p', this will return the File for the new
      * project file (which does not exist yet). There are two methods:
      *
@@ -772,7 +783,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * Note: p is NOT the name of the file, but the sanitized key. The returned
      * name should have the .sp suffix on it.
      */
-    public File getNewProjectPath(String p) throws Exception {
+    private File getNewProjectPath(String p) throws Exception {
         File rootFolder = getSiteRootFolder();
         if (rootFolder!=null) {
             return newProjFolderByKey(rootFolder, p);
@@ -792,7 +803,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         // The result of combining the path in this way, must result in a path
         // that is still within the data folder, so check that the cannonical
         // path starts with the data folder path.
-        if (!NGPage.fileIsInDataPath(theFile)) {
+        if (!fileIsInDataPath(theFile)) {
             throw new ProgramLogicError(
                     "Somehow the NGPage file is supposed to be in the datapath, but did not turn out to be: "
                             + theFile);
@@ -814,8 +825,9 @@ public class NGBook extends ContainerCommon implements NGContainer {
             newFolder = new File(prefLoc, key + "-" + count);
         }
 
-        newFolder.mkdirs();
-        File newProjFile = new File(newFolder, key + ".sp");
+        File cogFolder = new File(newFolder, ".cog");
+        cogFolder.mkdirs();
+        File newProjFile = new File(cogFolder, "ProjInfo.xml");
         return newProjFile;
     }
 
@@ -888,5 +900,90 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     }
 
+    /**
+    * Tells you if this file is within the dataPath folder
+    */
+    public static boolean fileIsInDataPath(File testFile) {
+        String fullPath = testFile.getPath();
+        String cleanUp1 = fullPath.toLowerCase().replace('\\','/');
+        String cleanUp2 = NGPage.dataPath.toLowerCase().replace('\\','/');
+        return cleanUp1.startsWith(cleanUp2);
+    }
 
+
+
+    public NGPage convertFolderToProj(AuthRequest ar, File expectedLoc) throws Exception {
+        String projectName = expectedLoc.getName();
+        String projectKey = SectionWiki.sanitize(projectName);
+        projectKey = findUniqueKeyInSite(projectKey);
+        File projectFile = new File(expectedLoc, projectKey+".sp");
+        NGPage ngp = createProjectAtPath(ar, projectFile, projectKey);
+        String[] nameSet = new String[] { projectName };
+        ngp.setPageNames(nameSet);
+        return ngp;
+    }
+
+    /**
+    * NGPage object is created in memory, and can be manipulated in memory,
+    * but be sure to call "savePage" before finished otherwise nothing is created on disk.
+    */
+    public NGPage createProjectByKey(AuthRequest ar, String key)
+        throws Exception
+    {
+        if (!ar.isLoggedIn()) {
+            throw new ProgramLogicError("Have to be logged in to create a new project");
+        }
+        if (key.indexOf('/')>=0) {
+            throw new ProgramLogicError("Expecting a key value, but got something with a slash in it: "+key);
+        }
+        if (key.endsWith(".sp")) {
+            throw new ProgramLogicError("this has changed, and the key should no longer end with .sp: "+key);
+        }
+
+        //get the sanitized form, just in case
+        String sanitizedKey = SectionUtil.sanitize(key);
+        File newFilePath = getNewProjectPath(sanitizedKey);
+        return createProjectAtPath(ar, newFilePath, sanitizedKey);
+    }
+
+    public NGPage createProjectAtPath(AuthRequest ar, File newFilePath, String newKey) throws Exception {
+        if (!ar.isLoggedIn()) {
+            throw new ProgramLogicError("Have to be logged in to create a new project");
+        }
+        if (newFilePath.exists()) {
+            throw new ProgramLogicError("Somehow the file given already exists: "+newFilePath);
+        }
+
+        Document newDoc = readOrCreateFile(newFilePath, "page");
+        NGPage newPage = null;
+        if (fileIsInDataPath(newFilePath)) {
+            newPage = new NGPage(newFilePath, newDoc);
+        }
+        else {
+            newPage = new NGProj(newFilePath, newDoc);
+        }
+        newPage.setAccount(this);
+        newPage.setKey(newKey);
+
+        //make the current user the author, and member, of the new page
+        newPage.addMemberToRole("Administrators", ar.getBestUserId());
+        newPage.addMemberToRole("Members",        ar.getBestUserId());
+
+        //add in the default sections
+        newPage.createSection("Comments",        ar);
+        newPage.createSection("Attachments",     ar);
+        newPage.createSection("Tasks",           ar);
+        newPage.createSection("Folders",         ar);
+
+        //register this into the page index
+        NGPageIndex.makeIndex(newPage);
+
+        //add this new project into the user's watched projects list
+        //so it is easy for them to find later.
+        UserProfile up = ar.getUserProfile();
+        up.setWatch(newPage.getKey(), ar.nowTime);
+        UserManager.writeUserProfilesToFile();
+
+        return newPage;
+    }
 }
