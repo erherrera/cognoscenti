@@ -28,7 +28,7 @@
     }
 
 
-    NGBook ngb = NGPageIndex.getAccountByKeyOrFail(b);
+    NGBook ngb = NGPageIndex.getSiteByIdOrFail(b);
     int actorAccessLevel = 0;
     if (ngb.secondaryPermission(uProf))
     {
@@ -69,39 +69,39 @@
     {
         if (level < actorAccessLevel)
         {
-            //you can always ask to go down in level
+    //you can always ask to go down in level
         }
         else if (level==1)
         {
-            //you can always ask to be a prospective member
+    //you can always ask to be a prospective member
         }
         else if (level==2 && noMembers)
         {
-            //you can become a member if there are no members in this book
+    //you can become a member if there are no members in this book
         }
         else
         {
-            throw new Exception("A user at level "+actorAccessLevel+" can not ask to become a level "+level);
+    throw new Exception("A user at level "+actorAccessLevel+" can not ask to become a level "+level);
         }
     }
     else
     {
         if (actorAccessLevel >= userAccessLevel && actorAccessLevel >= level)
         {
-            //as long as your access level is higher than both the level you move
-            //the user to, and the level that the use is now, then you are allowed
+    //as long as your access level is higher than both the level you move
+    //the user to, and the level that the use is now, then you are allowed
         }
         else if (actorAccessLevel < level)
         {
-            throw new Exception("You can not move user "+userManipulated.getUniversalId()+"to level "+level+" because you are at level "+actorAccessLevel+" and that user is already at a higher level than that.");
+    throw new Exception("You can not move user "+userManipulated.getUniversalId()+"to level "+level+" because you are at level "+actorAccessLevel+" and that user is already at a higher level than that.");
         }
         else if (actorAccessLevel < userAccessLevel)
         {
-            throw new Exception("You can not move user "+userManipulated.getUniversalId()+"to level "+level+" because you are at level "+actorAccessLevel+".  You must be at or above the level you are moving another user to.");
+    throw new Exception("You can not move user "+userManipulated.getUniversalId()+"to level "+level+" because you are at level "+actorAccessLevel+".  You must be at or above the level you are moving another user to.");
         }
         else
         {
-            throw new Exception("You can not move user "+userManipulated.getUniversalId()+"to level "+level+" because you are at level "+actorAccessLevel);
+    throw new Exception("You can not move user "+userManipulated.getUniversalId()+"to level "+level+" because you are at level "+actorAccessLevel);
         }
     }
     if (level==0)

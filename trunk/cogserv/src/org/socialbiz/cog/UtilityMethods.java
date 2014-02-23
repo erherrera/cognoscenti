@@ -25,6 +25,7 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -561,15 +562,20 @@ public class UtilityMethods {
         if (dest.exists()) {
             dest.delete();
         }
-        FileInputStream fis = new FileInputStream(source);
         FileOutputStream fos = new FileOutputStream(dest);
+        streamFileContents(source, fos);
+        fos.close();
+    }
+
+    public static void streamFileContents(File source, OutputStream os) throws Exception {
+        FileInputStream fis = new FileInputStream(source);
         byte[] buf = new byte[6000];
         int amt = fis.read(buf);
         while (amt > 0) {
-            fos.write(buf, 0, amt);
+            os.write(buf, 0, amt);
             amt = fis.read(buf);
         }
-        fos.close();
+        os.flush();
         fis.close();
     }
 

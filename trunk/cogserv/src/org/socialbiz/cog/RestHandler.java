@@ -64,7 +64,7 @@ public class RestHandler {
             throw new ProgramLogicError("could not find a second slash in: " + path);
         }
         siteId = path.substring(1, slashPos);
-        prjSite = NGPageIndex.getAccountByKeyOrFail(siteId);
+        prjSite = NGPageIndex.getSiteByIdOrFail(siteId);
         int nextSlashPos = path.indexOf("/",slashPos+1);
         if (nextSlashPos<0) {
             throw new ProgramLogicError("could not find a third slash in: " + path);

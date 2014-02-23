@@ -12,14 +12,13 @@
 %><%@page import="java.util.Properties"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    //constructing the AuthRequest object should always be the first thing
+%><%//constructing the AuthRequest object should always be the first thing
     //that a page does, so that everything can be set up correctly.
     ar = AuthRequest.getOrCreate(request, response, out);
 
 
     String b = ar.reqParam("b");
-    ngb = NGPageIndex.getAccountByKeyOrFail(b);
+    ngb = NGPageIndex.getSiteByIdOrFail(b);
 
 
     //search and find all the sites files on disk
@@ -30,8 +29,7 @@
 
     List<AddressListEntry> book_members  = ngb.getPrimaryRole().getDirectPlayers();
 
-    pageTitle = "Site: "+ngb.getName();
-%>
+    pageTitle = "Site: "+ngb.getName();%>
 
 
 <%@ include file="Header.jsp"%>

@@ -6,8 +6,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Must be logged in to change account info.");
 
     String b          = ar.reqParam("b");
@@ -17,7 +16,7 @@
     String bookname   = ar.reqParam("bookname");
     String go         = ar.reqParam("go");
 
-    NGBook ngb = NGPageIndex.getAccountByKeyOrFail(b);
+    NGBook ngb = NGPageIndex.getSiteByIdOrFail(b);
 
     if (!ngb.primaryOrSecondaryPermission(new AddressListEntry(ar.getUserProfile())))
     {
@@ -29,7 +28,6 @@
     ngb.setDescription(desc);
     ngb.setPreferredProjectLocation(ar.defParam("prefLoc", null));
     ngb.saveFile(ar, "Site Info Action");
-    response.sendRedirect(go);
-%>
+    response.sendRedirect(go);%>
 
 <%@ include file="functions.jsp"%>

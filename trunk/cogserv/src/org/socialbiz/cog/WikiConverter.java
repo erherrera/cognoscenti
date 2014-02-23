@@ -79,6 +79,7 @@ public class WikiConverter
             formatText(thisLine);
         }
         terminate();
+        ar.flush();
     }
 
     final static int NOTHING      = 0;

@@ -777,7 +777,7 @@ public class AccountController extends BaseController {
 
            String attachmentName = URLDecoder.decode(docId,"UTF-8")+"."+ext;
 
-           NGBook ngb = NGPageIndex.getAccountByKeyOrFail(siteId);
+           NGBook ngb = NGPageIndex.getSiteByIdOrFail(siteId);
            ar.setPageAccessLevels(ngb);
            String version = ar.reqParam("version");
            AttachmentHelper.serveUpFileNewUI(ar, ngb, attachmentName,Integer.parseInt(version));

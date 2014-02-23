@@ -307,7 +307,7 @@ public class CreateProjectController extends BaseController {
     private static NGPage createTemplateProject(AuthRequest ar, String siteId) throws Exception {
         try {
 
-            NGBook site = NGPageIndex.getAccountByKeyOrFail(siteId);
+            NGBook site = NGPageIndex.getSiteByIdOrFail(siteId);
             if (!site.primaryOrSecondaryPermission(ar.getUserProfile())) {
                 throw new NGException("nugen.exception.not.a.member.of.account",
                         new Object[] { site.getFullName() });

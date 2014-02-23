@@ -51,7 +51,7 @@
     }
     else
     {
-        ngb = NGPageIndex.getAccountByKeyOrFail(key);
+        ngb = NGPageIndex.getSiteByIdOrFail(key);
     }
 
     if (ngb==null)

@@ -106,7 +106,7 @@
                     continue;
                 }
                 String key = fileName.substring(0,fileName.length()-5);
-                NGBook aBook = NGPageIndex.getAccountByKeyOrFail(key);
+                NGBook aBook = NGPageIndex.getSiteByIdOrFail(key);
                 if (!aBook.primaryOrSecondaryPermission(ar.getUserProfile()))
                 {
                     continue;
@@ -118,7 +118,7 @@
                     checked = " checked=\"checked\"";
                 }
                 pickedOne = true;
-%>
+        %>
                 <input type="radio" name="book" value="<%ar.writeHtml(aKey);%>"<%=checked%>/>
                 <% ar.writeHtml(aBook.getName()); %>
                 <br/>

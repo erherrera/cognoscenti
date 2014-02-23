@@ -146,7 +146,7 @@ public class ResourcePage implements NGResource
 
         String bookid = DOMUtils.textValueOfChild(element_page, "bookurl", true);
         bookid = parsebookid(bookid);
-        NGBook ngb = NGPageIndex.getAccountByKeyOrFail(bookid);
+        NGBook ngb = NGPageIndex.getSiteByIdOrFail(bookid);
         if(!ngb.primaryPermission(lar.getUserProfile())){
             lrstatus.setStatusCode(401);
             throw new NGException ("nugen.exception.user.not.executive", new Object[]{ngb.getKey()});
