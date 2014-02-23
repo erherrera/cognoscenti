@@ -234,7 +234,7 @@ public class AccountsDocumentController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook ngb = NGPageIndex.getAccountByKeyOrFail(siteId);
+            NGBook ngb = NGPageIndex.getSiteByIdOrFail(siteId);
             ar.setPageAccessLevels(ngb);
 
             modelAndView=new ModelAndView("AccountNoteZoomView");

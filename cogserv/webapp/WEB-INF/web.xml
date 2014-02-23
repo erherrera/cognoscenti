@@ -77,6 +77,17 @@
         <servlet-class>org.socialbiz.cog.RssServlet</servlet-class>
     </servlet>
 
+
+    <servlet>
+        <servlet-name>apiServlet</servlet-name>
+        <servlet-class>org.socialbiz.cog.api.APIServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>apiServlet</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+
+
     <servlet>
           <servlet-name>besServiceServlet</servlet-name>
           <servlet-class>com.fujitsu.gwt.bewebapp.server.BesServiceImpl</servlet-class>

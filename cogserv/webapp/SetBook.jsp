@@ -66,19 +66,19 @@
 <input type="hidden" name="go" value="<%ar.writeHtml(go);%>">
 <input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
         <%
-    for (int i=0; i<children.length; i++)
-    {
-        File child = children[i];
-        String fileName = child.getName();
-        if (!fileName.endsWith(".book"))
-        {
+            for (int i=0; i<children.length; i++)
+            {
+                File child = children[i];
+                String fileName = child.getName();
+                if (!fileName.endsWith(".book"))
+                {
             //ignore all files except those that end in .book
             continue;
-        }
-        String key = fileName.substring(0,fileName.length()-5);
+                }
+                String key = fileName.substring(0,fileName.length()-5);
 
-        NGBook aBook = NGPageIndex.getAccountByKeyOrFail(key);
-        String aKey = aBook.getKey();
+                NGBook aBook = NGPageIndex.getSiteByIdOrFail(key);
+                String aKey = aBook.getKey();
         %><tr><td><input type="radio" name="key" value="<%
         ar.writeHtml(aKey);
         %>"<%

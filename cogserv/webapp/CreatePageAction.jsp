@@ -47,7 +47,7 @@
     }
 
     // if account is null you will get the default account
-    NGBook ngb = NGPageIndex.getAccountByKeyOrFail(book);
+    NGBook ngb = NGPageIndex.getSiteByIdOrFail(book);
     if (!ngb.primaryOrSecondaryPermission(new AddressListEntry(ar.getUserProfile())))
     {
         throw new Exception("You must be a member of an account in order to create a project in it.  You are not a member of account "+ngb.getName());

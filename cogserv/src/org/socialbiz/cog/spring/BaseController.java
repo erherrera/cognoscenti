@@ -113,7 +113,7 @@ public class BaseController {
         ar.req.setAttribute("accountId", siteId);
         ar.req.setAttribute("book",      siteId);
         ar.req.setAttribute("headerType", "site");
-        NGBook account = NGPageIndex.getAccountByKeyOrFail( siteId );
+        NGBook account = NGPageIndex.getSiteByIdOrFail( siteId );
         ar.setPageAccessLevels(account);
         ar.req.setAttribute("title", account.getFullName());
         return account;

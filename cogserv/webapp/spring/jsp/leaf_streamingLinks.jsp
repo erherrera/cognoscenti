@@ -60,7 +60,7 @@
             readWrite = "X";
         }
 
-        String rightUrl = ar.baseURL + "p/" + ngp.getKey() + "/leaf.xml";
+        String rightUrl = ar.baseURL + "api/" + ngb.getKey() + "/" + ngp.getKey() + "/summary.json";
         LicensedURL projectPath = new LicensedURL(rightUrl, null, lr.getId());
 
         %>

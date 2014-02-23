@@ -440,8 +440,6 @@ public class NGPageIndex
         throw new NGException("nugen.exception.fail.to.locate.container.obj", new Object[]{containerName,containerKey});
     }
 
-
-
     public void writeTruncatedLink(AuthRequest ar, int len)
         throws Exception
     {
@@ -788,7 +786,7 @@ public class NGPageIndex
 
         return (NGPage) ngc;
     }
-    public static NGBook getAccountByKeyOrFail(String key)
+    public static NGBook getSiteByIdOrFail(String key)
         throws Exception
     {
         NGContainer ngc = getContainerByKeyOrFail(key);

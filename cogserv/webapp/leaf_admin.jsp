@@ -411,8 +411,32 @@ else
     </li>
     <li>Search <a href="<%=ar.retPath%>p/factory/search.xml?qs=nugen" target="restapi">p/factory/search.xml?qs=nugen</a></li>
     <li>CLASS <% ar.writeHtml(ngp.getClass().getSimpleName()); %></li>
+</ul>
+<h2>NEW</h2>
+<ul>
+<%
+    String apiPath = ar.retPath+"api/"+ngb.getKey()+"/"+ngp.getKey()+"/";
 
+    %><li>Summary <a href="<%=apiPath%>summary.json">summary.json</a></li><%
 
+    for (GoalRecord goalx : ngp.getAllGoals()) {
+        %><li><a href="<%=apiPath%>goal<%=goalx.getId()%>/goal.json">goal <%=goalx.getId()%></a></li><%
+    }
+
+    for (AttachmentRecord att : ngp.getAllAttachments()) {
+        %><li><a href="<%=apiPath%>doc<%=att.getId()%>/<%=att.getNiceName()%>">attachment <%=att.getNiceName()%></a></li><%
+    }
+
+    for (NoteRecord note : ngp.getAllNotes()) {
+        String saniName = SectionUtil.sanitize(note.getSubject());
+        if (saniName.length()<2) {
+            saniName="note";
+        }
+        %><li><a href="<%=apiPath%>note<%=note.getId()%>/<%=saniName%>.htm">note <%=note.getId()%> HTML</a></li><%
+        %><li><a href="<%=apiPath%>note<%=note.getId()%>/<%=saniName%>.txt">note <%=note.getId()%> text</a></li><%
+    }
+
+%>
 </ul>
     </div>
 </div>

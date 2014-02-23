@@ -25,6 +25,9 @@ import java.util.Vector;
 import java.io.InputStream;
 import java.net.URL;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 /**
 * supports comparing a local and remote project
 */
@@ -75,9 +78,11 @@ public class ProjectSync
             String attName = att.getUniversalId();
             docNames.add(attName);
         }
-        Vector<DOMFace> att2s = remote.getAttachments();
-        for (DOMFace att2 : att2s) {
-            String attName = att2.getScalar("universalid");
+        JSONArray att2s = remote.getDocs();
+        int len = att2s.length();
+        for (int i=0; i<len; i++) {
+            JSONObject oneAtt = att2s.getJSONObject(i);
+            String attName = oneAtt.getString("universalid");
             if (!docNames.contains(attName)) {
                 docNames.add(attName);
             }
@@ -87,7 +92,7 @@ public class ProjectSync
         }
     }
 
-    private SyncStatus findDocStatus(String docName, List<AttachmentRecord> atts, Vector<DOMFace> att2s) throws Exception {
+    private SyncStatus findDocStatus(String docName, List<AttachmentRecord> atts, JSONArray att2s) throws Exception {
         SyncStatus retval = new SyncStatus(this, SyncStatus.TYPE_DOCUMENT, docName);
 
         for (AttachmentRecord att : atts) {
@@ -110,23 +115,23 @@ public class ProjectSync
                 break;
             }
         }
-        for (DOMFace att2 : att2s) {
-            String attName = att2.getScalar("universalid");
+        int len = att2s.length();
+        for (int i=0; i<len; i++) {
+            JSONObject att2 = att2s.getJSONObject(i);
+            String attName = att2.getString("universalid");
             if (docName.equals(attName)) {
                 retval.isRemote = true;
-                retval.nameRemote = att2.getScalar("name");
-                retval.idRemote = att2.getAttribute("id");
-                String timeVal = att2.getScalar("modifiedtime");
-                retval.timeRemote = UtilityMethods.getDateTimeFromXML(timeVal);
+                retval.idRemote = att2.getString("id");
+                retval.nameRemote = att2.getString("name");
+                retval.timeRemote = att2.getLong("modifiedtime");
                 if (retval.timeRemote==0) {
                     throw new Exception("Something is wrong with information about remote document ("
                             +retval.nameRemote+") (id="+retval.idRemote
-                            +") because the timestamp is zero: "+timeVal);
+                            +") because the timestamp is zero");
                 }
-                retval.urlRemote = att2.getScalar("address");
-                retval.sizeRemote = DOMFace.safeConvertLong(att2.getScalar("size"));
-                retval.editorRemote = att2.getAttribute("modifieduser");
-                retval.descRemote = att2.getAttribute("remark");
+                retval.urlRemote = att2.getString("content");
+                retval.sizeRemote = att2.getLong("size");
+                retval.editorRemote = att2.getString("modifieduser");
                 break;
             }
         }
@@ -149,9 +154,11 @@ public class ProjectSync
             }
             noteIds.add(note.getUniversalId());
         }
-        Vector<DOMFace> notes2 = remote.getNotes();
-        for (DOMFace noteRef : notes2) {
-            String noteName = noteRef.getScalar("universalid");
+        JSONArray notes2 = remote.getNotes();
+        int len = notes2.length();
+        for (int i=0; i<len; i++) {
+            JSONObject noteRef = notes2.getJSONObject(i);
+            String noteName = noteRef.getString("universalid");
             if (!noteIds.contains(noteName)) {
                 noteIds.add(noteName);
             }
@@ -162,7 +169,7 @@ public class ProjectSync
     }
 
     private SyncStatus findNoteStatus(String noteId, List<NoteRecord> noteList,
-            Vector<DOMFace> att2s) throws Exception {
+            JSONArray notes2) throws Exception {
         SyncStatus retval = new SyncStatus(this, SyncStatus.TYPE_NOTE, noteId);
 
         for (NoteRecord note : noteList) {
@@ -182,15 +189,17 @@ public class ProjectSync
                 break;
             }
         }
-        for (DOMFace noteRef : att2s) {
-            String uid = noteRef.getScalar("universalid");
+        int len = notes2.length();
+        for (int i=0; i<len; i++) {
+            JSONObject noteRef = notes2.getJSONObject(i);
+            String uid = noteRef.getString("universalid");
             if (noteId.equals(uid)) {
                 retval.isRemote = true;
-                retval.timeRemote = UtilityMethods.getDateTimeFromXML(noteRef.getScalar("time"));
-                retval.urlRemote = noteRef.getScalar("content");
-                retval.idRemote = noteRef.getAttribute("id");
-                retval.nameRemote = noteRef.getScalar("subject");
-                retval.editorRemote = noteRef.getAttribute("modifieduser");
+                retval.timeRemote = noteRef.getLong("modifiedtime");
+                retval.urlRemote = noteRef.getString("content");
+                retval.idRemote = noteRef.getString("id");
+                retval.nameRemote = noteRef.getString("subject");
+                retval.editorRemote = noteRef.getString("modifieduser");
                 break;
             }
         }
@@ -210,9 +219,11 @@ public class ProjectSync
             }
             goalIds.add(uid);
         }
-        Vector<DOMFace> goals2 = remote.getTasks();
-        for (DOMFace goal2 : goals2) {
-            String goalName = goal2.getScalar("universalid");
+        JSONArray goals2 = remote.getGoals();
+        int len = goals2.length();
+        for (int i=0; i<len; i++) {
+            JSONObject goal2 = goals2.getJSONObject(i);
+            String goalName = goal2.getString("universalid");
             if (!goalIds.contains(goalName)) {
                 goalIds.add(goalName);
             }
@@ -223,7 +234,7 @@ public class ProjectSync
     }
 
 
-    private SyncStatus findGoalStatus(String goalId, List<GoalRecord> atts, Vector<DOMFace> att2s) throws Exception {
+    private SyncStatus findGoalStatus(String goalId, List<GoalRecord> atts, JSONArray goals2) throws Exception {
         SyncStatus retval = new SyncStatus(this, SyncStatus.TYPE_TASK, goalId);
         for (GoalRecord goal : atts) {
             String uid = goal.getUniversalId();
@@ -240,18 +251,20 @@ public class ProjectSync
                 break;
             }
         }
-        for (DOMFace att2 : att2s) {
-            String uid = att2.getScalar("universalid");
+        int len = goals2.length();
+        for (int i=0; i<len; i++) {
+            JSONObject att2 = goals2.getJSONObject(i);
+            String uid = att2.getString("universalid");
             if (goalId.equals(uid)) {
                 retval.isRemote = true;
-                retval.timeRemote = UtilityMethods.getDateTimeFromXML(att2.getScalar("modifiedtime"));
-                retval.idRemote = att2.getAttribute("id");
-                retval.nameRemote = att2.getScalar("synopsis");
-                retval.editorRemote = att2.getScalar("modifieduser");
-                retval.assigneeRemote = att2.getScalar("assignee");
-                retval.sizeRemote = DOMFace.safeConvertInt(att2.getScalar("state"));
-                retval.priorityRemote = DOMFace.safeConvertInt(att2.getScalar("priority"));
-                retval.descRemote = att2.getAttribute("description");
+                retval.timeRemote = att2.getLong("modifiedtime");
+                retval.idRemote = att2.getString("id");
+                retval.nameRemote = att2.getString("synopsis");
+                retval.editorRemote = att2.getString("modifieduser");
+                retval.assigneeRemote = att2.getString("assignee");
+                retval.sizeRemote = DOMFace.safeConvertInt(att2.getString("state"));
+                retval.priorityRemote = DOMFace.safeConvertInt(att2.getString("priority"));
+                retval.descRemote = att2.getString("description");
                 break;
             }
         }

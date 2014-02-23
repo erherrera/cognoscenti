@@ -271,16 +271,6 @@ public class NGLeafServlet extends javax.servlet.http.HttpServlet {
                 SectionAttachments.serveUpFile(ar, ngp, attachmentName);
                 return;
             }
-            // see if this is a file
-            /*
-            if (resource.startsWith("f/")) {
-                // need to do access control here
-                String fileId = resource.substring(2).trim();
-                ar.assertLoggedIn("Opening file " + fileId);
-                SectionFolders.serveUpFile(ar, ngp, fileId);
-                return;
-            }
-            */
             if (resource.equals("process.xml")) {
                 ngp.genProcessData(ar);
             } else if (resource.endsWith("wfxml")) {

@@ -13,8 +13,7 @@
 %><%@page import="org.socialbiz.cog.UtilityMethods"
 %><%@page import="java.io.Writer"
 %><%@page import="java.net.URLEncoder"
-%><%
-    ar = AuthRequest.getOrCreate(request, response, out);
+%><%ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't perform search.");
 
     String b          = ar.reqParam("b");
@@ -33,7 +32,7 @@
     String bookName = "";
     if (!isGlobalScope)
     {
-        NGBook ngb2 = NGPageIndex.getAccountByKeyOrFail(b);
+        NGBook ngb2 = NGPageIndex.getSiteByIdOrFail(b);
         bookBit = "&b="+URLEncoder.encode(b, "UTF-8");
         bookName = ngb2.getName();
     }
@@ -41,8 +40,7 @@
                        + URLEncoder.encode(qs, "UTF-8") + bookBit;
 
 
-    pageTitle = "Search: "+qs;
-%>
+    pageTitle = "Search: "+qs;%>
 
 <%@ include file="Header.jsp"%>
 

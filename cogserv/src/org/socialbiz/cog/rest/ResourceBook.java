@@ -119,7 +119,7 @@ public class ResourceBook implements NGResource
             lrstatus.setStatusCode(404);
             throw new NGException("nugen.exception.cant.update.id", new Object[]{id,lid});
         }
-        NGBook ngb = NGPageIndex.getAccountByKeyOrFail(id);
+        NGBook ngb = NGPageIndex.getSiteByIdOrFail(id);
         if(!ngb.getKey().equals(id))
         {
             lrstatus.setStatusCode(404);
@@ -186,7 +186,7 @@ public class ResourceBook implements NGResource
             books = NGBook.getAllAccounts();
         }
         else {
-            NGBook book = NGPageIndex.getAccountByKeyOrFail(lid);
+            NGBook book = NGPageIndex.getSiteByIdOrFail(lid);
             if(!book.getKey().equals(lid))
             {
                 lrstatus.setStatusCode(404);
@@ -227,7 +227,7 @@ public class ResourceBook implements NGResource
     public void loadUserList() throws Exception
     {
         ltype = NGResource.TYPE_XML;
-        NGBook ngb = NGPageIndex.getAccountByKeyOrFail(lid);
+        NGBook ngb = NGPageIndex.getSiteByIdOrFail(lid);
         if(!ngb.getKey().equals(lid))
         {
             lrstatus.setStatusCode(404);
@@ -259,7 +259,7 @@ public class ResourceBook implements NGResource
 
     public void updateuser()throws Exception
     {
-        NGBook ngb = NGPageIndex.getAccountByKeyOrFail(lid);
+        NGBook ngb = NGPageIndex.getSiteByIdOrFail(lid);
 
         if(!ngb.getKey().equals(lid))
         {
@@ -302,7 +302,7 @@ public class ResourceBook implements NGResource
     public void loadPage()throws Exception
     {
         ltype = NGResource.TYPE_XML;
-        NGBook ngb = NGPageIndex.getAccountByKeyOrFail(lid);
+        NGBook ngb = NGPageIndex.getSiteByIdOrFail(lid);
         if(!ngb.getKey().equals(lid))
         {
             lrstatus.setStatusCode(404);
