@@ -20,11 +20,13 @@
 
 package org.socialbiz.cog;
 
+import org.json.JSONObject;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.dms.RemoteLinkCombo;
 import java.io.File;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -516,6 +518,11 @@ public class AttachmentRecord extends DOMFace {
      */
     public AttachmentVersion streamNewVersion(AuthRequest ar, NGContainer ngc, InputStream contents)
             throws Exception {
+        return streamNewVersion(ngc, contents, ar.getBestUserId(), ar.nowTime);
+    }
+
+    public AttachmentVersion streamNewVersion(NGContainer ngc, InputStream contents,
+            String userId, long timeStamp) throws Exception {
 
         // debug code
         if (ngc instanceof NGProj) {
@@ -536,8 +543,8 @@ public class AttachmentRecord extends DOMFace {
         // update the record
         setVersion(av.getNumber());
         setStorageFileName(av.getLocalFile().getName());
-        setModifiedDate(ar.nowTime);
-        setModifiedBy(ar.getBestUserId());
+        setModifiedDate(timeStamp);
+        setModifiedBy(userId);
 
         return av;
     }
@@ -665,6 +672,10 @@ public class AttachmentRecord extends DOMFace {
         else {
             setAttribute(ATTACHMENT_ATTB_RLINK, combo.getComboString());
         }
+    }
+    public boolean hasRemoteLink() {
+        String rl = getAttribute(ATTACHMENT_ATTB_RLINK);
+        return (rl!=null && rl.length()>0);
     }
 
 
@@ -850,48 +861,45 @@ public class AttachmentRecord extends DOMFace {
         return "";
     }
 
-    /**
-     * This is the OLD mechanism where an EMPTY attachment would be
-     * created and assigned to someone to fill... but that did not work
-     * so instead we have a reminderRecord is created and processed,
-     * but no attachment is created until the document actually arrives.
-     *
-     * So this member is no longer needed.
-     * @deprecated
-     */
-    public String getAssignee() {
-        return getAttribute("assignee");
+
+    public JSONObject getJSON4Doc(NGPage ngp, String urlRoot) throws Exception {
+        JSONObject thisDoc = new JSONObject();
+        String contentUrl = urlRoot + "doc" + getId() + "/"
+                    + URLEncoder.encode(getNiceName(), "UTF-8");
+        thisDoc.put("universalid",  getUniversalId());
+        thisDoc.put("id",           getId());
+        thisDoc.put("name",         getNiceName());
+        thisDoc.put("description",  getComment());
+        thisDoc.put("size",         getFileSize(ngp));
+        thisDoc.put("modifiedtime", getModifiedDate());
+        thisDoc.put("modifieduser", getModifiedBy());
+        thisDoc.put("content", contentUrl);
+        return thisDoc;
+    }
+    public void updateDocFromJSON(JSONObject thisDoc) throws Exception {
+        String universalid = thisDoc.getString("universalid");
+        if (!universalid.equals(getUniversalId())) {
+            //just checking, this should never happen
+            throw new Exception("Error trying to update the record for a goal with UID ("
+                    +getUniversalId()+") with post from goal with UID ("+universalid+")");
+        }
+        setDisplayName(thisDoc.getString("name"));
+        setComment(thisDoc.optString("description"));
+        //Note the following field updates
+        //  modifiedtime is set only when a new version is actually created
+        //  modifieduser is set only when a new version is actually created
+        //  size is the physical size of the file, and never set
+        //  local id is an internal local value
+        //  universal id has to match before we do anything here
+        //  content url is the logical location of the contents, not settable
     }
 
-    /**
-     * This is the OLD mechanism where an EMPTY attachment would be
-     * created and assigned to someone to fill... but that did not work
-     * so instead we have a reminderRecord is created and processed,
-     * but no attachment is created until the document actually arrives.
-     *
-     * So this member is no longer needed.
-     * @deprecated
-     */
-    public void setAssignee(String assignee) {
-        setAttribute("assignee", assignee);
-    }
-
-    /** @deprecated */
-    public boolean isAssignee(UserRef up) {
-        return up.hasAnyId(getAttribute("assignee"));
-    }
 
     /**
-     * @deprecated use getRemoteCombo instead
+     * @deprecated use getRemoteCombo().getComboString() instead
      */
     public String getRemoteLink() {
         return getAttribute(ATTACHMENT_ATTB_RLINK);
     }
 
-    /**
-     * @deprecated use setRemoteCombo instead
-     */
-    public void setRemoteLink(String rlink) {
-        setAttribute(ATTACHMENT_ATTB_RLINK, rlink);
-    }
 }

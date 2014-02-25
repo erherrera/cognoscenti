@@ -220,7 +220,7 @@
             String displayName = attachment.getNiceNameTruncated(48);
             String ftype = attachment.getType();
 
-            String rLink = attachment.getRemoteLink();
+            boolean hasRLink = attachment.hasRemoteLink();
 
             String modifiedBy = attachment.getModifiedBy();
             if (modifiedBy.length() == 0)
@@ -292,7 +292,7 @@
             ar.write("</td>");
 
             ar.write("\n<td>");
-            if(rLink != null && rLink.length() > 0 && !ar.isStaticSite())
+            if(hasRLink && !ar.isStaticSite())
             {
                 String rsyncLink = ar.retPath + "syncAttachment.jsp"
                     + "?p=" + URLEncoder.encode(ngp.getKey(), "UTF-8")

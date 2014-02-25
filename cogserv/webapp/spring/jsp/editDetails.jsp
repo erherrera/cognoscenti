@@ -160,8 +160,7 @@
                 <td style="width:20px;"></td>
                 <td  valign="top">
                    <%
-                   if(attachment.getRemoteLink() != null && attachment.getRemoteLink().length() > 0)
-                   {
+                   if(attachment.hasRemoteLink()) {
 
                         RemoteLinkCombo rlc = attachment.getRemoteCombo();
                         String folderId = rlc.folderId;

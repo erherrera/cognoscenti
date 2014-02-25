@@ -28,6 +28,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -935,5 +937,79 @@ public class GoalRecord extends BaseRecord {
     }
     public String getWaitPeriod() {
         return getScalar("waitPeriod");
+    }
+
+
+    public JSONObject getJSON4Goal(NGPage ngp, String urlRoot) throws Exception {
+        JSONObject thisGoal = new JSONObject();
+        thisGoal.put("universalid", getUniversalId());
+        thisGoal.put("id", getId());
+        thisGoal.put("synopsis", getSynopsis());
+        thisGoal.put("description", getDescription());
+        thisGoal.put("modifiedtime", getModifiedDate());
+        thisGoal.put("modifieduser", getModifiedBy());
+        thisGoal.put("state", getState());
+        thisGoal.put("priority", getPriority());
+        thisGoal.put("startdate", getStartDate());
+        thisGoal.put("enddate", getEndDate());
+        thisGoal.put("rank", getRank());
+        NGRole assignees = getAssigneeRole();
+        /*
+        //TODO: figure out what to do about assignees
+        JSONArray peopleList = new JSONArray();
+        for (AddressListEntry ale : assignees.getExpandedPlayers(ngp)) {
+            peopleList.put(ale.getUniversalId());
+        }
+        thisGoal.put("assignee", peopleList);
+        */
+        String contentUrl = urlRoot + "goal" + getId() + "/goal.json";
+        thisGoal.put("content", contentUrl);
+        return thisGoal;
+    }
+    public void updateGoalFromJSON(JSONObject goalObj) throws Exception {
+        String universalid = goalObj.getString("universalid");
+        if (!universalid.equals(getUniversalId())) {
+            //just checking, this should never happen
+            throw new Exception("Error trying to update the record for a goal with UID ("
+                    +getUniversalId()+") with post from goal with UID ("+universalid+")");
+        }
+        String synopsis = goalObj.optString("synopsis");
+        if (synopsis!=null && synopsis.length()>0) {
+            setSynopsis(synopsis);
+        }
+        String description = goalObj.optString("description");
+        if (description!=null && description.length()>0) {
+            setDescription(synopsis);
+        }
+        long modifiedtime = goalObj.optLong("modifiedtime");
+        if (modifiedtime>0) {
+            setModifiedDate(modifiedtime);
+        }
+        String modifieduser = goalObj.optString("modifieduser");
+        if (modifieduser!=null && modifieduser.length()>0) {
+            setModifiedBy(modifieduser);
+        }
+        int state = goalObj.optInt("state");
+        if (state>0) {
+            setState(state);
+        }
+        int priority = goalObj.optInt("priority");
+        if (priority>0) {
+            setPriority(priority);
+        }
+        long startdate = goalObj.optLong("startdate");
+        if (startdate>0) {
+            setStartDate(startdate);
+        }
+        long enddate = goalObj.optLong("enddate");
+        if (enddate>0) {
+            setEndDate(enddate);
+        }
+        int rank = goalObj.optInt("rank");
+        if (rank>0) {
+            setPriority(rank);
+        }
+
+        //TODO: handle assignees
     }
 }

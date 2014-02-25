@@ -29,19 +29,22 @@ public class ResourceDecoder {
     public String projId;
     public NGPage project;
 
-    boolean isListing;
-    String resource;
+    public boolean isListing;
+    public String resource;
 
-    boolean isDoc;
+    public boolean isDoc;
     public String docId;
     public int docVersion;
 
-    boolean isGoal;
+    public boolean isGoal;
     public String goalId;
 
-    boolean isNote;
+    public boolean isNote;
     public String noteId;
-    boolean isHtmlFormat;
+    public boolean isHtmlFormat;
+
+    public boolean isTempDoc;
+    public String tempName;
 
     public ResourceDecoder(AuthRequest ar) throws Exception {
 
@@ -113,6 +116,10 @@ public class ResourceDecoder {
             }
             goalId = resource.substring(4, slashPos);
             return;
+        }
+        if (resource.startsWith("temp")) {
+            isTempDoc = true;
+            tempName = resource.substring(slashPos);
         }
     }
 

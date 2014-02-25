@@ -104,8 +104,8 @@ public class AttachmentRecordProj extends AttachmentRecord
     * copy the contents into here, and then create a new version for that file, and
     * return the AttachmentVersion object that represents that new version.
     */
-    public AttachmentVersion streamNewVersion(AuthRequest ar, NGContainer ngc, InputStream contents)
-        throws Exception {
+    public AttachmentVersion streamNewVersion(NGContainer ngc, InputStream contents,
+            String userId, long timeStamp) throws Exception {
 
         if (!(ngc instanceof NGProj)) {
             throw new Exception("Problem: ProjectAttachment should only belong to NGProject, but somehow got a different kind of container.");
@@ -122,8 +122,8 @@ public class AttachmentRecordProj extends AttachmentRecord
         //update the record
         setVersion(av.getNumber());
         setStorageFileName(av.getLocalFile().getName());
-        setModifiedDate(ar.nowTime);
-        setModifiedBy(ar.getBestUserId());
+        setModifiedDate(timeStamp);
+        setModifiedBy(userId);
 
         return av;
     }

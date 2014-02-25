@@ -25,6 +25,7 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URLEncoder;
@@ -569,6 +570,11 @@ public class UtilityMethods {
 
     public static void streamFileContents(File source, OutputStream os) throws Exception {
         FileInputStream fis = new FileInputStream(source);
+        streamToStream(fis,os);
+        fis.close();
+    }
+
+    public static void streamToStream(InputStream fis, OutputStream os) throws Exception {
         byte[] buf = new byte[6000];
         int amt = fis.read(buf);
         while (amt > 0) {
@@ -576,7 +582,6 @@ public class UtilityMethods {
             amt = fis.read(buf);
         }
         os.flush();
-        fis.close();
     }
 
 }

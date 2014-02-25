@@ -20,6 +20,8 @@
 
 package org.socialbiz.cog;
 
+import org.json.JSONObject;
+
 /**
 * supports comparing a local and remote project
 */
@@ -63,7 +65,8 @@ public class SyncStatus
     public String  assigneeLocal;
     public String  assigneeRemote;
     public int     priorityLocal;
-    public int     priorityRemote;
+
+    public JSONObject remoteCopy;
 
 
     public SyncStatus(ProjectSync _sync, int _type, String _uid) throws Exception {

@@ -18,23 +18,26 @@ package org.socialbiz.cog.api;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.GoalRecord;
-import org.socialbiz.cog.HtmlToWikiConverter;
 import org.socialbiz.cog.MimeTypes;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.NoteRecord;
+import org.socialbiz.cog.SectionUtil;
 import org.socialbiz.cog.ServerInitializer;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.WikiConverter;
-import org.workcast.streams.HTMLWriter;
+import org.workcast.streams.MemFile;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URLEncoder;
 
 import javax.servlet.ServletConfig;
@@ -101,6 +104,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         try {
+            System.out.println("API_GET: "+ar.getCompleteURL());
             if (!ServerInitializer.isRunning()) {
                 throw new Exception("Server is not ready to handle requests.");
             }
@@ -108,7 +112,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             doAuthenticatedGet(ar);
         }
         catch (Exception e) {
-            handleException(e, ar);
+            streamException(e, ar);
         }
         finally {
             NGPageIndex.clearLocksHeldByThisThread();
@@ -139,20 +143,23 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             ar.flush();
 
         } catch (Exception e) {
-            handleException(e, ar);
+            streamException(e, ar);
         }
     }
 
     public void doPut(HttpServletRequest req, HttpServletResponse resp) {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
+        ar.resp.setContentType("application/json");
         try {
+            System.out.println("API_PUT: "+ar.getCompleteURL());
             ResourceDecoder resDec = new ResourceDecoder(ar);
 
-            if (resDec.isDoc) {
-                receiveDocument(ar, resDec);
-            }
-            else if (resDec.isNote) {
-                receiveNote(ar, resDec);
+            if (resDec.isTempDoc) {
+                receiveTemp(ar, resDec);
+                System.out.println("    PUT: file written: "+resDec.tempName);
+                JSONObject result = new JSONObject();
+                result.put("responseCode", 200);
+                result.write(ar.resp.getWriter(), 2, 0);
             }
             else {
                 throw new Exception("Can not do a PUT to that resource URL: "+ar.getCompleteURL());
@@ -160,45 +167,189 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             ar.flush();
         }
         catch (Exception e) {
-            handleException(e, ar);
+            streamException(e, ar);
         }
     }
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp) {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
-        handleException(new Exception("not implemented yet"), ar);
+        ar.resp.setContentType("application/json");
+        String debugContent = "";
+        try {
+            System.out.println("API_POST: "+ar.getCompleteURL());
+            ResourceDecoder resDec = new ResourceDecoder(ar);
+
+            if (!resDec.isListing) {
+                throw new Exception("Can not do a POST to that resource URL: "+ar.getCompleteURL());
+            }
+            InputStream is = ar.req.getInputStream();
+
+            //capture the response for debug purpose
+            MemFile buffer = new MemFile();
+            buffer.fillWithInputStream(is);
+            is.close();
+            StringWriter sw = new StringWriter();
+            buffer.outToWriter(sw);
+            debugContent = sw.toString();
+            InputStream is2 = buffer.getInputStream();
+
+            //continue processing
+            JSONTokener jt = new JSONTokener(is2);
+            is2.close();
+            JSONObject objIn = new JSONObject(jt);
+
+
+            String op = objIn.getString("operation");
+            System.out.println("API_POST: operation="+op);
+            if (op==null || op.length()==0) {
+                throw new Exception("Request object needs to have a specified 'operation'."
+                        +" None found.");
+            }
+
+            JSONObject responseObj = getPostResponse(ar, resDec, op, objIn);
+            responseObj.write(ar.resp.getWriter(), 2, 0);
+            ar.flush();
+        }
+        catch (Exception e) {
+            Exception wrap = new Exception("POST content: ("+debugContent+")", e);
+            streamException(wrap, ar);
+        }
+    }
+
+    private JSONObject getPostResponse(AuthRequest ar, ResourceDecoder resDec,
+            String op, JSONObject objIn) throws Exception {
+        JSONObject responseOK = new JSONObject();
+        responseOK.put("responseCode", 200);
+        String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/" + resDec.projId + "/";
+
+        if ("ping".equals(op)) {
+            objIn.put("responseCode", 200);
+            return objIn;
+        }
+
+        if (!resDec.site.isSiteFolderStructure()) {
+            throw new Exception("This operation requires a site that is structured with site-folder structure");
+        }
+
+        if ("tempFile".equals(op)) {
+            String fileName = "~tmp~"+SectionUtil.getNewKey()+"~tmp~";
+            responseOK.put("tempFileName", fileName);
+            responseOK.put("tempFileURL", urlRoot + "temp/" + fileName);
+            return responseOK;
+        }
+        if ("newGoal".equals(op)) {
+            JSONObject newGoalObj = objIn.getJSONObject("goal");
+            GoalRecord newGoal = resDec.project.createGoal();
+            newGoal.setUniversalId(newGoalObj.getString("universalid"));
+            newGoal.updateGoalFromJSON(newGoalObj);
+            resDec.project.save(ar.getBestUserId(), ar.nowTime, "New goal synchronized from downstream linked project.");
+            return responseOK;
+        }
+        if ("updateGoal".equals(op)) {
+            JSONObject newGoalObj = objIn.getJSONObject("goal");
+            GoalRecord goal = resDec.project.findGoalByUIDorNull(
+                    newGoalObj.getString("universalid"));
+            if (goal==null) {
+                throw new Exception("Unable to find an existing goal with UID ("
+                        +newGoalObj.getString("universalid")+")");
+            }
+            goal.updateGoalFromJSON(newGoalObj);
+            resDec.project.save(ar.getBestUserId(), ar.nowTime, "Goal synchronized from downstream linked project.");
+            return responseOK;
+        }
+        if ("newNote".equals(op)) {
+            JSONObject newNoteObj = objIn.getJSONObject("note");
+            NoteRecord newNote = resDec.project.createNote();
+            newNote.setUniversalId(newNoteObj.getString("universalid"));
+            newNote.updateNoteFromJSON(newNoteObj);
+            resDec.project.save(ar.getBestUserId(), ar.nowTime, "New note synchronized from downstream linked project.");
+            return responseOK;
+        }
+        if ("updateNote".equals(op)) {
+            JSONObject newNoteObj = objIn.getJSONObject("note");
+            NoteRecord note = resDec.project.getNoteByUidOrNull(
+                    newNoteObj.getString("universalid"));
+            if (note==null) {
+                throw new Exception("Unable to find an existing note with UID ("
+                        +newNoteObj.getString("universalid")+")");
+            }
+            note.updateNoteFromJSON(newNoteObj);
+            resDec.project.save(ar.getBestUserId(), ar.nowTime, "Note synchronized from downstream linked project.");
+            return responseOK;
+        }
+        if ("updateDoc".equals(op) || "newDoc".equals(op)) {
+            JSONObject newDocObj = objIn.getJSONObject("doc");
+            String tempFileName = objIn.getString("tempFileName");
+
+            File folder = resDec.project.getContainingFolder();
+            File tempFile = new File(folder, tempFileName);
+            if (!tempFile.exists()) {
+                throw new Exception("Attemped operation failed because the temporary file "
+                        +"does not exist: "+tempFile);
+            }
+            AttachmentRecord att;
+            if ("updateDoc".equals(op)) {
+                att = resDec.project.findAttachmentByUidOrNull(newDocObj.getString("universalid"));
+            }
+            else {
+                att = resDec.project.createAttachment();
+                att.setUniversalId(newDocObj.getString("universalid"));
+            }
+            att.updateDocFromJSON(newDocObj);
+
+            FileInputStream fis = new FileInputStream(tempFile);
+            att.streamNewVersion(ar, resDec.project, fis);
+            fis.close();
+            tempFile.delete();
+
+            //send all the info back for a reasonable response
+            responseOK.put("doc",  att.getJSON4Doc(resDec.project, urlRoot));
+            resDec.project.save(ar.getBestUserId(), ar.nowTime, "Document synchronized from downstream linked project.");
+            return responseOK;
+        }
+
+        throw new Exception("API does not understand operation: "+op);
     }
 
     public void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
-        handleException(new Exception("not implemented yet"), ar);
+        streamException(new Exception("not implemented yet"), ar);
     }
 
-    public void init(ServletConfig config)
-          throws ServletException {
+    public void init(ServletConfig config) throws ServletException {
         //don't initialize here.  Instead, initialize in SpringServlet!
     }
 
-    private void handleException(Exception e, AuthRequest ar)
-    {
-        try
-        {
+    private void streamException(Exception e, AuthRequest ar) {
+        try {
+            System.out.println("API_ERROR: "+ar.getCompleteURL());
+
             ar.logException("API Servlet", e);
 
-            ar.resp.setContentType("text/html;charset=UTF-8");
-            ar.write("<html><body><ul><li>Exception: ");
-            ar.writeHtml(e.toString());
-            ar.write("</li></ul>\n");
-            ar.write("<hr/>\n");
-            ar.write("<a href=\"");
-            ar.write(ar.retPath);
-            ar.write("\" title=\"Access the root\">Main</a>\n");
-            ar.write("<hr/>\n<pre>");
-            e.printStackTrace(new PrintWriter(new HTMLWriter(ar.w)));
-            ar.write("</pre></body></html>\n");
+            JSONObject errorResponse = new JSONObject();
+            errorResponse.put("responseCode", 500);
+            JSONObject exception = new JSONObject();
+            errorResponse.put("exception", exception);
+
+            JSONArray msgs = new JSONArray();
+            Throwable runner = e;
+            while (runner!=null) {
+                System.out.println("    ERROR: "+runner.toString());
+                msgs.put(runner.toString());
+                runner = runner.getCause();
+            }
+            exception.put("msgs", msgs);
+
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            exception.put("stack", sw.toString());
+
+            ar.resp.setContentType("application/json");
+            errorResponse.write(ar.resp.writer, 2, 0);
             ar.flush();
         } catch (Exception eeeee) {
             // nothing we can do here...
+            ar.logException("API Servlet Error Within Error", eeeee);
         }
     }
 
@@ -212,20 +363,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
         JSONArray goals = new JSONArray();
         for (GoalRecord goal : resDec.project.getAllGoals()) {
-            JSONObject thisGoal = new JSONObject();
-            String contentUrl = urlRoot + "goal" + goal.getId() + "/goal.json";
-            thisGoal.put("universalid", goal.getUniversalId());
-            thisGoal.put("id", goal.getId());
-            thisGoal.put("synopsis", goal.getSynopsis());
-            thisGoal.put("description", goal.getDescription());
-            thisGoal.put("modifiedtime", goal.getModifiedDate());
-            thisGoal.put("modifieduser", goal.getModifiedBy());
-            thisGoal.put("state", goal.getState());
-            thisGoal.put("priority", goal.getPriority());
-            thisGoal.put("startdate", goal.getStartDate());
-            thisGoal.put("enddate", goal.getEndDate());
-            thisGoal.put("rank", goal.getRank());
-            thisGoal.put("content", contentUrl);
+            JSONObject thisGoal = goal.getJSON4Goal(resDec.project, urlRoot);
             goals.put(thisGoal);
         }
         root.put("goals", goals);
@@ -257,13 +395,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
         JSONArray notes = new JSONArray();
         for (NoteRecord note : resDec.project.getAllNotes()) {
-            JSONObject thisNote = new JSONObject();
-            thisNote.put("subject", note.getSubject());
-            thisNote.put("modifiedtime", note.getLastEdited());
-            thisNote.put("modifieduser", note.getLastEditedBy());
-            thisNote.put("universalid", note.getUniversalId());
-            thisNote.put("contentURL", "figure this out");
-            thisNote.put("id", note.getId());
+            JSONObject thisNote = note.getJSON4Note(urlRoot, false);
             notes.put(thisNote);
         }
         root.put("notes", notes);
@@ -282,22 +414,11 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
     }
 
     private void genGoalInfo(AuthRequest ar, ResourceDecoder resDec) throws Exception {
+        String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/" + resDec.projId + "/";
         GoalRecord goal = resDec.project.getGoalOrFail(resDec.goalId);
-        JSONObject thisGoal = new JSONObject();
-        thisGoal.put("universalid", goal.getUniversalId());
-        thisGoal.put("id", goal.getId());
-        thisGoal.put("synopsis", goal.getSynopsis());
-        thisGoal.put("description", goal.getDescription());
-        thisGoal.put("modifiedtime", goal.getModifiedDate());
-        thisGoal.put("modifieduser", goal.getModifiedBy());
-        thisGoal.put("state", goal.getState());
-        thisGoal.put("priority", goal.getPriority());
-        thisGoal.put("startdate", goal.getStartDate());
-        thisGoal.put("enddate", goal.getEndDate());
-        thisGoal.put("rank", goal.getRank());
-
+        JSONObject goalObj = goal.getJSON4Goal(resDec.project, urlRoot);
         ar.resp.setContentType("application/json");
-        thisGoal.write(ar.resp.getWriter(), 2, 0);
+        goalObj.write(ar.resp.getWriter(), 2, 0);
         ar.flush();
     }
 
@@ -318,34 +439,13 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         ar.flush();
     }
 
-    private void receiveDocument(AuthRequest ar, ResourceDecoder resDec) throws Exception {
-        AttachmentRecord att = resDec.project.findAttachmentByIDOrFail(resDec.docId);
+    private void receiveTemp(AuthRequest ar, ResourceDecoder resDec) throws Exception {
+        File folder = resDec.project.getContainingFolder();
+        File tempFile = new File(folder, resDec.tempName);
         InputStream is = ar.req.getInputStream();
-        att.streamNewVersion(ar, resDec.project, is);
-        resDec.project.save();
+        FileOutputStream fos = new FileOutputStream(tempFile);
+        UtilityMethods.streamToStream(is,fos);
+        fos.flush();
+        fos.close();
     }
-
-    private void receiveNote(AuthRequest ar, ResourceDecoder resDec) throws Exception {
-        NoteRecord note = resDec.project.getNoteOrFail(resDec.noteId);
-        InputStream is = ar.req.getInputStream();
-        InputStreamReader isr = new InputStreamReader(is, "UTF-8");
-        StringBuffer sb = new StringBuffer();
-        char[] buf = new char[800];
-        int amt = isr.read(buf);
-        while (amt>0) {
-            sb.append(buf, 0, amt);
-            amt = isr.read(buf);
-        }
-        String recContent = sb.toString();
-        if (resDec.isHtmlFormat) {
-            HtmlToWikiConverter h = new HtmlToWikiConverter();
-            String contents = h.htmlToWiki(ar.baseURL, recContent);
-            note.setData(contents);
-        }
-        else {
-            note.setData(recContent);
-        }
-    }
-
-
 }

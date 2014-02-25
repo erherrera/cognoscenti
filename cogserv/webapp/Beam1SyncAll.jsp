@@ -41,7 +41,19 @@
     RemoteProject rp = new RemoteProject(ngp.getUpstreamLink());
     ProjectSync ps = new ProjectSync(ngp, rp, ar, ngp.getLicenses().get(0).getId());
 
-    ps.downloadAll();
+    String op = ar.reqParam("op");
+    if ("Download All".equals(op)) {
+        ps.downloadAll();
+    }
+    else if ("Upload All".equals(op)) {
+        ps.uploadAll();
+    }
+    else if ("Ping".equals(op)) {
+        ps.pingUpstream();
+    }
+    else {
+        throw new Exception("Dont understand operation; "+op);
+    }
 
     response.sendRedirect(go);
 

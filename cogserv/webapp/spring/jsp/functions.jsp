@@ -958,7 +958,7 @@ int count=100;
                 ar.write("false");
                 ar.write("</td>");
             }
-            else if ((attachment.getRemoteLink() != null) && (!attachment.getRemoteLink().equals("")) &&(!attachment.getType().equals("URL")))
+            else if ((attachment.hasRemoteLink()) && (!attachment.getType().equals("URL")))
             {
                 ar.write("\n<td align=\"center\">");
                 ar.write("<img src=\"");
