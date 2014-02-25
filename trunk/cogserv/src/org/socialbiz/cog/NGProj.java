@@ -235,4 +235,9 @@ public class NGProj extends NGPage {
             ar.setNewUI(previousUI);
         }
     }
+
+
+    public File getContainingFolder() {
+        return containingFolder;
+    }
 }

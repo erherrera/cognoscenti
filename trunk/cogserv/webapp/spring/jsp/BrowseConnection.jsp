@@ -188,8 +188,7 @@ Required parameter:
         String rlink = userPKey + "@" + remoteFile.getSymbol();
         String fileFullPath = remoteFile.getFullPath();
         for(AttachmentRecord aRecord : ngp.getAllAttachments()){
-            String arLink = aRecord.getRemoteLink();
-            if (arLink==null || arLink.length()==0) {
+            if (!aRecord.hasRemoteLink()) {
                 continue;
             }
             if (aRecord.isDeleted()) {

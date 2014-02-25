@@ -362,7 +362,7 @@ String thisPageAddress = ar.getResourceURL(ngp,"admin.htm");
                 %>
                 <table width="720px">
                   <form action="<%=ar.retPath%>Beam1SyncAll.jsp" method="post">
-                  <input type="hidden" name="go" value="<%ar.writeHtml(allTasksPage);%>">
+                  <input type="hidden" name="go" value="<%ar.writeHtml(thisPage);%>">
                   <input type="hidden" name="p" value="<%ar.writeHtml(p);%>">
                     <tr>
                         <td class="gridTableColummHeader_2"></td>
@@ -415,7 +415,11 @@ String thisPageAddress = ar.getResourceURL(ngp,"admin.htm");
                     <tr>
                         <td class="gridTableColummHeader_2"></td>
                         <td style="width:20px;"></td>
-                        <td> <input type="submit" value="Synchronize" class="inputBtn"> </td>
+                        <td> <input type="submit" value="Upload All" name="op" class="inputBtn"> </td>
+                        <td style="width:20px;"></td>
+                        <td> <input type="submit" value="Download All" name="op" class="inputBtn"> </td>
+                        <td style="width:20px;"></td>
+                        <td> <input type="submit" value="Ping" name="op" class="inputBtn"> </td>
                     </tr>
                   </form>
                 </table>

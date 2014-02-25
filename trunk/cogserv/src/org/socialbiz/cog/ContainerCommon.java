@@ -124,10 +124,16 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
     }
 
     public AttachmentRecord findAttachmentByName(String name) throws Exception {
-        for (AttachmentRecord att : getAllAttachments())
-        {
-            if (att.equivalentName( name ))
-            {
+        for (AttachmentRecord att : getAllAttachments()) {
+            if (att.equivalentName( name )) {
+                return att;
+            }
+        }
+        return null;
+    }
+    public AttachmentRecord findAttachmentByUidOrNull(String universalId) throws Exception {
+        for (AttachmentRecord att : getAllAttachments()) {
+            if (universalId.equals(att.getUniversalId())) {
                 return att;
             }
         }
@@ -262,8 +268,7 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
 
 
     public NoteRecord getNote(String cmtId) throws Exception {
-        List<NoteRecord> fullList = getAllNotes();
-        for (NoteRecord lr : fullList) {
+        for (NoteRecord lr : getAllNotes()) {
             if (cmtId.equals(lr.getId())) {
                 return lr;
             }
@@ -273,13 +278,20 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
 
 
     public NoteRecord getNoteOrFail(String noteId) throws Exception {
-
         NoteRecord ret =  getNote(noteId);
-        if (ret==null)
-        {
+        if (ret==null) {
             throw new NGException("nugen.exception.unable.to.locate.note.with.id", new Object[]{noteId, getFullName()});
         }
         return ret;
+    }
+
+    public NoteRecord getNoteByUidOrNull(String universalId) throws Exception {
+        for (NoteRecord lr : getAllNotes()) {
+            if (universalId.equals(lr.getUniversalId())) {
+                return lr;
+            }
+        }
+        return null;
     }
 
 

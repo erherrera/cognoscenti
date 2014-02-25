@@ -150,7 +150,7 @@
         <tr>
             <td>Remote</td>
             <td class="Odd">
-                <%ar.writeHtml(attachment.getRemoteLink()); %>
+                <%ar.writeHtml(attachment.getRemoteCombo().getComboString()); %>
             </td>
         </tr>
         <tr>

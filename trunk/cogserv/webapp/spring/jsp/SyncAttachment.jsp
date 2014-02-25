@@ -158,11 +158,9 @@
             }
 
             String rLink = attachment.getRemoteLink();
-            if(rLink == null || rLink.length() == 0)
-            {
+            if(!attachment.hasRemoteLink()) {
                 continue;
             }
-
 
             String id = attachment.getId();
             String displayName = attachment.getNiceNameTruncated(48);

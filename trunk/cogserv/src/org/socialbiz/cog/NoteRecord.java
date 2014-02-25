@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
 
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -574,5 +575,50 @@ public class NoteRecord extends DOMFace
      public void setUniversalId(String newID) throws Exception {
          setScalar("universalid", newID);
      }
+
+     public JSONObject getJSON4Note(String urlRoot, boolean withData) throws Exception {
+         JSONObject thisNote = new JSONObject();
+         String contentUrl = urlRoot + "note" + getId() + "/"
+                     + SectionWiki.sanitize(getSubject()) + ".txt";
+         thisNote.put("subject", getSubject());
+         thisNote.put("modifiedtime", getLastEdited());
+         thisNote.put("modifieduser", getLastEditedBy());
+         thisNote.put("universalid", getUniversalId());
+         thisNote.put("public", getVisibility()==1);
+         thisNote.put("content", contentUrl);
+         thisNote.put("id", getId());
+         if (withData) {
+             thisNote.put("data", getData());
+         }
+         return thisNote;
+     }
+     public void updateNoteFromJSON(JSONObject noteObj) throws Exception {
+         String universalid = noteObj.getString("universalid");
+         if (!universalid.equals(getUniversalId())) {
+             //just checking, this should never happen
+             throw new Exception("Error trying to update the record for a goal with UID ("
+                     +getUniversalId()+") with post from goal with UID ("+universalid+")");
+         }
+         String subj = noteObj.optString("subject");
+         if (subj!=null && subj.length()>0) {
+             setSubject(subj);
+         }
+         setLastEdited(noteObj.getLong("modifiedtime"));
+         setLastEditedBy(noteObj.getString("modifieduser"));
+         if (noteObj.getBoolean("public")) {
+             //public
+             setVisibility(1);
+         }
+         else {
+             //only non-public option is member only.  Other visibility
+             //options should not be considered by sync mechanism at all.
+             setVisibility(2);
+         }
+         String data = noteObj.optString("data");
+         if (data!=null && data.length()>0) {
+             setData(data);
+         }
+     }
+
 
 }

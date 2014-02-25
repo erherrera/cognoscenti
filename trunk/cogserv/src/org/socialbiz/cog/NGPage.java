@@ -926,9 +926,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
     * Returns all the goals for a project.
     */
-    public List<GoalRecord> getAllGoals()
-        throws Exception
-    {
+    public List<GoalRecord> getAllGoals() throws Exception {
         NGSection sec = getRequiredSection("Tasks");
         return SectionTask.getAllTasks(sec);
     }
@@ -936,18 +934,23 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
     * Find the requested goal, or throw an exception
     */
-    public GoalRecord getGoalOrFail(String id)
-        throws Exception
-    {
+    public GoalRecord getGoalOrFail(String id) throws Exception {
         NGSection sec = getRequiredSection("Tasks");
         return SectionTask.getTaskOrFail(sec, id);
     }
 
-    public GoalRecord getGoalOrNull(String id)
-        throws Exception
-    {
+    public GoalRecord getGoalOrNull(String id) throws Exception {
         NGSection sec = getRequiredSection("Tasks");
         return SectionTask.getTaskOrNull(sec, id);
+    }
+
+    public GoalRecord findGoalByUIDorNull(String uid) throws Exception {
+        for (GoalRecord goal : getAllGoals()) {
+            if (uid.equals(goal.getUniversalId())) {
+                return goal;
+            }
+        }
+        return null;
     }
 
     /**
@@ -1221,17 +1224,6 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
-
-    /**
-    * deprectated, use getNote instead
-    *
-    public NoteRecord getLeaflet(String lid)
-        throws Exception
-    {
-        return getNote(lid);
-    }*/
-
-
     public void writeContainerLink(AuthRequest ar, int len) throws Exception
     {
         ar.write("<a href=\"");
@@ -1449,5 +1441,8 @@ public class NGPage extends ContainerCommon implements NGContainer
         return rankVal;
     }
 
+    public File getContainingFolder() {
+        return null;
+    }
 
 }
