@@ -23,15 +23,17 @@ import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.GoalRecord;
+import org.socialbiz.cog.License;
 import org.socialbiz.cog.MimeTypes;
+import org.socialbiz.cog.NGBook;
+import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.SectionUtil;
+import org.socialbiz.cog.SectionWiki;
 import org.socialbiz.cog.ServerInitializer;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.WikiConverter;
-import org.workcast.streams.MemFile;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -125,7 +127,10 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         try {
             ResourceDecoder resDec = new ResourceDecoder(ar);
 
-            if (resDec.isListing){
+            if (resDec.isSite){
+                genSiteListing(ar, resDec);
+            }
+            else if (resDec.isListing){
                 genProjectListing(ar, resDec);
             }
             else if (resDec.isDoc) {
@@ -174,30 +179,14 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         ar.resp.setContentType("application/json");
-        String debugContent = "";
         try {
             System.out.println("API_POST: "+ar.getCompleteURL());
             ResourceDecoder resDec = new ResourceDecoder(ar);
 
-            if (!resDec.isListing) {
-                throw new Exception("Can not do a POST to that resource URL: "+ar.getCompleteURL());
-            }
             InputStream is = ar.req.getInputStream();
-
-            //capture the response for debug purpose
-            MemFile buffer = new MemFile();
-            buffer.fillWithInputStream(is);
-            is.close();
-            StringWriter sw = new StringWriter();
-            buffer.outToWriter(sw);
-            debugContent = sw.toString();
-            InputStream is2 = buffer.getInputStream();
-
-            //continue processing
-            JSONTokener jt = new JSONTokener(is2);
-            is2.close();
+            JSONTokener jt = new JSONTokener(is);
             JSONObject objIn = new JSONObject(jt);
-
+            is.close();
 
             String op = objIn.getString("operation");
             System.out.println("API_POST: operation="+op);
@@ -206,17 +195,65 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
                         +" None found.");
             }
 
-            JSONObject responseObj = getPostResponse(ar, resDec, op, objIn);
+            JSONObject responseObj = null;
+            if (resDec.isSite) {
+                responseObj = getSitePostResponse(ar, resDec, op, objIn);
+            }
+            else {
+                responseObj = getProjectPostResponse(ar, resDec, op, objIn);
+            }
             responseObj.write(ar.resp.getWriter(), 2, 0);
             ar.flush();
         }
         catch (Exception e) {
-            Exception wrap = new Exception("POST content: ("+debugContent+")", e);
-            streamException(wrap, ar);
+            streamException(e, ar);
         }
     }
 
-    private JSONObject getPostResponse(AuthRequest ar, ResourceDecoder resDec,
+    private JSONObject getSitePostResponse(AuthRequest ar, ResourceDecoder resDec,
+            String op, JSONObject objIn) throws Exception {
+        JSONObject responseOK = new JSONObject();
+        responseOK.put("responseCode", 200);
+        //String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/$/";
+
+        if ("ping".equals(op)) {
+            objIn.put("responseCode", 200);
+            return objIn;
+        }
+
+        if (!resDec.site.isSiteFolderStructure()) {
+            throw new Exception("This operation requires a site that is structured with site-folder structure");
+        }
+
+        if ("createProject".equals(op)) {
+            if (!"$".equals(resDec.projId)) {
+                throw new Exception("create project can only be called on a site URL, not project: "+resDec.projId);
+            }
+            NGBook site = resDec.site;
+            String projectName = objIn.getString("projectName");
+            String projectKey = SectionWiki.sanitize(projectName);
+            projectKey = site.findUniqueKeyInSite(projectKey);
+            NGPage ngp = site.createProjectByKey(ar, projectKey);
+
+            License lr = ngp.createLicense(ar.getBestUserId(), "Admin",
+                    ar.nowTime + 1000*60*60*24*365, false);
+            ngp.saveFile(ar, "project created through API by "+ar.getBestUserId());
+
+            String newLink = ar.baseURL + "api/" + resDec.siteId + "/" + ngp.getKey()
+                    + "/summary.json?lic=" + lr.getId();
+
+            responseOK.put("key", ngp.getKey());
+            responseOK.put("site", site.getKey());
+            responseOK.put("name", ngp.getFullName());
+            responseOK.put("link", newLink);
+            return responseOK;
+        }
+
+        throw new Exception("API does not understand operation: "+op);
+    }
+
+
+    private JSONObject getProjectPostResponse(AuthRequest ar, ResourceDecoder resDec,
             String op, JSONObject objIn) throws Exception {
         JSONObject responseOK = new JSONObject();
         responseOK.put("responseCode", 200);
@@ -355,6 +392,48 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
 
 
+    private void genSiteListing(AuthRequest ar, ResourceDecoder resDec) throws Exception {
+
+        NGBook site = resDec.site;
+        if (site==null) {
+            //this is probably unnecessary, having hit an exception earlier, but just begin sure
+            throw new Exception("Something is wrong, can not find a site object.");
+        }
+        if (resDec.licenseId == null || resDec.licenseId.length()==0) {
+            throw new Exception("All operations on the site need to be licensed, but did not get a license id in that URL.");
+        }
+        License lic = site.getLicense(resDec.licenseId);
+        JSONObject root = new JSONObject();
+
+        String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/$/";
+        root.put("root", urlRoot);
+        root.put("name", resDec.site.getName());
+        root.put("id", resDec.site.getKey());
+        root.put("deleted", resDec.site.isDeleted());
+        root.put("frozen", resDec.site.isFrozen());
+        root.put("licenseId", resDec.licenseId);
+        if (lic==null) {
+            root.put("licenseValid", false);
+            root.put("licenseStatus", "no license found with that ID");
+        }
+        else {
+            root.put("licenseTimeout", lic.getTimeout());
+            root.put("licenseUser", lic.getCreator());
+            root.put("licenseRole", lic.getRole());
+            if (lic.getTimeout() < ar.nowTime) {
+                root.put("licenseValid", false);
+                root.put("licenseStatus", "License is timed out and no longer usable");
+            }
+            else {
+                root.put("licenseValid", true);
+                root.put("licenseStatus", "All OK");
+            }
+        }
+
+        ar.resp.setContentType("application/json");
+        root.write(ar.resp.getWriter(), 2, 0);
+        ar.flush();
+    }
 
     private void genProjectListing(AuthRequest ar, ResourceDecoder resDec) throws Exception {
         JSONObject root = new JSONObject();

@@ -28,7 +28,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.w3c.dom.Document;
@@ -953,9 +952,9 @@ public class GoalRecord extends BaseRecord {
         thisGoal.put("startdate", getStartDate());
         thisGoal.put("enddate", getEndDate());
         thisGoal.put("rank", getRank());
-        NGRole assignees = getAssigneeRole();
         /*
         //TODO: figure out what to do about assignees
+        NGRole assignees = getAssigneeRole();
         JSONArray peopleList = new JSONArray();
         for (AddressListEntry ale : assignees.getExpandedPlayers(ngp)) {
             peopleList.put(ale.getUniversalId());

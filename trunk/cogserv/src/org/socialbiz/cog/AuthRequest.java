@@ -583,6 +583,16 @@ public class AuthRequest
     }
 
     /**
+     * This is for licensed requests, you can set the user for this request
+     * with setting any form os session parameters or cookies.
+     * It allows the code to properly attribute the actions to a user
+     * without all the rest of the overhead of logging in a user.
+     */
+    public void setUserForOneRequest(UserProfile licensedUser) {
+        user = licensedUser;
+    }
+
+    /**
     * Sets this user profile as the current user of this object
     * and also makes appropriate settings into the session so that
     * the next request will remember this as well.
@@ -693,40 +703,31 @@ public class AuthRequest
     }
 
 
-    public void assertAuthor(String opDescription)
-        throws Exception
-    {
-        if (ngp==null)
-        {
+    public void assertAdmin(String opDescription) throws Exception {
+        if (ngp==null) {
             throw new ProgramLogicError("'assertAuthor' is being called, but no page has been associated with the AuthRequest object");
         }
         assertLoggedIn(opDescription);
-        if (!ngp.primaryOrSecondaryPermission(getUserProfile()))
-        {
+        if (!ngp.primaryOrSecondaryPermission(getUserProfile())) {
             throw new NGException("nugen.exception.login.with.admin.rights", new Object[]{opDescription});
         }
     }
 
-    public void assertMember(String opDescription)
-        throws Exception
-    {
-        if (ngp==null)
-        {
+    public void assertMember(String opDescription) throws Exception {
+        if (ngp==null) {
             throw new ProgramLogicError("'assertMember' is being called, but no page has been associated with the AuthRequest object");
         }
 
         //it is possible that you are a honorary member, even if you are not logged in
         //so check that first
-        if (ngsession.isHonoraryMember(ngp.getKey()))
-        {
+        if (ngsession.isHonoraryMember(ngp.getKey())) {
             return;
         }
 
         assertLoggedIn(opDescription);
 
         //check the container rules on who can be a member
-        if (!ngp.primaryOrSecondaryPermission(user))
-        {
+        if (!ngp.primaryOrSecondaryPermission(user)) {
             throw new NGException("nugen.exception.login.with.member.rights", new Object[]{opDescription});
         }
     }

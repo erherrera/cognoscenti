@@ -65,7 +65,7 @@ public class AdminController extends BaseController {
             }
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(project);
             ar.setPageAccessLevels(ngp);
-            ar.assertAuthor("Unable to change the name of this page.");
+            ar.assertAdmin("Unable to change the name of this page.");
             ar.assertNotFrozen(ngp);
 
             ProcessRecord process = ngp.getProcess();
@@ -93,7 +93,7 @@ public class AdminController extends BaseController {
             ar.assertLoggedIn("User must be logged in to change the name of project.");
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(project);
             ar.setPageAccessLevels(ngp);
-            ar.assertAuthor("Unable to change the name of this page.");
+            ar.assertAdmin("Unable to change the name of this page.");
 
             String newName = ar.reqParam("newName");
             String[] nameSet = ngp.getPageNames();
@@ -133,7 +133,7 @@ public class AdminController extends BaseController {
             ar.assertLoggedIn("User must be logged in to delete previous name of project.");
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(project);
             ar.setPageAccessLevels(ngp);
-            ar.assertAuthor("Unable to change the name of this page.");
+            ar.assertAdmin("Unable to change the name of this page.");
 
             String oldName = ar.reqParam("oldName");
 
@@ -165,7 +165,7 @@ public class AdminController extends BaseController {
             ar.assertLoggedIn("User must be logged in to delete previous name of site.");
             NGBook ngb = (NGBook)NGPageIndex.getContainerByKeyOrFail(siteId);
             ar.setPageAccessLevels(ngb);
-            ar.assertAuthor("Unable to change the name of this page.");
+            ar.assertAdmin("Unable to change the name of this page.");
 
             String newName = ar.reqParam("newName");
             String[] nameSet = ngb.getAccountNames();
@@ -205,7 +205,7 @@ public class AdminController extends BaseController {
             NGBook site = (NGBook)NGPageIndex.getContainerByKeyOrFail(siteId);
             ar.setPageAccessLevels(site);
             String action = ar.reqParam("action");
-            ar.assertAuthor("Unable to change site settings.");
+            ar.assertAdmin("Unable to change site settings.");
             if(action.equals("Change Description")){
                 String newDesc = ar.reqParam("desc");
                 site.setDescription( newDesc );
@@ -236,7 +236,7 @@ public class AdminController extends BaseController {
             ar.assertLoggedIn("User must be logged in to delete previous name of site.");
             NGBook site = (NGBook)NGPageIndex.getContainerByKeyOrFail(siteId);
             ar.setPageAccessLevels(site);
-            ar.assertAuthor("Unable to change the name of this page.");
+            ar.assertAdmin("Unable to change the name of this page.");
 
             String oldName = ar.reqParam("oldName");
 
@@ -412,7 +412,7 @@ public class AdminController extends BaseController {
 
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(project);
             ar.setPageAccessLevels(ngp);
-            ar.assertAuthor("Unable to change project settings.");
+            ar.assertAdmin("Unable to change project settings.");
             String operation = ar.reqParam("operation");
             if("publicPermission".equals(operation)){
                 ngp.setAllowPublic(ar.reqParam("allowPublic"));
@@ -445,7 +445,7 @@ public class AdminController extends BaseController {
             ar.assertLoggedIn("User must be logged in to change the goal/purpose of project.");
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
             ar.setPageAccessLevels(ngp);
-            ar.assertAuthor("Unable to change the name of this page.");
+            ar.assertAdmin("Unable to change the name of this page.");
             ar.assertNotFrozen(ngp);
 
             String symbol = ar.defParam("symbol", null);
@@ -488,7 +488,7 @@ public class AdminController extends BaseController {
             ar.assertLoggedIn("User must be logged in to change the settings of project.");
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(project);
             ar.setPageAccessLevels(ngp);
-            ar.assertAuthor("Unable to change the name of this page.");
+            ar.assertAdmin("Unable to change the name of this page.");
 
             ProcessRecord process = ngp.getProcess();
             process.setSynopsis(ar.defParam("goal",""));

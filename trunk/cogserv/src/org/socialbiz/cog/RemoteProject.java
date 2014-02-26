@@ -61,7 +61,6 @@ public class RemoteProject
      * get a JSONObject back with the response.
      */
     public JSONObject call(JSONObject msg) throws Exception {
-        //String debugResponse = "";
         try {
             HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
             httpCon.setDoOutput(true);
@@ -80,16 +79,6 @@ public class RemoteProject
 
 
             InputStream is = httpCon.getInputStream();
-
-            //capture the response for debug purpose
-            //MemFile buffer = new MemFile();
-            //buffer.fillWithInputStream(is);
-            //StringWriter sw = new StringWriter();
-            //buffer.outToWriter(sw);
-            //debugResponse = sw.toString();
-            //InputStream is2 = buffer.getInputStream();
-
-            //back to main code here
             JSONTokener jt = new JSONTokener(is);
             JSONObject resp = new JSONObject(jt);
 
@@ -114,8 +103,7 @@ public class RemoteProject
             return resp;
         }
         catch (Exception e) {
-            throw e;
-            //throw new Exception("call received: ("+debugResponse+")", e);
+            throw new Exception("Unable to call the server site located at "+url, e);
         }
     }
 }

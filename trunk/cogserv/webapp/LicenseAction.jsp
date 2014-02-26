@@ -28,13 +28,7 @@
     long timeout = (DOMFace.safeConvertLong(duration)*24000*3600) + ar.nowTime;
 
     if (action.equals("Create License") || action.equals("Create New Streaming Link")) {
-        String id = IdGenerator.generateKey();
-        License lr = ngp.addLicense(id);
-        String role = ar.reqParam("role");
-        lr.setTimeout(timeout);
-        lr.setCreator(ar.getBestUserId());
-        lr.setRole(role);
-        lr.setReadOnly(readOnly!=null);
+        License lr = ngp.createLicense(ar.getBestUserId(), ar.reqParam("role"), timeout, readOnly!=null);
         ngp.saveFile(ar, action);
     }
 

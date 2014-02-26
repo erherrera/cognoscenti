@@ -858,6 +858,16 @@ public class NGPage extends ContainerCommon implements NGContainer
         return newLement;
     }
 
+    public License createLicense(String userId, String role, long endDate,
+            boolean readOnly) throws Exception{
+        String id = IdGenerator.generateKey();
+        License lr = addLicense(id);
+        lr.setTimeout(endDate);   //one year later
+        lr.setCreator(userId);
+        lr.setRole(role);
+        lr.setReadOnly(false);
+        return lr;
+    }
 
     ////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////

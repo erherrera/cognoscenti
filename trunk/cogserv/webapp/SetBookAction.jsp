@@ -20,7 +20,7 @@
 
     NGPage ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    ar.assertAuthor("Unable to set the site for this project.");
+    ar.assertAdmin("Unable to set the site for this project.");
 
     String go = ar.defParam("go", null);
     if (go==null)

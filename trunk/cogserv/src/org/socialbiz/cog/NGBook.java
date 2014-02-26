@@ -46,17 +46,17 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     private Vector<String> existingIds = null;
     private String[] displayNames;
-    private BookInfoRecord bookInfoRecord;
-    private NGRole memberRole;
+    private BookInfoRecord siteInfoRec;
+    private NGRole executiveRole;
     private NGRole ownerRole;
 
     public NGBook(File theFile, Document newDoc) throws Exception {
         super(theFile, newDoc);
-        bookInfoRecord = requireChild("bookInfo", BookInfoRecord.class);
-        displayNames = bookInfoRecord.getPageNames();
+        siteInfoRec = requireChild("bookInfo", BookInfoRecord.class);
+        displayNames = siteInfoRec.getPageNames();
 
         //migration code, make sure there is a stored value for key
-        key = bookInfoRecord.getScalar("key");
+        key = siteInfoRec.getScalar("key");
         if (key==null || key.length()==0) {
             String fileName = theFile.getName();
             if (fileName.equalsIgnoreCase("SiteInfo.xml")){
@@ -64,11 +64,11 @@ public class NGBook extends ContainerCommon implements NGContainer {
                 File cogFolder = theFile.getParentFile();
                 File containingFolder = cogFolder.getParentFile();
                 key = SectionUtil.sanitize(containingFolder.getName());
-                bookInfoRecord.setScalar("key", key);
+                siteInfoRec.setScalar("key", key);
             }
             else if (fileName.endsWith(".book") || fileName.endsWith(".site")) {
                 key = fileName.substring(0,fileName.length()-5);
-                bookInfoRecord.setScalar("key", key);
+                siteInfoRec.setScalar("key", key);
             }
             else {
                 throw new Exception("Site is missing key, and unable to generate one: "+theFile);
@@ -81,7 +81,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         requireChild("process", DOMFace.class);
         requireChild("history", DOMFace.class);
 
-        memberRole = getRequiredRole("Executives");
+        executiveRole = getRequiredRole("Executives");
         ownerRole = getRequiredRole("Owners");
 
         // just in case this is an old site object, we need to look for and
@@ -121,7 +121,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
         for (String id : members.getVector("member")) {
             AddressListEntry user = AddressListEntry.newEntryFromStorage(id);
-            memberRole.addPlayer(user);
+            executiveRole.addPlayer(user);
             ownerRole.addPlayer(user);
         }
         // now get rid of it so it never is heard from again.
@@ -256,8 +256,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public void setAccountNames(String[] newNames) {
-        bookInfoRecord.setPageNames(newNames);
-        displayNames = bookInfoRecord.getPageNames();
+        siteInfoRec.setPageNames(newNames);
+        displayNames = siteInfoRec.getPageNames();
     }
 
     public String getStyleSheet() {
@@ -489,7 +489,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     public RoleRequestRecord createRoleRequest(String roleName, String requestedBy,
             long modifiedDate, String modifiedBy, String requestDescription) throws Exception {
-        DOMFace rolelist = bookInfoRecord.requireChild("Role-Requests", DOMFace.class);
+        DOMFace rolelist = siteInfoRec.requireChild("Role-Requests", DOMFace.class);
         RoleRequestRecord newRoleRequest = rolelist
                 .createChild("requests", RoleRequestRecord.class);
         newRoleRequest.setRequestId(IdGenerator.generateKey());
@@ -508,7 +508,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     public List<RoleRequestRecord> getAllRoleRequest() throws Exception {
 
         List<RoleRequestRecord> requestList = new ArrayList<RoleRequestRecord>();
-        DOMFace rolelist = bookInfoRecord.requireChild("Role-Requests", DOMFace.class);
+        DOMFace rolelist = siteInfoRec.requireChild("Role-Requests", DOMFace.class);
         Vector<RoleRequestRecord> children = rolelist.getChildren("requests",
                 RoleRequestRecord.class);
         for (RoleRequestRecord rrr : children) {
@@ -520,7 +520,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     // ////////////////// ROLES /////////////////////////
 
     public NGRole getPrimaryRole() {
-        return memberRole;
+        return executiveRole;
     }
 
     public NGRole getSecondaryRole() {
@@ -545,14 +545,10 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     // ////////////////// NOTES /////////////////////////
 
-    public License getLicense(String id) throws Exception {
-        throw new Exception("getLicense is not supported on site containers");
-    }
-
     public void setLastModify(AuthRequest ar) throws Exception {
         ar.assertLoggedIn("Must be logged in in order to modify site.");
-        bookInfoRecord.setModTime(ar.nowTime);
-        bookInfoRecord.setModUser(ar.getBestUserId());
+        siteInfoRec.setModTime(ar.nowTime);
+        siteInfoRec.setModUser(ar.getBestUserId());
     }
 
     public void saveFile(AuthRequest ar, String comment) throws Exception {
@@ -581,7 +577,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public long getLastModifyTime() throws Exception {
-        return bookInfoRecord.getModTime();
+        return siteInfoRec.getModTime();
     }
 
     public boolean isDeleted() {
@@ -702,7 +698,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * Different sites can have different style sheets (themes)
      */
     public String getThemePath() {
-        String val = bookInfoRecord.getThemePath();
+        String val = siteInfoRec.getThemePath();
         if (val == null || val.length() == 0) {
             return "theme/blue/";
         }
@@ -710,7 +706,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public void setThemePath(String newName) {
-        bookInfoRecord.setThemePath(newName);
+        siteInfoRec.setThemePath(newName);
     }
 
     /**
@@ -721,11 +717,11 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * inside this one for the project.
      */
     public String getPreferredProjectLocation() {
-        return bookInfoRecord.getScalar("preferredLocation");
+        return siteInfoRec.getScalar("preferredLocation");
     }
 
     public void setPreferredProjectLocation(String newLoc) {
-        bookInfoRecord.setScalar("preferredLocation", newLoc);
+        siteInfoRec.setScalar("preferredLocation", newLoc);
     }
 
     /**
@@ -878,17 +874,17 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
 
     public String getAllowPublic() throws Exception {
-        return bookInfoRecord.getAllowPublic();
+        return siteInfoRec.getAllowPublic();
     }
 
     public void setAllowPublic(String allowPublic) throws Exception {
-        bookInfoRecord.setAllowPublic(allowPublic);
+        siteInfoRec.setAllowPublic(allowPublic);
     }
 
     public void save(String modUser, long modTime, String comment) throws Exception {
         try {
-            bookInfoRecord.setModTime(modTime);
-            bookInfoRecord.setModUser(modUser);
+            siteInfoRec.setModTime(modTime);
+            siteInfoRec.setModUser(modUser);
             save();
             // commit the modified files to the CVS.
             CVSUtil.commit(getFilePath(), modUser, comment);
@@ -923,6 +919,31 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return ngp;
     }
 
+    private void assertPermissionToCreateProject(AuthRequest ar) throws Exception {
+        if (ar.isLoggedIn()) {
+            if (!primaryPermission(ar.getUserProfile())) {
+                throw new Exception("Must be an owner of the site to create new projects");
+            }
+            return;
+        }
+
+        String licVal = ar.reqParam("lic");
+        if (licVal==null || licVal.length()==0) {
+            throw new ProgramLogicError("Have to be logged in, or have a licensed link, "
+                    +"to create a new project");
+        }
+        License lic = this.getLicense(licVal);
+        if (lic==null) {
+            throw new ProgramLogicError("Specified license ("+lic+") not found");
+        }
+        if (ar.nowTime > lic.getTimeout()) {
+            throw new ProgramLogicError("Specified license ("+lic+") is no longer valid.  "
+                    +"You will need an updated licensed link to create a new project.");
+        }
+        //TODO: check that the user for this license is still in the role
+
+    }
+
     /**
     * NGPage object is created in memory, and can be manipulated in memory,
     * but be sure to call "savePage" before finished otherwise nothing is created on disk.
@@ -930,9 +951,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     public NGPage createProjectByKey(AuthRequest ar, String key)
         throws Exception
     {
-        if (!ar.isLoggedIn()) {
-            throw new ProgramLogicError("Have to be logged in to create a new project");
-        }
+        assertPermissionToCreateProject(ar);
         if (key.indexOf('/')>=0) {
             throw new ProgramLogicError("Expecting a key value, but got something with a slash in it: "+key);
         }
@@ -947,9 +966,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public NGPage createProjectAtPath(AuthRequest ar, File newFilePath, String newKey) throws Exception {
-        if (!ar.isLoggedIn()) {
-            throw new ProgramLogicError("Have to be logged in to create a new project");
-        }
+        assertPermissionToCreateProject(ar);
         if (newFilePath.exists()) {
             throw new ProgramLogicError("Somehow the file given already exists: "+newFilePath);
         }
@@ -969,21 +986,70 @@ public class NGBook extends ContainerCommon implements NGContainer {
         newPage.addMemberToRole("Administrators", ar.getBestUserId());
         newPage.addMemberToRole("Members",        ar.getBestUserId());
 
-        //add in the default sections
-        newPage.createSection("Comments",        ar);
-        newPage.createSection("Attachments",     ar);
-        newPage.createSection("Tasks",           ar);
-        newPage.createSection("Folders",         ar);
-
         //register this into the page index
         NGPageIndex.makeIndex(newPage);
 
         //add this new project into the user's watched projects list
         //so it is easy for them to find later.
+        //Only do this if creating directly, and not through API
         UserProfile up = ar.getUserProfile();
-        up.setWatch(newPage.getKey(), ar.nowTime);
-        UserManager.writeUserProfilesToFile();
+        if (up!=null) {
+            up.setWatch(newPage.getKey(), ar.nowTime);
+            UserManager.writeUserProfilesToFile();
+        }
 
         return newPage;
     }
+
+    /**
+    * Sites have a set of licenses
+    */
+    public Vector<License> getLicenses() throws Exception {
+        Vector<LicenseRecord> vc = siteInfoRec.getChildren("license", LicenseRecord.class);
+        Vector<License> v = new Vector<License>();
+        for (License child : vc) {
+            v.add(child);
+        }
+        return v;
+    }
+
+    public License getLicense(String id) throws Exception {
+        Vector<LicenseRecord> vc = siteInfoRec.getChildren("license", LicenseRecord.class);
+        for (License child : vc) {
+            if (id.equals(child.getId())) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    public boolean removeLicense(String id) throws Exception {
+        Vector<LicenseRecord> vc = siteInfoRec.getChildren("license", LicenseRecord.class);
+        for (LicenseRecord child : vc) {
+            if (id.equals(child.getId())) {
+                siteInfoRec.removeChild(child);
+                return true;
+            }
+        }
+        // maybe this should throw an exception?
+        return false;
+    }
+
+    public License addLicense(String id) throws Exception {
+        LicenseRecord lr = siteInfoRec.createChildWithID("license", LicenseRecord.class, "id",
+                id);
+        return lr;
+    }
+
+    public License createLicense(String userId, String role, long endDate, boolean readOnly)
+            throws Exception {
+        String id = IdGenerator.generateKey();
+        License lr = addLicense(id);
+        lr.setTimeout(endDate);
+        lr.setCreator(userId);
+        lr.setRole(role);
+        lr.setReadOnly(false);
+        return lr;
+    }
+
 }

@@ -344,7 +344,18 @@ String thisPageAddress = ar.getResourceURL(ngp,"admin.htm");
                 <div class="generalHeading paddingTop">Synchronize with Upstream Project</div>
                 <%
                 if (upstreamLink==null || upstreamLink.length()==0) {
-                    %><i>Please set an Upstream link (above) in order to synchronize with an upstream project.</i><%
+                    %><i>Set an Upstream link (above) in order to synchronize with an upstream project,<br/>
+                    <br/>or..... enter a link to a remote site to create a new clone of this project.</i>
+
+
+                  <form action="<%=ar.retPath%>Beam1Create.jsp" method="post">
+                      <input type="hidden" name="go" value="<%ar.writeHtml(thisPage);%>">
+                      <input type="hidden" name="p" value="<%ar.writeHtml(p);%>">
+                      <input type="text" name="siteLink" value="" size="50" class="inputGeneral">
+                      <input type="submit" name="op" value="Create Remote Upstream Project"  class="inputBtn">
+                  </form>
+
+                    <%
                 }
                 else if (upstreamError!=null)  {
                     %><i>Encountered an error accessing the upstream project: <%ar.writeHtml(upstreamError.toString());%></i><%

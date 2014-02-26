@@ -15,7 +15,7 @@
 
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    ar.assertAuthor("Unable to change the goal, purpose, or beam link of this page.");
+    ar.assertAdmin("Unable to change the goal, purpose, or beam link of this page.");
 
     String go = ar.reqParam("go");
 
