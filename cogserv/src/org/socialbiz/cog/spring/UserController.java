@@ -535,7 +535,7 @@ public class UserController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            ar.assertAuthor("Must be an admin of the project to create a role.");
+            ar.assertAdmin("Must be an admin of the project to create a role.");
 
             String roleName = ar.reqParam("rolename").trim();
             String des = ar.defParam("description", "");

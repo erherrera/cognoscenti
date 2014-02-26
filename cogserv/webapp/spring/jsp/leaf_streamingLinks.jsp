@@ -98,4 +98,23 @@
           </table>
       </div>
 
+    <div style="height:30px">&nbsp;</div>
+    <div class="generalHeading">Create New Remote Upstream Project</div>
+    <div class="generalContent">
+
+<form action="<%=ar.retPath%>NewRemoteProject.jsp" method="post">
+<input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
+<input type="hidden" name="go" value="<%ar.writeHtml(thisPage);%>">
+<input type="hidden" name="p" value="<%ar.writeHtml(p);%>">
+<tr><td align="center">
+<input type="text" name="siteLink" value="60" size="50"> days
+</td><td align="center">
+<input type="submit" name="action" value="Create Project At Site" class="inputBtn">
+</td></tr>
+</form>
+
+
+
+    </div>
+
 </div>

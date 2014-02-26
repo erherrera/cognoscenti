@@ -17,7 +17,7 @@
 
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    ar.assertAuthor("Unable to change the name of this page.");
+    ar.assertAdmin("Unable to change the name of this page.");
 
     String go = ar.defParam("go", ar.getResourceURL(ngp,"admin.htm"));
 

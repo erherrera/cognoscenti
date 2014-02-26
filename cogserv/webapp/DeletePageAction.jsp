@@ -18,7 +18,7 @@
     String action   = ar.reqParam("action");
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    ar.assertAuthor("Unable to delete this page. ");
+    ar.assertAdmin("Unable to delete this page. ");
 
     //first, handle cancel operation.
     if ("Delete Project".equals(action))

@@ -148,7 +148,7 @@ public class ProjectSettingController extends BaseController {
             boolean isPlayer = role.isExpandedPlayer(ar.getUserProfile(), ngp);
             if (!isPlayer)
             {
-                ar.assertAuthor("You must be a page administrator to change role '"+r+"' when you are not a player of the role.");
+                ar.assertAdmin("You must be a page administrator to change role '"+r+"' when you are not a player of the role.");
             }
 
             String id = ar.reqParam("id");  //user being added/removed

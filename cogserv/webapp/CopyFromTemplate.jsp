@@ -12,8 +12,7 @@
 %><%@page import="org.socialbiz.cog.ProcessRecord"
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.GoalRecord"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Unable to create a licenses.");
     boolean createNewSubPage = false;
 
@@ -23,7 +22,7 @@
 
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    ar.assertAuthor("Unable to copy from a template to this page.");
+    ar.assertAdmin("Unable to copy from a template to this page.");
 
     NGPage templatePage = NGPageIndex.getProjectByKeyOrFail(template);
 
@@ -54,6 +53,5 @@
         ngp.createRole(roleName, description);
     }
 
-    response.sendRedirect(go);
-%>
+    response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>

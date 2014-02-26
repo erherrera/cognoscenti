@@ -157,7 +157,7 @@ public class ResourceSection  implements NGResource
         ltype = NGResource.TYPE_XML;
         NGPage ngp = lrp.getPageMustExist();
         lar.setPageAccessLevels(ngp);
-        lar.assertAuthor("Must be an admin of the page in order to add a new section");
+        lar.assertAdmin("Must be an admin of the page in order to add a new section");
         if(lname != null && lname.length()>0
             && ngp.getSection(lname) == null){
                 ngp.createSection(lname, lar);
@@ -185,7 +185,7 @@ public class ResourceSection  implements NGResource
         ltype = NGResource.TYPE_XML;
         NGPage ngp = lrp.getPageMustExist();
         lar.setPageAccessLevels(ngp);
-        lar.assertAuthor("Must be an admin of the page in order to remove a  section");
+        lar.assertAdmin("Must be an admin of the page in order to remove a  section");
         ngp.removeSection(lname);
         ngp.saveFile(lar,"Delete Section");
 
@@ -410,14 +410,14 @@ public class ResourceSection  implements NGResource
 
     private void deleteAttachments(NGPage ngp) throws Exception
     {
-        lar.assertAuthor("");
+        lar.assertAdmin("");
         NGSection ngs = ngp.getSectionOrFail(lname);
         String[] attchList = UtilityMethods.splitOnDelimiter(lid,',');
         SectionAttachments.removeAttachments(lar, ngs, attchList);
     }
     private void deleteTasks(NGPage ngp) throws Exception
     {
-        lar.assertAuthor("");
+        lar.assertAdmin("");
         NGSection ngs = ngp.getSectionOrFail(lname);
         SectionTask taskForm = (SectionTask) ngs.getFormat();
         String[] taskList = UtilityMethods.splitOnDelimiter(lid,',');

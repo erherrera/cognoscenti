@@ -157,6 +157,30 @@
                         <% ar.writeHtml(ngb.getPreferredProjectLocation()); %>
                     </td>
                 </tr>
+                <tr>
+                    <td class="gridTableColummHeader_2">Streaming Link:</td>
+                    <td style="width:20px;"></td>
+                    <td><%
+                        License lic = null;
+                        for (License test : ngb.getLicenses()) {
+                            //just find any one license that is still valid
+                            if (ar.nowTime < test.getTimeout()) {
+                                lic = test;
+                            }
+                        }
+                        //ok ... since at this time there is no UI for creating licenses
+                        //in order to test, we just create a license on the fly here, and
+                        //also save the project, which is not exactly proper.
+                        //TODO: clean this up
+                        if (lic==null) {
+                            lic = ngb.createLicense(ar.getBestUserId(), "Owners", ar.nowTime+(1000*60*60*24*365), false);
+                            ngb.saveFile(ar, "Created license on the fly for testing purposes");
+                        }
+                        String link = ar.baseURL + "api/" + ngb.getKey() + "/$/summary.json?lic="+lic.getId();
+                        ar.writeHtml(link);
+                        %>
+                    </td>
+                </tr>
             </table>
         </form>
     </div>

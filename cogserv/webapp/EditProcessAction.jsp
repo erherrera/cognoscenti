@@ -21,7 +21,7 @@
 
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    ar.assertAuthor("Unable to edit process on this page.");
+    ar.assertAdmin("Unable to edit process on this page.");
 
     String synopsis = ar.defParam("synopsis", null);
     String desc = ar.defParam("desc", null);

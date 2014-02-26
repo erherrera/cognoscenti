@@ -17,9 +17,12 @@ package org.socialbiz.cog.api;
 
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.DOMFace;
+import org.socialbiz.cog.License;
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
+import org.socialbiz.cog.UserManager;
+import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.exception.ProgramLogicError;
 
 public class ResourceDecoder {
@@ -28,6 +31,8 @@ public class ResourceDecoder {
     public NGBook site;
     public String projId;
     public NGPage project;
+
+    public boolean isSite;
 
     public boolean isListing;
     public String resource;
@@ -46,7 +51,12 @@ public class ResourceDecoder {
     public boolean isTempDoc;
     public String tempName;
 
+    public String licenseId;
+    public License lic;
+
     public ResourceDecoder(AuthRequest ar) throws Exception {
+
+        licenseId = ar.defParam("lic", null);
 
         //this will only be the part AFTER the /api/
         String path = ar.req.getPathInfo();
@@ -71,7 +81,16 @@ public class ResourceDecoder {
             throw new Exception("Can't find a project ID in the URL.");
         }
         projId = path.substring(curPos, slashPos);
+
+        if ("$".equals(projId)) {
+            isSite = true;
+            lic = site.getLicense(licenseId);
+            setUserFromLicense(ar);
+            return;
+        }
         project = NGPageIndex.getProjectByKeyOrFail(projId);
+        lic = project.getLicense(licenseId);
+        setUserFromLicense(ar);
 
         curPos = slashPos+1;
         resource = path.substring(curPos);
@@ -123,4 +142,15 @@ public class ResourceDecoder {
         }
     }
 
+    private void setUserFromLicense(AuthRequest ar) throws Exception {
+        if (lic!=null) {
+            String userId = lic.getCreator();
+            UserProfile up = UserManager.findUserByAnyId(userId);
+            if (up!=null) {
+                //TODO: check that user is still valid
+                //TODO: check that user is in the role of this license
+                ar.setUserForOneRequest(up);
+            }
+        }
+    }
 }

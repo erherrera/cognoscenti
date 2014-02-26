@@ -220,7 +220,8 @@ public class ProjectSync
             //apparently all tasks are considered ... no such thing as a hidden task
             String uid = goal.getUniversalId();
             if (uid==null || uid.length()==0) {
-                throw new Exception("Task "+goal.getId()+" has no universal ID ("+goal.getSynopsis()+") -- nust have one!");
+                throw new Exception("Task "+goal.getId()+" has no universal ID ("
+                        +goal.getSynopsis()+") -- nust have one!");
             }
             goalIds.add(uid);
         }

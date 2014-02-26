@@ -7,9 +7,7 @@
 %><%@page import="org.socialbiz.cog.NGRole"
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="java.net.URLEncoder"
-%><%
-
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Unable to modify roles.");
     String p  = ar.reqParam("p");   //page id
     String r  = ar.reqParam("r");   //role name
@@ -40,7 +38,7 @@
     boolean isPlayer = role.isExpandedPlayer(ar.getUserProfile(), ngp);
     if (!isPlayer)
     {
-        ar.assertAuthor("You must be a page administrator to change role '"+r+"' when you are not a player of the role.");
+        ar.assertAdmin("You must be a page administrator to change role '"+r+"' when you are not a player of the role.");
     }
 
     String id = ar.reqParam("id");  //user being added/removed
@@ -115,6 +113,5 @@
 
     HistoryRecord.createHistoryRecord(ngp,id, HistoryRecord.CONTEXT_TYPE_ROLE,0,eventType, ar, "");
     ngp.saveContent(ar, "added user "+id+" to role "+r);
-    response.sendRedirect(go);
-%>
+    response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>
