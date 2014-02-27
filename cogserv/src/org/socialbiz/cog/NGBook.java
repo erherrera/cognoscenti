@@ -974,12 +974,11 @@ public class NGBook extends ContainerCommon implements NGContainer {
         Document newDoc = readOrCreateFile(newFilePath, "page");
         NGPage newPage = null;
         if (fileIsInDataPath(newFilePath)) {
-            newPage = new NGPage(newFilePath, newDoc);
+            newPage = new NGPage(newFilePath, newDoc, this);
         }
         else {
-            newPage = new NGProj(newFilePath, newDoc);
+            newPage = new NGProj(newFilePath, newDoc, this);
         }
-        newPage.setAccount(this);
         newPage.setKey(newKey);
 
         //make the current user the author, and member, of the new page

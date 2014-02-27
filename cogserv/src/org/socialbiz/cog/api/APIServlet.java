@@ -333,9 +333,11 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
                 att.setUniversalId(newDocObj.getString("universalid"));
             }
             att.updateDocFromJSON(newDocObj);
+            String userUpdate = newDocObj.getString("modifieduser");
+            long timeUpdate = newDocObj.getLong("modifiedtime");
 
             FileInputStream fis = new FileInputStream(tempFile);
-            att.streamNewVersion(ar, resDec.project, fis);
+            att.streamNewVersion(resDec.project, fis, userUpdate, timeUpdate);
             fis.close();
             tempFile.delete();
 

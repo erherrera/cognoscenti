@@ -70,7 +70,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     protected static String    dataPath;
 
 
-    public NGPage(File theFile, Document newDoc) throws Exception
+    public NGPage(File theFile, Document newDoc, NGBook site) throws Exception
     {
         super(theFile, newDoc);
 
@@ -93,24 +93,29 @@ public class NGPage extends ContainerCommon implements NGContainer
 
         displayNames = pageInfo.getPageNames();
 
-        //When creating a NGPage for the first time, there is a period of time
-        //that it has no site key.  site==null is the result.
-        String accountKey = pageInfo.getBookKey();
-        //boolean hasNonDefaultAccount = (accountKey!=null && accountKey.length()>0);
-        if (accountKey==null || accountKey.length()==0) {
-            accountKey="mainbook";   //silly archaic default that old files assumed
-        }
+        if (site==null) {
+            //site==null only when read an existing project, not creating
+            //in this case, the project should have a site setting.
+            String siteKey = pageInfo.getSiteKey();
 
-        //schema migration, at one time the default site was "main"
-        //but later changed to "mainbook".  Only one server still has this
-        //problem.  Time to fix that server and remove this code.
-        else if ("main".equals(accountKey)) {
-            accountKey = "mainbook";
-            pageInfo.setBookKey(accountKey);
-        }
+            if (siteKey==null || siteKey.length()==0 || "main".equals(siteKey)) {
+                //silly archaic default, originally pages 'assumed' a site by default
+                //so if the value was missing, we assumed a particular value.
+                //At one time the default site was "main"
+                //but later changed to "mainbook".  Only one server still has this
+                //problem.  Time to fix that server and remove this code.
+                siteKey="mainbook";
+                pageInfo.setSiteKey("mainbook");
+                System.out.println("This server still has a project without any site key setting: "+key);
+            }
 
-        //this throws an exception if book not found
-        prjSite = NGBook.readBookByKey(accountKey);
+            //this throws an exception if book not found
+            prjSite = NGBook.readBookByKey(siteKey);
+        }
+        else {
+            prjSite = site;
+            pageInfo.setSiteKey(site.getKey());
+        }
 
         NGSection mAtt = getRequiredSection("Attachments");
         SectionAttachments.assureSchemaMigration(mAtt, this);
@@ -342,10 +347,10 @@ public class NGPage extends ContainerCommon implements NGContainer
                 newDoc = DOMUtils.convertInputStreamToDocument(is, false, false);
                 is.close();
                 if (NGBook.fileIsInDataPath(theFile)) {
-                    newPage = new NGPage(theFile, newDoc);
+                    newPage = new NGPage(theFile, newDoc, null);
                 }
                 else {
-                    newPage = new NGProj(theFile, newDoc);
+                    newPage = new NGProj(theFile, newDoc, null);
                 }
             }
 
@@ -789,7 +794,7 @@ public class NGPage extends ContainerCommon implements NGContainer
 
     public String getAccountKey()
     {
-        return pageInfo.getBookKey();
+        return pageInfo.getSiteKey();
     }
 
 
@@ -798,7 +803,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         if (ngb==null) {
             throw new RuntimeException("setAccount called with null parameter.   Should not be using the 'default site' concept any more, this exception is checking to see if it ever happens");
         }
-        pageInfo.setBookKey(ngb.getKey());
+        pageInfo.setSiteKey(ngb.getKey());
         prjSite = ngb;
     }
 
@@ -819,6 +824,10 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
     public License getLicense(String id) throws Exception {
+        if (id==null || id.length()==0) {
+            //silently ignore the by returning null
+            return null;
+        }
         Vector<LicenseRecord> vc = pageInfo.getChildren("license", LicenseRecord.class);
         for (License child : vc) {
             if (id.equals(child.getId())) {
