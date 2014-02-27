@@ -8,7 +8,6 @@
     String allowPub =  ngp.getAllowPublic();
 
 
-
 %>
 
 
@@ -455,11 +454,17 @@
 
         var permissionFormater = function(elCell, oRecord, oColumn, sData)
         {
-            if(oRecord.getData("visibility") == '1'){
-                elCell.innerHTML = '<a href="editDetails'+oRecord.getData("aid")+'.htm"><img src="<%=ar.baseURL%>assets/images/iconPublic.png" name="PUB" alt="Public" title="Public "/></a>';
+            var val = oRecord.getData("visibility");
+            if(val == '1' || val == '3'){
+                a = '<a href="editDetails'+oRecord.getData("aid")+'.htm"><img src="<%=ar.baseURL%>assets/images/iconPublic.png"/></a>';
             }else{
-                elCell.innerHTML = '<a href="editDetails'+oRecord.getData("aid")+'.htm"><img src="<%=ar.baseURL%>assets/images/iconMember.png" name="MEM" alt="Member" title="Member" /></a>';
+                a = '<a href="editDetails'+oRecord.getData("aid")+'.htm"><img src="<%=ar.baseURL%>assets/images/iconMember.png"/></a>';
             }
+            var b = '';
+            if(val == '4' || val == '3'){
+                b = '<img src="<%=ar.baseURL%>assets/images/iconUpstream.png"/>';
+            }
+            elCell.innerHTML = a+b;
         }
         function handleURIClick(url){
             okForContextMenu = false;

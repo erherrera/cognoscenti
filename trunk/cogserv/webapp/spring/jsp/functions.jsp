@@ -984,7 +984,9 @@ int count=100;
                     imagePath = "assets/images/iconFileGone.png";
                 }
                 ar.write("\n<td align=\"center\">");
-                ar.write("<img src=\"");
+                ar.write("<a href=\"editDetails");
+                ar.write(id);
+                ar.write(".htm\"><img src=\"");
                 ar.write(ar.retPath);
                 ar.write(imagePath);
                 ar.write("\" name=\"");
@@ -993,7 +995,7 @@ int count=100;
                 ar.write(tip);
                 ar.write("\" title=\"");
                 ar.write(tip);
-                ar.write("\" />");
+                ar.write("\" /></a>");
                 ar.write("</td>");
                 ar.write("<td>");
                 ar.write("false");
@@ -1070,7 +1072,14 @@ int count=100;
         ar.write("</td>");
 
         ar.write("<td>");
-        ar.writeHtml(String.valueOf(attachment.getVisibility()));
+        int val = 3;
+        if (attachment.getVisibility()==2) {
+            val=4;
+        }
+        if (!attachment.isUpstream()) {
+            val = val - 2;
+        }
+        ar.write(Integer.toString(val));
         ar.write("</td>");
 
         ar.write("<td>");

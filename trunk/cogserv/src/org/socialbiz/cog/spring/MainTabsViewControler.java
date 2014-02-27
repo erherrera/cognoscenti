@@ -206,7 +206,7 @@ public class MainTabsViewControler extends BaseController {
 
             registerRequiredProject(ar, siteId, pageId);
 
-            return new ModelAndView("attachment");
+            return new ModelAndView("leaf_attach");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.attachment.page", new Object[]{pageId,siteId} , ex);
         }

@@ -48,8 +48,8 @@ public class NGProj extends NGPage {
     public File containingFolder;
 
 
-    public NGProj(File theFile, Document newDoc) throws Exception {
-        super(theFile, newDoc);
+    public NGProj(File theFile, Document newDoc, NGBook site) throws Exception {
+        super(theFile, newDoc, site);
 
         String name = theFile.getName();
         File cogFolder = theFile.getParentFile();
@@ -158,8 +158,8 @@ public class NGProj extends NGPage {
                 //ignoring other possible project files
                 continue;
             }
-            if (fname.equalsIgnoreCase(".cog")) {
-                //in case there is a file named this...
+            if (fname.startsWith(".cog")) {
+                //need to ignore .cogProjectView.htm and other files with .cog*
                 continue;
             }
 

@@ -44,7 +44,7 @@ public class PageInfoRecord extends DOMFace
     /**
     * Book Key is the Site Key
     */
-    public String getBookKey() {
+    public String getSiteKey() {
         String siteKey = getAttribute("book");
         //silly default from time when book key was not set
         if (siteKey==null || siteKey.length()==0) {
@@ -53,7 +53,7 @@ public class PageInfoRecord extends DOMFace
         }
         return siteKey;
     }
-    public void setBookKey(String newKey) {
+    public void setSiteKey(String newKey) {
         setAttribute("book", newKey);
     }
 
