@@ -20,8 +20,7 @@
 %><%@page import="java.util.Hashtable"
 %><%@page import="java.util.Properties"
 %><%@page import="java.util.StringTokenizer"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Unable to complete request. ");
 
     Hashtable params = new Hashtable();
@@ -46,15 +45,13 @@
     ar.setPageAccessLevels(ngp);
     ar.assertMember("Can not edit file status");
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
     pageTitle = ngp.getFullName();
 
     if (go == null || go.length()==0)
     {
         go = ar.getResourceURL(ngp,"attach.htm");
-    }
-
-%>
+    }%>
 
 <%@ include file="Header.jsp"%>
 

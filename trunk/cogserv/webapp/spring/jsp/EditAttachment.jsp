@@ -2,8 +2,7 @@
 %><%@page import="java.util.List"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
-%><%
-/*
+%><%/*
 Required parameters:
 
     1. pageId : This is the id of an project and here it is used to retrieve NGPage (Project's Details).
@@ -12,9 +11,7 @@ Required parameters:
 */
 
     String pageId   = ar.reqParam("pageId");
-    String aid      = ar.reqParam("aid");
-
-%>
+    String aid      = ar.reqParam("aid");%>
     <script>
         function trim(s) {
             var temp = s;
@@ -35,37 +32,34 @@ Required parameters:
             return false;
         }
     </script>
-    <%!
-        String pageTitle="";
-    %>
+    <%!String pageTitle="";%>
     <%
-
         UserProfile uProf = ar.getUserProfile();
-        NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
-        ar.setPageAccessLevels(ngp);
+            NGPage ngp = NGPageIndex.getProjectByKeyOrFail(pageId);
+            ar.setPageAccessLevels(ngp);
 
-        AttachmentRecord attachment = ngp.findAttachmentByID(aid);
+            AttachmentRecord attachment = ngp.findAttachmentByID(aid);
 
-        if (attachment == null) {
-            throw new NGException("nugen.exception.attachment.not.found", new Object[]{aid});
-        }
-
-
-        String name     = attachment.getDisplayName();
-        String type     = attachment.getType();
-        String comment  = attachment.getComment();
-        String fname    = attachment.getStorageFileName();
-        String muser    = attachment.getModifiedBy();
-        long   mdate    = attachment.getModifiedDate();
-
-        if (type.length() == 0)  { throw new ProgramLogicError("Attachment type should never be empty"); }
-        boolean isURL = (type.equals("URL"));
-        boolean isFile = !isURL;
+            if (attachment == null) {
+        throw new NGException("nugen.exception.attachment.not.found", new Object[]{aid});
+            }
 
 
-        pageTitle = ngp.getFullName() + " / "+ attachment.getNiceNameTruncated(48);
+            String name     = attachment.getDisplayName();
+            String type     = attachment.getType();
+            String comment  = attachment.getComment();
+            String fname    = attachment.getStorageFileName();
+            String muser    = attachment.getModifiedBy();
+            long   mdate    = attachment.getModifiedDate();
 
-        NGBook ngb = ngp.getAccount();
+            if (type.length() == 0)  { throw new ProgramLogicError("Attachment type should never be empty"); }
+            boolean isURL = (type.equals("URL"));
+            boolean isFile = !isURL;
+
+
+            pageTitle = ngp.getFullName() + " / "+ attachment.getNiceNameTruncated(48);
+
+            NGBook ngb = ngp.getSite();
     %>
     <script>
 

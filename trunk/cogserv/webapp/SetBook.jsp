@@ -14,8 +14,7 @@
 %><%@page import="java.util.Properties"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Unable to set site.");
 
     String p = ar.reqParam("p");
@@ -24,7 +23,7 @@
     NGPage ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
 
-    NGBook ngb = ngp.getAccount();
+    NGBook ngb = ngp.getSite();
     String selKey = "";
     if (ngb!=null)
     {
@@ -34,11 +33,7 @@
     //search and find all the book files on disk
     String dataFolder = ar.getSystemProperty("dataFolder");
     File root = ConfigFile.getFolderOrFail(dataFolder);
-    File[] children = root.listFiles();
-
-
-
-%>
+    File[] children = root.listFiles();%>
 <html>
 <head>
     <title>Set Site</title>

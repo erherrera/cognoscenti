@@ -14,19 +14,15 @@ Required Parameters:
 */
 
     String subprocess  = ar.defParam("subprocess", "true");
-    String pageId      = ar.reqParam("pageId");
-%><%!
-    String pageTitle = "";
+    String pageId      = ar.reqParam("pageId");%><%!String pageTitle = "";
     boolean displayMyTask;
-    UserProfile uProf=null;
-%><%
-    String typeOfGoalPage = (String) request.getAttribute("TypeOfGoalPage");
+    UserProfile uProf=null;%><%String typeOfGoalPage = (String) request.getAttribute("TypeOfGoalPage");
     uProf = ar.getUserProfile();
 
     String cpath = request.getContextPath();
     NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
     ar.setPageAccessLevels(ngp);
-    NGBook ngb = ngp.getAccount();
+    NGBook ngb = ngp.getSite();
     //pageTitle = ngp.getFullName();
     pageTitle = typeOfGoalPage;
     List<GoalRecord> taskList = ngp.getAllGoals();
@@ -863,7 +859,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().getKey());
+        ar.writeHtml(ngp.getSite().getKey());
         ar.write("\');\" title=\"View details and modify activity state\">");
 
         ar.write("<b>Reassign</b>");
@@ -878,7 +874,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().getKey());
+        ar.writeHtml(ngp.getSite().getKey());
 
         ar.write("')\"");
         ar.write(">");
@@ -894,7 +890,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().getKey());
+        ar.writeHtml(ngp.getSite().getKey());
         ar.write("\','Start Offer','");
         ar.writeHtml(String.valueOf(index));
         ar.write("');\"");
@@ -916,7 +912,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().getKey());
+        ar.writeHtml(ngp.getSite().getKey());
         ar.write("\','Mark Accepted','");
         ar.writeHtml(String.valueOf(index));
         ar.write("');\"");
@@ -939,7 +935,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().getKey());
+        ar.writeHtml(ngp.getSite().getKey());
         ar.write("\','Complete Activity','");
         ar.writeHtml(String.valueOf(index));
         ar.write("');\"");
@@ -961,7 +957,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().getKey());
+        ar.writeHtml(ngp.getSite().getKey());
 
         ar.write("\','Approve','");
         ar.writeHtml(String.valueOf(index));
@@ -987,7 +983,7 @@ function reOrderIndex(id){
         ar.write("\',\'");
         ar.writeHtml(ngp.getKey());
         ar.write("\',\'");
-        ar.writeHtml(ngp.getAccount().getKey());
+        ar.writeHtml(ngp.getSite().getKey());
 
         ar.write("\','Reject','");
         ar.writeHtml(String.valueOf(index));

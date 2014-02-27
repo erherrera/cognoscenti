@@ -18,19 +18,19 @@
     <%
         long pageChangeTime = ngp.getLastModifyTime();
 
-        long subTime = 0;
-        if (uProf!=null)
-        {
-            subTime = uProf.watchTime(pageKey);
-        }
-        boolean found = subTime!=0;
-        ar.write("\n<input type=\"hidden\" id=\"pageChangeTime\" value=\"");
-        ar.write(String.valueOf(pageChangeTime));
-        ar.write("\"/>");
-        ar.write("\n<input type=\"hidden\" id=\"subTime\" value=\"");
-        ar.write(String.valueOf(subTime));
-        ar.write("\"/>");
-        %>
+            long subTime = 0;
+            if (uProf!=null)
+            {
+        subTime = uProf.watchTime(pageKey);
+            }
+            boolean found = subTime!=0;
+            ar.write("\n<input type=\"hidden\" id=\"pageChangeTime\" value=\"");
+            ar.write(String.valueOf(pageChangeTime));
+            ar.write("\"/>");
+            ar.write("\n<input type=\"hidden\" id=\"subTime\" value=\"");
+            ar.write(String.valueOf(subTime));
+            ar.write("\"/>");
+    %>
         <table width="100%">
             <tr>
                 <td>
@@ -41,7 +41,9 @@
                             <tr>
                                 <td width="500px">
                                     <b><fmt:message key="nugen.projecthome.private.stopwatching.notchanged"/></b>
-                                    <b><% SectionUtil.nicePrintTime(out, subTime, ar.nowTime); %></b>
+                                    <b><%
+                                        SectionUtil.nicePrintTime(out, subTime, ar.nowTime);
+                                    %></b>
                                     <b><fmt:message key="nugen.projecthome.private.stopwatching"/></b>
                                 </td>
                                 <td width="10px"></td>
@@ -60,7 +62,9 @@
                             <tr>
                                 <td width="500px">
                                     <b><fmt:message key="nugen.projecthome.private.stopwatching.changed"/></b>
-                                    <b><%SectionUtil.nicePrintTime(out, subTime, ar.nowTime);%></b>
+                                    <b><%
+                                        SectionUtil.nicePrintTime(out, subTime, ar.nowTime);
+                                    %></b>
                                     <b><fmt:message key="nugen.projecthome.private.stopwatching"/></b>
                                 </td>
                                 <td width="10px"></td>
@@ -89,7 +93,7 @@
                                     <input type="hidden" name="go" value="<%ar.writeHtml(thisPage);%>">
                                     <input type="button" name="action"  class="inputBtn"
                                         value="<fmt:message key='nugen.button.StartWatching'/>"
-                                        onclick="ajaxChangeWatching(<%ar.writeQuote4JS(pageKey);%>,'Start Watching','<%=ar.retPath%>',<% ar.writeQuote4JS(String.valueOf(ngp.isFrozen())); %>);">
+                                        onclick="ajaxChangeWatching(<%ar.writeQuote4JS(pageKey);%>,'Start Watching','<%=ar.retPath%>',<%ar.writeQuote4JS(String.valueOf(ngp.isFrozen()));%>);">
                                 </td>
                             </tr>
                         </table>
@@ -124,16 +128,16 @@
                     If you mark this project as template then it will appear in the <b>"<a href="#">List of Templates</a>"</b> in your profile's project page.
                     At any time you can even stop using this project as template.<br /><br />
                     <%
-                    out.flush();
+                        out.flush();
 
-                          if(p!=null && p.length()>0){
+                                      if(p!=null && p.length()>0){
                     %>
                     <div id="markastemplate">
                           <table>
                               <tr>
                                   <td width="500px"><b>Presently, this project is one of your templates, would you like to</b></td>
                                   <td width="10px"></td>
-                                  <td><input type="button" name="action"  class="inputBtn" value="<fmt:message key='nugen.button.projectsetting.stoptemplate'/>"  onclick="return markastemplate(<%ar.writeQuote4JS(p);%>,'removeTemplate','<%=ar.retPath %>',<% ar.writeQuote4JS(String.valueOf(ngp.isFrozen())); %> );"></td>
+                                  <td><input type="button" name="action"  class="inputBtn" value="<fmt:message key='nugen.button.projectsetting.stoptemplate'/>"  onclick="return markastemplate(<%ar.writeQuote4JS(p);%>,'removeTemplate','<%=ar.retPath%>',<%ar.writeQuote4JS(String.valueOf(ngp.isFrozen()));%> );"></td>
                               </tr>
                           </table>
                       </div>
@@ -142,7 +146,7 @@
                               <tr>
                                   <td width="500px"><b>Presently, this project is not one of your templates, would you like to</b></td>
                                   <td width="10px"></td>
-                                  <td valign="top"><input type="button" name="action"  class="inputBtn" value="<fmt:message key='nugen.button.projectsetting.markastemplate'/>"  onclick="return markastemplate(<%ar.writeQuote4JS(p);%>,'MarkAsTemplate','<%=ar.retPath %>',<% ar.writeQuote4JS(String.valueOf(ngp.isFrozen())); %>);"></td>
+                                  <td valign="top"><input type="button" name="action"  class="inputBtn" value="<fmt:message key='nugen.button.projectsetting.markastemplate'/>"  onclick="return markastemplate(<%ar.writeQuote4JS(p);%>,'MarkAsTemplate','<%=ar.retPath%>',<%ar.writeQuote4JS(String.valueOf(ngp.isFrozen()));%>);"></td>
                               </tr>
                           </table>
                       </div>
@@ -156,28 +160,30 @@
                     on your registered email address by clicking on <b>"Start Receiving Notification"</b> button.
                     At any time you can even stop receiving email notifications.<br /><br />
                     <%
-                          NGRole notifyRole = ngp.getRole("Notify");
-                          if (notifyRole==null)
-                          {
-                              notifyRole = ngp.createRole("Notify", "List of people to be notified of changes to the project.");
-                          }
-                      %>
+                        NGRole notifyRole = ngp.getRole("Notify");
+                                      if (notifyRole==null)
+                                      {
+                                          notifyRole = ngp.createRole("Notify", "List of people to be notified of changes to the project.");
+                                      }
+                    %>
                       <%
-                        UserProfile up = ar.getUserProfile();
-                          boolean isNotified = up.isNotifiedForProject(ngp.getKey());
-                         %>
+                          UserProfile up = ar.getUserProfile();
+                                        boolean isNotified = up.isNotifiedForProject(ngp.getKey());
+                      %>
                           <div id="stopNotifications" >
                                   <table>
                                       <tr>
                                           <td width="500px">
-                                            <I>Last email Sent:&nbsp;<b><%ar.writeHtml(date.toString());%></b></I><br />
+                                            <I>Last email Sent:&nbsp;<b><%
+                                                ar.writeHtml(date.toString());
+                                            %></b></I><br />
                                             <b>You are not receiving change notifications for this project.</b>
                                           </td>
                                           <td width="10px"></td>
                                           <td valign="top">
                                               <input type="button" name="action"  class="inputBtn"
                                                 value="<fmt:message key='nugen.button.projectsetting.stopnotify'/>"
-                                                onclick="ajaxChangeWatching(<%ar.writeQuote4JS(pageKey);%>,'Stop Notifications','<%=ar.retPath%>',<% ar.writeQuote4JS(String.valueOf(ngp.isFrozen())); %>);">
+                                                onclick="ajaxChangeWatching(<%ar.writeQuote4JS(pageKey);%>,'Stop Notifications','<%=ar.retPath%>',<%ar.writeQuote4JS(String.valueOf(ngp.isFrozen()));%>);">
 
                                           </td>
                                       </tr>
@@ -194,7 +200,7 @@
                                             <td valign="top">
                                                 <input type="button" name="action"  class="inputBtn"
                                                     value="<fmt:message key='nugen.button.projectsetting.startnotify'/>"
-                                                    onclick="ajaxChangeWatching(<%ar.writeQuote4JS(pageKey);%>,'Start Notifications','<%=ar.retPath%>',<% ar.writeQuote4JS(String.valueOf(ngp.isFrozen())); %>);">
+                                                    onclick="ajaxChangeWatching(<%ar.writeQuote4JS(pageKey);%>,'Start Notifications','<%=ar.retPath%>',<%ar.writeQuote4JS(String.valueOf(ngp.isFrozen()));%>);">
                                             </td>
                                         </tr>
                                     </table>
@@ -213,8 +219,8 @@
             </tr>
         </table>
         <%
-          }
-          %>
+            }
+        %>
 
     </div>
 
@@ -223,19 +229,19 @@
       <div class="generalContent">
           <table width="100%" border="0">
           <%
-          boolean isPersonalTab = true;
-          UserProfile up = ar.getUserProfile();
-          String roleMember = up.getUniversalId();
-          if(roles!=null){
-              RoleRequestRecord roleRequestRecord = null;
-              Iterator  iterator = roles.iterator();
-              while(iterator.hasNext()){
-                  NGRole role = (NGRole)iterator.next();
+              boolean isPersonalTab = true;
+                    UserProfile up = ar.getUserProfile();
+                    String roleMember = up.getUniversalId();
+                    if(roles!=null){
+                RoleRequestRecord roleRequestRecord = null;
+                Iterator  iterator = roles.iterator();
+                while(iterator.hasNext()){
+                    NGRole role = (NGRole)iterator.next();
           %>
               <%@include file="join_leave_role_block.jsp"%>
           <%
               }
-          }
+                    }
           %>
           </table>
       </div>
@@ -243,10 +249,8 @@
 
 <script>
 var isExecutives = "no";
-<%
-    NGRole accountExecutive = ngp.getAccount().getRoleOrFail("Executives");
-    if(accountExecutive.isPlayer(new AddressListEntry(roleMember))){
-%>
+<%NGRole accountExecutive = ngp.getSite().getRoleOrFail("Executives");
+    if(accountExecutive.isPlayer(new AddressListEntry(roleMember))){%>
     isExecutives ="yes";
 
 <%}%>

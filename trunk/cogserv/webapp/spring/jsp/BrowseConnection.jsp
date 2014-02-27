@@ -45,9 +45,7 @@ Required parameter:
     session.setAttribute("connectionId",folderId);
 %>
 <%@ include file="functions.jsp"%>
-<%!
-
-    public String displayRepositoryFolderQ(AuthRequest ar,String folderId, String path, String p) throws Exception
+<%!public String displayRepositoryFolderQ(AuthRequest ar,String folderId, String path, String p) throws Exception
     {
         NGPage page = NGPageIndex.getProjectByKeyOrFail(p);
         String go = ar.getCompleteURL();
@@ -65,7 +63,7 @@ Required parameter:
         {
             fdname = fdname.substring(0, indx2);
         }
-        String projectLink = ar.retPath + "t/" + page.getAccount().getKey() + "/" +page.getKey() + "/public.htm";
+        String projectLink = ar.retPath + "t/" + page.getSite().getKey() + "/" +page.getKey() + "/public.htm";
 
         ar.write("<div class=\"generalArea\">");
         ar.write("\n<div class=\"pageHeading\">");
@@ -142,7 +140,7 @@ Required parameter:
             ar.write("assets/images/iconFile.png\" alt=\"\" /></td>");
             if(! isAttached)
             {
-                String attchLink = ar.retPath+"t/"+page.getAccount().getKey()+"/"+page.getKey()
+                String attchLink = ar.retPath+"t/"+page.getSite().getKey()+"/"+page.getKey()
                         + "/linkRepository.htm?p="
                         + URLEncoder.encode(p,"UTF-8")
                         + "&symbol=" + URLEncoder.encode(fileEnt.getSymbol(), "UTF-8")
@@ -252,5 +250,4 @@ Required parameter:
             }
         }
         ar.write("</div>");
-    }
-%>
+    }%>

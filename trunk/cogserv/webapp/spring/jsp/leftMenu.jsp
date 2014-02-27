@@ -24,8 +24,7 @@ Optional Parameter:
         tabId = (String)request.getAttribute("tabId");
     }
 
-%><%
-    String goLogin=ar.getCompleteURL();
+%><%String goLogin=ar.getCompleteURL();
     NGContainer ngp = null;
     NGBook ngb = null;
     if(pageId!=null){
@@ -33,11 +32,10 @@ Optional Parameter:
         if (ngp!=null) {
             ar.setPageAccessLevels(ngp);
             if(ngp instanceof NGPage) {
-                ngb = ((NGPage)ngp).getAccount();
+                ngb = ((NGPage)ngp).getSite();
             }
         }
-    }
-%>
+    }%>
 <!-- this is the beginning of LeftMenu.jsp -->
 <script language="javascript">
     var CPATH_LEFTNAV = '<%=request.getContextPath()%>';

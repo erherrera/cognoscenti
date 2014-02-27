@@ -1426,7 +1426,7 @@ public class AuthRequest
             return "p/"+ngc.getKey()+"/"+resource;
         }
         if(ngc instanceof NGPage){
-            NGBook ngb = ((NGPage)ngc).getAccount();
+            NGBook ngb = ((NGPage)ngc).getSite();
             return "t/" + URLEncoder.encode(ngb.getKey(), "UTF-8")+"/"
                         + ngc.getKey()+"/"+resource;
         }

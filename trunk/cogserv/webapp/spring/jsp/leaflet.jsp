@@ -35,7 +35,7 @@ Required parameter:
     ar.setPageAccessLevels(ngp);
     UserProfile uProf = ar.getUserProfile();
 
-    ngb = ((NGPage)ngp).getAccount();
+    ngb = ((NGPage)ngp).getSite();
 
     NoteRecord note = ngp.getNoteOrFail(lid);
 

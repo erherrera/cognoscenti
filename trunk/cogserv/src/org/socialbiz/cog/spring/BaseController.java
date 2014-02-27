@@ -100,7 +100,7 @@ public class BaseController {
         ar.req.setAttribute("headerType", "project");
         NGPageIndex.assertBook(siteId);
         NGPage ngp = NGPageIndex.getProjectByKeyOrFail( projectId );
-        if (!siteId.equals(ngp.getAccountKey())) {
+        if (!siteId.equals(ngp.getSiteKey())) {
             throw new NGException("nugen.operation.fail.account.match", new Object[]{projectId,siteId});
         }
         ar.setPageAccessLevels(ngp);
@@ -108,7 +108,7 @@ public class BaseController {
         return ngp;
     }
 
-    public static NGBook prepareAccountView(AuthRequest ar, String siteId) throws Exception
+    public static NGBook prepareSiteView(AuthRequest ar, String siteId) throws Exception
     {
         ar.req.setAttribute("accountId", siteId);
         ar.req.setAttribute("book",      siteId);

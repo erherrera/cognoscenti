@@ -20,7 +20,7 @@ Required Parameters:
     String cpath = request.getContextPath();
     NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
     ar.setPageAccessLevels(ngp);
-    NGBook ngb = ngp.getAccount();
+    NGBook ngb = ngp.getSite();
     pageTitle = ngp.getFullName();
     List<GoalRecord> taskList = ngp.getAllGoals();
 

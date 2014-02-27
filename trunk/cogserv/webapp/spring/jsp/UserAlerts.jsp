@@ -39,26 +39,25 @@ Required Parameters:
 
 <div class="generalArea">
 <%
-if(notifications.size()>0) {
+    if(notifications.size()>0) {
     int count = 0;
     String rowStyleClass = "";
     for (NotificationRecord tr : notifications) {
         String pageId = tr.getPageKey();
         NGPage ngp = (NGPage)NGPageIndex.getContainerByKey(pageId);
         if (ngp==null) {
-            continue;
+    continue;
         }
         containers.add(ngp);
-        String linkAddr = ar.retPath + "t/" +ngp.getAccount().getKey()+"/"+ngp.getKey() + "/history.htm";
+        String linkAddr = ar.retPath + "t/" +ngp.getSite().getKey()+"/"+ngp.getKey() + "/history.htm";
         if(count%2 == 0){
-            rowStyleClass = "tableBodyRow odd";
+    rowStyleClass = "tableBodyRow odd";
         }
         else{
-            rowStyleClass = "tableBodyRow even";
+    rowStyleClass = "tableBodyRow even";
         }
     }
 }
-
 %>
 <div class="generalHeading" style="padding-top:35px">Project Notifications Since Last Digest
         <%SectionUtil.nicePrintDateAndTime(out, lastSendTime);%></div>

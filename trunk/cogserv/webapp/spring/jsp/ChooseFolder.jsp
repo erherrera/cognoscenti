@@ -1,7 +1,6 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
-%><%
-/*
+%><%/*
 Required parameter:
 
     1. p        : This is the id of a Project and used to retrieve NGPage.
@@ -16,35 +15,33 @@ Required parameter:
     String folderId = ar.reqParam("folderId");
     String path     = ar.reqParam("path");
     String aid     = ar.defParam("aid","");
-    String fndDefLoctn    = ar.reqParam("fndDefLoctn");
-
-%>
+    String fndDefLoctn    = ar.reqParam("fndDefLoctn");%>
     <div class="generalArea">
         <%
-        NGPage ngPage = NGPageIndex.getProjectByKeyOrFail(p);
-        FolderAccessHelper fdh = new FolderAccessHelper(ar);
-        ResourceEntity ent = fdh.getRemoteResource(folderId, path, true);
+            NGPage ngPage = NGPageIndex.getProjectByKeyOrFail(p);
+                FolderAccessHelper fdh = new FolderAccessHelper(ar);
+                ResourceEntity ent = fdh.getRemoteResource(folderId, path, true);
 
 
-        String projectLink = ar.retPath + "t/" + ngPage.getAccount().getKey() + "/" +ngPage.getKey();
+                String projectLink = ar.retPath + "t/" + ngPage.getSite().getKey() + "/" +ngPage.getKey();
 
-        String curntFolderLnk = "";
+                String curntFolderLnk = "";
 
-        if(fndDefLoctn.equals("true"))
-        {
+                if(fndDefLoctn.equals("true"))
+                {
             curntFolderLnk = projectLink
                 + "/admin.htm?selectedFolder="+URLEncoder.encode(ent.getSymbol(), "UTF-8")
                 +"&encodingGuard=%E6%9D%B1%E4%BA%AC";
 
-        }else
-        {
+                }else
+                {
             curntFolderLnk = projectLink
                + "/pushToRepository.htm?aid="+ aid
                +"&folderId="+folderId
                +"&path="+URLEncoder.encode(path, "UTF-8")
                +"&encodingGuard=%E6%9D%B1%E4%BA%AC";
 
-        }
+                }
         %>
         <div class="pageHeading">Browse folders to store your document of
             <a href="<%ar.writeHtml(projectLink);%>/public.htm"><%ar.writeHtml(ngPage.getFullName()); %></a>
@@ -122,14 +119,12 @@ Required parameter:
 
 
 <%@ include file="functions.jsp"%>
-<%!
-
-    private void showHeader(AuthRequest ar, ResourceEntity ent, NGPage page, String folderId, String aid,String fndDefLoctn)
+<%!private void showHeader(AuthRequest ar, ResourceEntity ent, NGPage page, String folderId, String aid,String fndDefLoctn)
         throws Exception {
 
         ConnectionType cType = ent.getConnection();
         String cSetID = cType.getConnectionId();
-        String projectLink = ar.retPath + "t/" + page.getAccount().getKey() + "/" +page.getKey();
+        String projectLink = ar.retPath + "t/" + page.getSite().getKey() + "/" +page.getKey();
 
         String symbol = ent.getSymbol();
         String path = ent.getPath();
@@ -183,6 +178,4 @@ Required parameter:
             ar.writeHtml(ent.getDecodedName());
             ar.write("</a>");
         }
-    }
-
-%>
+    }%>

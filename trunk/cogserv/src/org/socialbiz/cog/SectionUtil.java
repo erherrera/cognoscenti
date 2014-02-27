@@ -134,7 +134,7 @@ public class SectionUtil
                 if (sourcePage!=null)
                 {
                     sourceName = sourcePage.getFullName();
-                    NGBook ngb = sourcePage.getAccount();
+                    NGBook ngb = sourcePage.getSite();
                     if (ngb!=null)
                     {
                         bookName = ngb.getKey();

@@ -19,8 +19,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    ar = AuthRequest.getOrCreate(request, response, out);
+%><%ar = AuthRequest.getOrCreate(request, response, out);
     ar.retPath="../../";
 
     String p = ar.reqParam("p");
@@ -29,12 +28,11 @@
     boolean isMember = ar.isMember();
     boolean isAdmin = ar.isAdmin();
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
 
     pageTitle = ngp.getFullName();
     specialTab = "Documents";
-    newUIResource = "attachment.htm";
-%>
+    newUIResource = "attachment.htm";%>
 
 <%@ include file="Header.jsp"%>
 <%

@@ -1,9 +1,8 @@
-<%@page import="org.socialbiz.cog.AccountReqFile"
+<%@page import="org.socialbiz.cog.SiteReqFile"
 %><%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
-%><%@page import="org.socialbiz.cog.spring.AccountRequest"
-%><%
-/*
+%><%@page import="org.socialbiz.cog.spring.SiteRequest"
+%><%/*
 Required parameter:
 
     1. requestId : This is the id of requested site and here it is used to retrieve requested Site's request Details.
@@ -17,14 +16,7 @@ Required parameter:
     String canAccess = ar.defParam("canAccess", "false");
     boolean canAccessPage = Boolean.parseBoolean(canAccess);
 
-    String userKey = ar.defParam("userId", null);
-
-%><%!
-String pageTitle="";
-%><%
-
-    AccountRequest accountDetails=AccountReqFile.getRequestByKey(requestId);
-%>
+    String userKey = ar.defParam("userId", null);%><%!String pageTitle="";%><%SiteRequest accountDetails=SiteReqFile.getRequestByKey(requestId);%>
 <style type="text/css">
     html {
         background-color:#C1BFC0;
@@ -75,20 +67,20 @@ String pageTitle="";
                             <td style="width:20px;"></td>
                             <td>
                             <%
-                            if (isGranted)
-                            {
-                                ar.write("<a href=\"");
-                                ar.write(ar.retPath);
-                                ar.write("v/");
-                                ar.write(accountDetails.getAccountId());
-                                ar.write("/$/public.htm\">");
-                                ar.writeHtml(accountDetails.getName());
-                                ar.write(" (click here to visit site)</a>");
-                            }
-                            else
-                            {
-                                ar.writeHtml(accountDetails.getName());
-                            }
+                                if (isGranted)
+                                                {
+                                                    ar.write("<a href=\"");
+                                                    ar.write(ar.retPath);
+                                                    ar.write("v/");
+                                                    ar.write(accountDetails.getSiteId());
+                                                    ar.write("/$/public.htm\">");
+                                                    ar.writeHtml(accountDetails.getName());
+                                                    ar.write(" (click here to visit site)</a>");
+                                                }
+                                                else
+                                                {
+                                                    ar.writeHtml(accountDetails.getName());
+                                                }
                             %>
                             </td>
                         </tr>

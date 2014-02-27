@@ -110,7 +110,7 @@ public class NGPage extends ContainerCommon implements NGContainer
             }
 
             //this throws an exception if book not found
-            prjSite = NGBook.readBookByKey(siteKey);
+            prjSite = NGBook.readSiteByKey(siteKey);
         }
         else {
             prjSite = site;
@@ -783,8 +783,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
-    public NGBook getAccount()
-    {
+    public NGBook getSite() {
         if (prjSite==null) {
             //this will prove that this always returns a non-null value.
             throw new RuntimeException("Program Logic Error: something is wrong with NGPage object which has a null site ... this should never happen.");
@@ -792,16 +791,14 @@ public class NGPage extends ContainerCommon implements NGContainer
         return prjSite;
     }
 
-    public String getAccountKey()
-    {
+    public String getSiteKey() {
         return pageInfo.getSiteKey();
     }
 
 
-    public void setAccount(NGBook ngb)
-    {
+    public void setSite(NGBook ngb) {
         if (ngb==null) {
-            throw new RuntimeException("setAccount called with null parameter.   Should not be using the 'default site' concept any more, this exception is checking to see if it ever happens");
+            throw new RuntimeException("setSite called with null parameter.   Should not be using the 'default site' concept any more, this exception is checking to see if it ever happens");
         }
         pageInfo.setSiteKey(ngb.getKey());
         prjSite = ngb;
@@ -1128,7 +1125,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         {
             return true;
         }
-        NGRole execs = getAccount().getRoleOrFail("Executives");
+        NGRole execs = getSite().getRoleOrFail("Executives");
         if (execs.isPlayer(user))
         {
             return true;
@@ -1339,7 +1336,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         ar.write( "<a href=\"" );
         ar.writeHtml(ar.baseURL );
         ar.write( "t/" );
-        ar.writeHtml(getAccount().getKey());
+        ar.writeHtml(getSite().getKey());
         ar.write( "/" );
         ar.writeHtml(getKey());
     }

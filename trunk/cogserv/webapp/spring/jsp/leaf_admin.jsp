@@ -11,11 +11,11 @@
     Vector<NGPageIndex> templates = new Vector<NGPageIndex>();
     if(uProf != null){
         for(TemplateRecord tr : up.getTemplateList()){
-            NGPageIndex ngpi = NGPageIndex.getContainerIndexByKey(tr.getPageKey());
-            if (ngpi!=null) {
-                //silently ignore templates that no longer exist
-                templates.add(ngpi);
-            }
+    NGPageIndex ngpi = NGPageIndex.getContainerIndexByKey(tr.getPageKey());
+    if (ngpi!=null) {
+        //silently ignore templates that no longer exist
+        templates.add(ngpi);
+    }
         }
         NGPageIndex.sortInverseChronological(templates);
     }
@@ -33,11 +33,9 @@
     catch (Exception uu) {
         upstreamError = uu;
     }
-
-
 %>
 <script type="text/javascript" language="JavaScript">
-    var isfreezed = '<%=ngp.isFrozen() %>';
+    var isfreezed = '<%=ngp.isFrozen()%>';
 
     function validateFields(){
         if((document.getElementById('txtGoal') == null) || (document.getElementById('txtGoal').value == "")){
@@ -113,20 +111,20 @@
     }
 </script>
 <%
-String thisPageAddress = ar.getResourceURL(ngp,"admin.htm");
+    String thisPageAddress = ar.getResourceURL(ngp,"admin.htm");
 %>
     <c:set var="adminSect"> <fmt:message key="nugen.adminSection.title"/> </c:set>
     <div class="generalArea">
         <div class="content tab01">
         <%
-        if (!ar.isLoggedIn()) {
+            if (!ar.isLoggedIn()) {
         %>
             <div class="generalContent">
                 <fmt:message key="nugen.generatInfo.Admin.login"/>
             </div>
 
         <%
-        } else if (!ar.isAdmin()) {
+            } else if (!ar.isAdmin()) {
         %>
             <div class="generalContent">
                 <fmt:message key="nugen.generatInfo.Admin.administration">
@@ -137,17 +135,17 @@ String thisPageAddress = ar.getResourceURL(ngp,"admin.htm");
             <div class="generalContent">
                 <ul class="bulletLinks">
                 <%
-                for (int i = 0; i < names.length; i++) {
-                    out.write("<li>");
-                    writeHtml(out, names[i]);
-                    out.write("</li>\n");
-                }
+                    for (int i = 0; i < names.length; i++) {
+                            out.write("<li>");
+                            writeHtml(out, names[i]);
+                            out.write("</li>\n");
+                        }
                 %>
                 </ul>
             </div>
         <%
-        }else
-        {
+            }else
+                {
         %>
 
             <div class="generalContent">
@@ -188,7 +186,7 @@ String thisPageAddress = ar.getResourceURL(ngp,"admin.htm");
                             value="%E6%9D%B1%E4%BA%AC" />
         <%
             for (int i = 1; i < names.length; i++) {
-                String delLink = ar.retPath+"t/"+ngp.getAccount().getKey()+"/"+ngp.getKey()
+                String delLink = ar.retPath+"t/"+ngp.getSite().getKey()+"/"+ngp.getKey()
                     + "/deletePreviousProjectName.htm?action=delName&p="
                     + URLEncoder.encode(pageFullName, "UTF-8")
                     + "&oldName="

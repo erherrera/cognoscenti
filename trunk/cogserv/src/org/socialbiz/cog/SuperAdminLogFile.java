@@ -58,21 +58,21 @@ public class SuperAdminLogFile extends DOMFile {
      * mechanism that removes the old events from the file, so that only the new
      * ones are left.
      */
-    public List<NGBook> getAllNewAccounts() throws Exception {
+    public List<NGBook> getAllNewSites() throws Exception {
         Vector<AdminEvent> allEvents = getEventsParent().getChildren("event",
                 AdminEvent.class);
-        List<NGBook> newAccounts = new ArrayList<NGBook>();
+        List<NGBook> newSites = new ArrayList<NGBook>();
         for (AdminEvent event : allEvents) {
             if (event.getContext().equals(AdminEvent.ACCOUNT_CREATED)) {
                 NGBook site = (NGBook) NGPageIndex.getContainerByKey(event
                         .getObjectId());
                 if (site!=null) {
                     //TODO: is this a bad error situation if null??
-                    newAccounts.add(site);
+                    newSites.add(site);
                 }
             }
         }
-        return newAccounts;
+        return newSites;
     }
 
     /**

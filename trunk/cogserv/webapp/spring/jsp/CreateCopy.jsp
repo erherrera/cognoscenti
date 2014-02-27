@@ -1,8 +1,7 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
-%><%
-/*
+%><%/*
 Required parameter:
 
     1. pageId   : This is the id of a Project and used to retrieve NGPage.
@@ -10,11 +9,8 @@ Required parameter:
 */
 
     String p = ar.reqParam("pageId");
-    String aid = ar.reqParam("aid");
-%>
-<%!
-        String pageTitle="";
-%>
+    String aid = ar.reqParam("aid");%>
+<%!String pageTitle="";%>
 <%
     UserProfile uProf = ar.getUserProfile();
 
@@ -27,7 +23,7 @@ Required parameter:
     ResourceEntity defaultRemoteFolder = ngp.getDefRemoteFolder();
 
     FolderAccessHelper fdh = new FolderAccessHelper(ar);
-    String attLink = ar.baseURL+"t/"+ngp.getAccount().getKey()+"/"+ngp.getKey()+"/a/"+name+"?version="+attachment.getVersion();
+    String attLink = ar.baseURL+"t/"+ngp.getSite().getKey()+"/"+ngp.getKey()+"/a/"+name+"?version="+attachment.getVersion();
 %>
 
 <script type="text/javascript">

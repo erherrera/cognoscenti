@@ -1,9 +1,8 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="UserProfile.jsp"
-%><%@page import="org.socialbiz.cog.spring.AccountRequest"
-%><%@page import="org.socialbiz.cog.AccountReqFile"
-%><%
-/*
+%><%@page import="org.socialbiz.cog.spring.SiteRequest"
+%><%@page import="org.socialbiz.cog.SiteReqFile"
+%><%/*
 
 Required Parameters:
 
@@ -28,11 +27,11 @@ Required Parameters:
         throw new ProgramLogicError("user profile setting is null.");
     }
 
-    List<AccountRequest> allaccount = AccountReqFile.getAccountsStatus();
+    List<SiteRequest> allaccount = SiteReqFile.getAllSiteReqs();
     boolean isSuper = ar.isSuperAdmin();
-    List<AccountRequest> superRequests = new ArrayList<AccountRequest>();
-    List<AccountRequest> myAccountRequests = new ArrayList<AccountRequest>();
-    for (AccountRequest accountDetails: allaccount)
+    List<SiteRequest> superRequests = new ArrayList<SiteRequest>();
+    List<SiteRequest> myAccountRequests = new ArrayList<SiteRequest>();
+    for (SiteRequest accountDetails: allaccount)
     {
         if(userProfile.hasAnyId(accountDetails.getUniversalId()))
         {
@@ -45,22 +44,18 @@ Required Parameters:
     }
 
 
-    List accReqs = userProfile.getAllAccountRequests();
+    List accReqs = userProfile.getUsersSiteRequests();
     if (accReqs==null)
     {
         //this should never happen, and if it does it is not the users fault
         throw new ProgramLogicError("user profile returned a null for site requests.");
     }
-    ngb = null;
-
-
-
-%>
+    ngb = null;%>
 <div class="content tab04" style="display:block;">
     <div class="section_body">
         <div style="height:10px;"></div>
         <%
-        if(memberOfAccounts.size()>0) {
+            if(memberOfAccounts.size()>0) {
         %>
         <div class="generalHeadingBorderLess">List of Sites</div>
         <div class="generalContent">
@@ -76,33 +71,36 @@ Required Parameters:
                     </thead>
                     <tbody>
                     <%
-                    int i=0;
-                    Iterator it = memberOfAccounts.iterator();
-                    while (it.hasNext()) {
-                        i++;
-                        String rowStyleClass="tableBodyRow even";
-                        if(i%2 == 0){
-                            rowStyleClass = "tableBodyRow odd";
-                        }
+                        int i=0;
+                                Iterator it = memberOfAccounts.iterator();
+                                while (it.hasNext()) {
+                                    i++;
+                                    String rowStyleClass="tableBodyRow even";
+                                    if(i%2 == 0){
+                                        rowStyleClass = "tableBodyRow odd";
+                                    }
 
-                        NGBook account  = (NGBook) it.next();
-                        String accountLink =ar.baseURL+"t/"+account.getKey()+"/$/accountListProjects.htm";
-
+                                    NGBook account  = (NGBook) it.next();
+                                    String accountLink =ar.baseURL+"t/"+account.getKey()+"/$/accountListProjects.htm";
                     %>
                         <tr>
                            <td>
                                 <%=(i)%>
                             </td>
                             <td>
-                                <a href="<%ar.writeHtml(accountLink); %>" title="navigate to the site"><%writeHtml(out, account.getName());%></a>
+                                <a href="<%ar.writeHtml(accountLink);%>" title="navigate to the site"><%
+                                    writeHtml(out, account.getName());
+                                %></a>
                             </td>
                             <td>
-                                <%writeHtml(out, account.getDescription());%>
+                                <%
+                                    writeHtml(out, account.getDescription());
+                                %>
                             </td>
                         </tr>
                        <%
-                       }
-                    %>
+                           }
+                       %>
                     </tbody>
                 </table>
             </div>
@@ -115,20 +113,20 @@ Required Parameters:
             </div>
         </div>
         <%
-        }else{
+            }else{
         %>
         <div class="guideVocal">
             <%
-            if(accReqs.size()>0) {
+                if(accReqs.size()>0) {
             %>
             <fmt:message key="requestedaccount.message.0"/> <%=accReqs.size()%>&nbsp;
             <fmt:message key="accounts.title"/></p>
             <%
-            }else{
+                }else{
             %>
             <fmt:message key="noaccount.message.0"/>
             <%
-            }
+                }
             %>
             <fmt:message key="noaccount.message.1"/>
             <fmt:message key="noaccount.message.2"/>
@@ -139,9 +137,9 @@ Required Parameters:
             <fmt:message key="noaccount.message.4"/>
         </div>
         <%
-        }
-        //only produce this section if you have some outstanding requests
-        if (myAccountRequests.size()>0) {
+            }
+                //only produce this section if you have some outstanding requests
+                if (myAccountRequests.size()>0) {
         %>
         <div class="generalHeadingBorderLess"><br/>Status of Your Site Requests</div>
         <div class="generalContent">
@@ -157,11 +155,10 @@ Required Parameters:
                     </thead>
                     <tbody>
                     <%
-
-                    for (AccountRequest accountDetails : myAccountRequests)
-                    {
-                        String accountLink =ar.baseURL+"t/"+accountDetails.getAccountId()+"/$/accountListProjects.htm";
-                        %><tr><td><%
+                        for (SiteRequest accountDetails : myAccountRequests)
+                                            {
+                                                String accountLink =ar.baseURL+"t/"+accountDetails.getSiteId()+"/$/accountListProjects.htm";
+                    %><tr><td><%
                         if(accountDetails.getStatus().equalsIgnoreCase("Granted")){
                             %><a href="<%ar.writeHtml(accountLink); %>"><%
                             ar.writeHtml(accountDetails.getName());

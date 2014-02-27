@@ -7,8 +7,7 @@
 %><%@page import="org.socialbiz.cog.UtilityMethods"
 %><%@page import="java.net.URLEncoder"
 
-%><%
-    //This is a legacy forwarding page in case people have old links
+%><%//This is a legacy forwarding page in case people have old links
     //the old pattern is
     //   p/{projectid}/leaf{noteid}.htm
     //the servlet parses and passes, the project as "p" and the note id as "lid"
@@ -22,11 +21,10 @@
 
     NGPage ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    NGBook ngb = ngp.getAccount();
+    NGBook ngb = ngp.getSite();
 
 //redirect to the new UI implementation of a zoomed leaf
     String redirectURL = ar.retPath + "t/" + ngb.getKey() + "/" + ngp.getKey() + "/leaflet" + URLEncoder.encode(lid, "UTF-8") + ".htm";
-    response.sendRedirect(redirectURL);
-%>
+    response.sendRedirect(redirectURL);%>
 <p>This resource has a new location, update the source link if possible.</p>
 <p>Access the <a href="<%=redirectURL%>">resource with this link</a></p>

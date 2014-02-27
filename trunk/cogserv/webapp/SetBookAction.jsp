@@ -29,7 +29,7 @@
     }
 
 
-    NGBook oldBook = ngp.getAccount();
+    NGBook oldBook = ngp.getSite();
     NGBook ngb = null;
 
     if (key.equals("*"))
@@ -39,11 +39,11 @@
         {
             throw new Exception("Parameter newName is empty.  You must fill in a name for the project, if you desire to create a project.");
         }
-        ngb = NGBook.createNewBook(newName);
+        ngb = NGBook.createNewSite(newName);
         UserProfile up = ar.getUserProfile();
         ngb.getPrimaryRole().addPlayer(up);
         ngb.getSecondaryRole().addPlayer(up);
-        ngb.saveBookAs(ngb.getKey(), ar.getUserProfile(), "Set Site Action");
+        ngb.saveSiteAs(ngb.getKey(), ar.getUserProfile(), "Set Site Action");
     }
     else if (key.equals("/"))
     {
@@ -59,7 +59,7 @@
         throw new Exception("program logic error: did not find the site '"+key+"'");
     }
 
-    ngp.setAccount(ngb);
+    ngp.setSite(ngb);
     ngp.saveFile(ar, "Set Site");
     response.sendRedirect(go);%>
 

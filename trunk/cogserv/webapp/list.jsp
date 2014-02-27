@@ -17,18 +17,13 @@
 %><%@page import="java.util.Properties"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Must be logged in to list the sites.");
 
-    Vector<NGBook> allAccounts = NGBook.getAllAccounts();
+    Vector<NGBook> allAccounts = NGBook.getAllSites();
     if (allAccounts==null) {
         throw new Exception("Strange, the system does not appear to be initialized.");
-    }
-
-
-
-%>
+    }%>
 <%@ include file="Header.jsp"%>
 
     <h1>Site List</h1>
@@ -59,14 +54,12 @@
                     <td>Description</td>
                 </tr>
 <%
-
     for (NGBook ngb : allAccounts)
     {
-        Vector<NGPageIndex> allProjects = NGPageIndex.getAllProjectsInAccount(ngb.key);
+        Vector<NGPageIndex> allProjects = NGPageIndex.getAllProjectsInSite(ngb.key);
         List<AttachmentRecord> allDocs = ngb.getAllAttachments();
         List<NoteRecord> allNotes = ngb.getAllNotes();
         NGRole owner = ngb.getSecondaryRole();
-
 %>
             <tr valign="top">
                 <td><a href="BookPages.jsp?b=<%ar.writeHtml(ngb.getKey());%>" title="List all the projects in this account">

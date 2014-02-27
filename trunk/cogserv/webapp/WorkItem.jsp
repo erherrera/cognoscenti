@@ -27,7 +27,7 @@
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
     ProcessRecord process = ngp.getProcess();
-    ngb= ngp.getAccount();
+    ngb= ngp.getSite();
     uProf = ar.getUserProfile();
 
     String go = ar.defParam("go", null);

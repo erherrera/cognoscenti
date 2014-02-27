@@ -2,8 +2,7 @@
 %><%@page import="org.socialbiz.cog.ConfigFile"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
-%><%
-/*
+%><%/*
 
 Parameter used :
 
@@ -17,14 +16,9 @@ Parameter used :
     7. tabId        : This is tabId when the page ie rendered Tab with this id will be selected.
     8. accountId    : This is key of a site, used here to get details of an Site (NGBook).
 
-*/
-%><%!
-    String pageTitle = null;
+*/%><%!String pageTitle = null;
     String go="";
-    String trncatePageTitle=null;
-%><%
-
-    String pageTitle = (String)request.getAttribute("pageTitle");
+    String trncatePageTitle=null;%><%String pageTitle = (String)request.getAttribute("pageTitle");
     String userKey = (String)request.getAttribute("userKey");
 
     String pageId = (String)request.getAttribute("pageId");
@@ -65,7 +59,7 @@ Parameter used :
         ar.setPageAccessLevels(ngp);
         pageTitle = ngp.getFullName();
         if(ngp instanceof NGPage) {
-            ngb = ((NGPage)ngp).getAccount();
+            ngb = ((NGPage)ngp).getSite();
         }
         else if(ngp instanceof NGBook) {
             ngb = ((NGBook)ngp);
@@ -91,8 +85,7 @@ Parameter used :
     }
 
     String currentPageURL = ar.getCompleteURL();
-    String encodedLoginMsg = URLEncoder.encode("Can't open form","UTF-8");
-%>
+    String encodedLoginMsg = URLEncoder.encode("Can't open form","UTF-8");%>
    <script type="text/javascript">
       var retPath ='<%=ar.retPath%>';
       var headerType = '';

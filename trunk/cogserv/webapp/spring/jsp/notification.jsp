@@ -52,7 +52,7 @@
                                     ar.write(projectName);
                                 %>
                                 </b>
-                                <a href="<%=ar.baseURL%>t/<%=ngp.getAccountKey()%>/<%=ngp.getKey()%>/history.htm">
+                                <a href="<%=ar.baseURL%>t/<%=ngp.getSiteKey()%>/<%=ngp.getKey()%>/history.htm">
                                     <img height="15" width="15" alt="go to project" src="<%=ar.baseURL%>assets/images/iconGoInside.gif" />
                                 </a>
                             </td>
@@ -96,38 +96,38 @@
                                 <tr><td style="height:30px;"></td></tr>
                                 <%
                                     }
-                                    Vector<GoalRecord> activeTask = new Vector<GoalRecord>();
-                                    for(GoalRecord task : ngp.getAllGoals())
-                                    {
-                                        if ((!task.isAssignee(up)) && (!task.isReviewer(up)))
-                                        {
-                                            continue;
-                                        }
-                                        int state = task.getState();
-                                        if(state == BaseRecord.STATE_ERROR)
-                                        {
-                                            if (task.isAssignee(up)) {
-                                                activeTask.add(task);
-                                            }
-                                        }
-                                        else if(state == BaseRecord.STATE_ACCEPTED ||
-                                                  state == BaseRecord.STATE_STARTED ||
-                                                  state == BaseRecord.STATE_WAITING)
-                                        {
-                                            if (task.isAssignee(up)) {
-                                                activeTask.add(task);
-                                            }
+                                                            Vector<GoalRecord> activeTask = new Vector<GoalRecord>();
+                                                            for(GoalRecord task : ngp.getAllGoals())
+                                                            {
+                                                                if ((!task.isAssignee(up)) && (!task.isReviewer(up)))
+                                                                {
+                                                                    continue;
+                                                                }
+                                                                int state = task.getState();
+                                                                if(state == BaseRecord.STATE_ERROR)
+                                                                {
+                                                                    if (task.isAssignee(up)) {
+                                                                        activeTask.add(task);
+                                                                    }
+                                                                }
+                                                                else if(state == BaseRecord.STATE_ACCEPTED ||
+                                                                          state == BaseRecord.STATE_STARTED ||
+                                                                          state == BaseRecord.STATE_WAITING)
+                                                                {
+                                                                    if (task.isAssignee(up)) {
+                                                                        activeTask.add(task);
+                                                                    }
 
-                                        }
-                                        else if(state == BaseRecord.STATE_REVIEW)
-                                        {
-                                            if (task.isNextReviewer(up))
-                                            {
-                                                activeTask.add(task);
-                                            }
-                                        }
-                                    }
-                                    if(activeTask.size() > 0){
+                                                                }
+                                                                else if(state == BaseRecord.STATE_REVIEW)
+                                                                {
+                                                                    if (task.isNextReviewer(up))
+                                                                    {
+                                                                        activeTask.add(task);
+                                                                    }
+                                                                }
+                                                            }
+                                                            if(activeTask.size() > 0){
                                 %>
                                 <tr>
                                     <td class="notificationSubHeading">Email notifications related to goals & sub goals</td>
@@ -153,27 +153,33 @@
 
                                             <%
                                                 String imageName = null;
-                                                for(GoalRecord task : activeTask){
-                                                    imageName = GoalRecord.stateImg(task.getState());
+                                                                                    for(GoalRecord task : activeTask){
+                                                                                        imageName = GoalRecord.stateImg(task.getState());
                                             %>
 
                                             <tr>
                                                 <td>
-                                                    <a href="<%=ar.baseURL %>t/<%=ngp.getAccountKey() %>/<%=ngp.getKey() %>/task<%=task.getId() %>.htm"><img src="<%=ar.baseURL %>assets/images/<%ar.write(imageName); %>" title="Edit Task" /></a>
-                                                    &nbsp;&nbsp;<a href="<%=ar.baseURL %>t/<%=ngp.getAccountKey() %>/<%=ngp.getKey() %>/task<%=task.getId() %>.htm"><b><%ar.write(task.getSynopsis()); %></b>
-                                                    </a> <% if(task.getDescription() != null && task.getDescription().length()> 0){ar.write("-"); ar.write(task.getDescription()); }%>
+                                                    <a href="<%=ar.baseURL%>t/<%=ngp.getSiteKey()%>/<%=ngp.getKey()%>/task<%=task.getId()%>.htm"><img src="<%=ar.baseURL%>assets/images/<%ar.write(imageName);%>" title="Edit Task" /></a>
+                                                    &nbsp;&nbsp;<a href="<%=ar.baseURL%>t/<%=ngp.getSiteKey()%>/<%=ngp.getKey()%>/task<%=task.getId()%>.htm"><b><%
+                                                        ar.write(task.getSynopsis());
+                                                    %></b>
+                                                    </a> <%
+     if(task.getDescription() != null && task.getDescription().length()> 0){ar.write("-"); ar.write(task.getDescription()); }
+ %>
                                                 </td>
-                                                <td width="150px"><input type="checkbox" id="markascompleted" name="markascompleted" value="<%ar.write(task.getId()); %>" onclick="unSelect('markascompletedAll','<%=formId%>')" />&nbsp;&nbsp;Mark As Completed</td>
-                                                <td width="150px"><input type="checkbox" id="unassign" name="unassign" value="<%ar.write(task.getId()); %>" onclick="unSelect('unassignAll','<%=formId%>')" />&nbsp;&nbsp;UnAssign</td>
+                                                <td width="150px"><input type="checkbox" id="markascompleted" name="markascompleted" value="<%ar.write(task.getId());%>" onclick="unSelect('markascompletedAll','<%=formId%>')" />&nbsp;&nbsp;Mark As Completed</td>
+                                                <td width="150px"><input type="checkbox" id="unassign" name="unassign" value="<%ar.write(task.getId());%>" onclick="unSelect('unassignAll','<%=formId%>')" />&nbsp;&nbsp;UnAssign</td>
                                             </tr>
                                             <%
-                                            }
+                                                }
                                             %>
                                         </table>
                                     </td>
                                 </tr>
                                 <tr><td style="height:30px;"></td></tr>
-                                <%} %>
+                                <%
+                                    }
+                                %>
                                 <tr>
                                     <td class="notificationSubHeading">Stop being a player of roles</td>
                                 </tr>
@@ -187,23 +193,24 @@
 
                                         <%
                                             for(NGRole role : roles){
-                                                if(role.isExpandedPlayer(up, ngp)){
-                                                    %>
+                                                                                if(role.isExpandedPlayer(up, ngp)){
+                                        %>
 
-                                                    <input type="checkbox" id="stoproleplayer" name="stoproleplayer" value="<%ar.write(role.getName()); %>" onclick="unSelect('stoproleplayerAll','<%=formId%>')"/>
-                                                    &nbsp;&nbsp;<a href="<%=ar.baseURL %>t/<%=ngp.getAccountKey() %>/<%=ngp.getKey() %>/EditRole.htm?roleName=<%ar.write(role.getName()); %>"><b><%ar.write(role.getName()); %></b></a><br />
+                                                    <input type="checkbox" id="stoproleplayer" name="stoproleplayer" value="<%ar.write(role.getName());%>" onclick="unSelect('stoproleplayerAll','<%=formId%>')"/>
+                                                    &nbsp;&nbsp;<a href="<%=ar.baseURL%>t/<%=ngp.getSiteKey()%>/<%=ngp.getKey()%>/EditRole.htm?roleName=<%ar.write(role.getName());%>"><b><%
+                                                        ar.write(role.getName());
+                                                    %></b></a><br />
 
                                                     <%
-                                                }
-                                            }
-                                        %>
+                                                        }
+                                                                                        }
+                                                    %>
                                     </td>
                                 </tr>
                                 <%
-
-                                ReminderMgr rMgr = ngp.getReminderMgr();
-                                Vector<ReminderRecord> rVec = rMgr.getUserReminders(up);
-                                if(rVec != null && rVec.size() > 0){
+                                    ReminderMgr rMgr = ngp.getReminderMgr();
+                                                        Vector<ReminderRecord> rVec = rMgr.getUserReminders(up);
+                                                        if(rVec != null && rVec.size() > 0){
                                 %>
                                 <tr><td style="height:30px;"></td></tr>
                                 <tr>
@@ -215,13 +222,13 @@
                                     <input type="checkbox" id="stopRemindingAll" name="stopRemindingAll" onclick="selectAll(this,'stopReminding','<%=formId%>');" />&nbsp;&nbsp;<b>All Document Reminders</b><br />
                                     <%
                                         AddressListEntry ale = null;
-                                        for(ReminderRecord reminder : rVec)
-                                        {
-                                            ale = new AddressListEntry(reminder.getModifiedBy());
+                                                                    for(ReminderRecord reminder : rVec)
+                                                                    {
+                                                                        ale = new AddressListEntry(reminder.getModifiedBy());
                                     %>
                                             <input type="checkbox" id="stopReminding" name="stopReminding" onclick="unSelect('stoproleplayerAll','<%=formId%>')" value="<%ar.write(reminder.getId());%>"
-                                            <%if("no".equals(reminder.getSendNotification())){%> selected="true" <%} %> />
-                                                &nbsp;&nbsp;<a href="<%=ar.baseURL %>t/<%=ngp.getAccountKey() %>/<%=ngp.getKey() %>/reminders.htm">
+                                            <%if("no".equals(reminder.getSendNotification())){%> selected="true" <%}%> />
+                                                &nbsp;&nbsp;<a href="<%=ar.baseURL%>t/<%=ngp.getSiteKey()%>/<%=ngp.getKey() %>/reminders.htm">
                                                 <b><%ar.write(reminder.getSubject()); %></b>
                                                 </a> &nbsp;&nbsp;by <% ale.writeLink(ar); %>
                                                 &nbsp;&nbsp; dated &nbsp;&nbsp;<b><%SectionUtil.nicePrintTime(ar, reminder.getModifiedDate(), ar.nowTime); %></b>

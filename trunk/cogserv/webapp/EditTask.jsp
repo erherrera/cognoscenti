@@ -38,7 +38,7 @@
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
     ar.assertMember("Can not edit a goal.");
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
 
     uProf = ar.getUserProfile();
 

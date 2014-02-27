@@ -23,7 +23,7 @@ package org.socialbiz.cog;
 import java.net.URLEncoder;
 import java.util.HashMap;
 
-import org.socialbiz.cog.spring.AccountRequest;
+import org.socialbiz.cog.spring.SiteRequest;
 
 public class AccessControl {
 
@@ -237,7 +237,7 @@ public class AccessControl {
         return accessDocParam;
     }
 
-    public static boolean canAccessAccountRequest(AuthRequest ar, String userKey, AccountRequest accountDetails)
+    public static boolean canAccessSiteRequest(AuthRequest ar, String userKey, SiteRequest accountDetails)
     throws Exception {
 
         //then, if user is logged in, and is a super admin, then can always access
@@ -272,7 +272,7 @@ public class AccessControl {
         return false;
     }
 
-    public static String getAccessAccountRequestParams(String userKey, AccountRequest accountDetails) throws Exception{
+    public static String getAccessSiteRequestParams(String userKey, SiteRequest accountDetails) throws Exception{
         String accessDocParam = "mnaccountrequest=";
         UserPage userPage = null;
         if(userPageMap.containsKey(userKey)){

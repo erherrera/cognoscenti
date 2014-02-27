@@ -7,7 +7,7 @@
     <div class="section_body">
         <div style="height:10px;"></div>
         <%
-        if(notifications.size()>0){
+            if(notifications.size()>0){
         %>
         <div class="generalHeadingBorderLess">
             <table width="100%">
@@ -30,23 +30,22 @@
                    <tbody>
                    <%
                        int count = 0;
-                       String rowStyleClass = "";
-                       for (NotificationRecord tr : notifications)
-                       {
-                           String pageId = tr.getPageKey();
-                           NGPage ngp = (NGPage)NGPageIndex.getContainerByKey(pageId);
-                           if (ngp==null)
-                           {
-                               continue;
-                           }
-                           containers.add(ngp);
-                           String linkAddr = ar.retPath + "t/" +ngp.getAccount().getKey()+"/"+ngp.getKey() + "/history.htm";
-                           if(count%2 == 0){
-                               rowStyleClass = "tableBodyRow odd";
-                           }else{
-                               rowStyleClass = "tableBodyRow even";
-                           }
-
+                                  String rowStyleClass = "";
+                                  for (NotificationRecord tr : notifications)
+                                  {
+                                      String pageId = tr.getPageKey();
+                                      NGPage ngp = (NGPage)NGPageIndex.getContainerByKey(pageId);
+                                      if (ngp==null)
+                                      {
+                                          continue;
+                                      }
+                                      containers.add(ngp);
+                                      String linkAddr = ar.retPath + "t/" +ngp.getSite().getKey()+"/"+ngp.getKey() + "/history.htm";
+                                      if(count%2 == 0){
+                                          rowStyleClass = "tableBodyRow odd";
+                                      }else{
+                                          rowStyleClass = "tableBodyRow even";
+                                      }
                    %>
                     <tr>
                         <td>

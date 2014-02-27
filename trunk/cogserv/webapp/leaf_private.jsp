@@ -17,8 +17,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    ar = AuthRequest.getOrCreate(request, response, out);
+%><%ar = AuthRequest.getOrCreate(request, response, out);
     ar.retPath="../../";
 
     /* if the parameter is not found in the parameters list, then find it out in the attributes list */
@@ -30,11 +29,10 @@
     boolean isMember = ar.isMember();
     boolean isAdmin = ar.isAdmin();
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
     pageTitle = ngp.getFullName();
     specialTab = "Subscriptions";
-    newUIResource = "personal.htm";
-%>
+    newUIResource = "personal.htm";%>
 
 <%@ include file="Header.jsp"%>
 <%

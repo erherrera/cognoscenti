@@ -3,9 +3,7 @@
 %><%@page import="org.socialbiz.cog.NGRole"
 %><%@page import="org.socialbiz.cog.UserRef"
 %><%@ include file="leaf_ProjectHome.jsp"
-%><%!
-    String pageTitle="";
-%>
+%><%!String pageTitle="";%>
 <div class="pageHeading">Member Notes</div>
 <%
     displayCreatLeaf(ar,ngp);

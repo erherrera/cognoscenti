@@ -12,19 +12,16 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
+%><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Unable to create a new account.  ");
 
     String bn = ar.reqParam("bn");
 
-    NGBook ngb = NGBook.createNewBook(bn);
+    NGBook ngb = NGBook.createNewSite(bn);
     UserProfile up = ar.getUserProfile();
     ngb.getPrimaryRole().addPlayer(up);
     ngb.getSecondaryRole().addPlayer(up);
-    ngb.saveBookAs(ngb.getKey(), ar.getUserProfile(), "Create Site Action");
+    ngb.saveSiteAs(ngb.getKey(), ar.getUserProfile(), "Create Site Action");
 
-    response.sendRedirect("BookPages.jsp?b="+ngb.getKey());
-
-%>
+    response.sendRedirect("BookPages.jsp?b="+ngb.getKey());%>
 <%@ include file="functions.jsp"%>

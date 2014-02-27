@@ -444,7 +444,7 @@ public class MainTabsViewControler extends BaseController {
              modelAndView=new ModelAndView("landingPage");
              request.setAttribute("realRequestURL", ar.getRequestURL());
              List<NGBook> list=new ArrayList<NGBook>();
-             for (NGBook ngb : NGBook.getAllAccounts()) {
+             for (NGBook ngb : NGBook.getAllSites()) {
                  list.add(ngb);
              }
 

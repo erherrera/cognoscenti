@@ -452,7 +452,7 @@ public class ProjectSync
     */
     public void uploadAll() throws Exception {
 
-        String urlRoot = ar.baseURL + "api/" + local.getAccountKey() + "/" + local.getKey() + "/";
+        String urlRoot = ar.baseURL + "api/" + local.getSiteKey() + "/" + local.getKey() + "/";
         Vector<SyncStatus> goalsNeedingUp  = getToUpload(SyncStatus.TYPE_TASK);
         for (SyncStatus goalStat : goalsNeedingUp) {
 

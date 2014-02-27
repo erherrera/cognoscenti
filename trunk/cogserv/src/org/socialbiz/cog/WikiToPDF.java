@@ -307,7 +307,7 @@ public class WikiToPDF
     */
     public void writeNoteToPDF(NGPage ngp, NoteRecord note, int noteNum) throws Exception
     {
-        NGBook book = ngp.getAccount();
+        NGBook book = ngp.getSite();
 
         String subject = stripBadCharacters(note.getSubject());
         String lastEditor = note.getLastEditedBy();

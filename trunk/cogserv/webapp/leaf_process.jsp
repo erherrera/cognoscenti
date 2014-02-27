@@ -18,8 +18,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    ar = AuthRequest.getOrCreate(request, response, out);
+%><%ar = AuthRequest.getOrCreate(request, response, out);
     ar.retPath="../../";
 
     String p = ar.reqParam("p");
@@ -39,15 +38,13 @@
     boolean isMember = ar.isMember();
     boolean isAdmin = ar.isAdmin();
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
     pageTitle = ngp.getFullName();
     specialTab = "Process";
     newUIResource = "projectAllTasks.htm";
 
     String thisPageAddress = ar.getResourceURL(ngp,"process.htm");
-    String beLink = ar.retPath + "t/" + ngb.getKey() + "/" + ngp.getKey() + "/project.htm";
-
-%>
+    String beLink = ar.retPath + "t/" + ngb.getKey() + "/" + ngp.getKey() + "/project.htm";%>
 
 <%@ include file="Header.jsp"%>
 <%

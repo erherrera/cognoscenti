@@ -51,7 +51,7 @@ import javax.servlet.ServletContext;
 
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.spring.AccountRequest;
+import org.socialbiz.cog.spring.SiteRequest;
 import org.socialbiz.cog.spring.NGWebUtils;
 import org.springframework.context.ApplicationContext;
 
@@ -337,10 +337,10 @@ public class EmailSender extends TimerTask {
                         String doublecheck = clone
                                 .getSystemProperty("superAdmin");
                         if (up.getKey().equals(doublecheck)) {
-                            List<AccountRequest> delayedAccounts = AccountReqFile
-                                    .scanAllDelayedAccountRequests();
-                            numberOfUpdates += delayedAccounts.size();
-                            writeDelayedAccountList(clone, delayedAccounts);
+                            List<SiteRequest> delayedSites = SiteReqFile
+                                    .scanAllDelayedSiteReqs();
+                            numberOfUpdates += delayedSites.size();
+                            writeDelayedSiteList(clone, delayedSites);
                         } else {
                             debugEvidence
                                     .write("\n<li>isSuperAdmin returned wrong result in double check test</li>");
@@ -492,8 +492,8 @@ public class EmailSender extends TimerTask {
         return totalHistoryCount;
     }
 
-    private static void writeDelayedAccountList(AuthRequest clone,
-            List<AccountRequest> delayedAccounts) throws Exception {
+    private static void writeDelayedSiteList(AuthRequest clone,
+            List<SiteRequest> delayedSites) throws Exception {
         clone.write("<table width=\"80%\" class=\"Design8\">");
         clone.write("<thead>");
         clone.write("<tr>");
@@ -504,8 +504,8 @@ public class EmailSender extends TimerTask {
         clone.write("</tr>");
         clone.write("</thead>");
         clone.write("<tbody>");
-        for (int i = 0; i < delayedAccounts.size(); i++) {
-            AccountRequest details = delayedAccounts.get(i);
+        for (int i = 0; i < delayedSites.size(); i++) {
+            SiteRequest details = delayedSites.get(i);
             clone.write("\n <tr " + ((i % 2 == 0) ? "class=\"Odd\"" : " ")
                     + ">");
             clone.write("<td>");
@@ -1111,7 +1111,7 @@ public class EmailSender extends TimerTask {
             NGPage aPage, ReminderRecord reminder) throws Exception {
         ar.write(ar.baseURL);
         ar.write("t/");
-        ar.writeURLData(aPage.getAccountKey());
+        ar.writeURLData(aPage.getSiteKey());
         ar.write("/");
         ar.writeURLData(aPage.getKey());
         ar.write("/remindAttachment.htm?rid=");

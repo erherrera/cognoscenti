@@ -13,8 +13,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    ar = AuthRequest.getOrCreate(request, response, out);
+%><%ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can't edit this section.");
 
     String p = ar.reqParam("p");
@@ -56,10 +55,9 @@
         rModifed = "true";
     }
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
     pageTitle = ngp.getFullName();
-    boolean isMember = ar.isMember();
-%>
+    boolean isMember = ar.isMember();%>
 
 <%@ include file="Header.jsp"%>
 

@@ -65,12 +65,11 @@
             <div id="div_<%ar.writeHtml(roleName);%>_off" style="<%ar.writeHtml(joinRole); %>">
                 <% if(isPersonalTab){ %>
                     <%
+                        NGRole adminRole = ngp.getSecondaryRole();
+                                NGRole executiveRole = ngp.getSite().getRole("Executives");
 
-                    NGRole adminRole = ngp.getSecondaryRole();
-                    NGRole executiveRole = ngp.getAccount().getRole("Executives");
-
-                    if(adminRole.isPlayer(ar.getUserProfile())
-                            ||("Members".equals(roleName) && executiveRole.isPlayer(ar.getUserProfile()))){
+                                if(adminRole.isPlayer(ar.getUserProfile())
+                                        ||("Members".equals(roleName) && executiveRole.isPlayer(ar.getUserProfile()))){
                     %>
                         <input type="button" name="action" class="inputBtn"
                         value="<fmt:message key='nugen.button.projectsetting.requestrole'/>"

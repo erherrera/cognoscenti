@@ -168,7 +168,7 @@ public class AdminController extends BaseController {
             ar.assertAdmin("Unable to change the name of this page.");
 
             String newName = ar.reqParam("newName");
-            String[] nameSet = ngb.getAccountNames();
+            String[] nameSet = ngb.getSiteNames();
             //first, see if the new name is one of the old names, and if so
             //just rearrange the list
             int oldPos = findString(nameSet, newName);
@@ -181,7 +181,7 @@ public class AdminController extends BaseController {
             {
                 insertRemove(nameSet, newName, oldPos);
             }
-            ngb.setAccountNames(nameSet);
+            ngb.setSiteNames(nameSet);
 
             ngb.saveFile(ar, "Change Name Action");
 
@@ -240,13 +240,13 @@ public class AdminController extends BaseController {
 
             String oldName = ar.reqParam("oldName");
 
-            String[] nameSet = site.getAccountNames();
+            String[] nameSet = site.getSiteNames();
             int oldPos = findString(nameSet, oldName);
 
             if (oldPos>=0)
             {
                 nameSet = shrink(nameSet, oldPos);
-                site.setAccountNames(nameSet);
+                site.setSiteNames(nameSet);
             }
 
             site.saveFile(ar, "Change Name Action");

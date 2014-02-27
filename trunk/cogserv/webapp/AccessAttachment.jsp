@@ -21,8 +21,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.List"
 %><%@page import="java.util.Vector"
-%><%
-    ar = AuthRequest.getOrCreate(request, response, out);
+%><%ar = AuthRequest.getOrCreate(request, response, out);
 
     String p        = ar.reqParam("p");
     String aid      = ar.reqParam("aid");
@@ -35,7 +34,7 @@
         throw new Exception("Unable to find the attachment with the id : " + aid);
     }
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
 
     String type     = attachment.getType();
     String access = "Member Only";
@@ -53,8 +52,7 @@
 
     AddressListEntry ale = new AddressListEntry(attachment.getModifiedBy());
 
-    pageTitle = ngp.getFullName() + " / "+ attachment.getNiceNameTruncated(48);
-%>
+    pageTitle = ngp.getFullName() + " / "+ attachment.getNiceNameTruncated(48);%>
 
 <%@ include file="Header.jsp"%>
 

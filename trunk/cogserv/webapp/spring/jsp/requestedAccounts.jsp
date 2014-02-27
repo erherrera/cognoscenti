@@ -1,16 +1,12 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="administration.jsp"
-%><%
-
-    ar.assertLoggedIn("New Site page should never be accessed when not logged in");
+%><%ar.assertLoggedIn("New Site page should never be accessed when not logged in");
     if (!ar.isSuperAdmin()) {
         throw new Exception("New Site page should only be accessed by Super Admin");
     }
     if (uProf==null) {
         throw new Exception("Program Logic Error: The 'uProf' object must be set up for requestedAccounts.jsp");
-    }
-
-%>
+    }%>
 <div class="content tab04" style="display:block;">
     <div class="section_body">
         <div style="height:10px;"></div>
@@ -31,9 +27,9 @@
                 </thead>
                 <tbody>
                 <%
-                for (AccountRequest requestRecord : superRequests)
-                {
-                    UserProfile userProfile =  UserManager.findUserByAnyId(requestRecord.getModUser());
+                    for (SiteRequest requestRecord : superRequests)
+                        {
+                            UserProfile userProfile =  UserManager.findUserByAnyId(requestRecord.getModUser());
                 %>
                     <tr>
                         <td><%ar.writeHtml(requestRecord.getRequestId()); %></td>

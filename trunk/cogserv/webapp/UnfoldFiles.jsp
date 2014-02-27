@@ -59,23 +59,22 @@
         ar.writeHtml(pi.containerName);
         %></p>
         <ul><%
+            NGBook ngb = ngp.getSite();
 
-        NGBook ngb = ngp.getAccount();
+                File accountFolder = new File(destFolder, stripBadChars(ngb.getFullName()));
 
-        File accountFolder = new File(destFolder, stripBadChars(ngb.getFullName()));
+                File projectFolder = new File(accountFolder, stripBadChars(ngp.getFullName()));
 
-        File projectFolder = new File(accountFolder, stripBadChars(ngp.getFullName()));
+                projectFolder.mkdirs();
 
-        projectFolder.mkdirs();
+                File projectFile = new File(projectFolder, ngp.getKey()+".sp");
 
-        File projectFile = new File(projectFolder, ngp.getKey()+".sp");
+                ngp.saveAs(projectFile);
 
-        ngp.saveAs(projectFile);
-
-        for (AttachmentRecord att : ngp.getAllAttachments()) {
+                for (AttachmentRecord att : ngp.getAllAttachments()) {
 
             String docName = att.getNiceName();
-            %>
+        %>
             <li><% ar.writeHtml(docName); %></li><%
             if (att.getVersions(ngp).size()==0) {
                 //skip the error cases

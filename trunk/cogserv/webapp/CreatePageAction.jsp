@@ -72,7 +72,7 @@
     ngp.setPageNames(nameSet);
 
 
-    ngp.setAccount(ngb);
+    ngp.setSite(ngb);
 
     ProcessRecord process = ngp.getProcess();
     process.setSynopsis(processSynopsis);

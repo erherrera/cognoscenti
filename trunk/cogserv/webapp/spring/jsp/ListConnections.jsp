@@ -38,10 +38,7 @@ Required parameter:
     displayRepositoryListX(ar, pageId, aid,fndDefLoctn);
 %>
 <%@ include file="functions.jsp"%>
-<%!
-
-
-    public void displayRepositoryListX(AuthRequest ar, String pageId, String aid, String fndDefLoctn)
+<%!public void displayRepositoryListX(AuthRequest ar, String pageId, String aid, String fndDefLoctn)
     throws Exception {
         try {
             UserPage uPage = ar.getUserPage();
@@ -68,7 +65,7 @@ Required parameter:
                     {
                         String vpath = "/";
 
-                        fdLink = ar.retPath+ "t/"+ page.getAccount().getKey()+ "/" +page.getKey()+ "/ChooseFolder.htm?path="
+                        fdLink = ar.retPath+ "t/"+ page.getSite().getKey()+ "/" +page.getKey()+ "/ChooseFolder.htm?path="
                                             + URLEncoder.encode(vpath, "UTF-8")
                                             +"&folderId="+cSet.getId()
                                             +"&aid="+aid;
@@ -76,7 +73,7 @@ Required parameter:
                     {
                         String vpath = "/";
 
-                        fdLink = ar.retPath+ "t/"+ page.getAccount().getKey()+ "/" +page.getKey()+ "/ChooseFolder.htm?path="
+                        fdLink = ar.retPath+ "t/"+ page.getSite().getKey()+ "/" +page.getKey()+ "/ChooseFolder.htm?path="
                                             + URLEncoder.encode(vpath, "UTF-8")
                                             +"&folderId="+cSet.getId()
                                             +"&fndDefLoctn=true";
@@ -104,8 +101,4 @@ Required parameter:
            throw new ProgramLogicError("Unable to display root folders for project "+pageId, e);
        }
 
-    }
-
-
-
-%>
+    }%>
