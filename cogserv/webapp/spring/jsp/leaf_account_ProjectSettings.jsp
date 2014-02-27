@@ -28,7 +28,7 @@ Required parameter:
 
     ar.setPageAccessLevels(ngb);
 
-    String[] names = ngb.getAccountNames();
+    String[] names = ngb.getSiteNames();
     String specialTab = "Project Settings Content";
     List roles = ngb.getAllRoles();
 
@@ -53,7 +53,6 @@ Required parameter:
         List<RoleRequestRecord> roleRequestRecordList = ngb.getAllRoleRequest();
         requestSize = roleRequestRecordList.size();
     }
-
 %>
     <style type="text/css">
         #mycontextmenu ul li {

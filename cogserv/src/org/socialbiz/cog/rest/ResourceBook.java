@@ -92,9 +92,9 @@ public class ResourceBook implements NGResource
             lrstatus.setStatusCode(404);
             throw new NGException ("nugen.exception.book.name.cant.be.empty",null);
         }
-        NGBook ngb = NGBook.createNewBook(name);
+        NGBook ngb = NGBook.createNewSite(name);
         updateBook(ngb);
-        ngb.saveBookAs(ngb.getKey(), lar.getUserProfile(), "ResourceBook modification 2");
+        ngb.saveSiteAs(ngb.getKey(), lar.getUserProfile(), "ResourceBook modification 2");
 
         //Create Status
         lrstatus.setResourceid(ngb.getKey());
@@ -183,7 +183,7 @@ public class ResourceBook implements NGResource
         ltype = NGResource.TYPE_XML;
         Vector<NGBook> books  = new Vector<NGBook>();
         if("*".equals(lid)){
-            books = NGBook.getAllAccounts();
+            books = NGBook.getAllSites();
         }
         else {
             NGBook book = NGPageIndex.getSiteByIdOrFail(lid);
@@ -315,7 +315,7 @@ public class ResourceBook implements NGResource
         DOMUtils.setSchemAttribute(element_root, schema);
 
         Hashtable<String, String> pageList = new Hashtable<String, String>();
-        for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInAccount(ngb.getKey()))
+        for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInSite(ngb.getKey()))
         {
             NGPageIndex.clearLocksHeldByThisThread();
 

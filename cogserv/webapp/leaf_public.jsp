@@ -16,14 +16,13 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    ar = AuthRequest.getOrCreate(request, response, out);
+%><%ar = AuthRequest.getOrCreate(request, response, out);
     ar.retPath="../../";
 
     String p = ar.reqParam("p");
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
 
     String pageMode = ar.defParam("pageMode", "all");
 
@@ -41,10 +40,7 @@
     }
 
      String gwtcUrl = ar.retPath + "GWTNoteEditor.jsp?pid="
-            + SectionUtil.encodeURLData(ngp.getKey()) + "&nid=";
-
-
-%>
+            + SectionUtil.encodeURLData(ngp.getKey()) + "&nid=";%>
 
 <%@ include file="Header.jsp"%>
 

@@ -22,7 +22,7 @@ package org.socialbiz.cog;
 
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.spring.AccountRequest;
+import org.socialbiz.cog.spring.SiteRequest;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -969,17 +969,14 @@ public class UserProfile extends DOMFace implements UserRef
         }
     }
 
-    public List<AccountRequest> getAllAccountRequests() throws Exception
-    {
-        List<AccountRequest> requestedAccounts = new ArrayList<AccountRequest>();
-        for (AccountRequest accountDetails : AccountReqFile.getAccountsStatus())
-        {
-            if(hasAnyId(accountDetails.getUniversalId()))
-            {
-                requestedAccounts.add( accountDetails );
+    public List<SiteRequest> getUsersSiteRequests() throws Exception {
+        List<SiteRequest> usersReqs = new ArrayList<SiteRequest>();
+        for (SiteRequest oneReq : SiteReqFile.getAllSiteReqs()) {
+            if(hasAnyId(oneReq.getUniversalId())) {
+                usersReqs.add( oneReq );
             }
         }
-        return requestedAccounts;
+        return usersReqs;
     }
 
     /*

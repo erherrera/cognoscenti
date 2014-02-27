@@ -66,9 +66,7 @@ Optional Parameters:
 
 */
 
-%><%!
-
-int count=100;
+%><%!int count=100;
     private NGContainer ngp = null;
     private NGBook ngb = null;
     private boolean firstLeafLet = true;
@@ -280,7 +278,7 @@ int count=100;
 
             if(ngc instanceof NGPage){
                 //Adding Export to PDF for NGPage only, will add in Site as well if required
-                String pdflink =ar.retPath + "t/" + ((NGPage)ngc).getAccount().getKey()+"/"+ngc.getKey()+"/exportPDF.htm";
+                String pdflink =ar.retPath + "t/" + ((NGPage)ngc).getSite().getKey()+"/"+ngc.getKey()+"/exportPDF.htm";
                 ar.write("&nbsp;&nbsp;&nbsp;<a id=\"exportToPdf\" href=\"");
                 ar.writeHtml(pdflink);
                 ar.write("\" title=\"Generate a PDF of this note for printing.\"><img src=\"");
@@ -1249,6 +1247,4 @@ int count=100;
             ar.writeHtml(ent.getDecodedName());
             ar.write("</a>");
         }
-    }
-
-%>
+    }%>

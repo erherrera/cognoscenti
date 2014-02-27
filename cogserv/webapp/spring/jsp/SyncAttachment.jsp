@@ -1,8 +1,6 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/attachment_forms.jsp"
-%><%!
-    int countRows = 0;
-%>
+%><%!int countRows = 0;%>
 <script type="text/javascript">
 
     function onClickAction(flag){
@@ -144,8 +142,7 @@
         });
 </script>
 
-<%!
-    public void attachmentDisplay(AuthRequest ar, NGPage _ngp) throws Exception
+<%!public void attachmentDisplay(AuthRequest ar, NGPage _ngp) throws Exception
     {
         this.ngp = _ngp;
         _ngp.scanForNewFiles();
@@ -278,7 +275,7 @@
                 SectionUtil.nicePrintTime(ar.w,attachment.getModifiedDate(), ar.nowTime);
                 ar.write("</td>");
                 ar.write("\n<td>");
-                String pageLink = ar.baseURL+"t/"+page.getAccount().getKey()+"/"+page.getKey()+"/problemDiagnosePage.htm?id="+id;
+                String pageLink = ar.baseURL+"t/"+page.getSite().getKey()+"/"+page.getKey()+"/problemDiagnosePage.htm?id="+id;
                 ar.write("<img src=\"");
                 ar.write(ar.retPath);
                 ar.write("assets/iconError.png\" title=\"Error in connection\">");
@@ -312,5 +309,4 @@
             ar.write("</tr>");
             countRows++;
         }
-    }
-%>
+    }%>

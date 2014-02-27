@@ -167,7 +167,7 @@ public class ResourcePage implements NGResource
         nameSet[0] = name;
 
         ngp.setPageNames(nameSet);
-        ngp.setAccount(ngb);
+        ngp.setSite(ngb);
 
         Element element_goal = DOMUtils.getChildElement(element_page, "goal");
         String synopsis = DOMUtils.textValueOfChild(element_goal, "synopsis", true);
@@ -284,7 +284,7 @@ public class ResourcePage implements NGResource
          //Adding book element
         if (lar.isMember())
         {
-            NGBook ngb = ngp.getAccount();
+            NGBook ngb = ngp.getSite();
             String bookAddr = lserverURL + "b/" + ngb.getKey() + "/book.xml";
             DOMUtils.createChildElement(loutdoc, element_root, "bookurl", bookAddr);
         }

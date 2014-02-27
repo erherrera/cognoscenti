@@ -232,9 +232,7 @@
 </html>
 
 <%@ include file="functions.jsp"%>
-<%!
-
-    public void generatePage(String resourceName, String jspName, NGPage ngp, File projectFolder, AuthRequest ar)
+<%!public void generatePage(String resourceName, String jspName, NGPage ngp, File projectFolder, AuthRequest ar)
         throws Exception
     {
         try
@@ -267,7 +265,7 @@
     {
         try
         {
-            NGBook book = ngp.getAccount();
+            NGBook book = ngp.getSite();
 
             resourcePath = resourcePath.replace("{account}", book.getKey());
             resourcePath = resourcePath.replace("{project}", ngp.getKey());
@@ -311,6 +309,4 @@
         ar.write("<li>getContextPath() = ");
         ar.writeHtml(arToView.req.getContextPath());
         ar.write("</li>");
-    }
-
-%>
+    }%>

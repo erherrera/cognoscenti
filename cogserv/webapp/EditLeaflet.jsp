@@ -32,7 +32,7 @@
     ar.setPageAccessLevels(ngp);
     ar.assertMember("You must be a member of the project in order to create or edit notes.");
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
     pageTitle = ngp.getFullName();%>
 
 <%@ include file="Header.jsp"%>

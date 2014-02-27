@@ -30,7 +30,7 @@ Required parameters:
     NGPage ngp =(NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
 
     ar.setPageAccessLevels(ngp);
-    NGBook ngb = ngp.getAccount();
+    NGBook ngb = ngp.getSite();
     pageTitle = ngp.getFullName();
 
     GoalRecord currentTaskRecord=ngp.getGoalOrFail(taskId);
@@ -45,10 +45,7 @@ Required parameters:
             templates.add(ngpi);
         }
     }
-    NGPageIndex.sortInverseChronological(templates);
-
-
-    %>
+    NGPageIndex.sortInverseChronological(templates);%>
     <script src="<%=ar.baseURL%>jscript/jquery.dd.js" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="<%=ar.retPath%>css/dd.css" />
 
@@ -63,31 +60,31 @@ Required parameters:
         var goToUrl  ='<%=ar.getRequestURL()%>'+'?taskId='+<%=taskId%>;
 
          function submitUpdatedTask(){
-            <% if (!ngp.isFrozen()) { %>
+            <%if (!ngp.isFrozen()) {%>
                 var taskname =  document.getElementById("taskname_update");
                 if(!(!taskname.value=='' || !taskname.value==null)){
                     alert(taskNameRequired);
                         return false;
                 }
                 document.forms["updateTaskForm"].submit();
-            <% }else{ %>
+            <%}else{%>
                return openFreezeMessagePopup();
-            <% } %>
+            <%}%>
         }
 
         function createProject(){
-        <% if (!ngp.isFrozen()) { %>
+        <%if (!ngp.isFrozen()) {%>
             document.forms["projectform"].submit();
-        <% }else{ %>
+        <%}else{%>
             return openFreezeMessagePopup();
-        <% } %>
+        <%}%>
         }
         function updateTaskStatus(){
-        <% if (!ngp.isFrozen()) { %>
+        <%if (!ngp.isFrozen()) {%>
             document.forms["updateTaskStatusForm"].submit();
-        <% }else{ %>
+        <%}else{%>
             return openFreezeMessagePopup();
-        <% } %>
+        <%}%>
         }
 
         function inviteUser(bookId,pageId,emailId)
@@ -97,11 +94,11 @@ Required parameters:
         }
 
         function AddNewAssigne(){
-        <% if (!ngp.isFrozen()) { %>
+        <%if (!ngp.isFrozen()) {%>
             document.forms["assignTask"].submit();
-        <% }else{ %>
+        <%}else{%>
             return openFreezeMessagePopup();
-        <% } %>
+        <%}%>
         }
 
         var callbackprocess = {
@@ -209,7 +206,9 @@ Required parameters:
         <div class="pageHeading">
             <img src="<%=ar.retPath%>/assets/images/tb_<%=BaseRecord.stateImg(currentTaskRecord.getState())%>" />
             <span style="color:#5377ac"> <%=BaseRecord.stateName(currentTaskRecord.getState())%> Goal:</span>
-            <%ar.writeHtml(currentTaskRecord.getSynopsis());%>
+            <%
+                ar.writeHtml(currentTaskRecord.getSynopsis());
+            %>
         </div>
 
         <div class="pageSubHeading">
@@ -225,31 +224,31 @@ Required parameters:
                                 <table width="100%" class="tableArea">
                         <%
                             List<AddressListEntry> allUsers = currentTaskRecord.getAssigneeRole().getDirectPlayers();
-                            for (AddressListEntry ale : allUsers)
-                            {
-                                if(ale.getUserProfile() == null){
-                                    ar.write("<tr><td>");
-                                    ar.write("<img src=\"");
-                                    ar.write(ar.retPath+"/assets/photoThumbnailSmall.gif\" alt=\"img\" border=\"0\" />&nbsp;");
-                                    ar.write("\n    <a href=\"");
-                                    ar.write(ar.retPath);
-                                    ar.write("t/");
-                                    ar.write(ngp.getAccount().getKey());
-                                    ar.write("/");
-                                    ar.write(ngp.getKey());
-                                    ar.writeHtml("/inviteUser.htm?");
-                                    ar.writeHtml("emailId=");
-                                    ar.write(ale.getEmail());
-                                    ar.write("\">");
-                                    ar.write("\n    <span style=\"color:red\">");
-                                    ar.writeHtml(ale.getStorageRepresentation());
-                                    ar.write("</span></a>");
-                                    ar.write("&nbsp;&nbsp;<a href=\"#\" title=\"Remove\" onclick=\"removeAssigne('"+ale.getStorageRepresentation()+"')\">");
-                                    ar.write("<img src=\"");
-                                    ar.write(ar.retPath+"/assets/iconBlackDelete.gif\" alt=\"Remove\" border=\"0\" /></a>");
-                                    ar.write("</td></tr>");
-                                    ar.write("<tr><td style=\"border-top:0px solid #ccc; height:5px\"></td></tr>");
-                                }else{
+                                            for (AddressListEntry ale : allUsers)
+                                            {
+                                                if(ale.getUserProfile() == null){
+                                                    ar.write("<tr><td>");
+                                                    ar.write("<img src=\"");
+                                                    ar.write(ar.retPath+"/assets/photoThumbnailSmall.gif\" alt=\"img\" border=\"0\" />&nbsp;");
+                                                    ar.write("\n    <a href=\"");
+                                                    ar.write(ar.retPath);
+                                                    ar.write("t/");
+                                                    ar.write(ngp.getSite().getKey());
+                                                    ar.write("/");
+                                                    ar.write(ngp.getKey());
+                                                    ar.writeHtml("/inviteUser.htm?");
+                                                    ar.writeHtml("emailId=");
+                                                    ar.write(ale.getEmail());
+                                                    ar.write("\">");
+                                                    ar.write("\n    <span style=\"color:red\">");
+                                                    ar.writeHtml(ale.getStorageRepresentation());
+                                                    ar.write("</span></a>");
+                                                    ar.write("&nbsp;&nbsp;<a href=\"#\" title=\"Remove\" onclick=\"removeAssigne('"+ale.getStorageRepresentation()+"')\">");
+                                                    ar.write("<img src=\"");
+                                                    ar.write(ar.retPath+"/assets/iconBlackDelete.gif\" alt=\"Remove\" border=\"0\" /></a>");
+                                                    ar.write("</td></tr>");
+                                                    ar.write("<tr><td style=\"border-top:0px solid #ccc; height:5px\"></td></tr>");
+                                                }else{
                         %>
                                     <tr>
                                         <td>
@@ -262,8 +261,8 @@ Required parameters:
                                     </tr>
                                     <tr><td style="border-top:0px solid #ccc; height:5px"></td></tr>
                         <%
-                                }
                             }
+                                            }
                         %>
                                     <tr><td style="border-top:1px solid #ccc; height:5px"></td></tr>
                                     <tr>
@@ -304,7 +303,7 @@ Required parameters:
                             if (allUsers.size() != 0) {
                         %>
                          <a href=""><span style="color:red"><%
-                            allUsers.get(0).writeLink(ar);
+                             allUsers.get(0).writeLink(ar);
                          %></span></a>
                         <%
                             }
@@ -314,16 +313,22 @@ Required parameters:
                     <td valign="top">&nbsp;&nbsp;&nbsp;&nbsp;
                         due date:
                         <span  id="top_btn_dueDate" style="color: red">
-                            <%writeDate(ar,currentTaskRecord.getDueDate());%>
+                            <%
+                                writeDate(ar,currentTaskRecord.getDueDate());
+                            %>
                         </span>
                         start date:
                         <span id="top_btn_dueDate" style="color: red">
-                            <%writeDate(ar,currentTaskRecord.getStartDate());%>
+                            <%
+                                writeDate(ar,currentTaskRecord.getStartDate());
+                            %>
                         </span>
 
                         end date:
                         <span  id="top_btn_dueDate" style="color: red">
-                            <%writeDate(ar,currentTaskRecord.getEndDate());%>
+                            <%
+                                writeDate(ar,currentTaskRecord.getEndDate());
+                            %>
                         </span>
                     </td>
                 </tr>
@@ -354,7 +359,9 @@ Required parameters:
                             <tr>
                                 <td class="gridTableColummHeader" valign="top"><fmt:message key="nugen.project.status.text"/></td>
                                 <td style="width:20px;"></td>
-                                <td><textarea id="status" name="status" class="textAreaGeneral" rows="4"><%ar.writeHtml(currentTaskRecord.getStatus());%></textarea></td>
+                                <td><textarea id="status" name="status" class="textAreaGeneral" rows="4"><%
+                                    ar.writeHtml(currentTaskRecord.getStatus());
+                                %></textarea></td>
                             </tr>
                             <tr><td height="20px"></td></tr>
                             <tr>
@@ -371,19 +378,19 @@ Required parameters:
                                         <select name="states" id="states" class="specialx" tabindex=5 >
                                         <%
                                             for(int i=1;i<=9;i++){
-                                                String selected = "";
-                                                if (i==currentTaskRecord.getState()) {
-                                                    selected = "selected=\"selected\"";
-                                                }
-                                                String img3=ar.retPath+"assets/images/"+BaseRecord.stateImg(i);
-                                                out.write("     <option " + selected + " value=\"" + i + "\"  title=\""+img3+"\" >" + BaseRecord.stateName(i) + "</option>");
-                                            }
-                                            String errorselected="";
-                                            if(currentTaskRecord.getState()==0){
-                                                errorselected = "selected=\"selected\"";
-                                            }
-                                            String image=ar.retPath+"assets/images/"+BaseRecord.stateImg(0);
-                                            out.write("     <option " + errorselected + " value=\"" + 0 + "\"  title=\""+image+"\" >" + BaseRecord.stateName(0) + "</option>");
+                                                                                String selected = "";
+                                                                                if (i==currentTaskRecord.getState()) {
+                                                                                    selected = "selected=\"selected\"";
+                                                                                }
+                                                                                String img3=ar.retPath+"assets/images/"+BaseRecord.stateImg(i);
+                                                                                out.write("     <option " + selected + " value=\"" + i + "\"  title=\""+img3+"\" >" + BaseRecord.stateName(i) + "</option>");
+                                                                            }
+                                                                            String errorselected="";
+                                                                            if(currentTaskRecord.getState()==0){
+                                                                                errorselected = "selected=\"selected\"";
+                                                                            }
+                                                                            String image=ar.retPath+"assets/images/"+BaseRecord.stateImg(0);
+                                                                            out.write("     <option " + errorselected + " value=\"" + 0 + "\"  title=\""+image+"\" >" + BaseRecord.stateName(0) + "</option>");
                                         %>
                                         </select>
                                     </td>
@@ -428,19 +435,19 @@ Required parameters:
                                         <tr>
                                             <td><select name="priority" id="priority" tabindex="4">
                                                 <%
-                                                int taskPrior = currentTaskRecord.getPriority();
-                                                for (int i=0; i<3; i++)
-                                                {
-                                                    ar.write("\n     <option ");
-                                                    if (i==taskPrior) {
-                                                        out.write("selected=\"selected\" ");
-                                                    }
-                                                    ar.write("value=\"");
-                                                    ar.write(Integer.toString(i));
-                                                    ar.write("\">");
-                                                    ar.writeHtml(BaseRecord.getPriorityStr(i));
-                                                    ar.write("</option>");
-                                                }
+                                                    int taskPrior = currentTaskRecord.getPriority();
+                                                                                        for (int i=0; i<3; i++)
+                                                                                        {
+                                                                                            ar.write("\n     <option ");
+                                                                                            if (i==taskPrior) {
+                                                                                                out.write("selected=\"selected\" ");
+                                                                                            }
+                                                                                            ar.write("value=\"");
+                                                                                            ar.write(Integer.toString(i));
+                                                                                            ar.write("\">");
+                                                                                            ar.writeHtml(BaseRecord.getPriorityStr(i));
+                                                                                            ar.write("</option>");
+                                                                                        }
                                                 %>
                                                 </select>
                                              </td>
@@ -450,31 +457,31 @@ Required parameters:
                                             <td>
                                                 <select name="state" id="state" class="specialNo" tabindex="5">
                                                 <%
-                                                int taskState = currentTaskRecord.getState();
-                                                for(int i=1;i<=8;i++){
-                                                    String img4=ar.retPath+"assets/images/"+BaseRecord.stateImg(i);
-                                                    ar.write("\n     <option ");
-                                                    if (i==taskState) {
-                                                        ar.write("selected=\"selected\"");
-                                                    }
-                                                    ar.write(" value=\"");
-                                                    ar.write(Integer.toString(i));
-                                                    ar.write("\"  title=\"");
-                                                    ar.writeHtml(img4);
-                                                    ar.write("\" >");
-                                                    ar.writeHtml(BaseRecord.stateName(i));
-                                                    ar.write("</option>");
-                                                }
-                                                String img5=ar.retPath+"assets/images/"+BaseRecord.stateImg(0);
-                                                ar.write("\n     <option ");
-                                                if(taskState==0){
-                                                     ar.write("selected=\"selected\"");
-                                                }
-                                                ar.write(" value=\"0\"  title=\"");
-                                                ar.writeHtml(img5);
-                                                ar.write("\" >");
-                                                ar.writeHtml(BaseRecord.stateName(0));
-                                                ar.write("</option>");
+                                                    int taskState = currentTaskRecord.getState();
+                                                                                        for(int i=1;i<=8;i++){
+                                                                                            String img4=ar.retPath+"assets/images/"+BaseRecord.stateImg(i);
+                                                                                            ar.write("\n     <option ");
+                                                                                            if (i==taskState) {
+                                                                                                ar.write("selected=\"selected\"");
+                                                                                            }
+                                                                                            ar.write(" value=\"");
+                                                                                            ar.write(Integer.toString(i));
+                                                                                            ar.write("\"  title=\"");
+                                                                                            ar.writeHtml(img4);
+                                                                                            ar.write("\" >");
+                                                                                            ar.writeHtml(BaseRecord.stateName(i));
+                                                                                            ar.write("</option>");
+                                                                                        }
+                                                                                        String img5=ar.retPath+"assets/images/"+BaseRecord.stateImg(0);
+                                                                                        ar.write("\n     <option ");
+                                                                                        if(taskState==0){
+                                                                                             ar.write("selected=\"selected\"");
+                                                                                        }
+                                                                                        ar.write(" value=\"0\"  title=\"");
+                                                                                        ar.writeHtml(img5);
+                                                                                        ar.write("\" >");
+                                                                                        ar.writeHtml(BaseRecord.stateName(0));
+                                                                                        ar.write("</option>");
                                                 %>
                                                 </select>
                                             </td>
@@ -490,14 +497,14 @@ Required parameters:
                                     <table>
                                         <tr>
                                             <td><input type="text" size="16" name="dueDate_update" id="dueDate_update"
-                                                value='<%= (currentTaskRecord.getDueDate()==0)?"":formatter.format(new Date(currentTaskRecord.getDueDate())) %>' readonly="1"/>
-                                            <img src="<%=ar.retPath %>/jscalendar/img.gif" id="btn_update" style="cursor: pointer;" title="Date selector"/>
+                                                value='<%=(currentTaskRecord.getDueDate()==0)?"":formatter.format(new Date(currentTaskRecord.getDueDate()))%>' readonly="1"/>
+                                            <img src="<%=ar.retPath%>/jscalendar/img.gif" id="btn_update" style="cursor: pointer;" title="Date selector"/>
                                             </td>
                                             <td style="width:17px;"></td>
                                             <td style="color:#000000"><b><fmt:message key="nugen.project.startdate.text"/></b></td>
                                             <td style="width:10px;"></td>
-                                            <td><input type="text" size="16" name="startDate_update" id="startDate_update" value='<%= (currentTaskRecord.getStartDate()==0)?"":formatter.format(new Date(currentTaskRecord.getStartDate())) %>' readonly="1"/>
-                                            <img src="<%=ar.retPath %>/jscalendar/img.gif" id="top_btn_startDate" style="cursor: pointer;" title="Date selector"/>
+                                            <td><input type="text" size="16" name="startDate_update" id="startDate_update" value='<%=(currentTaskRecord.getStartDate()==0)?"":formatter.format(new Date(currentTaskRecord.getStartDate()))%>' readonly="1"/>
+                                            <img src="<%=ar.retPath%>/jscalendar/img.gif" id="top_btn_startDate" style="cursor: pointer;" title="Date selector"/>
                                             </td>
                                         </tr>
                                     </table>
@@ -507,15 +514,17 @@ Required parameters:
                             <tr>
                                 <td class="gridTableColummHeader"><fmt:message key="nugen.project.enddate.text"/></td>
                                 <td style="width:20px;"></td>
-                                <td><input type="text" size="16" name="endDate_update" id="endDate_update"  value='<%= (currentTaskRecord.getEndDate()==0)?"":formatter.format(new Date(currentTaskRecord.getEndDate())) %>' readonly="1"/>
-                                <img src="<%=ar.retPath %>/jscalendar/img.gif" id="top_btn_endDate" style="cursor: pointer;" title="Date selector"/>
+                                <td><input type="text" size="16" name="endDate_update" id="endDate_update"  value='<%=(currentTaskRecord.getEndDate()==0)?"":formatter.format(new Date(currentTaskRecord.getEndDate()))%>' readonly="1"/>
+                                <img src="<%=ar.retPath%>/jscalendar/img.gif" id="top_btn_endDate" style="cursor: pointer;" title="Date selector"/>
                                 </td>
                             </tr>
                              <tr><td height="10px"></td></tr>
                             <tr>
                                 <td class="gridTableColummHeader" valign="top"><fmt:message key="nugen.project.desc.text"/></td>
                                 <td style="width:20px;"></td>
-                                <td><textarea name="description" id="description" class="textAreaGeneral" rows="4" tabindex=7><%ar.writeHtml(currentTaskRecord.getDescription());%></textarea></td>
+                                <td><textarea name="description" id="description" class="textAreaGeneral" rows="4" tabindex=7><%
+                                    ar.writeHtml(currentTaskRecord.getDescription());
+                                %></textarea></td>
                             </tr>
                             <tr><td height="10px"></td></tr>
                             <tr>
@@ -538,11 +547,13 @@ Required parameters:
                                     </tr>
                             <%
                                 for (GoalRecord child : currentTaskRecord.getSubGoals()) {
-                                    String subTaskName = child.getSynopsis();
-                                    String img7=ar.retPath+"assets/images/"+BaseRecord.stateImg(child.getState());
+                                                        String subTaskName = child.getSynopsis();
+                                                        String img7=ar.retPath+"assets/images/"+BaseRecord.stateImg(child.getState());
                             %>
                                       <tr>
-                                          <td><a href="task<%=child.getId()%>.htm"><img src="<%=img7 %>"/></a>&nbsp; &nbsp; &nbsp;<%ar.writeHtml(subTaskName);%> </td>
+                                          <td><a href="task<%=child.getId()%>.htm"><img src="<%=img7%>"/></a>&nbsp; &nbsp; &nbsp;<%
+     ar.writeHtml(subTaskName);
+ %> </td>
                                       <tr>
                             <%
                                 }
@@ -563,25 +574,29 @@ Required parameters:
                                     </tr>
                         <%
                             for (HistoryRecord history : histRecs)
-                            {
-                                AddressListEntry ale = new AddressListEntry(history.getResponsible());
-                                UserProfile responsible = ale.getUserProfile();
-                                String photoSrc = ar.retPath+"assets/photoThumbnail.gif";
-                                if(responsible!=null && responsible.getImage().length() > 0){
-                                    photoSrc = ar.retPath+"users/"+responsible.getImage();
-                                }
+                                            {
+                                                AddressListEntry ale = new AddressListEntry(history.getResponsible());
+                                                UserProfile responsible = ale.getUserProfile();
+                                                String photoSrc = ar.retPath+"assets/photoThumbnail.gif";
+                                                if(responsible!=null && responsible.getImage().length() > 0){
+                                                    photoSrc = ar.retPath+"users/"+responsible.getImage();
+                                                }
                         %>
                                     <tr>
                                         <td class="projectStreamIcons"><a href="#"><img src="<%=photoSrc%>" alt="" width="50" height="50" /></a></td>
                                         <td colspan="2"  class="projectStreamText">
-                                            <%NGWebUtils.writeLocalizedHistoryMessage(history, ngp, ar);%>
+                                            <%
+                                                NGWebUtils.writeLocalizedHistoryMessage(history, ngp, ar);
+                                            %>
                                             <br/>
-                                            <%SectionUtil.nicePrintTime(out, history.getTimeStamp(), ar.nowTime);%>
+                                            <%
+                                                SectionUtil.nicePrintTime(out, history.getTimeStamp(), ar.nowTime);
+                                            %>
                                         </td>
                                    </tr>
                                    <tr><td style="height:10px"></td></tr>
                          <%
-                            }
+                             }
                          %>
                                 </table>
                             </td>
@@ -602,10 +617,10 @@ Required parameters:
                             </div>
                     <%
                         }
-                        else
-                        {
-                            String actionPath=ar.retPath+"t/"+ngp.getAccount().getKey()+"/"+ngp.getKey()+"/createProjectFromTask.form";
-                            String goToUrl =ar.getRequestURL()+"?taskId="+taskId;
+                                    else
+                                    {
+                                        String actionPath=ar.retPath+"t/"+ngp.getSite().getKey()+"/"+ngp.getKey()+"/createProjectFromTask.form";
+                                        String goToUrl =ar.getRequestURL()+"?taskId="+taskId;
                     %>
                             <form name="projectform" action='<%=actionPath%>' method="post" autocomplete="off" >
                                 <table>
@@ -819,14 +834,10 @@ Required parameters:
         SectionTask.plugInCalenderScript(out, "startDate_update", "top_btn_startDate");
         SectionTask.plugInCalenderScript(out, "endDate_update", "top_btn_endDate");
     }
-%><%!
-
-    public void writeDate(AuthRequest ar, long date) throws Exception {
+%><%!public void writeDate(AuthRequest ar, long date) throws Exception {
         if(date!=0){
             ar.write(new SimpleDateFormat("MM/dd/yyyy").format(new Date(date)));
         }else{
             ar.write(" -- ");
         }
-    }
-
-%>
+    }%>

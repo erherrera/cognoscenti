@@ -29,7 +29,7 @@ Optional Parameter:
     }
 
     ar.setPageAccessLevels(ngp);
-    NGBook ngb = ngp.getAccount();
+    NGBook ngb = ngp.getSite();
     UserProfile uProf = ar.getUserProfile();
 
     Map<Integer,String> priority=new HashMap<Integer,String>();

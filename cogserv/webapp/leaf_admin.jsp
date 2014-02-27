@@ -31,7 +31,7 @@
 
     String[] names = ngp.getPageNames();
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
     if (ngb==null)
     {
         throw new Exception("Logic Error, should never get a null value from getAccount");

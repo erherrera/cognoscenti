@@ -62,7 +62,7 @@
 
     if (bookmem)
     {
-        NGBook ngb = ngp.getAccount();
+        NGBook ngb = ngp.getSite();
         appendUsersF(ngb.getPrimaryRole().getExpandedPlayers(ngb), sendTo);
     }
 

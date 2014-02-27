@@ -33,7 +33,7 @@
         go = ar.getResourceURL(ngp,"");
     }
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
     pageTitle = ngp.getFullName();
     specialTab = "Stream";
     newUIResource = "history.htm";

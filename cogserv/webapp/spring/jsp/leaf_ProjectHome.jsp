@@ -1,21 +1,16 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
-%><%
-/*
+%><%/*
 Required parameter:
 
     1. pageId : This is the id of a Project and used to retrieve NGPage.
 
 */
 
-    String pageId = ar.reqParam("pageId");
-
-%><%
-
-    NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
+    String pageId = ar.reqParam("pageId");%><%NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
     ar.setPageAccessLevels(ngp);
-    NGBook ngb = ngp.getAccount();
+    NGBook ngb = ngp.getSite();
 
     UserProfile uProf = ar.getUserProfile();
 
@@ -25,9 +20,7 @@ Required parameter:
     int COUNT_OF_DRAFT_NOTES = NGWebUtils.getDraftNotesCount(ngp,ar);
 
     /* if the parameter is not found in the parameters list, then find it out in the attributes list */
-   // String go = ar.defParam("go", ar.getCompleteURL());
-
-%>
+   // String go = ar.defParam("go", ar.getCompleteURL());%>
 <head>
 
     <style type="text/css">

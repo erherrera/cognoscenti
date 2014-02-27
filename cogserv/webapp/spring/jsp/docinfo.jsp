@@ -2,8 +2,7 @@
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@page import="java.net.URLDecoder"
 %><%@page import="org.socialbiz.cog.AttachmentVersion"
-%><%
-/*
+%><%/*
 Required parameters:
 
     1. pageId : This is the id of an project and here it is used to retrieve NGPage (Project's Details).
@@ -13,17 +12,14 @@ Required parameters:
 
     String pageId   = ar.reqParam("pageId");
     String aid      = ar.reqParam("aid");
-    String version  = ar.defParam("version", null);
-
-%><%!String pageTitle = "";%><%
-    response.setCharacterEncoding("UTF-8"); // Otherwise platform default encoding will be used to write the characters.
+    String version  = ar.defParam("version", null);%><%!String pageTitle = "";%><%response.setCharacterEncoding("UTF-8"); // Otherwise platform default encoding will be used to write the characters.
     response.setContentType("text/plain; charset=UTF-8");
 
     UserProfile uProf = ar.getUserProfile();
 
     NGPage ngp =NGPageIndex.getProjectByKeyOrFail(pageId);
     pageId = ngp.getKey();
-    NGBook account = ngp.getAccount();
+    NGBook account = ngp.getSite();
 
     AttachmentRecord attachment = ngp.findAttachmentByIDOrFail(aid);
     long fileSize = attachment.getFileSize(ngp);
@@ -52,8 +48,7 @@ Required parameters:
 
     AddressListEntry ale = new AddressListEntry(attachment.getModifiedBy());
 
-    pageTitle = ngp.getFullName() + " / "+ attachment.getNiceNameTruncated(48);
-%>
+    pageTitle = ngp.getFullName() + " / "+ attachment.getNiceNameTruncated(48);%>
 <%@page import="org.socialbiz.cog.AccessControl"%>
 <script type="text/javascript"
     src="<%=ar.retPath%>jscript/attachment.js"></script>
@@ -277,7 +272,7 @@ Required parameters:
         <% } else if ("on".equals(attachment.getReadOnlyType())) { %>
             alert('You can not edit this document. This is read only type');
         <% } else { %>
-            window.location ="<%=ar.retPath%>t/<%ar.writeHtml(ngp.getAccountKey());%>/<%ar.writeHtml(ngp.getKey());%>/uploadRevisedDocument.htm?aid="+aid;
+            window.location ="<%=ar.retPath%>t/<%ar.writeHtml(ngp.getSiteKey());%>/<%ar.writeHtml(ngp.getKey());%>/uploadRevisedDocument.htm?aid="+aid;
         <% } %>
     }
 

@@ -47,14 +47,30 @@
         %>
         
             <tr>
-                <td><% ale.writeLink(ar); %></td>
-                <td><%ar.write(reminder.getSubject()); %></td>
-                <td><%SectionUtil.nicePrintTime(ar, reminder.getModifiedDate(), ar.nowTime); %></td>
-                <td><%ar.write(aPage.getFullName()); %></td>
-                <td><%ar.writeHtml(String.valueOf((ar.nowTime - reminder.getModifiedDate())/1000 ));%></td>
-                <td><%ar.writeHtml(reminder.getId());%></td>
-                <td><%ar.writeHtml(aPage.getKey());%></td>
-                <td><%ar.writeHtml(aPage.getAccount().getKey());%></td>
+                <td><%
+                    ale.writeLink(ar);
+                %></td>
+                <td><%
+                    ar.write(reminder.getSubject());
+                %></td>
+                <td><%
+                    SectionUtil.nicePrintTime(ar, reminder.getModifiedDate(), ar.nowTime);
+                %></td>
+                <td><%
+                    ar.write(aPage.getFullName());
+                %></td>
+                <td><%
+                    ar.writeHtml(String.valueOf((ar.nowTime - reminder.getModifiedDate())/1000 ));
+                %></td>
+                <td><%
+                    ar.writeHtml(reminder.getId());
+                %></td>
+                <td><%
+                    ar.writeHtml(aPage.getKey());
+                %></td>
+                <td><%
+                    ar.writeHtml(aPage.getSite().getKey());
+                %></td>
             </tr>
         <%
             }

@@ -15,15 +15,15 @@ Required parameter:
     String taskId = ar.reqParam("taskId");%>
 <%!String pageTitle = "";
    String parentTaskName;%><%
-	UserProfile uProf = ar.getUserProfile();
+    UserProfile uProf = ar.getUserProfile();
     NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
 
     ar.setPageAccessLevels(ngp);
-    NGBook ngb = ngp.getAccount();
+    NGBook ngb = ngp.getSite();
     pageTitle = ngp.getFullName();
     for(GoalRecord tr : ngp.getAllGoals()){
         if(taskId.equals(tr.getId().toString())){
-            parentTaskName=tr.getSynopsis();
+    parentTaskName=tr.getSynopsis();
         }
     }
 %>

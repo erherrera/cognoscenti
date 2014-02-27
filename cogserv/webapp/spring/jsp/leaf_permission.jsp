@@ -7,7 +7,7 @@
 %>
 <script type="text/javascript" language="javascript">
 
-    var isfreezed = '<%=ngp.isFrozen() %>';
+    var isfreezed = '<%=ngp.isFrozen()%>';
     var roleID ="";
     function openModalDialogue(popupId,headerContent,panelWidth,id){
         if(isfreezed == 'false'){
@@ -38,7 +38,7 @@
     function updateRole(op,id,formId){
         if(isfreezed == 'false'){
             var go='permission.htm';
-            url='<%=ar.retPath%>t/<%ar.writeURLData(ngp.getAccount().getKey());%>/<%ar.writeURLData(ngp.getKey());%>/pageRoleAction.form?r='+roleID+'&op='+op+'&go='+go +'&id='+id;
+            url='<%=ar.retPath%>t/<%ar.writeURLData(ngp.getSite().getKey());%>/<%ar.writeURLData(ngp.getKey());%>/pageRoleAction.form?r='+roleID+'&op='+op+'&go='+go +'&id='+id;
 
             document.getElementById(formId).action = url;
             document.getElementById(formId).submit();
@@ -52,7 +52,7 @@
             var go= 'permission.htm';
             var r=confirm("Do you really want to remove this User '"+id+"' from Role: '"+ roleName +"'?");
             if(r==true){
-                url='<%=ar.retPath%>t/<%ar.writeURLData(ngp.getAccount().getKey());%>/<%ar.writeURLData(ngp.getKey());%>/pageRoleAction.form?r='+roleName+'&op='+op+'&go='+go +'&id='+id;
+                url='<%=ar.retPath%>t/<%ar.writeURLData(ngp.getSite().getKey());%>/<%ar.writeURLData(ngp.getKey());%>/pageRoleAction.form?r='+roleName+'&op='+op+'&go='+go +'&id='+id;
 
                 document.getElementById(formId).action= url;
                 document.getElementById(formId).submit();
@@ -179,7 +179,7 @@
                     </td>
                        <td></td>
                        <td align="right">
-                       <img src="<%=ar.retPath %>/assets/iconBluePlus.gif" alt="" />&nbsp;<a href="#createNewRole" onclick="openModalDialogue('NewRole','Create New','630px','')" title="Create New Role">Create New Role</a></td>
+                       <img src="<%=ar.retPath%>/assets/iconBluePlus.gif" alt="" />&nbsp;<a href="#createNewRole" onclick="openModalDialogue('NewRole','Create New','630px','')" title="Create New Role">Create New Role</a></td>
                    </tr>
                    <tr><td style="height:5px;"></td></tr>
                    <tr><td colspan="3" class="horizontalSeperatorBlue"></td></tr>
@@ -194,7 +194,9 @@
         <div class="generalSettings"><a name="inheritedRoles"></a>
             <table width="100%">
                 <tr>
-                    <td class="pageHeading">Roles inherited from Site '<%ar.writeHtml(ngp.getAccount().getFullName());%>'</td>
+                    <td class="pageHeading">Roles inherited from Site '<%
+                        ar.writeHtml(ngp.getSite().getFullName());
+                    %>'</td>
                 </tr>
                 <tr><td style="height:5px;"></td></tr>
                 <tr><td class="horizontalSeperatorBlue"></td></tr>
@@ -514,8 +516,7 @@
         });
     </script>
 
-    <%!
-        public void writeAllRolesOnPage(AuthRequest ar, NGPage ngp) throws Exception
+    <%!public void writeAllRolesOnPage(AuthRequest ar, NGPage ngp) throws Exception
         {
             for (NGRole aRole : ngp.getAllRoles())
             {
@@ -544,7 +545,7 @@
                 }else{
                     ar.write(ar.retPath);
                     ar.write("t/");
-                    ar.writeURLData(ngp.getAccount().getKey().toString());
+                    ar.writeURLData(ngp.getSite().getKey().toString());
                     ar.write("/");
                     ar.writeURLData(ngp.getKey());
                     ar.write("/EditRole.htm?roleName=" );
@@ -676,5 +677,4 @@
                 ar.write("</tr>");
                 ar.write("<tr><td colspan=\"2\" class=\"horizontalSeperatorBlue\"></td></tr>");
             }
-        }
-    %>
+        }%>

@@ -16,8 +16,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    ar = AuthRequest.getOrCreate(request, response, out);
+%><%ar = AuthRequest.getOrCreate(request, response, out);
     ar.retPath="../../";
 
     /* if the parameter is not found in the parameters list, then find it out in the attributes list */
@@ -28,14 +27,13 @@
     boolean isMember = ar.isMember();
     boolean isAdmin = ar.isAdmin();
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
     pageTitle = ngp.getFullName();
     specialTab = "Member Notes";
     newUIResource = "member.htm";
 
      String gwtcUrl = ar.retPath + "GWTNoteEditor.jsp?pid="
-            + SectionUtil.encodeURLData(ngp.getKey()) + "&nid=";
-%>
+            + SectionUtil.encodeURLData(ngp.getKey()) + "&nid=";%>
 
 <%@ include file="Header.jsp"%>
 <%

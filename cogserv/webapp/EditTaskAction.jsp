@@ -91,7 +91,7 @@
         // This will always create a new page.
         // use a random key for the page name instread of constructing it from the synopsis.
         String newPageKey = IdGenerator.generateKey();
-        String pageBook = ngp.getAccount().getKey();
+        String pageBook = ngp.getSite().getKey();
         LicensedURL thisUrl =task.getWfxmlLink(ar);
 
         StringBuffer goStr = new StringBuffer("CreatePage.jsp?pt=");

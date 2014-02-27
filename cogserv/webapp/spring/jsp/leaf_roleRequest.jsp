@@ -2,8 +2,7 @@
 %><%@ include file="leaf_ProjectSettings.jsp"
 %><%@page import="org.socialbiz.cog.ConfigFile"
 %><%@page import="org.socialbiz.cog.spring.Constant"
-%><%
-/*
+%><%/*
 Required parameter:
 
     1. requestId : This is the id of a role request & required only in case of request is generated from mail and
@@ -22,28 +21,26 @@ Optional Parameter:
         requestId = ar.reqParam("requestId");
         RoleRequestRecord roleRequestRecord = ngp.getRoleRequestRecordById(requestId);
         canAccessPage = AccessControl.canAccessRoleRequest(ar, ngp, roleRequestRecord);
-    }
-
-%>
+    }%>
     <%@page import="org.socialbiz.cog.AccessControl"%>
 <div class="content tab01">
     <%
-    String roleRequestId = null;
+        String roleRequestId = null;
 
-    String roleRequest_State = "";
-    if ( !requestFromMail && !canAccessPage && !ar.isLoggedIn() )
-    {
+        String roleRequest_State = "";
+        if ( !requestFromMail && !canAccessPage && !ar.isLoggedIn() )
+        {
     %>
         <div class="generalContent">
            <fmt:message key="nugen.projectsettings.PermissionsLogin"></fmt:message>
            <div class="clearer">&nbsp;</div>
         </div>
     <%
-    }else
-    {
-        if ("no".equalsIgnoreCase(isAccessThroughEmail)){
-            List<RoleRequestRecord> roleRequestRecordList = ngp.getAllRoleRequestByState("Requested",false);
-            if (roleRequestRecordList!=null){
+        }else
+        {
+            if ("no".equalsIgnoreCase(isAccessThroughEmail)){
+        List<RoleRequestRecord> roleRequestRecordList = ngp.getAllRoleRequestByState("Requested",false);
+        if (roleRequestRecordList!=null){
     %>
         <div style="height:20px">&nbsp;</div>
         <div class="generalHeadingBorderLess">New Role Requests</div>
@@ -63,34 +60,44 @@ Optional Parameter:
                 </thead>
                 <tbody>
                 <%
-                for (RoleRequestRecord requestRecord : roleRequestRecordList)
-                {
-                    if(requestRecord != null){
-                        UserProfile uPro = UserManager.findUserByAnyId(requestRecord.getRequestedBy());
+                    for (RoleRequestRecord requestRecord : roleRequestRecordList)
+                        {
+                            if(requestRecord != null){
+                                UserProfile uPro = UserManager.findUserByAnyId(requestRecord.getRequestedBy());
                 %>
                     <tr>
-                        <td><%ar.writeHtml(requestRecord.getRoleName()); %></td>
+                        <td><%
+                            ar.writeHtml(requestRecord.getRoleName());
+                        %></td>
                         <td><%=SectionUtil.getNicePrintDate(requestRecord.getModifiedDate())%></td>
                         <!--<td><a href="<%ar.writeHtml(ar.retPath+"v/"+uPro.getKey()+"/userProfile.htm?active=1");%>" title='access the profile for this user, if it exists'><%ar.writeHtml(requestRecord.getRequestedBy());%></a></td>-->
-                        <td><% (new AddressListEntry(requestRecord.getRequestedBy())).writeLink(ar); %></td>
-                        <td><%ar.writeHtml(requestRecord.getRequestDescription()); %></td>
-                        <td><%ar.writeHtml(requestRecord.getState()); %></td>
-                        <td><%ar.writeHtml(requestRecord.getRequestId()); %></td>
-                        <td style='display:none'><%= (ar.nowTime - requestRecord.getModifiedDate())/1000%></td>
+                        <td><%
+                            (new AddressListEntry(requestRecord.getRequestedBy())).writeLink(ar);
+                        %></td>
+                        <td><%
+                            ar.writeHtml(requestRecord.getRequestDescription());
+                        %></td>
+                        <td><%
+                            ar.writeHtml(requestRecord.getState());
+                        %></td>
+                        <td><%
+                            ar.writeHtml(requestRecord.getRequestId());
+                        %></td>
+                        <td style='display:none'><%=(ar.nowTime - requestRecord.getModifiedDate())/1000%></td>
                     </tr>
                 <%
-                        }
                     }
+                            }
                 %>
                 </tbody>
             </table>
         </div>
             <%
-            }if (ar.isAdmin()){
-                List<RoleRequestRecord> roleRequestRecordHistory = ngp.getAllRoleRequestByState("Approved",true);
-                roleRequestRecordHistory.addAll(ngp.getAllRoleRequestByState("rejected",true));
-                if (roleRequestRecordHistory!=null)
-                {
+                }if (ar.isAdmin()){
+                    List<RoleRequestRecord> roleRequestRecordHistory = ngp.getAllRoleRequestByState("Approved",true);
+                    roleRequestRecordHistory.addAll(ngp.getAllRoleRequestByState("rejected",true));
+                    if (roleRequestRecordHistory!=null)
+                    {
             %>
         <div style="height:20px">&nbsp;</div>
         <div class="generalHeadingBorderLess">Role Request History </div>
@@ -111,40 +118,52 @@ Optional Parameter:
                 </thead>
                 <tbody>
                     <%
-                    Iterator itr = roleRequestRecordHistory.iterator();
-                    long max_days = 0;
-                    while (itr.hasNext())
-                    {
-                        RoleRequestRecord requestRecord = (RoleRequestRecord) itr.next();
-                        if(requestRecord != null && requestRecord.showRecord()){
-                            UserProfile uPro=UserManager.findUserByAnyId(requestRecord.getRequestedBy());
+                        Iterator itr = roleRequestRecordHistory.iterator();
+                                long max_days = 0;
+                                while (itr.hasNext())
+                                {
+                                    RoleRequestRecord requestRecord = (RoleRequestRecord) itr.next();
+                                    if(requestRecord != null && requestRecord.showRecord()){
+                                        UserProfile uPro=UserManager.findUserByAnyId(requestRecord.getRequestedBy());
                     %>
                     <tr>
-                        <td><%ar.writeHtml(requestRecord.getRoleName()); %></td>
+                        <td><%
+                            ar.writeHtml(requestRecord.getRoleName());
+                        %></td>
                         <td><%=SectionUtil.getNicePrintDate(requestRecord.getModifiedDate())%></td>
-                        <td><a href="<%ar.writeHtml(ar.retPath+"v/"+uPro.getKey()+"/userProfile.htm?active=1");%>"title='access the profile for this user, if it exists'><%ar.writeHtml(uPro.getName());%></a></td>
-                        <td><%ar.writeHtml(requestRecord.getRequestDescription()); %></td>
-                        <td><%ar.writeHtml(requestRecord.getState()); %></td>
-                        <td><%ar.writeHtml(requestRecord.getResponseDescription()); %></td>
-                        <td><%ar.writeHtml(requestRecord.getRequestId()); %></td>
-                        <td style='display:none'><%= (ar.nowTime - requestRecord.getModifiedDate())/1000%></td>
+                        <td><a href="<%ar.writeHtml(ar.retPath+"v/"+uPro.getKey()+"/userProfile.htm?active=1");%>"title='access the profile for this user, if it exists'><%
+                            ar.writeHtml(uPro.getName());
+                        %></a></td>
+                        <td><%
+                            ar.writeHtml(requestRecord.getRequestDescription());
+                        %></td>
+                        <td><%
+                            ar.writeHtml(requestRecord.getState());
+                        %></td>
+                        <td><%
+                            ar.writeHtml(requestRecord.getResponseDescription());
+                        %></td>
+                        <td><%
+                            ar.writeHtml(requestRecord.getRequestId());
+                        %></td>
+                        <td style='display:none'><%=(ar.nowTime - requestRecord.getModifiedDate())/1000%></td>
                     </tr>
                     <%
                         }
-                    }
+                                }
                     %>
                 </tbody>
             </table>
         </div>
         <%
-                }
             }
-        }else{
+            }
+                }else{
             RoleRequestRecord roleRequestRecord = ngp.getRoleRequestRecordById(requestId);
             if(roleRequestRecord != null){
                 roleRequest_State = roleRequestRecord.getState();
                 if("Requested".equalsIgnoreCase(roleRequest_State )){
-            %>
+        %>
                     <div style="height:20px">&nbsp;</div>
                     <div class="generalHeading">Request Approval/Rejection Form</div>
                     <div class="generalContent">
@@ -154,7 +173,9 @@ Optional Parameter:
                                 <td class="gridTableColummHeader_2">Role Name:</td>
                                     <td style="width:20px;"></td>
                                     <td>
-                                        <%ar.writeHtml(roleRequestRecord.getRoleName()); %>
+                                        <%
+                                            ar.writeHtml(roleRequestRecord.getRoleName());
+                                        %>
                                     </td>
                                 </tr>
                                 <tr><td style="height:8px" colspan="3"></td></tr>
@@ -162,7 +183,9 @@ Optional Parameter:
                                     <td class="gridTableColummHeader_2">Requested By:</td>
                                     <td style="width:20px;"></td>
                                     <td>
-                                        <%ar.writeHtml(roleRequestRecord.getRequestedBy()); %>
+                                        <%
+                                            ar.writeHtml(roleRequestRecord.getRequestedBy());
+                                        %>
                                     </td>
                                 </tr>
                                 <tr><td style="height:8px" colspan="3"></td></tr>
@@ -170,7 +193,9 @@ Optional Parameter:
                                     <td class="gridTableColummHeader_2">Requestee Comment:</td>
                                     <td style="width:20px;"></td>
                                     <td>
-                                        <%ar.writeHtml(roleRequestRecord.getRequestDescription()); %>
+                                        <%
+                                            ar.writeHtml(roleRequestRecord.getRequestDescription());
+                                        %>
                                     </td>
                                 </tr>
                                 <tr><td style="height:8px" colspan="3"></td></tr>
@@ -187,14 +212,14 @@ Optional Parameter:
                                     <td style="width:20px;"></td>
                                     <td>
                                         <input type="button" class="inputBtn"  value="Approve" onclick="makeRoleRequest('approved','<%=ar.retPath%>t/approveOrRejectRoleRequest.ajax?pageId=<%ar.writeHtml(p);%>&action=approved&requestId=<%ar.writeHtml(requestId);%>',document.getElementById('respDescription'),approveOrRejectRoleRequestResult)">&nbsp;
-                                        <input type="button" class="inputBtn"  value="Reject" onclick="makeRoleRequest('rejected','<%=ar.retPath%>t/approveOrRejectRoleRequest.ajax?pageId=<%ar.writeHtml(p); %>&action=rejected&requestId=<%ar.writeHtml(requestId);%>',document.getElementById('respDescription'),approveOrRejectRoleRequestResult)">&nbsp;
+                                        <input type="button" class="inputBtn"  value="Reject" onclick="makeRoleRequest('rejected','<%=ar.retPath%>t/approveOrRejectRoleRequest.ajax?pageId=<%ar.writeHtml(p);%>&action=rejected&requestId=<%ar.writeHtml(requestId);%>',document.getElementById('respDescription'),approveOrRejectRoleRequestResult)">&nbsp;
                                         <!--<input type="button" class="inputBtn"  value="Cancel" onclick="cancelPanel()" >-->
                                     </td>
                                 </tr>
                             </table>
                         </div>
                         <%
-                        }else{
+                            }else{
                         %>
                         <div class="generalHeading">Request Approval/Rejection Form</div>
                         <br/>
@@ -207,7 +232,9 @@ Optional Parameter:
                             </tr>
                             <tr >
                                 <td width="30%"><b><I>Reason for Rejection:</I></b><br></td>
-                                <td><b><I><%ar.writeHtml(roleRequestRecord.getResponseDescription()); %></I></b><br></td>
+                                <td><b><I><%
+                                    ar.writeHtml(roleRequestRecord.getResponseDescription());
+                                %></I></b><br></td>
                             </tr>
                         <%
                             }else if("Approved".equalsIgnoreCase(roleRequest_State)){
@@ -217,7 +244,9 @@ Optional Parameter:
                             </tr>
                             <tr >
                                 <td width="30%"><b><I>Description:</I></b><br></td>
-                                <td><b><I><%ar.writeHtml(roleRequestRecord.getResponseDescription()); %></I></b><br></td>
+                                <td><b><I><%
+                                    ar.writeHtml(roleRequestRecord.getResponseDescription());
+                                %></I></b><br></td>
                             </tr>
                         <%
                             }
@@ -225,8 +254,8 @@ Optional Parameter:
                         </table>
             <%
                 }
-            }else{
-             %>
+                }else{
+            %>
                    <div class="generalHeading">Request Approval/Rejection Form</div>
                         <br/>
                         <table width="80%" class="gridTable">
@@ -237,15 +266,15 @@ Optional Parameter:
 
 
          <%
-            }
-        }
-    }
-    out.flush();
-    %>
+             }
+                 }
+             }
+             out.flush();
+         %>
         </div>
     </div>
     <script type="text/javascript">
-        var isfreezed = '<%=ngp.isFrozen() %>';
+        var isfreezed = '<%=ngp.isFrozen()%>';
 
         var requestedByFormater = function(elCell, oRecord, oColumn, sData)
         {
@@ -449,7 +478,7 @@ Optional Parameter:
                     if(json.msgType == "success"){
                         if('<%=isAccessThroughEmail%>' == 'yes'){
                             alert("Operation has been performed successfully.");
-                            window.location = '<%=ar.retPath%>t/<%ar.writeHtml(ngp.getAccount().getKey());%>/<%ar.writeHtml(p);%>/roleRequest.htm';
+                            window.location = '<%=ar.retPath%>t/<%ar.writeHtml(ngp.getSite().getKey());%>/<%ar.writeHtml(p);%>/roleRequest.htm';
                         }else{
                             window.location.reload();
                         }

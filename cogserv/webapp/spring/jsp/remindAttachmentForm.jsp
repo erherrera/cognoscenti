@@ -1,8 +1,7 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
-%><%
-/*
+%><%/*
 Required parameter:
 
     1. pageId   : This is the id of a Project and used to retrieve NGPage.
@@ -16,12 +15,8 @@ Optional Parameter:
     String pageId = ar.reqParam("pageId");
     String rid  = ar.reqParam("rid");
 
-    String s  = ar.defParam("s", "Attachments");
-%><%!
-    String pageTitle="";
-    ReminderRecord rRec = null;
-
-%>
+    String s  = ar.defParam("s", "Attachments");%><%!String pageTitle="";
+    ReminderRecord rRec = null;%>
 <%@page import="org.socialbiz.cog.AccessControl"%>
 <script>
     var specialSubTab = '<fmt:message key="${requestScope.subTabId}"/>';
@@ -34,7 +29,7 @@ Optional Parameter:
     NGPage ngp =(NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
     ar.setPageAccessLevels(ngp);
 
-    NGBook ngb = ngp.getAccount();
+    NGBook ngb = ngp.getSite();
     String specialTab = "Project Document Section";
 
     ReminderMgr rMgr = ngp.getReminderMgr();

@@ -64,7 +64,7 @@ public class SearchManager {
                 NGPage ngp = ngpi.getPage();
                 String projectKey = ngp.getKey();
                 String projectName = ngp.getFullName();
-                String accountName = ngp.getAccount().getFullName();
+                String accountName = ngp.getSite().getFullName();
 
                 //add a record for the project as a whole
                 {

@@ -3,8 +3,7 @@
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="functions.jsp"
 %><%@page import="org.socialbiz.cog.NGRole"
-%><%
-/*
+%><%/*
 Required parameters:
 
     1. pageId : This is the id of an project and here it is used to retrieve NGPage (Project's Details).
@@ -17,26 +16,18 @@ Required parameters:
     String pageId   = ar.reqParam("pageId");
     String roleName = ar.reqParam("roleName");
 
-    List roles=(List)request.getAttribute("roles");
-
-%><%!
-    String pageTitle="";
-%><%
-
-    NGPage ngp =NGPageIndex.getProjectByKeyOrFail(pageId);
+    List roles=(List)request.getAttribute("roles");%><%!String pageTitle="";%><%NGPage ngp =NGPageIndex.getProjectByKeyOrFail(pageId);
     String projectKey = ngp.getKey();
 
     UserProfile uProf = ar.getUserProfile();
     NGRole role = ngp.getRoleOrFail(roleName);
     pageTitle = roleName+" Role of "+ngp.getFullName();
-    NGBook ngb = ngp.getAccount();
+    NGBook ngb = ngp.getSite();
 
     ar.setPageAccessLevels(ngp);
     ar.assertMember("Unable to edit the roles of this page");
 
-    String go = ar.getCompleteURL();
-
-    %>
+    String go = ar.getCompleteURL();%>
 <script type="text/javascript" language = "JavaScript">
     function submitRole(){
         var rolename =  document.getElementById("rolename");
@@ -62,14 +53,14 @@ Required parameters:
             remove = confirmRemoval(id);
         }
         if(remove){
-            document.forms["updateRoleForm"].action = '<%=ar.retPath%>t/<%ar.writeURLData(ngp.getAccount().getKey());%>/<%ar.writeURLData(ngp.getKey());%>/pageRoleAction.form?r=<%ar.writeURLData(roleName);%>&op='+op+'&id='+id;
+            document.forms["updateRoleForm"].action = '<%=ar.retPath%>t/<%ar.writeURLData(ngp.getSite().getKey());%>/<%ar.writeURLData(ngp.getKey());%>/pageRoleAction.form?r=<%ar.writeURLData(roleName);%>&op='+op+'&id='+id;
             document.forms["updateRoleForm"].submit();
         }
     }
 
     function removeRole(op,id){
         document.getElementById('id').value=id;
-        document.forms["updateRoleForm"].action = '<%=ar.retPath%>t/<%ar.writeURLData(ngp.getAccount().getKey());%>/<%ar.writeURLData(ngp.getKey());%>/pageRoleAction.form?r=<%ar.writeURLData(roleName);%>&op='+op;
+        document.forms["updateRoleForm"].action = '<%=ar.retPath%>t/<%ar.writeURLData(ngp.getSite().getKey());%>/<%ar.writeURLData(ngp.getKey());%>/pageRoleAction.form?r=<%ar.writeURLData(roleName);%>&op='+op;
         document.forms["updateRoleForm"].submit();
     }
 

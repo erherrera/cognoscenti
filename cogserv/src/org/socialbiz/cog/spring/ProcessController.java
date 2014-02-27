@@ -334,7 +334,7 @@ public class ProcessController extends BaseController {
             }else{
                 modelAndView=new ModelAndView("editprocess");
                 List<NGBook> memberOfAccounts = new ArrayList<NGBook>();
-                for(NGBook aBook : NGBook.getAllAccounts()) {
+                for(NGBook aBook : NGBook.getAllSites()) {
                     if (aBook.primaryOrSecondaryPermission(ar.getUserProfile())) {
                         memberOfAccounts.add(aBook);
                     }
@@ -560,7 +560,7 @@ public class ProcessController extends BaseController {
     public String getLocalProcess(String siteId, String projectID,
             AuthRequest ar) throws Exception {
 
-        for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInAccount(siteId)) {
+        for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInSite(siteId)) {
             NGPage page = ngpi.getPage();
             if (page.getKey().equalsIgnoreCase(projectID)) {
                 ar.setPageAccessLevels(page);

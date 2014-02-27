@@ -87,7 +87,7 @@
                                                     %>
 
                                                     <input type="checkbox" id="stoproleplayer" name="stoproleplayer" value="<%ar.write(role.getName()); %>" onclick="unSelect('stoproleplayerAll','<%=formId%>')"/>
-                                                    &nbsp;&nbsp;<a href="<%=ar.baseURL %>t/<%=ngp.getAccountKey() %>/<%=ngp.getKey() %>/EditRole.htm?roleName=<%ar.write(role.getName()); %>"><b><%ar.write(role.getName()); %></b></a><br />
+                                                    &nbsp;&nbsp;<a href="<%=ar.baseURL %>t/<%=ngp.getSiteKey()%>/<%=ngp.getKey() %>/EditRole.htm?roleName=<%ar.write(role.getName()); %>"><b><%ar.write(role.getName()); %></b></a><br />
 
                                                     <%
                                                 }

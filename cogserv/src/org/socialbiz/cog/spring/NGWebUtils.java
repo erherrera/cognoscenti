@@ -293,8 +293,8 @@ public class NGWebUtils {
 
 
 
-    public static void sendAccountGrantedEmail(AuthRequest ar,
-            UserProfile owner, AccountRequest accountDetails) throws Exception {
+    public static void setSiteGrantedEmail(AuthRequest ar,
+            UserProfile owner, SiteRequest accountDetails) throws Exception {
         StringWriter bodyWriter = new StringWriter();
         AuthRequest clone = new AuthDummy(ar.getUserProfile(), bodyWriter);
         clone.setNewUI(true);

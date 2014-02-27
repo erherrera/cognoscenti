@@ -1,8 +1,6 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="leaf_ProjectHome.jsp"
-%><%!
-    String pageTitle="";
-%>
+%><%!String pageTitle="";%>
 <div class="pageHeading">Your Draft Notes</div>
 <%displayCreatLeaf(ar,ngp);%>
 

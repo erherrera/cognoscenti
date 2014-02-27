@@ -1,8 +1,7 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
-%><%
-/*
+%><%/*
 Required parameter:
 
     1. pageId : This is the id of a Project and used to retrieve NGPage.
@@ -14,14 +13,7 @@ Optional Parameter:
 */
 
     String pageId = ar.reqParam("pageId");
-    String isNewUpload = ar.defParam("isNewUpload", "");
-
-%><%!
-        String pageTitle="";
-%><%
-
-
-        NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
+    String isNewUpload = ar.defParam("isNewUpload", "");%><%!String pageTitle="";%><%NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
         ar.setPageAccessLevels(ngp);
 
         pageTitle = ngp.getFullName();
@@ -38,8 +30,7 @@ Optional Parameter:
         }
 
         UserProfile uProf = ar.getUserProfile();
-        NGBook ngb = ngp.getAccount();
-%>
+        NGBook ngb = ngp.getSite();%>
 <script>
     var retPath ='<%=ar.retPath%>';
     function trim(s) {

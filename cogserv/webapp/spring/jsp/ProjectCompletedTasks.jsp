@@ -1,9 +1,5 @@
 <%@page errorPage="/spring/jsp/error.jsp"
-%><%
-
-    request.setAttribute("TypeOfGoalPage", "Completed Goals");
-
-%><%@ include file="leaf_process.jsp"
+%><%request.setAttribute("TypeOfGoalPage", "Completed Goals");%><%@ include file="leaf_process.jsp"
 %>
 <div class="content tab02" style="display:block;" onmousedown="buttononIndex('2')" >
     <div class="section_body">

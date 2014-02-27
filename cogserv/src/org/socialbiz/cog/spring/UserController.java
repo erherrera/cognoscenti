@@ -102,7 +102,7 @@ public class UserController extends BaseController {
 
     private List<NGBook> findAllMemberAccounts(UserProfile up) throws Exception {
         List<NGBook> memberOfAccounts=new ArrayList<NGBook>();
-        for (NGBook aBook : NGBook.getAllAccounts()){
+        for (NGBook aBook : NGBook.getAllSites()){
             if (aBook.primaryOrSecondaryPermission(up)) {
                 memberOfAccounts.add(aBook);
             }
@@ -670,7 +670,7 @@ public class UserController extends BaseController {
             String containerId = ar.reqParam( "container" );
             String mn = ar.reqParam( "mn" );
             NGPage page = NGPageIndex.getProjectByKeyOrFail( containerId );
-            NGPageIndex.assertBook(page.getAccount().getKey());
+            NGPageIndex.assertBook(page.getSite().getKey());
 
             String expectedMN = page.emailDependentMagicNumber(emailId);
             if(!mn.equals(expectedMN)){
@@ -678,7 +678,7 @@ public class UserController extends BaseController {
             }
             UserProfile  profileExists = UserManager.findUserByAnyId( emailId );
             if(profileExists != null){
-                modelAndView=new ModelAndView(new RedirectView( page.getAccount().getKey()+"/"+page.getKey()+"/public.htm?login="+URLEncoder.encode(emailId,"UTF-8")));
+                modelAndView=new ModelAndView(new RedirectView( page.getSite().getKey()+"/"+page.getKey()+"/public.htm?login="+URLEncoder.encode(emailId,"UTF-8")));
             }else{
                 modelAndView = new ModelAndView("invitedUserRegistrationForm");
             }
@@ -770,7 +770,7 @@ public class UserController extends BaseController {
                 }else{
                     record = page.createRoleRequest(roleName, requestedBy, ar.nowTime, requestedBy,requestDescription);
                     NGRole adminRole = page.getSecondaryRole();
-                    NGRole executiveRole = page.getAccount().getRole("Executives");//getSecondaryRole();
+                    NGRole executiveRole = page.getSite().getRole("Executives");//getSecondaryRole();
 
                     AddressListEntry thisRequester = new AddressListEntry(requestedBy);
 
@@ -1353,7 +1353,7 @@ public class UserController extends BaseController {
             String containerId = ar.reqParam( "containerId" );
 
             NGPage page = NGPageIndex.getProjectByKeyOrFail( containerId );
-            NGPageIndex.assertBook(page.getAccount().getKey());
+            NGPageIndex.assertBook(page.getSite().getKey());
 
             String expectedMN = page.emailDependentMagicNumber(emailId);
             if(!mn.equals(expectedMN)){

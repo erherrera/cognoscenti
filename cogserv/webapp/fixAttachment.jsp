@@ -13,8 +13,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    ar = AuthRequest.getOrCreate(request, response, out);
+%><%ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Unable to fix attached documents.");
 
     String p = ar.reqParam("p");
@@ -27,13 +26,11 @@
     ar.setPageAccessLevels(ngp);
     ar.assertMember("You must be a member of the project to edit the Attachments.");
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
 
     AttachmentRecord att = ngp.findAttachmentByID(aid);
     pageTitle = "Adjust Attachment: "+att.getDisplayName();
-    String ftype = att.getType();
-
-%>
+    String ftype = att.getType();%>
 
 <%@ include file="Header.jsp"%>
 

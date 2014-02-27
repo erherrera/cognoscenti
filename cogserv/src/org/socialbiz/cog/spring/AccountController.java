@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.socialbiz.cog.AccessControl;
-import org.socialbiz.cog.AccountReqFile;
+import org.socialbiz.cog.SiteReqFile;
 import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AdminEvent;
 import org.socialbiz.cog.AuthDummy;
@@ -54,7 +54,7 @@ import org.springframework.web.servlet.view.RedirectView;
 public class AccountController extends BaseController {
 
     @RequestMapping(value = "/{userKey}/accountRequests.form", method = RequestMethod.POST)
-    public ModelAndView requestForNewAccount(@PathVariable
+    public ModelAndView requestNewSite(@PathVariable
             String userKey, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
@@ -72,10 +72,10 @@ public class AccountController extends BaseController {
                 String accountID = ar.reqParam("accountID");
                 String accountName = ar.reqParam("accountName");
                 String accountDesc = ar.defParam("accountDesc","");
-                AccountRequest accountDetails = AccountReqFile.requestForNewAccount(accountID,
+                SiteRequest accountDetails = SiteReqFile.createNewSiteRequest(accountID,
                     accountName, accountDesc, ar);
 
-                sendAccountRequestEmail( ar,  accountDetails);
+                sendSiteRequestEmail( ar,  accountDetails);
             }
 
             modelAndView = new ModelAndView(new RedirectView("userAccounts.htm"));
@@ -88,8 +88,8 @@ public class AccountController extends BaseController {
     /**
      * sends an email to the super admins of the server
      */
-    private static void sendAccountRequestEmail(AuthRequest ar,
-            AccountRequest accountDetails) throws Exception {
+    private static void sendSiteRequestEmail(AuthRequest ar,
+            SiteRequest accountDetails) throws Exception {
         StringWriter bodyWriter = new StringWriter();
         AuthRequest clone = new AuthDummy(ar.getUserProfile(), bodyWriter);
         clone.setNewUI(true);
@@ -117,7 +117,7 @@ public class AccountController extends BaseController {
             clone.write(up.getKey());
 
             clone.write("&");
-            clone.write(AccessControl.getAccessAccountRequestParams(
+            clone.write(AccessControl.getAccessSiteRequestParams(
                     up.getKey(), accountDetails));
         }
 
@@ -145,7 +145,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -174,7 +174,7 @@ public class AccountController extends BaseController {
             String userKey = ar.defParam("userKey", null);
 
             String requestId = ar.reqParam("requestId");
-            AccountRequest accountDetails = AccountReqFile.getRequestByKey(requestId);
+            SiteRequest accountDetails = SiteReqFile.getRequestByKey(requestId);
             if (accountDetails==null) {
                 throw new NGException("nugen.exceptionhandling.not.find.account.request",new Object[]{requestId});
             }
@@ -182,7 +182,7 @@ public class AccountController extends BaseController {
             boolean canAccess = false;
 
             if(userKey != null){
-                canAccess = AccessControl.canAccessAccountRequest(ar, userKey, accountDetails);
+                canAccess = AccessControl.canAccessSiteRequest(ar, userKey, accountDetails);
             }
 
             if(!canAccess){
@@ -208,8 +208,8 @@ public class AccountController extends BaseController {
             if ("Granted".equals(action)) {
 
                 //Create new Site
-                NGBook ngb = NGBook.createNewSite(accountDetails.getAccountId(), accountDetails.getName());
-                ngb.setKey(accountDetails.getAccountId());
+                NGBook ngb = NGBook.createNewSite(accountDetails.getSiteId(), accountDetails.getName());
+                ngb.setKey(accountDetails.getSiteId());
                 ngb.getPrimaryRole().addPlayer(ale);
                 ngb.getSecondaryRole().addPlayer(ale);
                 ngb.setDescription(description);
@@ -233,8 +233,8 @@ public class AccountController extends BaseController {
                 throw new Exception("Unrecognized action '"+action+"' in acceptOrDeny.form");
             }
 
-            NGWebUtils.sendAccountGrantedEmail( ar, ale.getUserProfile(), accountDetails);
-            AccountReqFile.saveAll();
+            NGWebUtils.setSiteGrantedEmail( ar, ale.getUserProfile(), accountDetails);
+            SiteReqFile.saveAll();
 
             if(ar.getUserProfile() != null){
                 modelAndView = new ModelAndView(new RedirectView(ar.retPath+"v/"
@@ -271,7 +271,7 @@ public class AccountController extends BaseController {
     }
 
     @RequestMapping(value = "/{siteId}/$/accountListProjects.htm", method = RequestMethod.GET)
-    public ModelAndView showAccountTaskTab(@PathVariable String siteId,
+    public ModelAndView showSiteTaskTab(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
@@ -279,7 +279,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -304,7 +304,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -328,7 +328,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            prepareAccountView(ar, siteId);
+            prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -353,7 +353,7 @@ public class AccountController extends BaseController {
         return showWarningView(ar, "nugen.deprecatedView");
     }
     @RequestMapping(value = "/{siteId}/$/admin.htm", method = RequestMethod.GET)
-    public ModelAndView showAccountSettingTab(@PathVariable String siteId,
+    public ModelAndView showSiteSettingTab(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
@@ -361,7 +361,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -389,7 +389,7 @@ public class AccountController extends BaseController {
 
 
     @RequestMapping(value = "/approveAccountThroughMail.htm", method = RequestMethod.GET)
-    public ModelAndView approveAccountThroughEmail(
+    public ModelAndView approveSiteThroughEmail(
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         ModelAndView modelAndView = null;
@@ -400,8 +400,8 @@ public class AccountController extends BaseController {
             String userId = ar.defParam("userId", null);
             boolean canAccess = false;
             if(userId != null){
-                AccountRequest accountDetails=AccountReqFile.getRequestByKey(requestId);
-                canAccess = AccessControl.canAccessAccountRequest(ar, userId, accountDetails);
+                SiteRequest accountDetails=SiteReqFile.getRequestByKey(requestId);
+                canAccess = AccessControl.canAccessSiteRequest(ar, userId, accountDetails);
             }
 
             if(!canAccess) {
@@ -432,7 +432,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -451,7 +451,7 @@ public class AccountController extends BaseController {
     }
 
     @RequestMapping(value = "/{siteId}/$/public.htm", method = RequestMethod.GET)
-    public ModelAndView viewAccountPublic(@PathVariable String siteId,HttpServletRequest request,
+    public ModelAndView viewSitePublic(@PathVariable String siteId,HttpServletRequest request,
             HttpServletResponse response)
     throws Exception {
         try{
@@ -459,7 +459,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
 
             ModelAndView modelAndView=new ModelAndView("account_public");
             request.setAttribute("realRequestURL", ar.getRequestURL());
@@ -482,7 +482,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -509,7 +509,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -528,7 +528,7 @@ public class AccountController extends BaseController {
     }
 
     @RequestMapping(value = "/{userKey}/requestAccount.htm", method = RequestMethod.GET)
-    public ModelAndView requestAccount(@PathVariable String userKey,
+    public ModelAndView requestSite(@PathVariable String userKey,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
@@ -564,7 +564,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -611,7 +611,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -648,7 +648,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;
@@ -675,7 +675,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            NGBook site = prepareAccountView(ar, siteId);
+            NGBook site = prepareSiteView(ar, siteId);
             //personal view is available to everyone, regardless of whether they
             //have a role or access to that project.  This is the page that
             //one can request access.
@@ -742,7 +742,7 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            prepareAccountView(ar, siteId);
+            prepareSiteView(ar, siteId);
             ModelAndView modelAndView = executiveCheckViews(ar);
             if (modelAndView != null) {
                 return modelAndView;

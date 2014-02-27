@@ -22,8 +22,7 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    ar = AuthRequest.getOrCreate(request, response, out);
+%><%ar = AuthRequest.getOrCreate(request, response, out);
     ar.retPath="../../";
 
     String p = ar.reqParam("p");
@@ -35,7 +34,7 @@
 
     String[] names = ngp.getPageNames();
 
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
     if (ngb==null)
     {
         throw new Exception("Logic Error, should never get a null value from getAccount");
@@ -51,8 +50,7 @@
 
     pageTitle = ngp.getFullName();
     specialTab = "Permissions";
-    newUIResource = "permission.htm";
-%>
+    newUIResource = "permission.htm";%>
 <%@ include file="Header.jsp"%>
 
 <%

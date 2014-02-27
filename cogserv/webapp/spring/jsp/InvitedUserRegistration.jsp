@@ -1,7 +1,6 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
-%><%
-/*
+%><%/*
 Required parameter:
 
     1. container    : This is the id of a container and used to retrieve NGPage.
@@ -16,9 +15,7 @@ Required parameter:
     String emailId  = ar.reqParam("emailId");
 
     NGPage ngp = NGPageIndex.getProjectByKeyOrFail(containerId);
-    String go = ar.baseURL+"t/"+ngp.getAccount().getKey()+"/"+ngp.getKey()+"/history.htm";
-
-%>
+    String go = ar.baseURL+"t/"+ngp.getSite().getKey()+"/"+ngp.getKey()+"/history.htm";%>
 
 <style type="text/css">
     #bodyWrapper {
@@ -34,10 +31,10 @@ Required parameter:
     }
 
     function gotoproject(){
-        window.location = "<%=ar.baseURL %>t/<%ar.writeHtml(ngp.getAccount().getKey());%>/<%ar.writeHtml(ngp.getKey());%>/public.htm";
+        window.location = "<%=ar.baseURL%>t/<%ar.writeHtml(ngp.getSite().getKey());%>/<%ar.writeHtml(ngp.getKey());%>/public.htm";
     }
     function gotoAdd(){
-        window.location = "<%=ar.baseURL %>t/EmailLoginForm.htm?go=<%ar.writeURLData(ar.getCompleteURL());%>";
+        window.location = "<%=ar.baseURL%>t/EmailLoginForm.htm?go=<%ar.writeURLData(ar.getCompleteURL());%>";
     }
 </script>
 
@@ -46,11 +43,13 @@ Required parameter:
         <tr>
             <td colspan="3">
             <%
-            if (ar.isLoggedIn())
-            {
-                UserProfile uProf = ar.getUserProfile();
+                if (ar.isLoggedIn())
+                {
+                    UserProfile uProf = ar.getUserProfile();
             %>
-                You are already logged in as <%uProf.writeLink(ar); %>. Please choose any option
+                You are already logged in as <%
+                uProf.writeLink(ar);
+            %>. Please choose any option
                 from the following :
             </td>
         </tr>
@@ -60,15 +59,17 @@ Required parameter:
         <tr height="25px">
             <td width="5%">&nbsp;</td>
             <td colspan="2">
-                1). &nbsp;Click on <a href="<%=ar.baseURL %>t/LogoutAction.htm?go=<%ar.writeURLData(ar.getCompleteURL()); %>" >
-                Log Out</a> to create a New profile for &nbsp;<b>'<%ar.writeHtml(emailId); %>'</b>&nbsp; Email id.
+                1). &nbsp;Click on <a href="<%=ar.baseURL%>t/LogoutAction.htm?go=<%ar.writeURLData(ar.getCompleteURL());%>" >
+                Log Out</a> to create a New profile for &nbsp;<b>'<%
+                ar.writeHtml(emailId);
+            %>'</b>&nbsp; Email id.
             </td>
         </tr>
         <tr height="25px">
             <td width="5%">&nbsp;</td>
             <td colspan="2">
                 <form action="addEmailToProfile.form" method="post">
-                    <input type="hidden" name="emailId" value="<% ar.writeHtml(emailId); %>"/>
+                    <input type="hidden" name="emailId" value="<%ar.writeHtml(emailId);%>"/>
                     <input type="hidden" name="mn" value="<%ar.writeHtml(mn);%>"/>
                     <input type="hidden" name="containerId" value="<%ar.writeHtml(containerId);%>"/>
                     2).&nbsp; <input type="submit" class="inputBtn" value="Claim this email to existing profile" />
@@ -78,14 +79,14 @@ Required parameter:
         <tr height="25px">
             <td width="5%">&nbsp;</td>
             <td colspan="2">
-                3). &nbsp;No not claim the Email id, <a href="<%=ar.baseURL %>t/<%ar.writeHtml(ngp.getAccount().getKey());%>/<%ar.writeHtml(ngp.getKey());%>/public.htm" >
+                3). &nbsp;No not claim the Email id, <a href="<%=ar.baseURL%>t/<%ar.writeHtml(ngp.getSite().getKey());%>/<%ar.writeHtml(ngp.getKey());%>/public.htm" >
                 Just go on to the project page.</a>
             </td>
         </tr>
 
         <%
-        }else{
-       %>
+            }else{
+        %>
         <tr>
             <td valign="top" style="width:370px">
                 <div class="generalHeading">Claim This Email Address</div>
@@ -94,15 +95,17 @@ Required parameter:
                         <tr>
                             <td style="padding:20px;" >
                                 <form action="invitedUserRegitsrationSubmit.form" method="post" id="newRegisterForm">
-                                    <input type="hidden" name="go" value="<% ar.writeHtml(go); %>"/>
-                                    <input type="hidden" name="email" value="<% ar.writeHtml(emailId); %>"/>
+                                    <input type="hidden" name="go" value="<%ar.writeHtml(go);%>"/>
+                                    <input type="hidden" name="email" value="<%ar.writeHtml(emailId);%>"/>
                                     <input type="hidden" name="mn" value="<%ar.writeHtml(mn);%>"/>
                                     <input type="hidden" name="containerId" value="<%ar.writeHtml(containerId);%>"/>
 
                                     <table>
                                         <tr><td><b>Email Address:</b></td></tr>
                                         <tr>
-                                            <td><% ar.writeHtml(emailId); %></td>
+                                            <td><%
+                                                ar.writeHtml(emailId);
+                                            %></td>
                                             <td>&nbsp;</td>
                                             <td></td>
                                         </tr>
@@ -177,7 +180,7 @@ Required parameter:
             <td colspan="3">
                 <i>
                     *After you have registered, you will have complete access to documents and other materials
-                    collected for the <b><a href="<%=ar.retPath %>t/<%ar.writeHtml(ngp.getAccount().getKey()); %>/<%ar.writeHtml(ngp.getKey()); %>/public.htm">
+                    collected for the <b><a href="<%=ar.retPath%>t/<%ar.writeHtml(ngp.getSite().getKey());%>/<%ar.writeHtml(ngp.getKey()); %>/public.htm">
                     <% ar.writeHtml(ngp.getFullName()); %></a></b>  project. You will be able to comment and contribute
                     as well.
                     </i>

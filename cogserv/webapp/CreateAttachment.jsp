@@ -15,21 +15,18 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%
-    ar = AuthRequest.getOrCreate(request, response, out);
+%><%ar = AuthRequest.getOrCreate(request, response, out);
     ar.assertLoggedIn("Can not attach a document to this project.");
 
     String p = ar.reqParam("p");
 
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
-    ngb = ngp.getAccount();
+    ngb = ngp.getSite();
     ar.setPageAccessLevels(ngp);
     ProcessRecord process = ngp.getProcess();
 
     pageTitle = "Add Attachment to "+ngp.getFullName();
-    ar.assertMember("Can not attach a document to this project.");
-
-%>
+    ar.assertMember("Can not attach a document to this project.");%>
 
 <%@ include file="Header.jsp"%>
 

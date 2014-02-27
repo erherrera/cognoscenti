@@ -28,9 +28,9 @@ import org.socialbiz.cog.DOMFace;
 /**
  *
  */
-public class AccountRequest extends DOMFace {
+public class SiteRequest extends DOMFace {
 
-    public AccountRequest(Document doc, Element ele, DOMFace p) {
+    public SiteRequest(Document doc, Element ele, DOMFace p) {
          super(doc, ele, p);
     }
 
@@ -51,13 +51,13 @@ public class AccountRequest extends DOMFace {
         setScalar("description", descr.trim());
     }
 
-    public String getAccountId() {
+    public String getSiteId() {
         return getScalar("accountId");
     }
 
-    public void setAccountId(String accountId) {
+    public void setSiteId(String siteId) {
 
-        setScalar("accountId", accountId.trim());
+        setScalar("accountId", siteId.trim());
     }
 
     public void setUniversalId(String universalId) {

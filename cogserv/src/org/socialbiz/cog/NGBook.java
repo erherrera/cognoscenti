@@ -32,9 +32,9 @@ import org.socialbiz.cog.util.CVSUtil;
 import org.w3c.dom.Document;
 
 /**
- * An site is a collection of pages. This allows a collection of pages to
- * share a single set of members, and a particular look and feel. For archaic
- * reasons called NGBook, should be NGSite
+ * An site is a collection of pages. This allows a collection of pages to share
+ * a single set of members, and a particular look and feel. For archaic reasons
+ * called NGBook, should be NGSite
  */
 public class NGBook extends ContainerCommon implements NGContainer {
     public String key;
@@ -55,26 +55,26 @@ public class NGBook extends ContainerCommon implements NGContainer {
         siteInfoRec = requireChild("bookInfo", BookInfoRecord.class);
         displayNames = siteInfoRec.getPageNames();
 
-        //migration code, make sure there is a stored value for key
+        // migration code, make sure there is a stored value for key
         key = siteInfoRec.getScalar("key");
-        if (key==null || key.length()==0) {
+        if (key == null || key.length() == 0) {
             String fileName = theFile.getName();
-            if (fileName.equalsIgnoreCase("SiteInfo.xml")){
-                //use the name of the containing folder to set the key
+            if (fileName.equalsIgnoreCase("SiteInfo.xml")) {
+                // use the name of the containing folder to set the key
                 File cogFolder = theFile.getParentFile();
                 File containingFolder = cogFolder.getParentFile();
                 key = SectionUtil.sanitize(containingFolder.getName());
                 siteInfoRec.setScalar("key", key);
             }
             else if (fileName.endsWith(".book") || fileName.endsWith(".site")) {
-                key = fileName.substring(0,fileName.length()-5);
+                key = fileName.substring(0, fileName.length() - 5);
                 siteInfoRec.setScalar("key", key);
             }
             else {
-                throw new Exception("Site is missing key, and unable to generate one: "+theFile);
+                throw new Exception("Site is missing key, and unable to generate one: " + theFile);
             }
         }
-        System.out.println("Cached site ("+key+") from : "+theFile);
+        System.out.println("Cached site (" + key + ") from : " + theFile);
 
         requireChild("notes", DOMFace.class);
         requireChild("attachments", DOMFace.class);
@@ -129,11 +129,10 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     }
 
-    public static NGBook readBookByKey(String key) throws Exception {
+    public static NGBook readSiteByKey(String key) throws Exception {
         if (keyToSite == null) {
             // this should never happen, but if it does....
-            throw new ProgramLogicError(
-                    "in readBookByKey called before the site index initialzed.");
+            throw new ProgramLogicError("in readBookByKey called before the site index initialzed.");
         }
         if (key == null) {
             throw new Exception("Program Logic Error: Site key of null is no longer allowed.");
@@ -147,9 +146,6 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public static NGBook readSiteAbsolutePath(File theFile) throws Exception {
-        return NGBook.readBookAbsolutePath(theFile);
-    }
-    private static NGBook readBookAbsolutePath(File theFile) throws Exception {
         try {
             if (!theFile.exists()) {
                 throw new NGException("nugen.exception.file.not.exist", new Object[] { theFile });
@@ -163,7 +159,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
     }
 
-    public static Vector<NGBook> getAllAccounts() {
+    public static Vector<NGBook> getAllSites() {
         // might do a copy here if we fear that the receiver will corrupt this
         // vector
         return allSites;
@@ -172,26 +168,25 @@ public class NGBook extends ContainerCommon implements NGContainer {
     /**
      * Creates a book with the specified name. Generates the key automatically.
      */
-    public static NGBook createNewBook(String name) throws Exception {
+    public static NGBook createNewSite(String name) throws Exception {
         String key = IdGenerator.generateKey();
-        NGBook ngb = createBookByKey(key, name);
+        NGBook ngb = createSiteByKey(key, name);
         registerSite(ngb);
         return ngb;
     }
+
     public static void registerSite(NGBook foundSite) throws Exception {
         allSites.add(foundSite);
         keyToSite.put(foundSite.getKey(), foundSite);
     }
 
-
-
     /**
      * Creates the special default book This should be kept in sync with above
      * routine.
      */
-    private static NGBook createBookByKey(String key, String name) throws Exception {
+    private static NGBook createSiteByKey(String key, String name) throws Exception {
 
-        //TODO: this only creates in the main folder.  Archaic
+        // TODO: this only creates in the main folder. Archaic
         File theFile = NGPage.getRealPath(key + ".book");
         if (theFile.exists()) {
             throw new NGException("nugen.exception.cant.crete.new.book", new Object[] { key });
@@ -209,7 +204,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return newBook;
     }
 
-    public void saveBookAs(String newKey, UserProfile user, String comment) throws Exception {
+    public void saveSiteAs(String newKey, UserProfile user, String comment) throws Exception {
         try {
             reformatXML();
 
@@ -247,7 +242,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         setScalar("name", newName.trim());
     }
 
-    public String[] getAccountNames() {
+    public String[] getSiteNames() {
         if (displayNames == null || displayNames.length < 0) {
             String name = getFullName();
             return new String[] { name };
@@ -255,7 +250,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return displayNames;
     }
 
-    public void setAccountNames(String[] newNames) {
+    public void setSiteNames(String[] newNames) {
         siteInfoRec.setPageNames(newNames);
         displayNames = siteInfoRec.getPageNames();
     }
@@ -347,17 +342,17 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * created cached values in the mean time, and throws it's own self-destruct
      * exception.
      */
-    public synchronized static void scanAllBooks(File root) throws Exception {
+    public synchronized static void scanAllSites(File root) throws Exception {
         // clear the statics first of all to make sure they are not
         // holding any old values that need to be cleared, also to make
         // sure that they are not set as a side effect of this code,
         // or code on another thread that may be running.
         keyToSite = null;
         allSites = null;
-        System.out.println("Scanning for book files: "+root);
+        System.out.println("Scanning for book files: " + root);
 
-        Hashtable<String, NGBook> tKeyToBook = new Hashtable<String, NGBook>();
-        Vector<NGBook> tAllBooks = new Vector<NGBook>();
+        Hashtable<String, NGBook> tKeyToSite = new Hashtable<String, NGBook>();
+        Vector<NGBook> tAllSites = new Vector<NGBook>();
 
         for (File child : root.listFiles()) {
             String fileName = child.getName();
@@ -366,16 +361,17 @@ public class NGBook extends ContainerCommon implements NGContainer {
                 continue;
             }
 
-            NGBook ngb = readBookAbsolutePath(child);
+            NGBook ngb = readSiteAbsolutePath(child);
 
-            tAllBooks.add(ngb);
+            tAllSites.add(ngb);
             String key = ngb.getKey();
 
-            //check for uniqueness just to be sure
-            if (tKeyToBook.containsKey(key)) {
-                throw new Exception("found a new book with a key ("+key+") that duplicates another book: "+child);
+            // check for uniqueness just to be sure
+            if (tKeyToSite.containsKey(key)) {
+                throw new Exception("found a new book with a key (" + key
+                        + ") that duplicates another book: " + child);
             }
-            tKeyToBook.put(key, ngb);
+            tKeyToSite.put(key, ngb);
         }
 
         if (keyToSite != null || allSites != null) {
@@ -395,15 +391,16 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
 
         // now make them live
-        keyToSite = tKeyToBook;
-        allSites = tAllBooks;
+        keyToSite = tKeyToSite;
+        allSites = tAllSites;
     }
 
     public static NGBook createNewSite(String key, String name) throws Exception {
         // where is the site going to go?
         String[] libFolders = ConfigFile.getArrayProperty("libFolder");
         if (libFolders.length == 0) {
-            throw new Exception("You must have a setting for 'libFolder' in order to create a new site.");
+            throw new Exception(
+                    "You must have a setting for 'libFolder' in order to create a new site.");
         }
 
         File domFolder = new File(libFolders[0]);
@@ -412,25 +409,24 @@ public class NGBook extends ContainerCommon implements NGContainer {
                     "Config setting 'libFolder' is not correct, first value must be an existing folder: ("
                             + domFolder + ")");
         }
-        File newAccountFolder = new File(domFolder, key);
-        if (newAccountFolder.exists()) {
+        File newSiteFolder = new File(domFolder, key);
+        if (newSiteFolder.exists()) {
             throw new Exception("Can't create site because folder already exists: ("
-                    + newAccountFolder + ")");
+                    + newSiteFolder + ")");
         }
-        newAccountFolder.mkdirs();
+        newSiteFolder.mkdirs();
 
-        File theFile = new File(newAccountFolder, key + ".site");
+        File theFile = new File(newSiteFolder, key + ".site");
         if (theFile.exists()) {
-            throw new Exception(
-                    "Unable to create new site, a site with that ID already exists.");
+            throw new Exception("Unable to create new site, a site with that ID already exists.");
         }
 
         Document newDoc = readOrCreateFile(theFile, "book");
         NGBook newBook = new NGBook(theFile, newDoc);
 
         // set default values
-        //TODO: change this to pass a file here
-        newBook.setPreferredProjectLocation(newAccountFolder.toString());
+        // TODO: change this to pass a file here
+        newBook.setPreferredProjectLocation(newSiteFolder.toString());
         newBook.setName(name);
         newBook.setStyleSheet("PageViewer.css");
         newBook.setLogo("logo.gif");
@@ -460,7 +456,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * duplication any id found here.
      */
     public void findIDs(Vector<String> v) throws Exception {
-        //shouldn't be any attachments.  But count them if there are any
+        // shouldn't be any attachments. But count them if there are any
         List<AttachmentRecord> attachments = getAllAttachments();
         for (AttachmentRecord att : attachments) {
             v.add(att.getId());
@@ -569,11 +565,11 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public String[] getContainerNames() {
-        return getAccountNames();
+        return getSiteNames();
     }
 
     public void setContainerNames(String[] nameSet) {
-        setAccountNames(nameSet);
+        setSiteNames(nameSet);
     }
 
     public long getLastModifyTime() throws Exception {
@@ -613,7 +609,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public void writeContainerLink(AuthRequest ar, String documentId, int len) throws Exception {
-        writeAccountUrl(ar);
+        writeSiteUrl(ar);
         ar.write("/public.htm\">");
         ar.writeHtml(getFullName());
         ar.write("</a>");
@@ -633,31 +629,34 @@ public class NGBook extends ContainerCommon implements NGContainer {
     public AttachmentRecord findAttachmentByID(String id) throws Exception {
         throw new Exception("findAttachmentByID should never be needed on Site");
     }
+
     public AttachmentRecord findAttachmentByIDOrFail(String id) throws Exception {
         throw new Exception("findAttachmentByIDOrFail should never be needed on Site");
     }
+
     public AttachmentRecord findAttachmentByName(String name) throws Exception {
         throw new Exception("findAttachmentByName should never be needed on Site");
     }
+
     public AttachmentRecord findAttachmentByNameOrFail(String name) throws Exception {
         throw new Exception("findAttachmentByNameOrFail should never be needed on Site");
     }
+
     public AttachmentRecord createAttachment() throws Exception {
         throw new Exception("createAttachment should never be needed on Site");
     }
-    public void deleteAttachment(String id,AuthRequest ar) throws Exception {
+
+    public void deleteAttachment(String id, AuthRequest ar) throws Exception {
         throw new Exception("deleteAttachment should never be needed on Site");
     }
+
     public void unDeleteAttachment(String id) throws Exception {
         throw new Exception("unDeleteAttachment should never be needed on Site");
     }
+
     public void eraseAttachmentRecord(String id) throws Exception {
         throw new Exception("eraseAttachmentRecord should never be needed on Site");
     }
-
-
-
-
 
     public void writeTaskLink(AuthRequest ar, String taskId, int len) throws Exception {
         throw new ProgramLogicError("This site does not have a task '" + taskId
@@ -679,7 +678,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
 
         String nameOfLink = trimName(note.getSubject(), len);
-        writeAccountUrl(ar);
+        writeSiteUrl(ar);
         ar.write("/leaflet");
         ar.writeURLData(note.getId());
         ar.write(".htm\">");
@@ -687,7 +686,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         ar.write("</a>");
     }
 
-    private void writeAccountUrl(AuthRequest ar) throws Exception {
+    private void writeSiteUrl(AuthRequest ar) throws Exception {
         ar.write("<a href=\"");
         ar.writeHtml(ar.baseURL);
         ar.write("t/");
@@ -711,10 +710,10 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     /**
      * This is the path to a folder (on disk) that new projects should be
-     * created in for this site. Not all projects will actually be there
-     * because older ones may have been created elsewhere, or moved, but new
-     * ones created there. If this has a value, then a new folder is created
-     * inside this one for the project.
+     * created in for this site. Not all projects will actually be there because
+     * older ones may have been created elsewhere, or moved, but new ones
+     * created there. If this has a value, then a new folder is created inside
+     * this one for the project.
      */
     public String getPreferredProjectLocation() {
         return siteInfoRec.getScalar("preferredLocation");
@@ -726,15 +725,14 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     /**
      * Modern sites have a folder on disk, and all the projects are inside that
-     * folder.  If this site has such a folder, return it, otherwise, return
-     * null
+     * folder. If this site has such a folder, return it, otherwise, return null
      */
     public File getSiteRootFolder() {
         String prefLocStr = getPreferredProjectLocation();
         if (prefLocStr == null || prefLocStr.length() == 0) {
             return null;
         }
-        File prefLoc =  new File(prefLocStr);
+        File prefLoc = new File(prefLocStr);
         if (prefLoc.exists()) {
             return prefLoc;
         }
@@ -747,8 +745,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
      */
     public boolean isPathInSite(File testPath) throws Exception {
         File siteRoot = getSiteRootFolder();
-        if (siteRoot==null) {
-            //if no preferred location, then site has no root, and always false
+        if (siteRoot == null) {
+            // if no preferred location, then site has no root, and always false
             return false;
         }
         String rootPath = siteRoot.getCanonicalPath();
@@ -757,35 +755,33 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     /**
-     * Returns true if this is a site with a folder structure that the
-     * projects should be put into.
+     * Returns true if this is a site with a folder structure that the projects
+     * should be put into.
      *
      * Returns false if this is a site & project in the datafolder
      */
     public boolean isSiteFolderStructure() {
-        return (getSiteRootFolder()!=null);
+        return (getSiteRootFolder() != null);
     }
-
 
     /**
      * Given a new project with a key 'p', this will return the File for the new
      * project file (which does not exist yet). There are two methods:
      *
      * 1) if a preferred location has been set, then a new folder in that will
-     * be created, and the project NGProj placed within that.
-     * 2) if no preferred location, then a regular NGPage will
-     * be created in datapath folder.
+     * be created, and the project NGProj placed within that. 2) if no preferred
+     * location, then a regular NGPage will be created in datapath folder.
      *
      * Note: p is NOT the name of the file, but the sanitized key. The returned
      * name should have the .sp suffix on it.
      */
     private File getNewProjectPath(String p) throws Exception {
         File rootFolder = getSiteRootFolder();
-        if (rootFolder!=null) {
+        if (rootFolder != null) {
             return newProjFolderByKey(rootFolder, p);
         }
 
-        //No site root, this is an OLDSTYLE site in the data path
+        // No site root, this is an OLDSTYLE site in the data path
 
         if (NGPage.dataPath == null) {
             throw new NGException("nugen.exception.datapath.not.initialized", null);
@@ -828,29 +824,31 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     /**
-     * Confirm that this is a good unique key, or extend  the passed value until
+     * Confirm that this is a good unique key, or extend the passed value until
      * is is good by adding hyphen and a number on the end.
      */
     public String findUniqueKeyInSite(String key) throws Exception {
 
-        //if it is already unique, use that.  This tests ALL sites currently
-        //loaded, but might consider a site-specific test when there is a
-        //site specific search for a project.
+        // if it is already unique, use that. This tests ALL sites currently
+        // loaded, but might consider a site-specific test when there is a
+        // site specific search for a project.
         NGContainer ngc = NGPageIndex.getContainerByKey(key);
-        if (ngc==null) {
+        if (ngc == null) {
             return key;
         }
 
-        //NOPE, there is a container already with that key, so we have to find
-        //another one.  If there is already a numeral on the end, strip it off
-        //so that the new numeral will most likely be one more that that, but only
-        //for single digit numerals after a hyphen.  Not worth dealling with more elaborate
-        //than that
-        if (key.length()>6) {
-            if (key.charAt(key.length()-2)=='-') {
-                char lastChar = key.charAt(key.length()-1);
-                if (lastChar>='0' && lastChar<='9') {
-                    key = key.substring(0,key.length()-2);
+        // NOPE, there is a container already with that key, so we have to find
+        // another one. If there is already a numeral on the end, strip it off
+        // so that the new numeral will most likely be one more that that, but
+        // only
+        // for single digit numerals after a hyphen. Not worth dealling with
+        // more elaborate
+        // than that
+        if (key.length() > 6) {
+            if (key.charAt(key.length() - 2) == '-') {
+                char lastChar = key.charAt(key.length() - 1);
+                if (lastChar >= '0' && lastChar <= '9') {
+                    key = key.substring(0, key.length() - 2);
                 }
             }
         }
@@ -859,7 +857,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         while (true) {
             String testKey = key + "-" + Integer.toString(testNum);
             ngc = NGPageIndex.getContainerByKey(testKey);
-            if (ngc==null) {
+            if (ngc == null) {
                 return testKey;
             }
             testNum++;
@@ -871,7 +869,6 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     // //////////////////// DEPRECATED METHODS//////////////////
-
 
     public String getAllowPublic() throws Exception {
         return siteInfoRec.getAllowPublic();
@@ -897,22 +894,20 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     /**
-    * Tells you if this file is within the dataPath folder
-    */
+     * Tells you if this file is within the dataPath folder
+     */
     public static boolean fileIsInDataPath(File testFile) {
         String fullPath = testFile.getPath();
-        String cleanUp1 = fullPath.toLowerCase().replace('\\','/');
-        String cleanUp2 = NGPage.dataPath.toLowerCase().replace('\\','/');
+        String cleanUp1 = fullPath.toLowerCase().replace('\\', '/');
+        String cleanUp2 = NGPage.dataPath.toLowerCase().replace('\\', '/');
         return cleanUp1.startsWith(cleanUp2);
     }
-
-
 
     public NGPage convertFolderToProj(AuthRequest ar, File expectedLoc) throws Exception {
         String projectName = expectedLoc.getName();
         String projectKey = SectionWiki.sanitize(projectName);
         projectKey = findUniqueKeyInSite(projectKey);
-        File projectFile = new File(expectedLoc, projectKey+".sp");
+        File projectFile = new File(expectedLoc, projectKey + ".sp");
         NGPage ngp = createProjectAtPath(ar, projectFile, projectKey);
         String[] nameSet = new String[] { projectName };
         ngp.setPageNames(nameSet);
@@ -928,47 +923,49 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
 
         String licVal = ar.reqParam("lic");
-        if (licVal==null || licVal.length()==0) {
+        if (licVal == null || licVal.length() == 0) {
             throw new ProgramLogicError("Have to be logged in, or have a licensed link, "
-                    +"to create a new project");
+                    + "to create a new project");
         }
         License lic = this.getLicense(licVal);
-        if (lic==null) {
-            throw new ProgramLogicError("Specified license ("+lic+") not found");
+        if (lic == null) {
+            throw new ProgramLogicError("Specified license (" + lic + ") not found");
         }
         if (ar.nowTime > lic.getTimeout()) {
-            throw new ProgramLogicError("Specified license ("+lic+") is no longer valid.  "
-                    +"You will need an updated licensed link to create a new project.");
+            throw new ProgramLogicError("Specified license (" + lic + ") is no longer valid.  "
+                    + "You will need an updated licensed link to create a new project.");
         }
-        //TODO: check that the user for this license is still in the role
+        // TODO: check that the user for this license is still in the role
 
     }
 
     /**
-    * NGPage object is created in memory, and can be manipulated in memory,
-    * but be sure to call "savePage" before finished otherwise nothing is created on disk.
-    */
-    public NGPage createProjectByKey(AuthRequest ar, String key)
-        throws Exception
-    {
+     * NGPage object is created in memory, and can be manipulated in memory, but
+     * be sure to call "savePage" before finished otherwise nothing is created
+     * on disk.
+     */
+    public NGPage createProjectByKey(AuthRequest ar, String key) throws Exception {
         assertPermissionToCreateProject(ar);
-        if (key.indexOf('/')>=0) {
-            throw new ProgramLogicError("Expecting a key value, but got something with a slash in it: "+key);
+        if (key.indexOf('/') >= 0) {
+            throw new ProgramLogicError(
+                    "Expecting a key value, but got something with a slash in it: " + key);
         }
         if (key.endsWith(".sp")) {
-            throw new ProgramLogicError("this has changed, and the key should no longer end with .sp: "+key);
+            throw new ProgramLogicError(
+                    "this has changed, and the key should no longer end with .sp: " + key);
         }
 
-        //get the sanitized form, just in case
+        // get the sanitized form, just in case
         String sanitizedKey = SectionUtil.sanitize(key);
         File newFilePath = getNewProjectPath(sanitizedKey);
         return createProjectAtPath(ar, newFilePath, sanitizedKey);
     }
 
-    public NGPage createProjectAtPath(AuthRequest ar, File newFilePath, String newKey) throws Exception {
+    public NGPage createProjectAtPath(AuthRequest ar, File newFilePath, String newKey)
+            throws Exception {
         assertPermissionToCreateProject(ar);
         if (newFilePath.exists()) {
-            throw new ProgramLogicError("Somehow the file given already exists: "+newFilePath);
+            throw new ProgramLogicError("Somehow the file given already exists: " + newFilePath);
         }
 
         Document newDoc = readOrCreateFile(newFilePath, "page");
@@ -981,18 +978,18 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
         newPage.setKey(newKey);
 
-        //make the current user the author, and member, of the new page
+        // make the current user the author, and member, of the new page
         newPage.addMemberToRole("Administrators", ar.getBestUserId());
-        newPage.addMemberToRole("Members",        ar.getBestUserId());
+        newPage.addMemberToRole("Members", ar.getBestUserId());
 
-        //register this into the page index
+        // register this into the page index
         NGPageIndex.makeIndex(newPage);
 
-        //add this new project into the user's watched projects list
-        //so it is easy for them to find later.
-        //Only do this if creating directly, and not through API
+        // add this new project into the user's watched projects list
+        // so it is easy for them to find later.
+        // Only do this if creating directly, and not through API
         UserProfile up = ar.getUserProfile();
-        if (up!=null) {
+        if (up != null) {
             up.setWatch(newPage.getKey(), ar.nowTime);
             UserManager.writeUserProfilesToFile();
         }
@@ -1001,8 +998,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     /**
-    * Sites have a set of licenses
-    */
+     * Sites have a set of licenses
+     */
     public Vector<License> getLicenses() throws Exception {
         Vector<LicenseRecord> vc = siteInfoRec.getChildren("license", LicenseRecord.class);
         Vector<License> v = new Vector<License>();
@@ -1035,8 +1032,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public License addLicense(String id) throws Exception {
-        LicenseRecord lr = siteInfoRec.createChildWithID("license", LicenseRecord.class, "id",
-                id);
+        LicenseRecord lr = siteInfoRec.createChildWithID("license", LicenseRecord.class, "id", id);
         return lr;
     }
 

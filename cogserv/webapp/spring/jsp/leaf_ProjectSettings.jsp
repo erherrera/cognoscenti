@@ -11,7 +11,7 @@
 %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <%
-/*
+    /*
 Required parameter:
 
     1. pageId : This is the id of a Project and used to retrieve NGPage.
@@ -20,12 +20,9 @@ Required parameter:
 
     String p = ar.reqParam("pageId");
     String path = ar.defParam("path",null);
-
-%><%!
-    AuthRequest ar=null;
+%><%!AuthRequest ar=null;
     String pageTitle="";
-    List r=null;
-%><%
+    List r=null;%><%
     String activeTab = "active";
     String inactiveTab = "inactive";
     NGPage  ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(p);
@@ -33,7 +30,7 @@ Required parameter:
 
     String[] names = ngp.getPageNames();
 
-    NGBook ngb = ngp.getAccount();
+    NGBook ngb = ngp.getSite();
     if (ngb==null)
     {
         throw new ProgramLogicError("Logic Error, should never get a null value from getAccount");
@@ -83,7 +80,6 @@ Required parameter:
         defUserName = defUserProf.getName();
         defConnectionName = cType.getDisplayName();
     }
-
 %>
     <style type="text/css">
         #mycontextmenu ul li {

@@ -1,8 +1,8 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="functions.jsp"
-%><%@page import="org.socialbiz.cog.AccountReqFile"
-%><%@page import="org.socialbiz.cog.spring.AccountRequest"
+%><%@page import="org.socialbiz.cog.SiteReqFile"
+%><%@page import="org.socialbiz.cog.spring.SiteRequest"
 %><%@page import="org.socialbiz.cog.SuperAdminLogFile"
 %><%@page import="org.socialbiz.cog.EmailSender"
 %><%@page import="org.socialbiz.cog.HTMLWriter"
@@ -14,19 +14,15 @@
     1. userKey : This id is the used to get UserProfile object from request attribute.
 
     */
-    String userKey = ar.reqParam("userKey");
-%><%!
-    String pageTitle = "";
-%><%
-    request.setCharacterEncoding("UTF-8");
+    String userKey = ar.reqParam("userKey");%><%!String pageTitle = "";%><%request.setCharacterEncoding("UTF-8");
 
     UserProfile uProf = UserManager.getUserProfileOrFail(userKey);
 
     boolean isSuper = ar.isSuperAdmin();
-    List<AccountRequest> allaccounts = AccountReqFile.getAccountsStatus();
-    List<AccountRequest> deniedAccounts = AccountReqFile.scanAllDeniedAccountRequests();
-    List<AccountRequest> superRequests = new ArrayList<AccountRequest>();
-    for (AccountRequest accountDetails: allaccounts)
+    List<SiteRequest> allaccounts = SiteReqFile.getAllSiteReqs();
+    List<SiteRequest> deniedAccounts = SiteReqFile.scanDeniedSiteReqs();
+    List<SiteRequest> superRequests = new ArrayList<SiteRequest>();
+    for (SiteRequest accountDetails: allaccounts)
     {   if (isSuper && accountDetails.getStatus().equalsIgnoreCase("requested"))
         {
             superRequests.add(accountDetails);

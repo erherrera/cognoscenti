@@ -295,7 +295,7 @@ public class CreateProjectController extends BaseController {
             ngPage.setUpstreamLink(upstream);
         }
 
-        ngPage.setAccount(site);
+        ngPage.setSite(site);
         ngPage.saveFile(ar, "Creating a project");
 
         NGPageIndex.makeIndex(ngPage);

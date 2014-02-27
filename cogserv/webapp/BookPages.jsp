@@ -49,8 +49,7 @@
         <div class="section_body">
 
 <%
-
-    Vector<NGPageIndex> v = NGPageIndex.getAllProjectsInAccount(ngb.key);
+    Vector<NGPageIndex> v = NGPageIndex.getAllProjectsInSite(ngb.key);
     if (v.size()>0)
     {
 %>
