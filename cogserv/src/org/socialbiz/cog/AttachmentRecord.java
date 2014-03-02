@@ -830,6 +830,9 @@ public class AttachmentRecord extends DOMFace {
         for (NGRole aRole : values) {
             roleNames.add(aRole.getName());
         }
+        //Since this is a 'set' type vector, always sort them so that they are
+        //stored in a consistent way ... so files are more easily compared
+        Collections.sort(roleNames);
         setVector("accessRole", roleNames);
     }
 

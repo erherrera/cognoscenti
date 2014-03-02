@@ -35,6 +35,9 @@
     }
     catch (Exception uu) {
         upstreamError = uu;
+        PrintWriter pw = new PrintWriter(System.out);
+        uu.printStackTrace(pw);
+        pw.flush();
     }
 
 %>
@@ -59,7 +62,8 @@
                     <%
                 }
                 else if (upstreamError!=null)  {
-                    %><i>Encountered an error accessing the upstream project: <%ar.writeHtml(upstreamError.toString());%></i><%
+                    %><i>Encountered an error accessing the upstream project: <%ar.writeHtml(upstreamError.toString());%></i>
+                    <%
                 }
                 else {
 

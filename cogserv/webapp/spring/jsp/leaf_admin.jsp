@@ -26,16 +26,6 @@
     String allTasksPage = ar.getResourceURL(ngp,"projectAllTasks.htm");
 
     String upstreamLink = ngp.getUpstreamLink();
-    Exception upstreamError = null;
-    RemoteProject rp = null;
-    ProjectSync ps = null;
-    try {
-        rp = new RemoteProject(upstreamLink);
-        ps = new ProjectSync(ngp, rp, ar, ngp.getLicenses().get(0).getId());
-    }
-    catch (Exception uu) {
-        upstreamError = uu;
-    }
 %>
 <script type="text/javascript" language="JavaScript">
     var isfreezed = '<%=ngp.isFrozen()%>';

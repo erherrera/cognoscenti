@@ -51,7 +51,7 @@ public class RemoteLicense implements License
     }
 
     public String getCreator() throws Exception {
-        return root.optString("id");
+        return root.optString("creator");
     }
 
     public void setCreator(String newVal) throws Exception {

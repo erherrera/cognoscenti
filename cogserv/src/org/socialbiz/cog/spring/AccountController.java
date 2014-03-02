@@ -621,7 +621,7 @@ public class AccountController extends BaseController {
 
             String roleName = ar.reqParam("roleList");
 
-            site.addMemberToRole(roleName,roleMember);
+            site.addPlayerToRole(roleName,roleMember);
             NGWebUtils.sendInviteEmail( ar, siteId, roleMember, roleName );
             site.saveFile(ar, "Add New Member ("+roleMember+") to Role "+roleName);
 

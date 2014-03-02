@@ -83,10 +83,18 @@ public class  SSOFIUserManager implements com.fujitsu.loginapplication.interface
      * It return a single object of UserProfile because only one profile exists for one global id.
      */
     public com.fujitsu.loginapplication.interfaces.UserProfile findUser(String globalId) throws Exception {
-        String id = processEmailType(globalId);
-        UserProfile user = UserManager.findUserByAnyId(id);
+        UserProfile user = UserManager.findUserByAnyId(globalId);
         if (user==null) {
-            return null;
+            //try again with the processed ID
+            //TODO: determine if this is still needed.  Seems questionable.
+            //current implementation requires that if you login with email provider
+            //you MUST also have that email, and assumes that you do not have the
+            //open id in the list.  Can that always be true?
+            String id = processEmailType(globalId);
+            user = UserManager.findUserByAnyId(id);
+            if (user==null) {
+                return null;
+            }
         }
         return new SSOFIUserProfile(user);
     }

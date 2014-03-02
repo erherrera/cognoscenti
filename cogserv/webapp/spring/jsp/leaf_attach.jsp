@@ -126,11 +126,7 @@
                <%
 
 
-                   attachmentSectionDisplay(ar, ngp, SectionDef.PUBLIC_ACCESS);
-                   if (ar.isMember())
-                   {
-                       attachmentSectionDisplay(ar, ngp, SectionDef.MEMBER_ACCESS);
-                   }
+                   writeAttachmentList(ar, ngp, SectionDef.PUBLIC_ACCESS);
                %>
                </tbody>
            </table>
@@ -499,3 +495,34 @@
     </div>
 </div>
 
+<%!
+
+    public void writeAttachmentList(AuthRequest ar, NGPage ngp, int displayLevel) throws Exception
+    {
+        UserProfile up = ar.getUserProfile();
+        List<NGRole> rolesPlayed = ngp.findRolesOfPlayer(up);
+        this.ngp = ngp;
+        List<HistoryRecord> histRecs = ngp.getAllHistory();
+        boolean canAccessAllDocs = ngp.primaryOrSecondaryPermission(up);
+        int count = 0;
+        for(AttachmentRecord attachment : ngp.getAllAttachments()) {
+            if (attachment.isDeleted()) {
+                continue;
+            }
+            boolean canAccess = canAccessAllDocs;
+            for (NGRole ngr : rolesPlayed) {
+                if (attachment.roleCanAccess(ngr.getName())) {
+                    canAccess = true;
+                }
+            }
+            if (!canAccess) {
+                continue;
+            }
+            writeAttachment(attachment,ar,histRecs,count);
+            count++;
+        }
+    }
+
+
+
+%>

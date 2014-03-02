@@ -979,8 +979,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
         newPage.setKey(newKey);
 
         // make the current user the author, and member, of the new page
-        newPage.addMemberToRole("Administrators", ar.getBestUserId());
-        newPage.addMemberToRole("Members", ar.getBestUserId());
+        newPage.addPlayerToRole("Administrators", ar.getBestUserId());
+        newPage.addPlayerToRole("Members", ar.getBestUserId());
 
         // register this into the page index
         NGPageIndex.makeIndex(newPage);

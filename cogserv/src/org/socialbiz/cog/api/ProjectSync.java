@@ -419,6 +419,7 @@ public class ProjectSync {
             else {
                 note = local.createNote();
                 note.setUniversalId(noteStat.universalId);
+                note.setUpstream(true);
             }
 
             URL url = new URL(noteStat.urlRemote);

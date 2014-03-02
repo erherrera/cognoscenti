@@ -19,7 +19,7 @@
             that is, there are no notes that would be viewable by the public.<br/>
             <br/>
             Use the <button class="inputBtn"
-            onClick="window.open('<%=ar.retPath%>t/texteditor.htm?pid=<% ar.writeURLData(ngp.getKey());%>&nid=&visibility_value=2')">
+            onClick="window.open('<%=getNoteEditorURL(ar, ngp, "")%>&visibility_value=2')">
             Create Note </button> link above
             to create notes both public and member only.
         </div>

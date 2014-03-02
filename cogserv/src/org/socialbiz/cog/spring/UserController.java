@@ -783,7 +783,7 @@ public class UserController extends BaseController {
 
                     if(isAdmin || (isExecutive && "Members".equals(roleName)) || noAdmin ) {
                         record.setState("Approved");
-                        page.addMemberToRole(roleName,requestedBy);
+                        page.addPlayerToRole(roleName,requestedBy);
                         isAdminOrExecutive = true;
                         if (isAdmin) {
                             previlageMsg = ar.getMessageFromPropertyFile("nugen.project.role.immediateapproval.admin", new Object[]{roleName});
@@ -876,7 +876,7 @@ public class UserController extends BaseController {
                 if(roleRequestRecord != null){
                     roleName = roleRequestRecord.getRoleName();
                     requestedBy = roleRequestRecord.getRequestedBy();
-                    project.addMemberToRole(roleName,requestedBy);
+                    project.addPlayerToRole(roleName,requestedBy);
                     roleRequestRecord.setState("Approved");
                     roleRequestRecord.setResponseDescription(responseDescription);
                     roleRequestRecord.setCompleted(true);

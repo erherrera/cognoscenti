@@ -22,6 +22,7 @@ package org.socialbiz.cog;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Vector;
 
 import org.json.JSONObject;
@@ -575,6 +576,70 @@ public class NoteRecord extends DOMFace
      public void setUniversalId(String newID) throws Exception {
          setScalar("universalid", newID);
      }
+
+
+     /**
+      * getAccessRoles retuns a list of NGRoles which have access to this document.
+      * Admin role and Member role are assumed automatically, and are not in this list.
+      * This list contains only the extra roles that have access for non-members.
+      */
+     public List<NGRole> getAccessRoles(NGContainer ngp) throws Exception {
+         Vector<NGRole> res = new Vector<NGRole>();
+         Vector<String> roleNames = getVector("accessRole");
+         for (String name : roleNames) {
+             NGRole aRole = ngp.getRole(name);
+             if (aRole!=null) {
+                 if (!res.contains(aRole)) {
+                     res.add(aRole);
+                 }
+             }
+         }
+         return res;
+     }
+
+     /**
+      * setAccessRoles sets the list of NGRoles which have access for non-members.
+      * You should not specify Admin or Members in this list.
+      */
+     public void setAccessRoles(List<NGRole> values) throws Exception {
+         Vector<String> roleNames = new Vector<String>();
+         for (NGRole aRole : values) {
+             roleNames.add(aRole.getName());
+         }
+         //Since this is a 'set' type vector, always sort them so that they are
+         //stored in a consistent way ... so files are more easily compared
+         Collections.sort(roleNames);
+         setVector("accessRole", roleNames);
+     }
+
+     /**
+      * check if a particular role has access to the particular file.
+      * Just handles the 'special' roles, and does not take into consideration
+      * the Members or Admin roles, nor whether the attachment is public.
+      */
+      public boolean roleCanAccess(String roleName) {
+          Vector<String> roleNames = getVector("accessRole");
+          for (String name : roleNames) {
+              if (roleName.equals(name)) {
+                  return true;
+              }
+          }
+          return false;
+      }
+
+      public boolean isUpstream() {
+          String delAttr = getAttribute("upstreamAccess");
+          return (delAttr!=null && delAttr.length()>0);
+      }
+      public void setUpstream(boolean val) {
+          if (val) {
+              setAttribute("upstreamAccess", "yes");
+          }
+          else {
+              setAttribute("upstreamAccess", null);
+          }
+      }
+
 
      public JSONObject getJSON4Note(String urlRoot, boolean withData) throws Exception {
          JSONObject thisNote = new JSONObject();

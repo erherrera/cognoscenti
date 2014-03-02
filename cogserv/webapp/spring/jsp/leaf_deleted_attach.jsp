@@ -192,3 +192,22 @@
                                 + oRecord.getData("attachmentName") + '</a>';
         };
     </script>
+
+
+<%!
+    public void deletedAttachmentSectionDisplay(AuthRequest ar, NGContainer ngp) throws Exception
+    {
+        UserProfile up = ar.getUserProfile();
+        this.ngp = ngp;
+        List<HistoryRecord> histRecs = ngp.getAllHistory();
+        int count = 0;
+        for(AttachmentRecord attachment : ngp.getAllAttachments()) {
+            if (!attachment.isDeleted()) {
+                continue;
+            }
+            writeAttachment(attachment,ar,histRecs,count);
+            count++;
+        }
+    }
+
+%>

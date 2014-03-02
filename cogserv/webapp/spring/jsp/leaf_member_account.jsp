@@ -2,7 +2,7 @@
 %><%@ include file="/spring/jsp/leaf_AccountHome.jsp"
 %><%
     if (ar.isMember()){
-        displayCreatLeaf(ar,ngb);
+        displayCreatLeafOnSite(ar,ngb);
     }
 %>
 <div class="content tab01">
