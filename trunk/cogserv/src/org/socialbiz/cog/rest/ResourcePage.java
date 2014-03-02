@@ -440,11 +440,11 @@ public class ResourcePage implements NGResource
             String accessreq = DOMUtils.textValueOfChild(element_user, "accesslevel", true);
             if(accessreq.equals(ACCESS_AUTHOR)
                     && lar.isAdmin()){
-                ngp.addMemberToRole("Administrators", userid);
+                ngp.addPlayerToRole("Administrators", userid);
             }
             else if(accessreq.equals(ACCESS_MEMBER)
                 && lar.isMember()){
-                ngp.addMemberToRole("Members", userid);
+                ngp.addPlayerToRole("Members", userid);
             }
             else if(accessreq.equals(ACCESS_REMOVE)
                 && lar.isAdmin()){

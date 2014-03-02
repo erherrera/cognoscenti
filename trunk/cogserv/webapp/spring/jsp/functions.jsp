@@ -82,7 +82,7 @@ Optional Parameters:
     {
         if (t==null) {
             return;  //treat it like an empty string
-    }
+        }
         for (int i=0; i<t.length(); i++) {
 
             char c = t.charAt(i);
@@ -136,6 +136,26 @@ Optional Parameters:
     }
 
 
+    public String getSiteRootURL(AuthRequest ar, NGBook site) {
+        String pageRootURL = ar.retPath + "t/"+site.getKey()+"/$/";
+        return pageRootURL;
+    }
+    public String getProjectRootURL(AuthRequest ar, NGPage ngp) {
+        NGBook site = ngp.getSite();
+        String pageRootURL = ar.retPath + "t/"+site.getKey()+"/"+ngp.getKey()+"/";
+        return pageRootURL;
+    }
+    public String getNoteEditorURL(AuthRequest ar, NGContainer ngc, String noteId) {
+        return ar.retPath + "t/texteditor.htm?pid=" + ngc.getKey() + "&nid=" + noteId;
+        /*
+        if (ngc instanceof NGBook) {
+            return getSiteRootURL(ar, (NGPage)ngc) + "note" + noteId + "/noteEditor.htm";
+        }
+        else {
+            return getProjectRootURL(ar, (NGPage)ngc) + "note" + noteId + "/noteEditor.htm";
+        }
+        */
+    }
 
 
     /**
@@ -255,14 +275,18 @@ Optional Parameters:
         return ar.getResourceURL(ngp,"projectHome.htm");
     }
 
-    public void displayCreatLeaf(AuthRequest ar, NGContainer ngc) throws Exception{
+    public void displayCreatLeaf(AuthRequest ar, NGPage ngc) throws Exception{
+        String pageRootURL = getProjectRootURL(ar, ngc);
         if(ar.isLoggedIn()){
+            NGBook site  = ngc.getSite();
+
             ar.write("\n<div class=\"createLeaf\">");
 
-            String editorUrl = ar.retPath + "t/texteditor.htm?pid="+SectionUtil.encodeURLData(ngc.getKey())
-                + "&nid=" +"&visibility_value="+ar.defParam("visibility_value","0");
+            String createNoteUrl = pageRootURL+"note/noteEditor.htm&visibility_value="
+                +ar.defParam("visibility_value","0");
+
             ar.write("\n<a id=\"create_leaflet\" href=\"");
-            ar.writeHtml(editorUrl);
+            ar.writeHtml(createNoteUrl);
             ar.write("\" title=\"tiny_mce_editor\"  target=\"_blank\">");
             ar.write("Create Note</a>&nbsp;");
 
@@ -278,7 +302,7 @@ Optional Parameters:
 
             if(ngc instanceof NGPage){
                 //Adding Export to PDF for NGPage only, will add in Site as well if required
-                String pdflink =ar.retPath + "t/" + ((NGPage)ngc).getSite().getKey()+"/"+ngc.getKey()+"/exportPDF.htm";
+                String pdflink =pageRootURL + "exportPDF.htm";
                 ar.write("&nbsp;&nbsp;&nbsp;<a id=\"exportToPdf\" href=\"");
                 ar.writeHtml(pdflink);
                 ar.write("\" title=\"Generate a PDF of this note for printing.\"><img src=\"");
@@ -289,6 +313,35 @@ Optional Parameters:
             ar.write("</div>");
         }
     }
+
+    public void displayCreatLeafOnSite(AuthRequest ar, NGBook site) throws Exception{
+        String pageRootURL = ar.retPath + "t/"+site.getKey()+"/$/";
+        if(ar.isLoggedIn()){
+
+            ar.write("\n<div class=\"createLeaf\">");
+
+            String createNoteUrl = pageRootURL+"note/noteEditor.htm&visibility_value="
+                +ar.defParam("visibility_value","0");
+
+            ar.write("\n<a id=\"create_leaflet\" href=\"");
+            ar.writeHtml(createNoteUrl);
+            ar.write("\" title=\"tiny_mce_editor\"  target=\"_blank\">");
+            ar.write("Create Note</a>&nbsp;");
+
+            ar.write("\n<a name=\"expand_collapse");
+            ar.write("\" id=\"expand_collapse\" title=\"Expand All\" href=\"#");
+            ar.write("\" onclick=\"return expandCollapseAll('");
+            ar.writeHtml(ar.retPath);
+            ar.write("');\">");
+
+
+            ar.write("[+] Expand All");
+            ar.write("</a>");
+
+            ar.write("</div>");
+        }
+    }
+
     public int displayAllLeaflets(AuthRequest ar, NGContainer ngp, int displayLevel)
             throws Exception {
         return displayListOfNotes(ar, ngp, ngp.getVisibleNotes(ar,displayLevel));
@@ -412,8 +465,7 @@ Optional Parameters:
             ar.writeHtml(ar.retPath);
             ar.write("assets/images/iconEditNote.gif\" width=\"17\" height=\"15\" alt=\"\" />");
 
-            String editorUrl = ar.retPath + "t/texteditor.htm?pid="+ SectionUtil.encodeURLData(ngp.getKey())
-                + "&nid=" +  SectionUtil.encodeURLData(cr.getId());
+            String editorUrl = getNoteEditorURL(ar, ngp, cr.getId());
             ar.write("\n<a href=\"");
             ar.writeHtml(editorUrl);
             ar.write("\" title=\"tiny_mce_editor\" target=\"_blank\">");
@@ -734,8 +786,7 @@ Optional Parameters:
                 ar.write("assets/images/iconEditNote.gif\" width=\"17\" height=\"15\" alt=\"\" />");
 
                 if(!ngp.isFrozen()){
-                    String editorUrl = ar.retPath + "t/texteditor.htm?pid="+ SectionUtil.encodeURLData(ngp.getKey())
-                        + "&nid=" +  SectionUtil.encodeURLData(cr.getId());
+                    String editorUrl = getNoteEditorURL(ar,ngp,cr.getId());
                     ar.write("\n<a id=\"hreflink_");
                     ar.writeHtml(divid);
                     ar.write("\" href=\"");

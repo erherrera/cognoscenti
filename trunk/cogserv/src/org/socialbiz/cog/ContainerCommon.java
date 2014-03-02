@@ -415,10 +415,23 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
     /**
     * just a shortcut for getRole(roleName).addPlayer(newMember)
     */
-    public void addMemberToRole(String roleName,String newMember)throws Exception
+    public void addPlayerToRole(String roleName,String newMember)throws Exception
     {
         NGRole role= getRoleOrFail(roleName);
         role.addPlayer(new AddressListEntry(newMember));
+    }
+
+    public List<NGRole> findRolesOfPlayer(UserRef user) throws Exception {
+        Vector<NGRole> res = new Vector<NGRole>();
+        if (user==null) {
+            return res;
+        }
+        for (NGRole role : getAllRoles()) {
+            if (role.isExpandedPlayer(user, this)) {
+                res.add(role);
+            }
+        }
+        return res;
     }
 
     //////////////////// HISTORY ///////////////////////

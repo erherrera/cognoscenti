@@ -21,7 +21,7 @@
             them.  Later, they can be published to the members or to the public.<br/>
             <br/>
             Use the <button class="inputBtn"
-            onClick="window.open('<%=ar.retPath%>t/texteditor.htm?pid=<% ar.writeURLData(ngp.getKey());%>&nid=&visibility_value=2')">
+            onClick="window.open('<%=getNoteEditorURL(ar, ngp, "")%>&visibility_value=2')">
             Create Note </button> link above
             to create notes and the "Save as Draft" option will create a draft note.
         </div>

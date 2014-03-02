@@ -84,7 +84,7 @@ public class CreateProjectController extends BaseController {
                 Vector<String> roleMembers = parseFullname(ar.reqParam("rolemember"));
                 String roleName = ar.reqParam("roleList");
                 for (String newUser : roleMembers) {
-                    page.addMemberToRole(roleName,newUser);
+                    page.addPlayerToRole(roleName,newUser);
                     NGWebUtils.sendInviteEmail( ar, pageId, newUser, roleName );
                     HistoryRecord.createHistoryRecord(page,newUser,HistoryRecord.CONTEXT_TYPE_PERMISSIONS,
                             0,HistoryRecord.EVENT_PLAYER_ADDED, ar, roleName);

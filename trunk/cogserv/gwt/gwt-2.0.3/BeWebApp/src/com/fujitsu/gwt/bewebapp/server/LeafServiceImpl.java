@@ -18,6 +18,7 @@ import org.socialbiz.cog.HistoryRecord;
 import org.socialbiz.cog.HtmlToWikiConverter;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.NGContainer;
+import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.SectionDef;
@@ -33,7 +34,6 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
 
     public static Hashtable ntfxList = new Hashtable();
     public LeafData[] getNotes(String pageId)throws IllegalArgumentException{
-        //return getDummyData();
         return getServerNotes(pageId);
     }
 
@@ -45,6 +45,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             ar = AuthRequest.getOrCreate(this.getThreadLocalRequest(), this.getThreadLocalResponse());
             NGContainer ngc = NGPageIndex.getContainerByKeyOrFail(pageId);
             ar.setPageAccessLevels(ngc);
+
 
             boolean isMember = false;
             String userId = null;
@@ -67,7 +68,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             List<NoteRecord> notes = ngc.getVisibleNotes(ar, SectionDef.PUBLIC_ACCESS);
             boolean details = true;
             for (NoteRecord note : notes){
-                LeafData ldata = getLeafData(note, isMember, userId, pageId, cTime, details);
+                LeafData ldata = getLeafData(note, isMember, userId, ngc, cTime, details);
                 details = false;
                 comments.add(ldata);
             }
@@ -76,14 +77,14 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
                 notes = ngc.getVisibleNotes(ar, SectionDef.MEMBER_ACCESS);
                 details = true;
                 for (NoteRecord note : notes){
-                    LeafData ldata = getLeafData(note, isMember, userId, pageId, cTime, details);
+                    LeafData ldata = getLeafData(note, isMember, userId, ngc, cTime, details);
                     details = false;
                     comments.add(ldata);
                 }
                 notes = ngc.getVisibleNotes(ar, SectionDef.PRIVATE_ACCESS);
                 details = true;
                 for (NoteRecord note : notes){
-                    LeafData ldata = getLeafData(note, isMember, userId, pageId, cTime, details);
+                    LeafData ldata = getLeafData(note, isMember, userId, ngc, cTime, details);
                     details = false;
                     comments.add(ldata);
                 }
@@ -91,7 +92,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
                 notes = ngc.getVisibleNotes(ar, SectionDef.ADMIN_ACCESS);
                 details = true;
                 for (NoteRecord note : notes){
-                    LeafData ldata = getLeafData(note, isMember, userId, pageId, cTime, details);
+                    LeafData ldata = getLeafData(note, isMember, userId, ngc, cTime, details);
                     details = false;
                     comments.add(ldata);
                 }
@@ -139,6 +140,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             cr.setData(wikiText);
             cr.setSubject(leafData.getSubject());
             cr.setVisibility(leafData.getVisibility());
+            cr.setUpstream(leafData.isUpstream());
             cr.setLastEdited(ar.nowTime);
             cr.setLastEditedBy(ar.getBestUserId());
             if(leafData.getEffectiveDate()> ar.nowTime){
@@ -161,18 +163,30 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             }else{
                 cr.setSaveAsDraft("no");
             }
+
+            Vector<NGRole> checkedRoles = new Vector<NGRole>();
+            for (String roleName : leafData.checkedRoles) {
+                NGRole role = ngc.getRole(roleName);
+                if (role!=null) {
+                    //roles can be removed from a project, so ignore any unexpected names
+                    checkedRoles.add(role);
+                }
+            }
+            cr.setAccessRoles(checkedRoles);
+
             ngc.saveContent(ar, "updating  note id:" + cr.getId());
             HistoryRecord.createHistoryRecord(ngc, cr.getId(),
                     HistoryRecord.CONTEXT_TYPE_LEAFLET,0, HistoryRecord.EVENT_TYPE_MODIFIED,
                     ar, "");
-            LeafData ldata = getLeafData(cr, isMember, userId, pageId, cTime, true);
+            LeafData ldata = getLeafData(cr, isMember, userId, ngc, cTime, true);
             return ldata;
 
         }catch(Exception e){
+            IllegalArgumentException iae = new IllegalArgumentException("Failed to save note: " + leafData.getId(), e);
             if(ar != null){
-                ar.logException("Failed to save note: " + leafData.getId(), e);
+                ar.logException("LeafServiceImpl caught exception: ", iae);
             }
-            throw new IllegalArgumentException("Failed to save note: " + leafData.getId());
+            throw iae;
         }
         finally{
             NGPageIndex.clearLocksHeldByThisThread();
@@ -231,7 +245,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
                     HistoryRecord.CONTEXT_TYPE_LEAFLET,0, HistoryRecord.EVENT_TYPE_CREATED,
                     ar, "");
 
-            LeafData ldata = getLeafData(cr, isMember, userId, pageId, cTime, true);
+            LeafData ldata = getLeafData(cr, isMember, userId, ngc, cTime, true);
             return ldata;
 
         }catch(Exception e){
@@ -286,7 +300,7 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             }
 
             NoteRecord lr = ngc.getNote(id);
-            LeafData ldata = getLeafData(lr, isMember, userId, pageId, cTime, true);
+            LeafData ldata = getLeafData(lr, isMember, userId, ngc, cTime, true);
             return ldata;
 
         }catch(Exception e){
@@ -305,15 +319,17 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
             NoteRecord lr,
             boolean isMember,
             String userId,
-            String pageId,
+            NGContainer ngc,
             long cTime,
             boolean detail)throws Exception{
+
         LeafData ldata = new LeafData();
         ldata.setIsMember(isMember);
         ldata.setUserId(userId);
         ldata.setId(lr.getId());
-        ldata.setPageId(pageId);
+        ldata.setPageId(ngc.getKey());
         ldata.setVisibility(lr.getVisibility());
+        ldata.setUpstream(lr.isUpstream());
         ldata.setSubject(lr.getSubject());
 
         String headerText = lr.getSubject();
@@ -359,6 +375,33 @@ public class LeafServiceImpl extends RemoteServiceServlet implements LeafService
         ldata.setPinPosition(String.valueOf(lr.getPinOrder()));
 
         ldata.setIsDraft(lr.isDraftNote());
+
+        NGRole primaryRole = ngc.getPrimaryRole();
+        String primaryRoleName = primaryRole.getName();
+        NGRole secondaryRole = ngc.getSecondaryRole();
+        String secondaryRoleName = secondaryRole.getName();
+
+        List<NGRole> allRoles = ngc.getAllRoles();
+        List<NGRole> checkedRoles = lr.getAccessRoles(ngc);
+        ldata.allRoles = new String[allRoles.size()-2];
+        ldata.checkedRoles = new String[checkedRoles.size()];
+        int i=0;
+        for (NGRole role : allRoles) {
+            String roleName = role.getName();
+            if (roleName.equals(primaryRoleName)) {
+                continue;
+            }
+            if (roleName.equals(secondaryRoleName)) {
+                continue;
+            }
+            ldata.allRoles[i] = roleName;
+            i++;
+        }
+        i=0;
+        for (NGRole role : checkedRoles) {
+            ldata.checkedRoles[i] = role.getName();
+            i++;
+        }
 
         return ldata;
     }

@@ -165,7 +165,8 @@ public interface NGContainer
     public abstract List<RoleRequestRecord> getAllRoleRequest() throws Exception;
 
     public abstract RoleRequestRecord createRoleRequest(String roleName, String requestedBy,long modifiedDate, String modifiedBy, String requestDescription) throws Exception;
-    public abstract void addMemberToRole(String roleName,String newMember)throws Exception;
+    public abstract void addPlayerToRole(String roleName,String newMember)throws Exception;
+    public abstract List<NGRole> findRolesOfPlayer(UserRef user) throws Exception;
 
 
 

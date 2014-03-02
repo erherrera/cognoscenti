@@ -28,11 +28,7 @@
     long timeout = (DOMFace.safeConvertLong(duration)*24000*3600) + ar.nowTime;
 
     if (action.equals("Create License") || action.equals("Create New Streaming Link")) {
-        if (!readOnly) {throw new Exception("why is this not read only");}
         License lr = ngp.createLicense(ar.getBestUserId(), ar.reqParam("role"), timeout, readOnly);
-        if (lr.isReadOnly() != readOnly) {
-            throw new Exception("Tried to set readOnly to "+readOnly+" but it was not preserved.");
-        }
         ngp.saveFile(ar, action);
     }
 

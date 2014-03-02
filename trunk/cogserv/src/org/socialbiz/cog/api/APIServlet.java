@@ -28,6 +28,7 @@ import org.socialbiz.cog.MimeTypes;
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
+import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.SectionUtil;
 import org.socialbiz.cog.SectionWiki;
@@ -41,6 +42,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URLEncoder;
+import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -435,7 +437,6 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             throw new Exception("The license ("+resDec.licenseId+") has expired.  "
                     +"To exchange information, you will need to get an updated license");
         }
-        //License lic = site.getLicense(resDec.licenseId);
         JSONObject root = new JSONObject();
 
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/$/";
@@ -469,6 +470,8 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         root.put("license", getLicenseInfo(resDec.lic));
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/" + resDec.projId + "/";
 
+        String role = resDec.lic.getRole();
+
         JSONArray goals = new JSONArray();
         for (GoalRecord goal : resDec.project.getAllGoals()) {
             JSONObject thisGoal = goal.getJSON4Goal(resDec.project, urlRoot);
@@ -485,6 +488,9 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
                 continue;
             }
             if (!"FILE".equals(att.getType())) {
+                continue;
+            }
+            if (!att.roleCanAccess(role)) {
                 continue;
             }
             JSONObject thisDoc = new JSONObject();

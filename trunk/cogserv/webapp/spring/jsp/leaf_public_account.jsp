@@ -1,6 +1,6 @@
 <%@ include file="/spring/jsp/leaf_AccountHome.jsp"
 %><%
-    displayCreatLeaf(ar,ngb);
+    displayCreatLeafOnSite(ar,ngb);
 %>
     <div class="content tab01">
     <%

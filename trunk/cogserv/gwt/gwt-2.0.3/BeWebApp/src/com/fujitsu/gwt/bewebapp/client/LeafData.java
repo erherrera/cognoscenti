@@ -10,6 +10,7 @@ public class LeafData implements IsSerializable {
     private String subject;
     private String data;
     private int visibility;
+    private boolean upstream = false;
     private String userId;
     private boolean isMember = false;
     private boolean dataLoaded = false;
@@ -19,6 +20,8 @@ public class LeafData implements IsSerializable {
     private long effectiveDate = -1;
     private String pinPos;
     private boolean isDraft = false;
+    public String[] allRoles;
+    public String[] checkedRoles;
 
     public String getId()
     {
@@ -133,6 +136,11 @@ public class LeafData implements IsSerializable {
          this.isDraft = isDraft;
      }
 
-
+     public boolean isUpstream(){
+         return upstream;
+     }
+     public void setUpstream(boolean ups){
+         this.upstream = ups;
+     }
 
 }

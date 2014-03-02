@@ -13,16 +13,18 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
+import java.util.Iterator;
+import java.util.Vector;
 
 public class NoteEditor implements ClickHandler{
 
     LeafData lfdata = null;
-    private int currentAccessLevel;
 
     private Label subjLabel;
     private Label bodyLabel;
@@ -41,8 +43,9 @@ public class NoteEditor implements ClickHandler{
     private Button editSaveAsDraftBtn;
     private Button editSaveBtn;
 
-    private RadioButton optionPublic;
-    private RadioButton optionMember;
+    private CheckBox optionPublic;
+    private CheckBox optionMember;
+    private CheckBox optionUpstream;
     private RadioButton optionEditedByYou;
     private RadioButton optionEditedByMember;
 
@@ -51,6 +54,7 @@ public class NoteEditor implements ClickHandler{
     private HorizontalPanel editVisibility;
     private HorizontalPanel editBody;
     private HorizontalPanel editByPanel;
+    private HorizontalPanel rolePanel;
     private HorizontalPanel effectiveDatePanel;
     private HorizontalPanel pinPositionPanel;
     private HorizontalPanel choicePanel;
@@ -63,21 +67,17 @@ public class NoteEditor implements ClickHandler{
     public NoteEditor(LeafData lfdata, VerticalPanel mainPanel) {
         this.dialogEPanel = mainPanel;
         this.lfdata = lfdata;
-        this.currentAccessLevel = lfdata.getVisibility();
     }
 
     public void initEditPanel(){
-        subjLabel = new Label("Subject:");
-        subjLabel.setStyleName("gridTableColummHeader_3");
+        subjLabel = buildLabel("Subject:");
         subjText = new TextBox();
         subjText.setStyleName("inputGeneralBig");
 
         editSubjPanel = new HorizontalPanel();
-        //editSubjPanel.setWidth("100%");
         editSubjPanel.add(subjLabel);
         editSubjPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
         editSubjPanel.add(subjText);
-        //editSubjPanel.setCellWidth(subjText, "60%");
         editSubjPanel.add(new HTML("&nbsp;&nbsp;"));
 
         editCancelBtn = new Button("Close");
@@ -102,27 +102,27 @@ public class NoteEditor implements ClickHandler{
         editBarPanel.add(new HTML("&nbsp"));
         editBarPanel.add(editSaveAsDraftBtn);
 
-        visibleLabel = new Label("Visible To:");
-        visibleLabel.setStyleName("gridTableColummHeader_3");
-        optionPublic = new RadioButton("LfAccess", "Public");
-        optionMember = new RadioButton("LfAccess", "Member");
+        visibleLabel = buildLabel("Visible To:");
+        optionPublic = new CheckBox("Public");
+        optionPublic.setValue(lfdata.getVisibility() == 1);
+        optionMember = new CheckBox("Member");
+        optionMember.setValue(true);
+        optionMember.setEnabled(false);
+        optionUpstream = new CheckBox("Upstream");
+        optionUpstream.setValue(lfdata.isUpstream());
+
 
         editVisibility = new HorizontalPanel();
         editVisibility.add(visibleLabel);
         editVisibility.add(new HTML("&nbsp;&nbsp;&nbsp;"));
         editVisibility.add(optionPublic);
-        editVisibility.add(new HTML("&nbsp;"));
+        editVisibility.add(new HTML(" &nbsp; &nbsp; "));
         editVisibility.add(optionMember);
+        editVisibility.add(new HTML(" &nbsp; &nbsp; "));
+        editVisibility.add(optionUpstream);
 
 
-        if(currentAccessLevel == 1){
-            optionPublic.setValue(true);
-        }else if(currentAccessLevel == 2){
-            optionMember.setValue(true);
-        }
-
-        editedByLabel = new Label("Edited By:");
-        editedByLabel.setStyleName("gridTableColummHeader_3");
+        editedByLabel = buildLabel("Edited By:");
         optionEditedByYou = new RadioButton("LeditedBy", "Only You");
         optionEditedByMember =  new RadioButton("LeditedBy", "Any Project Member ");
         int editByValue = lfdata.getEditedBy();
@@ -140,11 +140,25 @@ public class NoteEditor implements ClickHandler{
         editByPanel.add(editedByLabel);
         editByPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
         editByPanel.add(optionEditedByYou);
-        editByPanel.add(new HTML("&nbsp"));
+        editByPanel.add(new HTML(" &nbsp &nbsp "));
         editByPanel.add(optionEditedByMember);
 
-        effectiveDateLabel = new Label("Effective Date:");
-        effectiveDateLabel.setStyleName("gridTableColummHeader_3");
+        rolePanel = new HorizontalPanel();
+        rolePanel.add(buildLabel("Role Access:"));
+        rolePanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
+        for (String roleName : lfdata.allRoles) {
+            CheckBox cb = new CheckBox(roleName);
+            cb.setName(roleName);
+            for (String checkedName : lfdata.checkedRoles) {
+                if (checkedName.equals(roleName)) {
+                    cb.setValue(true);
+                }
+            }
+            rolePanel.add(cb);
+            rolePanel.add(new HTML(" &nbsp &nbsp "));
+        }
+
+        effectiveDateLabel = buildLabel("Effective Date:");
 
         DateTimeFormat dateFormat = DateTimeFormat.getLongDateFormat();
         effectiveDate = new DateBox();
@@ -162,8 +176,7 @@ public class NoteEditor implements ClickHandler{
         effectiveDatePanel.add(effectiveDate);
 
 
-        pinPositionLabel = new Label("Pin Position:");
-        pinPositionLabel.setStyleName("gridTableColummHeader_3");
+        pinPositionLabel = buildLabel("Pin Position:");
         pinPos = new TextBox();
         pinPos.setText(lfdata.getPinPosition());
         pinPos.setStyleName("inputGeneralSmall");
@@ -173,8 +186,7 @@ public class NoteEditor implements ClickHandler{
         pinPositionPanel.add(new HTML("&nbsp;&nbsp;&nbsp;"));
         pinPositionPanel.add(pinPos);
 
-        choiceLable = new Label("Choices:");
-        choiceLable.setStyleName("gridTableColummHeader_3");
+        choiceLable = buildLabel("Choices:");
         choices = new TextBox();
         choices.setText(lfdata.getChoice());
         choices.setStyleName("inputGeneralUrl");
@@ -185,7 +197,6 @@ public class NoteEditor implements ClickHandler{
         choicePanel.add(choices);
 
         dialogEPanel.setSpacing(5);
-        //dialogEPanel.setBorderWidth(3);
         dialogEPanel.addStyleName("dialogVPanel");
         dialogEPanel.setTitle("Note Editor");
         dialogEPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
@@ -193,10 +204,8 @@ public class NoteEditor implements ClickHandler{
         dialogEPanel.add(new HTML("<br><br>"));
         dialogEPanel.setHorizontalAlignment(VerticalPanel.ALIGN_LEFT);
         dialogEPanel.add(editSubjPanel);
-        //dialogEPanel.add(editSubjPanel);
 
-        bodyLabel = new Label("Body:");
-        bodyLabel.setStyleName("gridTableColummHeader_3");
+        bodyLabel = buildLabel("Body:");
 
         subjText.setText(lfdata.getSubject());
         tinyMCE  = new TinyMCE(30,30,lfdata.getData());
@@ -209,6 +218,7 @@ public class NoteEditor implements ClickHandler{
         dialogEPanel.add(editBody);
         dialogEPanel.add(new HTML("<br>"));
         dialogEPanel.add(editVisibility);
+        dialogEPanel.add(rolePanel);
         dialogEPanel.add(new HTML("<br>"));
         dialogEPanel.add(editByPanel);
         dialogEPanel.add(new HTML("<br>"));
@@ -220,11 +230,16 @@ public class NoteEditor implements ClickHandler{
 
     }
 
+    private Label buildLabel(String labelText) {
+        Label x = new Label(labelText);
+        x.setStyleName("gridTableColummHeader_3");
+        return x;
+    }
+
     public void initCreatePanel(){
         isNew = true;
         editSaveAsDraftBtn.setText("Save as Draft");
         editSaveAsDraftBtn.setVisible(true);
-        //optionPublic.setValue(true);
     }
 
 
@@ -283,9 +298,10 @@ public class NoteEditor implements ClickHandler{
         tmpLeaf.setData(txt);
         if(optionPublic.getValue()){
             tmpLeaf.setVisibility(1);
-        }else if(this.optionMember.getValue()){
+        }else {
             tmpLeaf.setVisibility(2);
         }
+        tmpLeaf.setUpstream(optionUpstream.getValue());
 
         if(optionEditedByYou.getValue()){
             tmpLeaf.setEditedBy(1);
@@ -300,6 +316,26 @@ public class NoteEditor implements ClickHandler{
         tmpLeaf.setPageId(lfdata.getPageId());
 
         tmpLeaf.setIsDraft(lfdata.isDraft());
+
+        //Role Access
+        //walk through the panel, get all the check boxes for role access
+        //see which ones are checked, and put that in the data going back.
+        Iterator<Widget> iter = rolePanel.iterator();
+        Vector<String> allRoles = new Vector<String>();
+        Vector<String> checkedRoles = new Vector<String>();
+        while (iter.hasNext()) {
+            Widget ww = iter.next();
+            if (ww instanceof CheckBox) {
+                CheckBox cb = (CheckBox) ww;
+                String name = cb.getName();
+                if (cb.getValue()) {
+                    checkedRoles.add(name);
+                }
+            }
+        }
+        tmpLeaf.checkedRoles = new String[checkedRoles.size()];
+        checkedRoles.copyInto(tmpLeaf.checkedRoles);
+
 
         return tmpLeaf;
 
