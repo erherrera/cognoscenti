@@ -214,17 +214,24 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             String op, JSONObject objIn) throws Exception {
         JSONObject responseOK = new JSONObject();
         responseOK.put("responseCode", 200);
-        //String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/$/";
 
         if ("ping".equals(op)) {
             objIn.put("responseCode", 200);
             return objIn;
         }
 
+        if (resDec.site==null) {
+            throw new Exception("Unable to fine a site with the id: "+resDec.siteId);
+        }
         if (!resDec.site.isSiteFolderStructure()) {
             throw new Exception("This operation requires a site that is structured with site-folder structure");
         }
+        if (!resDec.site.isValidLicense(resDec.lic, ar.nowTime)) {
+            throw new Exception("The license ("+resDec.licenseId+") has expired.  "
+                    +"To exchange information, you will need to get an updated license");
+        }
 
+        responseOK.put("license", getLicenseInfo(resDec.lic));
         if ("createProject".equals(op)) {
             if (!"$".equals(resDec.projId)) {
                 throw new Exception("create project can only be called on a site URL, not project: "+resDec.projId);
@@ -263,6 +270,22 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             objIn.put("responseCode", 200);
             return objIn;
         }
+
+
+        NGPage ngp = resDec.project;
+        if (ngp == null) {
+            throw new Exception("Unable to find a project with the id "+resDec.projId);
+        }
+        if (resDec.lic == null) {
+            throw new Exception("Unable to find a license with the id "+resDec.licenseId);
+        }
+        if (!ngp.isValidLicense(resDec.lic, ar.nowTime)) {
+            throw new Exception("The license ("+resDec.licenseId+") has expired.  "
+                    +"To exchange information, you will need to get an updated license");
+        }
+
+        responseOK.put("license", getLicenseInfo(resDec.lic));
+
 
         if (!resDec.site.isSiteFolderStructure()) {
             throw new Exception("This operation requires a site that is structured with site-folder structure");
@@ -361,6 +384,10 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
     private void streamException(Exception e, AuthRequest ar) {
         try {
+            //all exceptions are delayed by 3 seconds to avoid attempts to
+            //mine for valid license numbers
+            Thread.sleep(3000);
+
             System.out.println("API_ERROR: "+ar.getCompleteURL());
 
             ar.logException("API Servlet", e);
@@ -401,10 +428,14 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             //this is probably unnecessary, having hit an exception earlier, but just begin sure
             throw new Exception("Something is wrong, can not find a site object.");
         }
-        if (resDec.licenseId == null || resDec.licenseId.length()==0) {
+        if (resDec.licenseId == null || resDec.licenseId.length()==0 || resDec.lic==null) {
             throw new Exception("All operations on the site need to be licensed, but did not get a license id in that URL.");
         }
-        License lic = site.getLicense(resDec.licenseId);
+        if (!site.isValidLicense(resDec.lic, ar.nowTime)) {
+            throw new Exception("The license ("+resDec.licenseId+") has expired.  "
+                    +"To exchange information, you will need to get an updated license");
+        }
+        //License lic = site.getLicense(resDec.licenseId);
         JSONObject root = new JSONObject();
 
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/$/";
@@ -413,24 +444,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         root.put("id", resDec.site.getKey());
         root.put("deleted", resDec.site.isDeleted());
         root.put("frozen", resDec.site.isFrozen());
-        root.put("licenseId", resDec.licenseId);
-        if (lic==null) {
-            root.put("licenseValid", false);
-            root.put("licenseStatus", "no license found with that ID");
-        }
-        else {
-            root.put("licenseTimeout", lic.getTimeout());
-            root.put("licenseUser", lic.getCreator());
-            root.put("licenseRole", lic.getRole());
-            if (lic.getTimeout() < ar.nowTime) {
-                root.put("licenseValid", false);
-                root.put("licenseStatus", "License is timed out and no longer usable");
-            }
-            else {
-                root.put("licenseValid", true);
-                root.put("licenseStatus", "All OK");
-            }
-        }
+        root.put("license", getLicenseInfo(resDec.lic));
 
         ar.resp.setContentType("application/json");
         root.write(ar.resp.getWriter(), 2, 0);
@@ -440,6 +454,19 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
     private void genProjectListing(AuthRequest ar, ResourceDecoder resDec) throws Exception {
         JSONObject root = new JSONObject();
 
+        NGPage ngp = resDec.project;
+        if (ngp==null) {
+            //this is probably unnecessary, having hit an exception earlier, but just begin sure
+            throw new Exception("Something is wrong, can not find a site object.");
+        }
+        if (resDec.licenseId == null || resDec.licenseId.length()==0 || resDec.lic==null) {
+            throw new Exception("All operations on the site need to be licensed, but did not get a license id in that URL.");
+        }
+        if (!ngp.isValidLicense(resDec.lic, ar.nowTime)) {
+            throw new Exception("The license ("+resDec.licenseId+") has expired.  "
+                    +"To exchange information, you will need to get an updated license");
+        }
+        root.put("license", getLicenseInfo(resDec.lic));
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/" + resDec.projId + "/";
 
         JSONArray goals = new JSONArray();
@@ -528,5 +555,17 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         UtilityMethods.streamToStream(is,fos);
         fos.flush();
         fos.close();
+    }
+
+    private JSONObject getLicenseInfo(License lic) throws Exception {
+        JSONObject licenseInfo = new JSONObject();
+        if (lic == null) {
+            throw new Exception("Program Logic Error: null license passed to getLicenseInfo");
+        }
+        licenseInfo.put("id", lic.getId());
+        licenseInfo.put("timeout", lic.getTimeout());
+        licenseInfo.put("creator", lic.getCreator());
+        licenseInfo.put("role", lic.getRole());
+        return licenseInfo;
     }
 }

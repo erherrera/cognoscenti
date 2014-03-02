@@ -18,7 +18,7 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.api;
 
 import java.util.List;
 import java.util.Vector;
@@ -30,12 +30,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.socialbiz.cog.AttachmentRecord;
+import org.socialbiz.cog.AttachmentVersion;
+import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.GoalRecord;
+import org.socialbiz.cog.NGPage;
+import org.socialbiz.cog.NoteRecord;
+import org.socialbiz.cog.SectionDef;
+import org.socialbiz.cog.SyncStatus;
+import org.socialbiz.cog.UtilityMethods;
 
 /**
 * supports comparing a local and remote project
 */
-public class ProjectSync
-{
+public class ProjectSync {
     NGPage local;
     RemoteProject remote;
     AuthRequest ar;

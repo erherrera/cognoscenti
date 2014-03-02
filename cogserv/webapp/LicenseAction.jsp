@@ -19,7 +19,7 @@
     String duration = ar.defParam("duration", "60");   //days
     String go = ar.reqParam("go");
     String action = ar.reqParam("action");
-    String readOnly = ar.defParam("readOnly", null);
+    boolean readOnly = "yes".equals(ar.defParam("readOnly", "no"));
 
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
@@ -28,7 +28,11 @@
     long timeout = (DOMFace.safeConvertLong(duration)*24000*3600) + ar.nowTime;
 
     if (action.equals("Create License") || action.equals("Create New Streaming Link")) {
-        License lr = ngp.createLicense(ar.getBestUserId(), ar.reqParam("role"), timeout, readOnly!=null);
+        if (!readOnly) {throw new Exception("why is this not read only");}
+        License lr = ngp.createLicense(ar.getBestUserId(), ar.reqParam("role"), timeout, readOnly);
+        if (lr.isReadOnly() != readOnly) {
+            throw new Exception("Tried to set readOnly to "+readOnly+" but it was not preserved.");
+        }
         ngp.saveFile(ar, action);
     }
 

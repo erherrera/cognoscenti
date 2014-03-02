@@ -20,6 +20,8 @@
 
 package org.socialbiz.cog;
 
+import org.json.JSONObject;
+
 
 /**
 * A license is also known as a "free pass".  Actually there can be
@@ -101,6 +103,15 @@ public class LicenseForProcess implements License
     }
     public void setReadOnly(boolean isReadOnly) throws Exception {
         //ignore this
+    }
+
+    public JSONObject getJSON() throws Exception {
+        JSONObject licenseInfo = new JSONObject();
+        licenseInfo.put("id", getId());
+        licenseInfo.put("timeout", getTimeout());
+        licenseInfo.put("creator", getCreator());
+        licenseInfo.put("role", getRole());
+        return licenseInfo;
     }
 
 }

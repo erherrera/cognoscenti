@@ -924,6 +924,10 @@ public class MainTabsViewControler extends BaseController {
             if (needsToSetEmail(ar)) {
                 return new ModelAndView("requiredEmail");
             }
+            if(!ar.isMember()){
+                ar.req.setAttribute("roleName", "Members");
+                return showWarningView(ar, "nugen.project.member.msg");
+            }
 
 
             request.setAttribute("tabId", "Project Settings");
@@ -948,6 +952,32 @@ public class MainTabsViewControler extends BaseController {
             }
 
             modelAndView = new ModelAndView("leaf_streamingLinks");
+            request.setAttribute("subTabId", "nugen.projectsettings.subtab.personal");
+            request.setAttribute("visibility_value", "4");
+
+            modelAndView.addObject("page", nGPage);
+            request.setAttribute("realRequestURL", ar.getRequestURL());
+            request.setAttribute("tabId", "Project Settings");
+            return modelAndView;
+        }
+        catch (Exception ex) {
+            throw new NGException("nugen.operation.fail.project.personal.page", new Object[] {
+                    pageId, siteId }, ex);
+        }
+    }
+
+    @RequestMapping(value = "/{siteId}/{pageId}/synchronizeUpstream.htm", method = RequestMethod.GET)
+    public ModelAndView synchronizeUpstream(@PathVariable String siteId, @PathVariable String pageId,
+            HttpServletRequest request, HttpServletResponse response) throws Exception {
+        try {
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            NGPage nGPage = registerRequiredProject(ar, siteId, pageId);
+            ModelAndView modelAndView= memberCheckViews(ar);
+            if (modelAndView!=null) {
+                return modelAndView;
+            }
+
+            modelAndView = new ModelAndView("synchronizeUpstream");
             request.setAttribute("subTabId", "nugen.projectsettings.subtab.personal");
             request.setAttribute("visibility_value", "4");
 

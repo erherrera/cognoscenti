@@ -18,7 +18,7 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.api;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.socialbiz.cog.License;
 
 /**
 * A remote project is access purely through URLs and REST oriented web services
@@ -53,6 +54,9 @@ public class RemoteProject
     }
     public JSONArray getGoals() throws Exception {
         return root.getJSONArray("goals");
+    }
+    public License getLicense() throws Exception {
+        return new RemoteLicense(root.optJSONObject("license"));
     }
 
 

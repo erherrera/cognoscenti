@@ -17,16 +17,19 @@
 %><%@page import="java.util.Enumeration"
 %><%@page import="java.util.Vector"
 %><%@page import="org.w3c.dom.Element"
-%><%ar = AuthRequest.getOrCreate(request, response, out);
-    ar.retPath="../../";
+%><%
+
+    ar = AuthRequest.getOrCreate(request, response, out);
 
     String p = ar.reqParam("p");
-
     ngp = NGPageIndex.getProjectByKeyOrFail(p);
     ar.setPageAccessLevels(ngp);
+    ar.assertAdmin("old admin page is only for project administrators and you must be logged in to access it.");
+
     boolean isMember = ar.isMember();
     boolean isAdmin = ar.isAdmin();
 
+    ar.retPath="../../";
     Vector allSecs = ngp.getAllSections();
 
     String[] names = ngp.getPageNames();
@@ -50,65 +53,8 @@
 <%
     headlinePath(ar, "Admin Only Section");
 
-if (!ar.isLoggedIn())
-{
-    mustBeLoggedInMessage(ar);
-}
-else if (!isAdmin)
-{
-%><div class="pagenavigation">
-        <div class="pagenav">
-            <div class="left">
-            In order to see the project administration section, which allows the project structure
-            and name to be changed, you need to be listed as an admin for this project.
-            User '<%
-                ar.getUserProfile().writeLink(ar);
-            %>' is not an admin.
-            If you are already a member, you can request to be an
-            admin, and if approved by another admin, you will then
-            be able to have full control of this project.<br/>
-     <%
-        if (isMember)
-                 {
-                     requestAdminButton(ar, ngp, ar.getUserProfile());
-                 }
-                 if (ar.isSuperAdmin())
-                 {
-                     requestAdminButton(ar, ngp, ar.getUserProfile());
-                 }
-     %>
-            </div>
-            <div class="right"></div>
-            <div class="clearer">&nbsp;</div>
-        </div>
-        <div class="pagenav_bottom"></div>
-    </div>
-
-</div>
-<div class="section">
-<!-- ------------------------------------------------- -->
-    <div class="section_title">
-    Names of this Page
-    </div>
-    <div class="section_body">
-        <ul>
-<%
-    for(int i=0; i<names.length; i++)
-        {
-            ar.write("<li>");
-            ar.writeHtml(names[i]);
-            ar.write("</li>\n");
-        }
-%>
-        </ul>
-    </div>
 
 
-
-<%
-    }
-else
-{
     if (!ar.isStaticSite())
     {
 %>
@@ -122,50 +68,6 @@ else
         }
         writeLeaflets(ngp, ar, SectionDef.ADMIN_ACCESS);
     %>
-
-
-<div class="section">
-<!-- ------------------------------------------------- -->
-    <div class="section_title">
-    Names for this Project
-    </div>
-    <div class="section_body">
-<%
-    String pageName = "";
-    if (names.length>0)
-    {
-        pageName = names[0];
-    }
-%>
-    <form action="<%=ar.retPath%>ChangeNameAction.jsp" method="post">
-    <input type="hidden" name="p" value="<%ar.writeHtml(p);%>">
-    <input type="hidden" name="go" value="<%ar.writeHtml(thisPageAddress);%>">
-    <input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
-    <tr><td>
-    <input type="text" name="newName" size="60" value="<%ar.writeHtml(pageName);%>">
-    </td><td>
-    <input type="submit" name="action" value="Change Name">
-    </td></tr>
-    </form><br/>
-    <table>
-    <tr><td>Previous Names:</td><td>(Delete)</td></tr>
-<%
-    for(int i=1; i<names.length; i++)
-    {
-        String delLink = ar.retPath+"ChangeNameAction.jsp?action=delName&p="+
-                URLEncoder.encode(p, "UTF-8")+"&oldName="+URLEncoder.encode(names[i], "UTF-8");
-        ar.write("<tr><td>");
-        ar.writeHtml(names[i]);
-        ar.write("</td><td> &nbsp; <a href=\"");
-        ar.writeHtml(delLink);
-        ar.write("\" title=\"delete this name from project\"><img src=\"");
-        ar.write(ar.retPath);
-        ar.write("delicon.gif\"></a></td></tr>\n");
-    }
-%>
-    </table>
-    </div>
-</div>
 
 
 <div class="section">
@@ -198,7 +100,7 @@ else
       %></textarea>
       </td>
     </tr>
-    <tr><td>Beam:</td>
+    <tr><td>Upstream:</td>
       <td>
       <input type="text" name="beam" size="60" value="<%ar.writeHtml(beam);%>">
       <a href="beam1.htm">Sync</a>
@@ -212,26 +114,6 @@ else
     </div>
 </div>
 
-
-
-<div class="section">
-<!-- ------------------------------------------------- -->
-    <div class="section_title">
-    Site Setting
-    </div>
-    <div class="section_body">
-
-    <form action="<%=ar.retPath%>SetBook.jsp" method="post">
-    <input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
-    <input type="hidden" name="p" value="<%ar.writeHtml(p);%>">
-    <input type="hidden" name="go" value="<%ar.writeHtml(thisPageAddress);%>">
-    <input type="submit" value="Change Book">
-    Project in Site:<%
-        ar.writeHtml(ngb.getName());
-    %>
-    </form>
-    </div>
-</div>
 
 <div class="section">
 <!-- ------------------------------------------------- -->
@@ -277,11 +159,11 @@ else
     String pageKey = ngp.getKey();
    String bookKey = ngb.getKey();
 
-   UserProfile up = ar.getUserProfile();
+   UserProfile up2 = ar.getUserProfile();
    String uProfileAd = null;
-   if(up != null)
+   if(up2 != null)
    {
-       String profileid = up.getKey();
+       String profileid = up2.getKey();
        uProfileAd = "u/" + profileid + "/profile.xml";
    }
 
@@ -440,10 +322,6 @@ else
 </ul>
     </div>
 </div>
-
-<%
-}    //end of the main access control block
-%>
 
 <%@ include file="Footer.jsp"%>
 <%@ include file="functions.jsp"%>

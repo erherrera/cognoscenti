@@ -495,12 +495,13 @@ public class NGPageIndex {
         System.out.println("Beginning SCAN for all pages in system.");
         Vector<File> allPageFiles = new Vector<File>();
         Vector<File> allProjectFiles = new Vector<File>();
+        NGTerm.initialize();
+        keyToContainer = new Hashtable<String, NGPageIndex>();
+        allContainers = new Vector<NGPageIndex>();
+
         String rootDirectory = ConfigFile.getProperty("dataFolder");
         if (rootDirectory != null && rootDirectory.length() > 0) {
-            File root = ConfigFile.getFolderOrFail(rootDirectory);
-            NGTerm.initialize();
-            keyToContainer = new Hashtable<String, NGPageIndex>();
-            allContainers = new Vector<NGPageIndex>();
+            File root = ConfigFile.getDataFolderOrFail();
 
             NGBook.scanAllSites(root);
             for (NGBook acct : NGBook.getAllSites()) {

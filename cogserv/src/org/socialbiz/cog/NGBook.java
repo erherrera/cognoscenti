@@ -187,7 +187,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     private static NGBook createSiteByKey(String key, String name) throws Exception {
 
         // TODO: this only creates in the main folder. Archaic
-        File theFile = NGPage.getRealPath(key + ".book");
+        File theFile = NGPage.getPathInDataFolder(key + ".book");
         if (theFile.exists()) {
             throw new NGException("nugen.exception.cant.crete.new.book", new Object[] { key });
         }
@@ -208,7 +208,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         try {
             reformatXML();
 
-            File theFile = NGPage.getRealPath(newKey + ".book");
+            File theFile = NGPage.getPathInDataFolder(newKey + ".book");
             if (!theFile.exists()) {
                 File theParent = theFile.getParentFile();
                 theParent.mkdirs();
@@ -1045,6 +1045,32 @@ public class NGBook extends ContainerCommon implements NGContainer {
         lr.setRole(role);
         lr.setReadOnly(false);
         return lr;
+    }
+
+    public boolean isValidLicense(License lr, long time) throws Exception {
+        if (lr==null) {
+            //no license passed, then not valid, handle this quietly so that
+            //this can be used with getLicense operations.
+            return false;
+        }
+        if (time>lr.getTimeout()) {
+            return false;
+        }
+
+        NGRole ngr = getRole(lr.getRole());
+        if (ngr==null) {
+            //can not be valid if the role no longer exists
+            return false;
+        }
+
+        //check to see if the user who created it, is still in the
+        //role or in the member's role
+        AddressListEntry ale = new AddressListEntry(lr.getCreator());
+        if (!ngr.isExpandedPlayer(ale,  this) && !primaryOrSecondaryPermission(ale)) {
+            return false;
+        }
+
+        return true;
     }
 
 }

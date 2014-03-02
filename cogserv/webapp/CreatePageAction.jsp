@@ -167,7 +167,7 @@
         {
             p = IdGenerator.generateKey();
         }
-        File theFile = NGPage.getRealPath(p+".sp");
+        File theFile = NGPage.getPathInDataFolder(p+".sp");
         if (!theFile.exists())
         {
             return p;
@@ -175,7 +175,7 @@
         while (true)
         {
             String extp = p + "-" + IdGenerator.generateKey();
-            theFile = NGPage.getRealPath(extp+".sp");
+            theFile = NGPage.getPathInDataFolder(extp+".sp");
             if (!theFile.exists())
             {
                 return extp;

@@ -260,7 +260,8 @@ function createSubLinks(){
             new Tab(retPath+"t/"+book+"/"+pageId+"/roleRequest.htm",   "Role Requests") ,
             new Tab(retPath+"t/"+book+"/"+pageId+"/admin.htm",         "Admin" ),
             new Tab(retPath+"t/"+book+"/"+pageId+"/emailrecords.htm",  "Email Records"),
-            new Tab(retPath+"t/"+book+"/"+pageId+"/streamingLinks.htm","Streaming Links")
+            new Tab(retPath+"t/"+book+"/"+pageId+"/streamingLinks.htm","Streaming Links"),
+            new Tab(retPath+"t/"+book+"/"+pageId+"/synchronizeUpstream.htm","Synchronize Upstream")
         ];
         arrayOfSubMenu=["ddsubmenu1","ddsubmenu2","ddsubmenu3","ddsubmenu4"];
         arrayOfMainMenu =[arrayOfTabs1,arrayOfTabs2,arrayOfTabs3,arrayOfTabs4]

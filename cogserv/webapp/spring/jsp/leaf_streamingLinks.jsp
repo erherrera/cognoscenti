@@ -7,8 +7,11 @@
 %><%@page import="java.util.Date"
 %>
 <%
+    ar.assertLoggedIn("This VIEW only for logged in use cases");
+    ar.assertMember("This VIEW only for members in use cases");
+
     Date date=new Date(SuperAdminLogFile.getLastNotificationSentTime());
-    String thisPage = ar.getResourceURL(ngp,"projectSettings.htm");
+    String thisPage = ar.getResourceURL(ngp,"streamingLinks.htm");
     long pageChangeTime = ngp.getLastModifyTime();
 
     long subTime = 0;
@@ -31,15 +34,17 @@
     <div class="generalHeading">Project Streaming Links</div>
     <div class="generalContent">
           <table width="600" border="0">
-            <col width="200">
-            <col width="200">
+            <col width="150">
+            <col width="150">
             <col width="100">
-            <col width="200">
+            <col width="150">
+            <col width="150">
             <tr>
               <td><b>View / Role</b></td>
               <td align="center"><b>Days Left</b></td>
               <td align="center"><b>Readonly</b></td>
               <td align="center"><b>Link</b></td>
+              <td align="center"><b>User</b></td>
             </tr>
 <%
     for (License lr : ngp.getLicenses())
@@ -62,6 +67,7 @@
 
         String rightUrl = ar.baseURL + "api/" + ngb.getKey() + "/" + ngp.getKey() + "/summary.json";
         LicensedURL projectPath = new LicensedURL(rightUrl, null, lr.getId());
+        AddressListEntry ale = new AddressListEntry(lr.getCreator());
 
         %>
             <tr>
@@ -69,7 +75,9 @@
             <td align="center"><%=days%> days</td>
             <td align="center"><%=readWrite%></td>
             <td align="center"><a href="<%ar.writeHtml(projectPath.getCombinedRepresentation());%>">Copy This Link</a>
-            </td></tr><%
+            </td>
+            <td align="center"><% ale.writeLink(ar); %></td>
+            </tr><%
 
     } %>
 
@@ -90,31 +98,12 @@
 <input type="text" name="duration" value="60" size="5"> days
 </td><td align="center">
 <input type="checkbox" name="readOnly" value="yes">
-</td><td align="center">
+</td><td align="center" colspan="2">
 <input type="submit" name="action" value="Create New Streaming Link" class="inputBtn">
 </td></tr>
 </form>
 
           </table>
       </div>
-
-    <div style="height:30px">&nbsp;</div>
-    <div class="generalHeading">Create New Remote Upstream Project</div>
-    <div class="generalContent">
-
-<form action="<%=ar.retPath%>NewRemoteProject.jsp" method="post">
-<input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
-<input type="hidden" name="go" value="<%ar.writeHtml(thisPage);%>">
-<input type="hidden" name="p" value="<%ar.writeHtml(p);%>">
-<tr><td align="center">
-<input type="text" name="siteLink" value="60" size="50"> days
-</td><td align="center">
-<input type="submit" name="action" value="Create Project At Site" class="inputBtn">
-</td></tr>
-</form>
-
-
-
-    </div>
 
 </div>

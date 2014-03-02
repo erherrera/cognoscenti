@@ -233,45 +233,51 @@ public class ConfigFile {
     public static void assertConfigureCorrectInternal() throws Exception {
         Properties props = getConfigProperties();
 
-        // check that configuration is complete
-        String dataFolder = props.getProperty("dataFolder");
-        if (dataFolder == null) {
-            throw new NGException("nugen.exception.system.configured.incorrectly",
-                    new Object[] { "dataFolder" });
-        }
-        File testDir = new File(dataFolder);
-        if (!testDir.exists() || !testDir.isDirectory()) {
-            throw new NGException("nugen.exception.folder.not.found", new Object[] { "dataFolder",
-                    testDir.getAbsolutePath() });
-        }
+        getAttachFolderOrFail();
+        getDataFolderOrFail();
+        getUserFolderOrFail();
 
-        String attachFolder = props.getProperty("attachFolder");
-        if (attachFolder == null) {
-            throw new NGException("nugen.exception.system.configured.incorrectly",
-                    new Object[] { "attachFolder" });
-        }
-        testDir = new File(attachFolder);
-        if (!testDir.exists() || !testDir.isDirectory()) {
-            throw new NGException("nugen.exception.folder.not.found", new Object[] {
-                    "attachFolder", testDir.getAbsolutePath() });
-        }
-
-        String userFolder = props.getProperty("userFolder");
-        if (userFolder == null) {
-            throw new NGException("nugen.exception.system.configured.incorrectly",
-                    new Object[] { "userFolder" });
-        }
-        testDir = new File(userFolder);
-        if (!testDir.exists() || !testDir.isDirectory()) {
-            throw new NGException("nugen.exception.folder.not.found", new Object[] { "userFolder",
-                    testDir.getAbsolutePath() });
-        }
         String baseURL = props.getProperty("baseURL");
         if (baseURL==null) {
             throw new NGException("nugen.exception.system.configured.incorrectly",
                     new Object[] { "baseURL" });
         }
     }
+
+    /**
+     * Either return the valid File object to the path to the folder containing
+     * user data, or fail throwing an exception that the server is not correctly
+     * configured.
+     */
+    public static File getUserFolderOrFail() throws Exception {
+        return getGenericFolderOrFail("userFolder");
+    }
+    public static File getDataFolderOrFail() throws Exception {
+        return getGenericFolderOrFail("dataFolder");
+    }
+    public static File getAttachFolderOrFail() throws Exception {
+        return getGenericFolderOrFail("attachFolder");
+    }
+
+
+    private static File getGenericFolderOrFail(String propertyName) throws Exception {
+        String getFolder = props.getProperty(propertyName);
+        if (getFolder == null || getFolder.length()==0) {
+            throw new NGException("nugen.exception.system.configured.incorrectly",
+                    new Object[] { propertyName });
+        }
+        File genFolderPath = new File(getFolder);
+        if (!genFolderPath.exists()) {
+            throw new NGException("nugen.exception.folder.not.found", new Object[] { propertyName,
+                    genFolderPath.getAbsolutePath() });
+        }
+        if (!genFolderPath.isDirectory()) {
+            throw new NGException("nugen.exception.folder.not.folder", new Object[] { propertyName,
+                    genFolderPath.getAbsolutePath() });
+        }
+        return genFolderPath;
+    }
+
 
     /**
      * Returns a user specified globally unique value, or else a random value if
