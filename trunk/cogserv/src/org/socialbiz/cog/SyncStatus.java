@@ -21,6 +21,7 @@
 package org.socialbiz.cog;
 
 import org.json.JSONObject;
+import org.socialbiz.cog.api.ProjectSync;
 
 /**
 * supports comparing a local and remote project

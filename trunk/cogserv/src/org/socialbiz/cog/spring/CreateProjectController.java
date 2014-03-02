@@ -244,7 +244,7 @@ public class CreateProjectController extends BaseController {
         String extp = p;
         int incrementedExtension = 0;
         while (true) {
-            File theFile = NGPage.getRealPath(extp + ".sp");
+            File theFile = NGPage.getPathInDataFolder(extp + ".sp");
             if (!theFile.exists()) {
                 return extp;
             }

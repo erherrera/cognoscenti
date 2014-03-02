@@ -20,6 +20,7 @@
 
 package org.socialbiz.cog;
 
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -117,6 +118,15 @@ public class LicenseRecord extends DOMFace  implements License
         else {
             setAttribute("readOnly", null);
         }
+    }
+
+    public JSONObject getJSON() throws Exception {
+        JSONObject licenseInfo = new JSONObject();
+        licenseInfo.put("id", getId());
+        licenseInfo.put("timeout", getTimeout());
+        licenseInfo.put("creator", getCreator());
+        licenseInfo.put("role", getRole());
+        return licenseInfo;
     }
 
 }

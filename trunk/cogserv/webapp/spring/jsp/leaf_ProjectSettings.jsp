@@ -5,8 +5,8 @@
 %><%@page import="org.socialbiz.cog.NGRole"
 %><%@page import="org.socialbiz.cog.RoleRequestRecord"
 %><%@page import="org.socialbiz.cog.dms.ConnectionType"
-%><%@page import="org.socialbiz.cog.RemoteProject"
-%><%@page import="org.socialbiz.cog.ProjectSync"
+%><%@page import="org.socialbiz.cog.api.RemoteProject"
+%><%@page import="org.socialbiz.cog.api.ProjectSync"
 %><%@page import="org.socialbiz.cog.SyncStatus"
 %>
 <html xmlns="http://www.w3.org/1999/xhtml">

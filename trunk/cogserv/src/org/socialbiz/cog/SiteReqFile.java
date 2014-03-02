@@ -226,16 +226,27 @@ public class SiteReqFile extends DOMFile {
     }
 
     private static SiteReqFile readSiteReqFile() throws Exception {
-        // the index is not initialzed, so read file if exists
-        File theFile = NGPage.getRealPath("requeted.account");
+        File requestFile = null;
         try {
-            Document newDoc = readOrCreateFile(theFile, "accounts-request");
-            SiteReqFile site = new SiteReqFile(theFile, newDoc);
+            File userFolder = ConfigFile.getUserFolderOrFail();
+            requestFile = new File(userFolder, "siteRequests.xml");
+            if (!requestFile.exists()) {
+                //migration, this used to be in the data folder, so check there briefly
+                //and if the old file is found, copy it to the new location, then delete
+                //migration started March 2014
+                File otherFile = new File(ConfigFile.getDataFolderOrFail(), "requeted.account");
+                if (otherFile.exists()) {
+                    UtilityMethods.copyFileContents(otherFile, requestFile);
+                    otherFile.delete();
+                }
+            }
+            Document newDoc = readOrCreateFile(requestFile, "accounts-request");
+            SiteReqFile site = new SiteReqFile(requestFile, newDoc);
             return site;
         }
         catch (Exception e) {
             throw new NGException("nugen.exception.unable.load.account.request.file",
-                    new Object[] { theFile }, e);
+                    new Object[] { requestFile }, e);
         }
     }
 

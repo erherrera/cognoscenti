@@ -262,7 +262,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
-    public static File getRealPath(String p)
+    public static File getPathInDataFolder(String p)
         throws Exception
     {
         if (dataPath==null)
@@ -871,8 +871,34 @@ public class NGPage extends ContainerCommon implements NGContainer
         lr.setTimeout(endDate);   //one year later
         lr.setCreator(userId);
         lr.setRole(role);
-        lr.setReadOnly(false);
+        lr.setReadOnly(readOnly);
         return lr;
+    }
+
+    public boolean isValidLicense(License lr, long time) throws Exception {
+        if (lr==null) {
+            //no license passed, then not valid, handle this quietly so that
+            //this can be used with getLicense operations.
+            return false;
+        }
+        if (time>lr.getTimeout()) {
+            return false;
+        }
+
+        NGRole ngr = getRole(lr.getRole());
+        if (ngr==null) {
+            //can not be valid if the role no longer exists
+            return false;
+        }
+
+        //check to see if the user who created it, is still in the
+        //role or in the member's role
+        AddressListEntry ale = new AddressListEntry(lr.getCreator());
+        if (!ngr.isExpandedPlayer(ale,  this) && !primaryOrSecondaryPermission(ale)) {
+            return false;
+        }
+
+        return true;
     }
 
     ////////////////////////////////////////////////////////////////

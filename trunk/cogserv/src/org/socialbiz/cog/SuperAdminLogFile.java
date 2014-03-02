@@ -31,10 +31,12 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 import org.w3c.dom.Document;
 
 /**
- * SuperAdminHelper manages a file called 'superadmin.logs' That file holds
- * information relevant to the running of the whole server 1. automated
- * scheduling of email messages 2. list of new users who jioned recently 3. list
- * of site accepted/denied
+ * SuperAdminHelper manages a file called 'SuperAdminInfo.xml' in the user folder
+ * That file holds information relevant to the running of the whole server
+ *
+ * 1. automated scheduling of email messages
+ * 2. list of new users who joined recently
+ * 3. list of sites accepted/denied
  */
 public class SuperAdminLogFile extends DOMFile {
 
@@ -44,11 +46,19 @@ public class SuperAdminLogFile extends DOMFile {
     }
 
     public static SuperAdminLogFile getInstance() throws Exception {
-        File theFile = NGPage.getRealPath("superadmin.logs");
-        Document newDoc = readOrCreateFile(theFile, "super-admin");
-        SuperAdminLogFile superAdminHelper = new SuperAdminLogFile(theFile,
-                newDoc);
-        return superAdminHelper;
+        File superAdminFile = new File( ConfigFile.getUserFolderOrFail(), "SuperAdminInfo.xml");
+        if (!superAdminFile.exists()) {
+            //migration from old file in the data folder, to new file in user folder
+            //if there, copy contents, and delete old.
+            //migration started March 2014
+            File otherFile = new File( ConfigFile.getDataFolderOrFail(), "superadmin.logs");
+            if (otherFile.exists()) {
+                UtilityMethods.copyFileContents(otherFile, superAdminFile);
+                otherFile.delete();
+            }
+        }
+        Document newDoc = readOrCreateFile(superAdminFile, "super-admin");
+        return new SuperAdminLogFile(superAdminFile, newDoc);
     }
 
     /**

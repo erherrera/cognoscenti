@@ -20,6 +20,8 @@
 
 package org.socialbiz.cog;
 
+import org.json.JSONObject;
+
 
 /**
 * A license is also known as a "free pass".  Actually there can be
@@ -33,32 +35,22 @@ package org.socialbiz.cog;
 public interface License
 {
 
-    public String getId()
-        throws Exception;
+    public String getId() throws Exception;
 
-    public String getNotes()
-        throws Exception;
-    public void setNotes(String newVal)
-        throws Exception;
+    public String getNotes() throws Exception;
+    public void setNotes(String newVal) throws Exception;
 
-    public String getCreator()
-        throws Exception;
-    public void setCreator(String newVal)
-        throws Exception;
+    public String getCreator() throws Exception;
+    public void setCreator(String newVal) throws Exception;
 
-    public long getTimeout()
-        throws Exception;
-    public void setTimeout(long timeout)
-        throws Exception;
+    public long getTimeout() throws Exception;
+    public void setTimeout(long timeout) throws Exception;
 
-    public String getRole()
-        throws Exception;
-    public void setRole(String newRole)
-        throws Exception;
+    public String getRole() throws Exception;
+    public void setRole(String newRole) throws Exception;
 
-    public boolean isReadOnly()
-        throws Exception;
-    public void setReadOnly(boolean isReadOnly)
-        throws Exception;
+    public boolean isReadOnly() throws Exception;
+    public void setReadOnly(boolean isReadOnly) throws Exception;
 
+    public JSONObject getJSON() throws Exception;
 }

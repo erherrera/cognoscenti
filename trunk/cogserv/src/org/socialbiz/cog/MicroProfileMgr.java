@@ -37,7 +37,7 @@ public class MicroProfileMgr {
 
     public synchronized static void loadMicroProfilesInMemory() throws Exception
     {
-        File theFile = NGPage.getRealPath("microprofiles.profile");
+        File theFile = NGPage.getPathInDataFolder("microprofiles.profile");
         Document newDoc = DOMFile.readOrCreateFile(theFile, "micro-profiles");
         profileFile = new DOMFile(theFile, newDoc);
 

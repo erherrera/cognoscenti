@@ -18,10 +18,14 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.rest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.NGLeafServlet;
+import org.socialbiz.cog.NGPageIndex;
 
 /**
  * This servlet serves up pages using the following URL format:

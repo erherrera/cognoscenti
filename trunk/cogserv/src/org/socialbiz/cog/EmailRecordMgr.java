@@ -37,7 +37,7 @@ public class EmailRecordMgr {
 
     public synchronized static void initializeEmailRecordMgr() throws Exception
     {
-        File theFile = NGPage.getRealPath("email_records.record");
+        File theFile = NGPage.getPathInDataFolder("email_records.record");
 
         Document newDoc = DOMFile.readOrCreateFile(theFile, "email_records");
         emailRecordFile = new DOMFile(theFile, newDoc);

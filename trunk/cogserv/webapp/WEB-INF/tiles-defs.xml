@@ -338,6 +338,10 @@
         <put-attribute name="title" value="Streaming Links" />
         <put-attribute name="body" value="/spring/jsp/leaf_streamingLinks.jsp" />
     </definition>
+    <definition name="synchronizeUpstream" extends="projectBaseLayout">
+        <put-attribute name="title" value="Synchronize Upstream" />
+        <put-attribute name="body" value="/spring/jsp/synchronizeUpstream.jsp" />
+    </definition>
     <definition name="account_personal" extends="baseLayout">
         <put-attribute name="title" value="Personal" />
         <put-attribute name="body" value="/spring/jsp/leaf_account_personal.jsp" />

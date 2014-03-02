@@ -18,8 +18,13 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.rest;
 
+import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.CaseExchange;
+import org.socialbiz.cog.NGBook;
+import org.socialbiz.cog.NGPage;
+import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.exception.ProgramLogicError;
 
 /**

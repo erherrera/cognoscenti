@@ -49,7 +49,7 @@ Optional Parameter:
                     %>" title="View the old UI for this page">Old UI</a>
                 </td>
                 <td align="right">
-                    Copyright 2013 Fujitsu America, Advanced Software Design Lab
+                    Copyright 2014 Fujitsu North America, Advanced Software Design Lab
                 </td>
             </tr>
         </table>
