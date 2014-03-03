@@ -14,8 +14,8 @@
         throw new Exception("convertFolderProject VIEW should be called only when logged in");
     }
 
-    String accountKey = ar.reqParam("accountId");
-    NGBook site = NGBook.readBookByKey(accountKey);
+    String siteKey = ar.reqParam("accountId");
+    NGBook site = NGBook.readSiteByKey(siteKey);
     String path       = ar.defParam("path","/");
     File siteRoot   = site.getSiteRootFolder();
     if (siteRoot==null) {
@@ -70,7 +70,7 @@
 
     function isProjectExist(){
         var projectName = document.getElementById('projectname').value;
-        var url="../isProjectExist.ajax?projectname="+projectName+"&siteId=<% ar.writeURLData(accountKey); %>";
+        var url="../isProjectExist.ajax?projectname="+projectName+"&siteId=<% ar.writeURLData(siteKey); %>";
         var transaction = YAHOO.util.Connect.asyncRequest('POST',url, projectValidationResponse);
         return false;
     }
