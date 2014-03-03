@@ -24,25 +24,60 @@ Parameters:
 */
 
     List<SearchResultRecord> searchResults  = (List<SearchResultRecord>)request.getAttribute("searchResults");
+    String searchText = ar.defParam("searchText", "");
+    String b = ar.defParam("b", "All Books");
+    String pf = ar.defParam("pf", "all");
+
 %>
 
 <body class="yui-skin-sam">
-    <div class="generalHeading"><label id="resultsLbl">Search for Content</label></div>
-    <br/>
-    <div id="container">
-        <form id="searchForm" name="searchForm" action="<%=ar.retPath%>t/searchPublicNotes.htm">
-             <table   cellpadding="0" cellspacing="0">
-                 <tr>
-                     <td>
-                         <input type="text" style="height:18px;color:#666;font-size:12px;border:1px solid #ccc;"  id="searchText" size="32px" name="searchText" />
-                     </td>
-                     <td>&nbsp;
-                     <input type="button" class="inputBtn" onclick="return onSearch();" value="  Search  ">
-                     </td>
-                 </tr>
-             </table>
-         </form>
+
+<div class="generalArea">
+<form action="searchPublicNotes.htm" method="get" name="searchForm">
+  <div class="generalHeading">Search for Content &nbsp;</div>
+  <div class="generalContent">
+    <div style="background-color:#f5f5f5; padding:10px">
+      <table>
+        <tr height="30px">
+          <td width="120px"><b>Search Filter:</b></td>
+          <td></td>
+          <td>
+            <select style="width:200px" name="pf">
+              <option value="all" selected><fmt:message key="nugen.serach.filter.allProjects"/></option>
+              <option value="member"><fmt:message key="nugen.serach.filter.userAsMemberProjects"/></option>
+              <option value="admin"><fmt:message key="nugen.serach.filter.userAsOwnerProjects"/></option>
+            </select> &nbsp;
+            <select style="width:200px" name="b">
+                <option value="All Books" selected="selected"><fmt:message key="nugen.serach.filter.AllAccounts"/></option>
+                <%
+                    for(NGBook site : NGBook.getAllSites())
+                    {
+                        String aname = site.getName();
+                        String akey = site.getKey();
+                        %>
+                       <option value="<%ar.writeHtml(akey);%>"><%ar.writeHtml(aname);%></option><%
+                    }
+                %>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td width="120px"><b><fmt:message key="nugen.serach.textbox.label"/></b></td>
+          <td></td>
+          <td style="padding-bottom:6px"> <input type="text"  name="searchText" size="46" value="<%ar.writeHtml(searchText);%>"/>
+        </tr>
+        <tr>
+          <td width="120px"></td>
+          <td></td>
+          <td><button type="submit" name="action" value="Search"><fmt:message key="nugen.serach.button.label"/></button></td>
+        </tr>
+      </table>
+      <input type="hidden" name="encodingGuard" value="%E6%9D%B1%E4%BA%AC"/>
     </div>
+  </div>
+</form>
+</div>
+
 
     <br/><div class="seperator">&nbsp;</div>
     <div class="generalHeading"><label id="resultsLbl">Search Result</label></div>
@@ -91,7 +126,6 @@ Parameters:
         }
         YAHOO.util.Event.addListener(window, "load", function()
         {
-
             YAHOO.example.EnhanceFromMarkup = function()
             {
                 var myColumnDefs = [
@@ -113,9 +147,7 @@ Parameters:
                         rowsPerPage: 200
                     }),
                     initialRequest: "results=999999"
-
                 };
-
 
                 var myDataTable = new YAHOO.widget.DataTable("searchresultdiv", myColumnDefs, myDataSource, oConfigs,
                 {caption:"",sortedBy:{key:"Project_Account_Name",dir:"Project_Account_Name"}});

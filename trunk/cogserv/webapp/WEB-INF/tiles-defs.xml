@@ -372,12 +372,8 @@
         <put-attribute name="body" value="/spring/jsp/leaf_project.jsp" />
     </definition>
 
-    <definition name="search" extends="baseLayout">
+    <definition name="TagLinks" extends="baseLayout">
       <put-attribute name="title" value="Cognoscenti Search" />
-      <put-attribute name="body" value="/spring/jsp/Search.jsp" />
-    </definition>
-
-    <definition name="TagLinks" extends="search">
       <put-attribute name="body" value="/spring/jsp/TagLinks.jsp" />
     </definition>
 

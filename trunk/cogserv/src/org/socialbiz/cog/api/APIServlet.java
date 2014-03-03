@@ -28,7 +28,6 @@ import org.socialbiz.cog.MimeTypes;
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
-import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.SectionUtil;
 import org.socialbiz.cog.SectionWiki;
@@ -42,8 +41,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URLEncoder;
-import java.util.Vector;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -232,6 +229,10 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             throw new Exception("The license ("+resDec.licenseId+") has expired.  "
                     +"To exchange information, you will need to get an updated license");
         }
+        if (resDec.lic.isReadOnly()) {
+            throw new Exception("The license ("+resDec.licenseId+") is a read-only license and "
+                    +"can not be used to update information on this server.");
+        }
 
         responseOK.put("license", getLicenseInfo(resDec.lic));
         if ("createProject".equals(op)) {
@@ -285,13 +286,15 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             throw new Exception("The license ("+resDec.licenseId+") has expired.  "
                     +"To exchange information, you will need to get an updated license");
         }
-
-        responseOK.put("license", getLicenseInfo(resDec.lic));
-
-
+        if (resDec.lic.isReadOnly()) {
+            throw new Exception("The license ("+resDec.licenseId+") is a read-only license and "
+                    +"can not be used to update information on this server.");
+        }
         if (!resDec.site.isSiteFolderStructure()) {
             throw new Exception("This operation requires a site that is structured with site-folder structure");
         }
+
+        responseOK.put("license", getLicenseInfo(resDec.lic));
 
         if ("tempFile".equals(op)) {
             String fileName = "~tmp~"+SectionUtil.getNewKey()+"~tmp~";
@@ -472,10 +475,15 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
         String role = resDec.lic.getRole();
 
+        //Primary (and secondary) roles should have access to everything.
+        //don't need to check by role name in that case
+        boolean isPrimeRole =  (role.equals(ngp.getPrimaryRole().getName())
+                    || role.equals(ngp.getSecondaryRole().getName()));
         JSONArray goals = new JSONArray();
-        for (GoalRecord goal : resDec.project.getAllGoals()) {
-            JSONObject thisGoal = goal.getJSON4Goal(resDec.project, urlRoot);
-            goals.put(thisGoal);
+        if (isPrimeRole) {
+            for (GoalRecord goal : resDec.project.getAllGoals()) {
+                goals.put(goal.getJSON4Goal(resDec.project, urlRoot));
+            }
         }
         root.put("goals", goals);
 
@@ -490,7 +498,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             if (!"FILE".equals(att.getType())) {
                 continue;
             }
-            if (!att.roleCanAccess(role)) {
+            if (!isPrimeRole && !att.roleCanAccess(role) && !att.isPublic()) {
                 continue;
             }
             JSONObject thisDoc = new JSONObject();
@@ -509,8 +517,9 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
         JSONArray notes = new JSONArray();
         for (NoteRecord note : resDec.project.getAllNotes()) {
-            JSONObject thisNote = note.getJSON4Note(urlRoot, false);
-            notes.put(thisNote);
+            if (isPrimeRole || note.isPublic() || note.roleCanAccess(role)) {
+                notes.put(note.getJSON4Note(urlRoot, false));
+            }
         }
         root.put("notes", notes);
 

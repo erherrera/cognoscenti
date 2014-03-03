@@ -157,6 +157,13 @@ public class NoteRecord extends DOMFace
         }
         setScalar("visibility", Integer.toString(newData));
     }
+    /**
+     * Visibility value of 1 means that this note is publicly viewable.
+     * This convenience method makes the test for this easy.
+     */
+    public boolean isPublic() {
+        return (getVisibility()==1);
+    }
 
     /**
     * given a display level and a user (AuthRequest) tells whether

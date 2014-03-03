@@ -20,8 +20,8 @@ public class LeafData implements IsSerializable {
     private long effectiveDate = -1;
     private String pinPos;
     private boolean isDraft = false;
-    public String[] allRoles;
-    public String[] checkedRoles;
+    public String[] allRoles = new String[0];
+    public String[] checkedRoles = new String[0];
 
     public String getId()
     {

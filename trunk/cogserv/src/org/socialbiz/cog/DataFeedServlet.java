@@ -246,13 +246,13 @@ public class DataFeedServlet extends HttpServlet {
             String searchText) throws Exception {
         // String b = ar.defParam("b", "All Books");
         // boolean isGlobal = "All Books".equals(b);
-        // String pf = ar.defParam("pf", "all");
+        String pf = ar.defParam("pf", "all");
         String u = ar.defParam("u", "old");
         if ("new".equals(u)) {
             ar.setNewUI(true);
         }
         SearchManager.initializeIndex();
-        return SearchManager.performSearch(ar, searchText);
+        return SearchManager.performSearch(ar, searchText, pf, null);
     }
 
     // operation get task list.
