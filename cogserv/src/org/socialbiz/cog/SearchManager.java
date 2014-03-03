@@ -113,10 +113,14 @@ public class SearchManager {
         iWriter.close();
     }
 
-    public static synchronized List<SearchResultRecord> performSearch(AuthRequest ar, String queryStr)
-            throws Exception {
+
+    public static synchronized List<SearchResultRecord> performSearch(AuthRequest ar,
+                String queryStr, String relationship, String siteId) throws Exception {
 
         Vector<SearchResultRecord> vec = new Vector<SearchResultRecord>();
+
+        boolean onlyOwner = ("owner".equals(relationship));
+        boolean onlyMember = ("member".equals(relationship));
 
         DirectoryReader ireader = DirectoryReader.open(directory);
         IndexSearcher isearcher = new IndexSearcher(ireader);
@@ -138,6 +142,23 @@ public class SearchManager {
             String noteSubject = null;
 
             NGPage ngp = NGPageIndex.getProjectByKeyOrFail(key);
+
+            //if restricted to one site, check that site first and skip if not matching
+            if (siteId!=null) {
+                if (!siteId.equals(ngp.getSiteKey())) {
+                    continue;
+                }
+            }
+            if (onlyOwner) {
+                if (!ngp.secondaryPermission(up)) {
+                    continue;
+                }
+            }
+            if (onlyMember) {
+                if (!ngp.primaryOrSecondaryPermission(up)) {
+                    continue;
+                }
+            }
 
             if ("$".equals(noteId)) {
                 //this is the case of the entire page search record

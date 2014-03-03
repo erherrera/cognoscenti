@@ -993,42 +993,6 @@ public class MainTabsViewControler extends BaseController {
     }
 
 
-    @RequestMapping(value = "/{userKey}/Search.htm", method = RequestMethod.GET)
-    public ModelAndView showSearch(@PathVariable String userKey,
-                                   HttpServletRequest request, HttpServletResponse response)
-                                    throws Exception {
-        ModelAndView modelAndView = null;
-        try{
-            AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            if(!ar.isLoggedIn()){
-                return showWarningView(ar, "message.loginalert.see.page");
-            }
-
-            String headerType = ar.defParam("h",null);
-            String tabId = ar.defParam("t","Home");
-            String bookKey = ar.defParam("bookId",null);
-            String pageKey = ar.defParam("pageId",null);
-
-            if(pageKey == null && headerType == null ){
-                headerType = "user";
-            }else{
-                request.setAttribute("pageId",pageKey);
-                request.setAttribute("siteId",pageKey);
-                request.setAttribute("book", bookKey);
-            }
-
-            request.setAttribute("headerType", headerType);
-            request.setAttribute("tabId", tabId);
-            request.setAttribute("realRequestURL", ar.getRequestURL());
-            request.setAttribute("userKey",userKey);
-
-            modelAndView=new ModelAndView("search");
-        }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.search.page", null , ex);
-        }
-        return modelAndView;
-    }
-
     @RequestMapping(value = "/{userKey}/TagLinks.htm", method = RequestMethod.GET)
     public ModelAndView TagLinks(@PathVariable String userKey,
         HttpServletRequest request, HttpServletResponse response)
@@ -1062,8 +1026,14 @@ public class MainTabsViewControler extends BaseController {
         try{
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             String searchText   = ar.reqParam("searchText");
+            String b = ar.defParam("b", null);
+            if ("All Books".equals(b)) {
+                b = null;
+            }
+            String pf = ar.defParam("pf", "all");
+
             SearchManager.initializeIndex();
-            List<SearchResultRecord> searchResults = SearchManager.performSearch(ar, searchText);
+            List<SearchResultRecord> searchResults = SearchManager.performSearch(ar, searchText, pf, b);
             request.setAttribute("searchResults",searchResults);
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.search.public.note.page", null , ex);

@@ -319,6 +319,9 @@ public class AttachmentRecord extends DOMFace {
         }
         setScalar("visibility", Integer.toString(viz));
     }
+    public boolean isPublic() {
+        return (getVisibility()==1);
+    }
 
     public int getVersion() {
         return safeConvertInt(getAttribute("version"));

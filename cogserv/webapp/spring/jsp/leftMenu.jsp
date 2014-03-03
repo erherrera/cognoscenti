@@ -56,28 +56,14 @@ Optional Parameter:
     }
     else {
         UserProfile uProf = ar.getUserProfile();
-        String acttionUrl = ar.retPath + "v/" + uProf.getKey() + "/Search.htm";
-        String bKey = "All Books";
-        if(ngb != null){
-            bKey = ngb.getKey();
-        }
     %>
     <div class="searchLink">Search</div>
     <div class="searchLinkContent">
         <div>
-            <form method="get" id="searchform" action="<%ar.writeHtml(acttionUrl);%>">
-                <input type="hidden" name="b" value="<%ar.writeHtml(bKey);%>" />
-                <% if (pageId!=null) { %>
-                <input type="hidden" name="pageId" value="<%ar.writeHtml(pageId);%>" />
-                <% }
-                if(ngb != null){ %>
-                <input type="hidden" name="bookId" value="<%ar.writeHtml(ngb.getKey());%>" />
-                <%}%>
-                <input type="hidden" name="h" value="<%ar.writeHtml(headerType);%>" />
-                <input type="hidden" name="t" value="<%ar.writeHtml(tabId);%>" />
+            <form method="get" id="searchform" action="<%=ar.retPath%>t/searchPublicNotes.htm">
                 <table class="search">
                     <tr>
-                        <td><input type="text" name="qs" size="16" id="qs"/></td>
+                        <td><input type="text" name="searchText" size="16" id="qs"/></td>
                         <td><input type="image" src="<%=ar.baseURL%>button_go.gif" /></td>
                     </tr>
                 </table>

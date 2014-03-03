@@ -126,6 +126,7 @@ public class LicenseRecord extends DOMFace  implements License
         licenseInfo.put("timeout", getTimeout());
         licenseInfo.put("creator", getCreator());
         licenseInfo.put("role", getRole());
+        licenseInfo.put("readonly", isReadOnly());
         return licenseInfo;
     }
 

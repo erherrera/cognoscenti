@@ -156,6 +156,9 @@ Optional Parameters:
         }
         */
     }
+    public String getNoteCreatorURL(AuthRequest ar, NGContainer ngc) {
+        return ar.retPath + "t/texteditor.htm?pid=" + ngc.getKey() + "&nid=";
+    }
 
 
     /**
@@ -282,7 +285,7 @@ Optional Parameters:
 
             ar.write("\n<div class=\"createLeaf\">");
 
-            String createNoteUrl = pageRootURL+"note/noteEditor.htm&visibility_value="
+            String createNoteUrl = getNoteCreatorURL(ar, ngc) + "&visibility_value="
                 +ar.defParam("visibility_value","0");
 
             ar.write("\n<a id=\"create_leaflet\" href=\"");
@@ -320,7 +323,7 @@ Optional Parameters:
 
             ar.write("\n<div class=\"createLeaf\">");
 
-            String createNoteUrl = pageRootURL+"note/noteEditor.htm&visibility_value="
+            String createNoteUrl = getNoteCreatorURL(ar, site) + "&visibility_value="
                 +ar.defParam("visibility_value","0");
 
             ar.write("\n<a id=\"create_leaflet\" href=\"");
