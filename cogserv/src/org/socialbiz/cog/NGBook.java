@@ -132,7 +132,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     public static NGBook readSiteByKey(String key) throws Exception {
         if (keyToSite == null) {
             // this should never happen, but if it does....
-            throw new ProgramLogicError("in readBookByKey called before the site index initialzed.");
+            throw new ProgramLogicError("in readSiteByKey called before the site index initialzed.");
         }
         if (key == null) {
             throw new Exception("Program Logic Error: Site key of null is no longer allowed.");
