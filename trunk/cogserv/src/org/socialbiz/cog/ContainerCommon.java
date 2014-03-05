@@ -44,6 +44,7 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
     DOMFace noteParent;
     DOMFace roleParent;
     DOMFace historyParent;
+    DOMFace infoParent;
 
     public ContainerCommon(File path, Document doc) throws Exception
     {
@@ -52,6 +53,7 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
         noteParent   = getNoteParent();
         roleParent   = getRoleParent();
         historyParent = getHistoryParent();
+        infoParent    = getInfoParent();
     }
 
     /**
@@ -87,6 +89,7 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
     protected abstract DOMFace getNoteParent() throws Exception;
     protected abstract DOMFace getRoleParent() throws Exception;
     protected abstract DOMFace getHistoryParent() throws Exception;
+    protected abstract DOMFace getInfoParent() throws Exception;
     public abstract NGRole getPrimaryRole() throws Exception;
     public abstract NGRole getSecondaryRole() throws Exception;
 
@@ -749,5 +752,74 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
             }
         }
         return count;
+    }
+
+    /**
+    * Pages have a set of licenses
+    */
+    public Vector<License> getLicenses() throws Exception {
+        Vector<LicenseRecord> vc = infoParent.getChildren("license", LicenseRecord.class);
+        Vector<License> v = new Vector<License>();
+        for (License child : vc) {
+            v.add(child);
+        }
+        return v;
+    }
+
+    public License getLicense(String id) throws Exception {
+        if (id==null || id.length()==0) {
+            //silently ignore the null by returning null
+            return null;
+        }
+        for (License child : getLicenses()) {
+            if (id.equals(child.getId())) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    public boolean removeLicense(String id) throws Exception {
+        Vector<LicenseRecord> vc = infoParent.getChildren("license", LicenseRecord.class);
+        for (LicenseRecord child : vc) {
+            if (id.equals(child.getId())) {
+                infoParent.removeChild(child);
+                return true;
+            }
+        }
+        //maybe this should throw an exception?
+        return false;
+    }
+
+    public License addLicense(String id) throws Exception {
+        LicenseRecord newLement = infoParent.createChildWithID("license",
+                LicenseRecord.class, "id", id);
+        return newLement;
+    }
+
+    public boolean isValidLicense(License lr, long time) throws Exception {
+        if (lr==null) {
+            //no license passed, then not valid, handle this quietly so that
+            //this can be used with getLicense operations.
+            return false;
+        }
+        if (time>lr.getTimeout()) {
+            return false;
+        }
+
+        NGRole ngr = getRole(lr.getRole());
+        if (ngr==null) {
+            //can not be valid if the role no longer exists
+            return false;
+        }
+
+        //check to see if the user who created it, is still in the
+        //role or in the member's role
+        AddressListEntry ale = new AddressListEntry(lr.getCreator());
+        if (!ngr.isExpandedPlayer(ale,  this) && !primaryOrSecondaryPermission(ale)) {
+            return false;
+        }
+
+        return true;
     }
 }

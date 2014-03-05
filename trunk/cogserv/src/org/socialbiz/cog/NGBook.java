@@ -539,6 +539,10 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return requireChild("history", DOMFace.class);
     }
 
+    protected DOMFace getInfoParent() throws Exception {
+        return siteInfoRec;
+    }
+
     // ////////////////// NOTES /////////////////////////
 
     public void setLastModify(AuthRequest ar) throws Exception {

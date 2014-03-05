@@ -680,6 +680,16 @@
         <put-attribute name="body" value="/spring/jsp/UserAllTasks.jsp" />
     </definition>
 
+    <definition name="RemoteProfiles" extends="baseLayout">
+        <put-attribute name="title" value="User Goals" />
+        <put-attribute name="body" value="/spring/jsp/RemoteProfiles.jsp" />
+    </definition>
+
+    <definition name="ConsolidatedTasks" extends="baseLayout">
+        <put-attribute name="title" value="User Goals" />
+        <put-attribute name="body" value="/spring/jsp/ConsolidatedTasks.jsp" />
+    </definition>
+
     <definition name="UserConnections" extends="baseLayout">
         <put-attribute name="title" value="User Connections" />
         <put-attribute name="body" value="/spring/jsp/UserConnections.jsp" />

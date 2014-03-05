@@ -806,62 +806,12 @@ public class NGPage extends ContainerCommon implements NGContainer
 
 
     /**
-    * Pages have a set of licenses
+    * Override the superclass implementation to add a license for the process
     */
-    public Vector<License> getLicenses()
-        throws Exception
-    {
-        Vector<LicenseRecord> vc = pageInfo.getChildren("license", LicenseRecord.class);
-        Vector<License> v = new Vector<License>();
-        for (License child : vc) {
-            v.add(child);
-        }
-        v.add(new LicenseForProcess(getProcess()));
-        return v;
-    }
-
-    public License getLicense(String id) throws Exception {
-        if (id==null || id.length()==0) {
-            //silently ignore the by returning null
-            return null;
-        }
-        Vector<LicenseRecord> vc = pageInfo.getChildren("license", LicenseRecord.class);
-        for (License child : vc) {
-            if (id.equals(child.getId())) {
-                return child;
-            }
-        }
-
-        LicenseForProcess lfp = new LicenseForProcess(getProcess());
-        if (id.equals(lfp.getId())) {
-            return lfp;
-        }
-
-        return null;
-    }
-
-    public boolean removeLicense(String id)
-        throws Exception
-    {
-        Vector<LicenseRecord> vc = pageInfo.getChildren("license", LicenseRecord.class);
-        for (LicenseRecord child : vc)
-        {
-            if (id.equals(child.getId()))
-            {
-                pageInfo.removeChild(child);
-                return true;
-            }
-        }
-        //maybe this should throw an exception?
-        return false;
-    }
-
-    public License addLicense(String id)
-        throws Exception
-    {
-        LicenseRecord newLement = pageInfo.createChildWithID("license",
-                LicenseRecord.class, "id", id);
-        return newLement;
+    public Vector<License> getLicenses() throws Exception {
+        Vector<License> vc = super.getLicenses();
+        vc.add(new LicenseForProcess(getProcess()));
+        return vc;
     }
 
     public License createLicense(String userId, String role, long endDate,
@@ -875,31 +825,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         return lr;
     }
 
-    public boolean isValidLicense(License lr, long time) throws Exception {
-        if (lr==null) {
-            //no license passed, then not valid, handle this quietly so that
-            //this can be used with getLicense operations.
-            return false;
-        }
-        if (time>lr.getTimeout()) {
-            return false;
-        }
 
-        NGRole ngr = getRole(lr.getRole());
-        if (ngr==null) {
-            //can not be valid if the role no longer exists
-            return false;
-        }
-
-        //check to see if the user who created it, is still in the
-        //role or in the member's role
-        AddressListEntry ale = new AddressListEntry(lr.getCreator());
-        if (!ngr.isExpandedPlayer(ale,  this) && !primaryOrSecondaryPermission(ale)) {
-            return false;
-        }
-
-        return true;
-    }
 
     ////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////
@@ -911,7 +837,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     * This test primarily is to render the page, and then
     * to parse the result as XML.  If the result is valid XML
     * then we have some assurance that nothing accidental was
-    * included in the page.  Parhaps we can test the DOM and see
+    * included in the page.  Perhaps we can test the DOM and see
     * if things are nested correctly ... in the future.
     */
     public void testRender(AuthRequest ar)
@@ -1263,6 +1189,16 @@ public class NGPage extends ContainerCommon implements NGContainer
     */
     protected DOMFace getHistoryParent() throws Exception {
         return getProcess().requireChild("history", DOMFace.class);
+    }
+
+    /**
+    * Used by ContainerCommon to provide methods for this class
+    */
+    protected DOMFace getInfoParent() throws Exception {
+        if (pageInfo==null) {
+            pageInfo = requireChild("pageInfo", PageInfoRecord.class);
+        }
+        return pageInfo;
     }
 
 
