@@ -1022,4 +1022,7 @@ public class UserProfile extends DOMFace implements UserRef
         return accessCode;
     }
 
+    public UserPage getUserPage() throws Exception {
+        return UserPage.findOrCreateUserPage(key);
+    }
 }

@@ -23,6 +23,8 @@ package org.socialbiz.cog;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -83,7 +85,7 @@ public class TaskRef extends DOMFace
         setState(tr.getState());
         setStatus(tr.getStatus());
         setPercentComplete(tr.getPercentComplete());
-
+        setUniversalId(tr.getUniversalId());
     }
 
 
@@ -246,6 +248,29 @@ public class TaskRef extends DOMFace
             throw new Exception("Percent complete value must be between 0% and 100%, instead received "+newVal+"%");
         }
         setScalar("percent", Integer.toString(newVal));
+    }
+
+
+    public String getUniversalId() {
+        return getScalar("universalId");
+    }
+
+    public void setUniversalId(String newId) {
+        setScalar("universalId", newId);
+    }
+
+    public JSONObject getJSONObject() throws Exception {
+        JSONObject obj = new JSONObject();
+        obj.put("synopsis", getSynopsis());
+        obj.put("description", getDescription());
+        obj.put("duedate", getDueDate());
+        obj.put("priority", getPriority());
+        obj.put("duration", getDuration());
+        obj.put("state", getState());
+        obj.put("status", getStatus());
+        obj.put("percent", getPercentComplete());
+        obj.put("universalid", getUniversalId());
+        return obj;
     }
 
     public static void sortTasksByRank(List<TaskRef> tasks)

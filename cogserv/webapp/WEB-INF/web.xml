@@ -86,6 +86,14 @@
         <servlet-name>apiServlet</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>apuServlet</servlet-name>
+        <servlet-class>org.socialbiz.cog.api.APUServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>apuServlet</servlet-name>
+        <url-pattern>/apu/*</url-pattern>
+    </servlet-mapping>
 
 
     <servlet>

@@ -48,6 +48,9 @@ public class UserPage extends ContainerCommon
     private List<TaskRef> userTaskRefs = null;
     private DOMFace statusReps = null;
     private List<StatusReport> statusRepList = null;
+    private DOMFace profileRefs = null;
+    private List<ProfileRef> profileList = null;
+
 
     public UserPage(File file, Document newDoc, String userKey)
         throws Exception
@@ -292,6 +295,12 @@ public class UserPage extends ContainerCommon
         return requireChild("history", DOMFace.class);
     }
 
+    protected DOMFace getInfoParent() throws Exception {
+        return requireChild("pageInfo", DOMFace.class);
+    }
+
+
+
 
 
     public NGRole getPrimaryRole() throws Exception {
@@ -322,10 +331,6 @@ public class UserPage extends ContainerCommon
     public void saveContent(AuthRequest ar, String comment)  throws Exception
     {
         throw new ProgramLogicError("saveContent not implemented on UserPage");
-    }
-    public  License getLicense(String id) throws Exception
-    {
-        throw new ProgramLogicError("getLicense not implemented on UserPage");
     }
     public  String getFullName()
     {
@@ -672,16 +677,13 @@ public class UserPage extends ContainerCommon
         return newOne;
     }
 
-
     public void deleteStatusReport(String id) throws Exception {
-
         StatusReport found = null;
         for (StatusReport stat : getStatusReports()) {
             if (id.equals(stat.getId())) {
                 found = stat;
             }
         }
-
         if (found != null) {
             statusReps.removeChild(found);
             statusRepList.remove(found);
@@ -692,7 +694,8 @@ public class UserPage extends ContainerCommon
         NGRole aRole  = getRole("Contacts");
         if(aRole != null){
             return aRole.getExpandedPlayers(this);
-        }else{
+        }
+        else{
             return new ArrayList<AddressListEntry>();
         }
     }
@@ -723,5 +726,46 @@ public class UserPage extends ContainerCommon
 
         return resultList;
     }
+
+    public List<ProfileRef> getProfileRefs() throws Exception {
+        if (profileRefs==null) {
+            profileRefs = requireChild("ProfileRefs", DOMFace.class);
+        }
+        if (profileList==null) {
+            profileList = profileRefs.getChildren("ProfileRef", ProfileRef.class);
+        }
+        return profileList;
+    }
+
+    public ProfileRef findOrCreateProfileRef(String address) throws Exception {
+
+        for (ProfileRef tr : getProfileRefs()) {
+            if (address.equals(tr.getAddress())) {
+                return tr;
+            }
+        }
+
+        ProfileRef newOne = profileRefs.createChild("ProfileRef", ProfileRef.class);
+        newOne.setAddress(address);
+        return newOne;
+    }
+
+    public void deleteProfileRef(String address) throws Exception {
+
+        ProfileRef found = null;
+        for (ProfileRef tr : getProfileRefs()) {
+            if (address.equals(tr.getAddress())) {
+                found = tr;
+            }
+        }
+
+        if (found != null) {
+            profileRefs.removeChild(found);
+            profileList.remove(found);
+        }
+    }
+
+
+
 
 }
