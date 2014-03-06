@@ -7,7 +7,7 @@
 %><%@page import="org.socialbiz.cog.NGPageIndex"
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.GoalRecord"
-%><%@page import="org.socialbiz.cog.TaskRef"
+%><%@page import="org.socialbiz.cog.RemoteGoal"
 %><%@page import="org.socialbiz.cog.UserProfile"
 %><%@page import="org.socialbiz.cog.UtilityMethods"
 %><%@page import="org.socialbiz.cog.rest.TaskHelper"
@@ -40,7 +40,7 @@
     String op = ar.reqParam("op");
     String go = ar.reqParam("go");
 
-    TaskRef ref = uPage.findOrCreateTask(projid, taskid);
+    RemoteGoal ref = uPage.findOrCreateTask(projid, taskid);
 
     if ("Update Status".equals(op)) {
 
@@ -75,8 +75,8 @@
             throw new Exception("something wrong, rank values are never supposed to be less than one");
         }
         int highestPreceedingRank = 0;
-        TaskRef found = null;
-        for (TaskRef refx : uPage.getUserTaskRefs()) {
+        RemoteGoal found = null;
+        for (RemoteGoal refx : uPage.getUserTaskRefs()) {
             int rankx = refx.getRank();
             if (rankx<myRank && rankx>highestPreceedingRank) {
                 highestPreceedingRank = rankx;
@@ -96,8 +96,8 @@
             throw new Exception("something wrong, rank values are never supposed to be less than one");
         }
         int lowestFollowingRank = 99999;
-        TaskRef found = null;
-        for (TaskRef refx : uPage.getUserTaskRefs()) {
+        RemoteGoal found = null;
+        for (RemoteGoal refx : uPage.getUserTaskRefs()) {
             int rankx = refx.getRank();
             if (rankx>myRank && rankx<lowestFollowingRank) {
                 lowestFollowingRank = rankx;
