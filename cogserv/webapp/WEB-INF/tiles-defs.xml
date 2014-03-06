@@ -710,6 +710,11 @@
         <put-attribute name="body" value="/spring/jsp/displayTaskInfo.jsp" />
     </definition>
 
+    <definition name="ViewRemoteTask" extends="baseLayoutWithoutLeftPanel">
+        <put-attribute name="title" value="Process" />
+        <put-attribute name="body" value="/spring/jsp/ViewRemoteTask.jsp" />
+    </definition>
+
     <definition name="accountRequestResult" extends="baseLayout">
         <put-attribute name="title" value="User Goals" />
         <put-attribute name="body" value="/spring/jsp/accountRequestResult.jsp" />

@@ -29,21 +29,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
-* A TaskRef is a reference to a Task.  It is a record that can be placed
-* in one document, that points to a task that exists in a Project (NGPage).
-* The purpose is to allow a user's profile to contain a list of task
+* A RemoteGoal is a reference to a Goal at a remote site, or even the
+* local site, but managed separately from those projects.
+* The purpose is to allow a user's profile to contain a list of goal
 * references, and allow that user to reorganize them and manipulate
-* them, without messing with the original task or the way that task
-* appears in the project task list.
+* them, without messing with the original goal or the way that goal
+* appears in the project goal list.
 */
-public class TaskRef extends DOMFace
+public class RemoteGoal extends DOMFace
 {
 
     //this is a temporary (non persistent) marker that can be used
     //to garbage collect left over dangling task references.
     public boolean touchFlag = false;
 
-    public TaskRef(Document nDoc, Element nEle, DOMFace p)
+    public RemoteGoal(Document nDoc, Element nEle, DOMFace p)
     {
         super(nDoc, nEle, p);
     }
@@ -254,9 +254,15 @@ public class TaskRef extends DOMFace
     public String getUniversalId() {
         return getScalar("universalId");
     }
-
     public void setUniversalId(String newId) {
         setScalar("universalId", newId);
+    }
+
+    public String getAccessURL() {
+        return getScalar("accessUrl");
+    }
+    public void setAccessURL(String newVal) {
+        setScalar("accessUrl", newVal);
     }
 
     public JSONObject getJSONObject() throws Exception {
@@ -273,17 +279,30 @@ public class TaskRef extends DOMFace
         return obj;
     }
 
-    public static void sortTasksByRank(List<TaskRef> tasks)
+    public void setFromJSONObject(JSONObject obj) throws Exception {
+        setSynopsis(obj.getString("synopsis"));
+        setDescription(obj.getString("description"));
+        setDueDate(obj.getLong("duedate"));
+        setPriority(obj.getInt("priority"));
+        setDuration(obj.getInt("duration"));
+        setState(obj.getInt("state"));
+        setStatus(obj.getString("status"));
+        setPercentComplete(obj.getInt("percent"));
+        setUniversalId(obj.getString("synopsis"));
+        setAccessURL(obj.getString("content"));
+    }
+
+    public static void sortTasksByRank(List<RemoteGoal> tasks)
     {
         Collections.sort(tasks, new TaskRefRankComparator());
     }
 
 
-    static class TaskRefRankComparator implements Comparator<TaskRef> {
+    static class TaskRefRankComparator implements Comparator<RemoteGoal> {
         public TaskRefRankComparator() {
         }
 
-        public int compare(TaskRef o1, TaskRef o2) {
+        public int compare(RemoteGoal o1, RemoteGoal o2) {
             try {
                 int rank1 = o1.getRank();
                 int rank2 = o2.getRank();

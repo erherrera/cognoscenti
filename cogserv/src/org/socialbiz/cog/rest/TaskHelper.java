@@ -29,7 +29,7 @@ import org.socialbiz.cog.NGContainer;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.GoalRecord;
-import org.socialbiz.cog.TaskRef;
+import org.socialbiz.cog.RemoteGoal;
 import org.socialbiz.cog.UserPage;
 import org.socialbiz.cog.UtilityMethods;
 import java.util.Hashtable;
@@ -238,21 +238,21 @@ public class TaskHelper
             if (state == BaseRecord.STATE_STARTED ||
                 state == BaseRecord.STATE_ACCEPTED)  {
                 NGPage proj = pageMap.get(existingTask);
-                TaskRef ref = uPage.findOrCreateTask( proj.getKey(), existingTask.getId() );
+                RemoteGoal ref = uPage.findOrCreateTask( proj.getKey(), existingTask.getId() );
                 ref.touchFlag = true;
                 ref.syncFromTask(existingTask);
             }
         }
 
-        Vector<TaskRef> untouched = new Vector<TaskRef>();
-        for (TaskRef ref : uPage.getUserTaskRefs()) {
+        Vector<RemoteGoal> untouched = new Vector<RemoteGoal>();
+        for (RemoteGoal ref : uPage.getUserTaskRefs()) {
 
             if (!ref.touchFlag) {
                 untouched.add(ref);
             }
         }
 
-        for (TaskRef dangler : untouched) {
+        for (RemoteGoal dangler : untouched) {
             uPage.deleteTask(dangler.getProjectKey(), dangler.getId());
         }
 

@@ -446,6 +446,24 @@ public class UserController extends BaseController {
     }
 
 
+    @RequestMapping(value = "/{userKey}/ViewRemoteTask.htm", method = RequestMethod.GET)
+    public ModelAndView ViewRemoteTask(@PathVariable String userKey,
+            HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            if(!ar.isLoggedIn()){
+                return showWarningView(ar, "message.loginalert.see.page");
+            }
+            UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
+
+            return createModelAndView(ar, userBeingViewed, "Goals", "ViewRemoteTask");
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.usertask.page", new Object[]{userKey} , ex);
+        }
+    }
+
+
 
     @RequestMapping(value = "/handlePersonalSubscriptions.ajax", method = RequestMethod.POST)
     public void handlePersonalSubscriptions(HttpServletRequest request, HttpServletResponse response)

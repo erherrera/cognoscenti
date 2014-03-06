@@ -14,7 +14,7 @@
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.GoalRecord"
-%><%@page import="org.socialbiz.cog.TaskRef"
+%><%@page import="org.socialbiz.cog.RemoteGoal"
 %><%@page import="org.socialbiz.cog.UserProfile"
 %><%@page import="org.socialbiz.cog.UtilityMethods"
 %><%@page import="org.socialbiz.cog.rest.TaskHelper"
@@ -69,17 +69,17 @@
     <col width="460">
     <col width="150">
 <%
-	List<TaskRef> myActive = uPage.getUserTaskRefs();
-    TaskRef.sortTasksByRank(myActive);
+    List<RemoteGoal> myActive = uPage.getUserTaskRefs();
+    RemoteGoal.sortTasksByRank(myActive);
     String lastKey ="";
-    for (TaskRef tr : myActive)
+    for (RemoteGoal tr : myActive)
     {
         String projectKey = tr.getProjectKey();
         NGPage ngpx = NGPageIndex.getProjectByKeyOrFail(projectKey);
         GoalRecord task = ngpx.getGoalOrNull(tr.getId());
         if (task==null) {
-            //task may have been removed from project ...
-            continue;
+    //task may have been removed from project ...
+    continue;
         }
 
         String projectPath = "p/"+projectKey+"/process.htm";

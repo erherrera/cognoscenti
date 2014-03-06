@@ -42,7 +42,7 @@
 %><%@page import="org.socialbiz.cog.SectionFormat"
 %><%@page import="org.socialbiz.cog.SectionTask"
 %><%@page import="org.socialbiz.cog.SectionUtil"
-%><%@page import="org.socialbiz.cog.TaskRef"
+%><%@page import="org.socialbiz.cog.RemoteGoal"
 %><%@page import="org.socialbiz.cog.UserManager"
 %><%@page import="org.socialbiz.cog.UserProfile"
 %><%@page import="org.socialbiz.cog.UtilityMethods"

@@ -30,7 +30,7 @@
         <%
             UserPage uPage2 = uProf.getUserPage();
 
-            for (TaskRef tr : uPage2.getUserTaskRefs())
+            for (RemoteGoal tr : uPage2.getUserTaskRefs())
             {
         %>
 
@@ -42,7 +42,7 @@
                 <td><%
                     SectionUtil.nicePrintTime(ar, tr.getDueDate(), ar.nowTime);
                 %></td>
-                <td>http://www.google.com/</td>
+                <td>ViewRemoteTask.htm?taskId=<%=tr.getId()%>&projKey=<%=tr.getProjectKey()%></td>
                 <td>4444</td>
                 <td>Project X</td>
                 <td>xx</td>

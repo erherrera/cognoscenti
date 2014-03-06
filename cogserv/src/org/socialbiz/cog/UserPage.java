@@ -45,7 +45,7 @@ public class UserPage extends ContainerCommon
     private Vector<String> existingIds = null;
 
     private DOMFace taskRefs = null;
-    private List<TaskRef> userTaskRefs = null;
+    private List<RemoteGoal> userTaskRefs = null;
     private DOMFace statusReps = null;
     private List<StatusReport> statusRepList = null;
     private DOMFace profileRefs = null;
@@ -574,38 +574,51 @@ public class UserPage extends ContainerCommon
         throw new ProgramLogicError("Extended save method not implemented on UserPage.");
     }
 
-    public List<TaskRef> getUserTaskRefs() throws Exception {
+    public List<RemoteGoal> getUserTaskRefs() throws Exception {
 
         if (taskRefs==null) {
             taskRefs = requireChild("TaskRefs", DOMFace.class);
         }
         if (userTaskRefs==null) {
-            userTaskRefs = taskRefs.getChildren("Task", TaskRef.class);
-            TaskRef.sortTasksByRank(userTaskRefs);
+            userTaskRefs = taskRefs.getChildren("Task", RemoteGoal.class);
+            RemoteGoal.sortTasksByRank(userTaskRefs);
         }
 
         return userTaskRefs;
     }
 
-    public TaskRef findOrCreateTask(String projectKey, String id) throws Exception {
+    public RemoteGoal findOrCreateTask(String projectKey, String id) throws Exception {
 
-        for (TaskRef tr : getUserTaskRefs()) {
+        for (RemoteGoal tr : getUserTaskRefs()) {
             if (projectKey.equals(tr.getProjectKey()) && id.equals(tr.getId())) {
                 return tr;
             }
         }
 
-        TaskRef newOne = taskRefs.createChild("Task", TaskRef.class);
+        RemoteGoal newOne = taskRefs.createChild("Task", RemoteGoal.class);
         newOne.setProjectKey(projectKey);
         newOne.setId(id);
         return newOne;
 
     }
 
+    public RemoteGoal findOrCreateRemoteGoal(String accessUrl) throws Exception {
+
+        for (RemoteGoal tr : getUserTaskRefs()) {
+            if (accessUrl.equals(tr.getAccessURL())) {
+                return tr;
+            }
+        }
+
+        RemoteGoal newOne = taskRefs.createChild("Task", RemoteGoal.class);
+        newOne.setAccessURL(accessUrl);
+        return newOne;
+    }
+
     public void deleteTask(String projectKey, String id) throws Exception {
 
-        TaskRef found = null;
-        for (TaskRef tr : getUserTaskRefs()) {
+        RemoteGoal found = null;
+        for (RemoteGoal tr : getUserTaskRefs()) {
             if (projectKey.equals(tr.getProjectKey()) && id.equals(tr.getId())) {
                 found = tr;
             }
@@ -618,25 +631,25 @@ public class UserPage extends ContainerCommon
     }
 
     public void clearTaskRefFlags() throws Exception {
-        for (TaskRef tr : getUserTaskRefs()) {
+        for (RemoteGoal tr : getUserTaskRefs()) {
             tr.touchFlag = false;
         }
     }
 
     public void cleanUpTaskRanks() throws Exception {
 
-        List<TaskRef> refs = getUserTaskRefs();
-        TaskRef.sortTasksByRank(refs);
+        List<RemoteGoal> refs = getUserTaskRefs();
+        RemoteGoal.sortTasksByRank(refs);
         int count = 0;
 
         //first, renumber the ones that have a rank
-        for (TaskRef tr : refs) {
+        for (RemoteGoal tr : refs) {
             if (tr.getRank()>0) {
                 tr.setRank(++count);
             }
         }
         //then number the unranked ones after the above
-        for (TaskRef tr : refs) {
+        for (RemoteGoal tr : refs) {
             if (tr.getRank()<=0) {
                 tr.setRank(++count);
             }
