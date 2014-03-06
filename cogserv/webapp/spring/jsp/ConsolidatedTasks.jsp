@@ -42,7 +42,7 @@
                 <td><%
                     SectionUtil.nicePrintTime(ar, tr.getDueDate(), ar.nowTime);
                 %></td>
-                <td>ViewRemoteTask.htm?taskId=<%=tr.getId()%>&projKey=<%=tr.getProjectKey()%></td>
+                <td>ViewRemoteTask.htm?url=<% ar.writeURLData(tr.getAccessURL());%></td>
                 <td>4444</td>
                 <td>Project X</td>
                 <td>xx</td>

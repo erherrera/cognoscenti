@@ -24,7 +24,6 @@ import org.socialbiz.cog.License;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.ServerInitializer;
-import org.socialbiz.cog.UserPage;
 import org.socialbiz.cog.UserProfile;
 
 import java.io.PrintWriter;
@@ -72,8 +71,6 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
             if (!ServerInitializer.isRunning()) {
                 throw new Exception("Server is not ready to handle requests.");
             }
-            ar.assertLoggedIn("must be logged in to get APU information ... for now");
-
             doAuthenticatedGet(ar);
         }
         catch (Exception e) {
@@ -88,6 +85,10 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
     private void doAuthenticatedGet(AuthRequest ar)  throws Exception {
 
         try {
+            //if (!ar.isLoggedIn()) {
+            //    throw new Exception("must be logged in to get APU information ... for now");
+            //}
+
             UserDecoder userDec = new UserDecoder(ar);
 
             JSONObject root = new JSONObject();
@@ -143,7 +144,7 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
 
             System.out.println("API_ERROR: "+ar.getCompleteURL());
 
-            ar.logException("API Servlet", e);
+            ar.logException("APU Servlet", e);
 
             JSONObject errorResponse = new JSONObject();
             errorResponse.put("responseCode", 500);

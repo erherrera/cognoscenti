@@ -64,11 +64,13 @@ import org.socialbiz.cog.ProfileRef;
 import org.socialbiz.cog.ProfileRequest;
 import org.socialbiz.cog.ReminderMgr;
 import org.socialbiz.cog.ReminderRecord;
+import org.socialbiz.cog.RemoteGoal;
 import org.socialbiz.cog.RoleRequestRecord;
 import org.socialbiz.cog.UserManager;
 import org.socialbiz.cog.UserPage;
 import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.UtilityMethods;
+import org.socialbiz.cog.api.RemoteProfile;
 import org.socialbiz.cog.dms.FolderAccessHelper;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
@@ -456,12 +458,49 @@ public class UserController extends BaseController {
                 return showWarningView(ar, "message.loginalert.see.page");
             }
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
+            UserPage uPage = userBeingViewed.getUserPage();
+            String accessUrl = ar.reqParam("url");
+            RemoteGoal rg =  uPage.findRemoteGoal(accessUrl);
+            if (rg==null) {
+                throw new Exception("unable to find a remote goal records with the url="+accessUrl);
+            }
 
             return createModelAndView(ar, userBeingViewed, "Goals", "ViewRemoteTask");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.usertask.page", new Object[]{userKey} , ex);
         }
     }
+
+
+    @RequestMapping(value = "/{userKey}/RefreshFromRemoteProfiles.form", method = RequestMethod.POST)
+    public ModelAndView RefreshFromRemoteProfiles(@PathVariable String userKey,
+            HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        try{
+            AuthRequest ar = NGWebUtils.getAuthRequest(request, response, "Can not update user contacts.");
+
+            String go = ar.reqParam("go");
+
+            UserProfile uProf = UserManager.getUserProfileByKey(userKey);
+            UserPage uPage = uProf.getUserPage();
+
+            List<ProfileRef> profRefs = uPage.getProfileRefs();
+            for (ProfileRef pRef : profRefs) {
+                RemoteProfile remProf = new RemoteProfile(pRef.getAddress());
+                remProf.syncRemoteGoals(uPage);
+            }
+            uPage.save(ar.getBestUserId(), ar.nowTime, "Synchronized goals from remote profiles");
+
+            return redirectBrowser(ar,go);
+
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.edit.micro.profile", null, ex);
+        }
+    }
+
+
+
+
 
 
 

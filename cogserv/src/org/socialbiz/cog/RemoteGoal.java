@@ -29,52 +29,41 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
-* A RemoteGoal is a reference to a Goal at a remote site, or even the
-* local site, but managed separately from those projects.
-* The purpose is to allow a user's profile to contain a list of goal
-* references, and allow that user to reorganize them and manipulate
-* them, without messing with the original goal or the way that goal
-* appears in the project goal list.
-*/
-public class RemoteGoal extends DOMFace
-{
+ * A RemoteGoal is a reference to a Goal at a remote site, or even the local
+ * site, but managed separately from those projects. The purpose is to allow a
+ * user's profile to contain a list of goal references, and allow that user to
+ * reorganize them and manipulate them, without messing with the original goal
+ * or the way that goal appears in the project goal list.
+ */
+public class RemoteGoal extends DOMFace {
 
-    //this is a temporary (non persistent) marker that can be used
-    //to garbage collect left over dangling task references.
+    // this is a temporary (non persistent) marker that can be used
+    // to garbage collect left over dangling task references.
     public boolean touchFlag = false;
 
-    public RemoteGoal(Document nDoc, Element nEle, DOMFace p)
-    {
+    public RemoteGoal(Document nDoc, Element nEle, DOMFace p) {
         super(nDoc, nEle, p);
     }
 
-    public String getProjectKey()
-        throws Exception
-    {
+    public String getProjectKey() throws Exception {
         return getAttribute("projKey");
     }
 
-    public void setProjectKey(String newVal)
-        throws Exception
-    {
+    public void setProjectKey(String newVal) throws Exception {
         setAttribute("projKey", newVal);
     }
 
-    public String getId()
-        throws Exception
-    {
+    public String getId() throws Exception {
         return getAttribute("id");
     }
 
-    public void setId(String newVal)
-        throws Exception
-    {
+    public void setId(String newVal) throws Exception {
         setAttribute("id", newVal);
     }
 
     /**
-    * syncFromTask picks up the common values from the task record
-    */
+     * syncFromTask picks up the common values from the task record
+     */
     public void syncFromTask(GoalRecord tr) throws Exception {
 
         setSynopsis(tr.getSynopsis());
@@ -88,179 +77,154 @@ public class RemoteGoal extends DOMFace
         setUniversalId(tr.getUniversalId());
     }
 
-
-    public String getSynopsis()
-        throws Exception
-    {
+    public String getSynopsis() throws Exception {
         return getScalar("synopsis");
     }
 
-    public void setSynopsis(String newVal)
-        throws Exception
-    {
+    public void setSynopsis(String newVal) throws Exception {
         setScalar("synopsis", newVal);
     }
 
-    public String getDescription()
-        throws Exception
-    {
+    public String getDescription() throws Exception {
         return getScalar("description");
     }
-    public void setDescription(String newVal)
-        throws Exception
-    {
+
+    public void setDescription(String newVal) throws Exception {
         if (newVal == null) {
             newVal = "";
         }
         setScalar("description", newVal);
     }
 
-    public long getDueDate()
-        throws Exception
-    {
+    public long getDueDate() throws Exception {
         String endDate = getScalar("dueDate");
         return safeConvertLong(endDate);
     }
-    public void setDueDate(long newVal)
-        throws Exception
-    {
+
+    public void setDueDate(long newVal) throws Exception {
         setScalar("dueDate", Long.toString(newVal));
     }
 
-    public long getStartDate()
-        throws Exception
-    {
+    public long getStartDate() throws Exception {
         String startDate = getScalar("startDate");
         return safeConvertLong(startDate);
     }
-    public void setStartDate(long newVal)
-        throws Exception
-    {
+
+    public void setStartDate(long newVal) throws Exception {
         setScalar("startDate", Long.toString(newVal));
     }
 
-    public long getEndDate()
-        throws Exception
-    {
+    public long getEndDate() throws Exception {
         String endDate = getScalar("endDate");
         return safeConvertLong(endDate);
     }
-    public void setEndDate(long newVal)
-        throws Exception
-    {
+
+    public void setEndDate(long newVal) throws Exception {
         setScalar("endDate", Long.toString(newVal));
     }
 
-    public int getPriority()
-        throws Exception
-    {
+    public int getPriority() throws Exception {
         String priority = getScalar("priority");
         return safeConvertInt(priority);
     }
-    public static String getPriorityStr(int priority)
-    throws Exception
-    {
-        switch (priority)
-        {
-            case 0:
-                return BaseRecord.PRIORITY_HIGH_STR;
-            case 1:
-                return BaseRecord.PRIORITY_MIDIUM__STR;
-            case 2:
-                return BaseRecord.PRIORITY_LOW__STR;
-            default:
+
+    public static String getPriorityStr(int priority) throws Exception {
+        switch (priority) {
+        case 0:
+            return BaseRecord.PRIORITY_HIGH_STR;
+        case 1:
+            return BaseRecord.PRIORITY_MIDIUM__STR;
+        case 2:
+            return BaseRecord.PRIORITY_LOW__STR;
+        default:
         }
         return BaseRecord.PRIORITY_LOW__STR;
     }
-    public void setPriority(int newVal)
-        throws Exception
-    {
+
+    public void setPriority(int newVal) throws Exception {
         setScalar("priority", Integer.toString(newVal));
     }
 
-    public long getDuration()
-        throws Exception
-    {
+    public long getDuration() throws Exception {
         String duration = getScalar("duration");
         return safeConvertLong(duration);
     }
-    public void setDuration(long newVal)
-        throws Exception
-    {
+
+    public void setDuration(long newVal) throws Exception {
         setScalar("duration", Long.toString(newVal));
     }
 
-    public int getState()
-        throws Exception
-    {
+    public int getState() throws Exception {
         String stateVal = getScalar("state");
         return safeConvertInt(stateVal);
     }
 
-    public void setState(int newVal)
-        throws Exception
-    {
+    public void setState(int newVal) throws Exception {
         setScalar("state", Integer.toString(newVal));
     }
 
-    public int getRank()
-        throws Exception
-    {
+    public int getRank() throws Exception {
         String rank = getScalar("rank");
         return safeConvertInt(rank);
     }
-    public void setRank(int newVal)
-        throws Exception
-    {
+
+    public void setRank(int newVal) throws Exception {
         setScalar("rank", Integer.toString(newVal));
     }
 
-    public String getStatus()
-        throws Exception
-    {
+    public String getStatus() throws Exception {
         return getScalar("status");
     }
-    public void setStatus(String newVal)
-        throws Exception
-    {
+
+    public void setStatus(String newVal) throws Exception {
         setScalar("status", newVal);
     }
 
-
     /**
-    * A user is allowed to specify what percentage that the task is complete.
-    * This is rolled up into the values of the parent tasks
-    */
-    public int getPercentComplete()
-        throws Exception
-    {
+     * A user is allowed to specify what percentage that the task is complete.
+     * This is rolled up into the values of the parent tasks
+     */
+    public int getPercentComplete() throws Exception {
         String stateVal = getScalar("percent");
         return safeConvertInt(stateVal);
     }
+
     /**
-    * A user is allowed to specify what percentage that the task is complete.
-    * The value must be 0 at the lowest, and 100 at the highest.
-    */
-    public void setPercentComplete(int newVal)
-        throws Exception
-    {
-        if (newVal<0 || newVal>100) {
-            throw new Exception("Percent complete value must be between 0% and 100%, instead received "+newVal+"%");
+     * A user is allowed to specify what percentage that the task is complete.
+     * The value must be 0 at the lowest, and 100 at the highest.
+     */
+    public void setPercentComplete(int newVal) throws Exception {
+        if (newVal < 0 || newVal > 100) {
+            throw new Exception(
+                    "Percent complete value must be between 0% and 100%, instead received "
+                            + newVal + "%");
         }
         setScalar("percent", Integer.toString(newVal));
     }
 
-
     public String getUniversalId() {
         return getScalar("universalId");
     }
+
     public void setUniversalId(String newId) {
         setScalar("universalId", newId);
     }
 
+    /**
+     * This is the UNIQUE key for this set of records, each remote goal has a
+     * unique access URL.  Code here assures that you have something non-null
+     * to use as a key.
+     */
     public String getAccessURL() {
-        return getScalar("accessUrl");
+        String au = getScalar("accessUrl");
+        if (au==null || au.length()==0) {
+            //if none exists, make one up so we have a unique something
+            au = "dummy"+IdGenerator.generateKey();
+            setAccessURL(au);
+        }
+        return au;
     }
+
     public void setAccessURL(String newVal) {
         setScalar("accessUrl", newVal);
     }
@@ -281,22 +245,47 @@ public class RemoteGoal extends DOMFace
 
     public void setFromJSONObject(JSONObject obj) throws Exception {
         setSynopsis(obj.getString("synopsis"));
-        setDescription(obj.getString("description"));
-        setDueDate(obj.getLong("duedate"));
-        setPriority(obj.getInt("priority"));
-        setDuration(obj.getInt("duration"));
-        setState(obj.getInt("state"));
-        setStatus(obj.getString("status"));
-        setPercentComplete(obj.getInt("percent"));
-        setUniversalId(obj.getString("synopsis"));
-        setAccessURL(obj.getString("content"));
+        String description = obj.optString("description");
+        if (description != null) {
+            setDescription(description);
+        }
+        long duedate = obj.optLong("duedate");
+        if (duedate > 0) {
+            setDueDate(duedate);
+        }
+        int duration = obj.optInt("duration");
+        if (duration > 0) {
+            setDuration(duration);
+        }
+        int priority = obj.optInt("priority");
+        if (priority > 0) {
+            setPriority(priority);
+        }
+        int state = obj.optInt("state");
+        if (state > 0) {
+            setState(state);
+        }
+        String status = obj.optString("status");
+        if (status != null) {
+            setStatus(status);
+        }
+        int percent = obj.optInt("percent");
+        if (percent > 0) {
+            setPercentComplete(percent);
+        }
+        String universalid = obj.optString("universalid");
+        if (universalid != null) {
+            setUniversalId(universalid);
+        }
+        String content = obj.optString("content");
+        if (content != null) {
+            setAccessURL(content);
+        }
     }
 
-    public static void sortTasksByRank(List<RemoteGoal> tasks)
-    {
+    public static void sortTasksByRank(List<RemoteGoal> tasks) {
         Collections.sort(tasks, new TaskRefRankComparator());
     }
-
 
     static class TaskRefRankComparator implements Comparator<RemoteGoal> {
         public TaskRefRankComparator() {
