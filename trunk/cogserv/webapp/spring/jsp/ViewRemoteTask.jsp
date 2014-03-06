@@ -10,21 +10,22 @@
 Required parameters:
 
     1. userId   : This is the id of an user
-    2. taskId   : This parameter is id of a RemoteGoal in that user's page
-    2. projKey  : This parameter is key of the project
+    2. url      : This parameter is url which is the unique key of the goal record
 
 */
 
     String userId = ar.reqParam("userKey");
-    String taskId = ar.reqParam("taskId");
-    String projKey = ar.reqParam("projKey");
+    String url = ar.reqParam("url");
 
     UserProfile uProf = ar.getUserProfile();
     UserPage uPage = uProf.getUserPage();
 
-    pageTitle = uProf.getName() + "   " + taskId;
+    pageTitle = uProf.getName();
 
-    RemoteGoal currentTaskRecord = uPage.findOrCreateTask(projKey, taskId);
+    RemoteGoal currentTaskRecord = uPage.findRemoteGoal(url);
+    if (currentTaskRecord==null) {
+        throw new Exception("Unable to find the remote goal record");
+    }
 
     List<HistoryRecord> histRecs = new Vector<HistoryRecord>();
 

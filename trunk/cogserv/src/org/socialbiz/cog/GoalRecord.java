@@ -947,11 +947,13 @@ public class GoalRecord extends BaseRecord {
         thisGoal.put("description", getDescription());
         thisGoal.put("modifiedtime", getModifiedDate());
         thisGoal.put("modifieduser", getModifiedBy());
-        thisGoal.put("state", getState());
-        thisGoal.put("priority", getPriority());
+        thisGoal.put("state",     getState());
+        thisGoal.put("priority",  getPriority());
+        thisGoal.put("duedate",   getDueDate());
         thisGoal.put("startdate", getStartDate());
-        thisGoal.put("enddate", getEndDate());
-        thisGoal.put("rank", getRank());
+        thisGoal.put("enddate",   getEndDate());
+        thisGoal.put("duration",  getDuration());
+        thisGoal.put("rank",      getRank());
         /*
         //TODO: figure out what to do about assignees
         NGRole assignees = getAssigneeRole();
@@ -963,6 +965,7 @@ public class GoalRecord extends BaseRecord {
         */
         String contentUrl = urlRoot + "goal" + getId() + "/goal.json";
         thisGoal.put("content", contentUrl);
+        thisGoal.put("goalinfo", contentUrl);
         return thisGoal;
     }
     public void updateGoalFromJSON(JSONObject goalObj) throws Exception {
@@ -996,6 +999,10 @@ public class GoalRecord extends BaseRecord {
         if (priority>0) {
             setPriority(priority);
         }
+        long duedate = goalObj.optLong("duedate");
+        if (duedate>0) {
+            setDueDate(duedate);
+        }
         long startdate = goalObj.optLong("startdate");
         if (startdate>0) {
             setStartDate(startdate);
@@ -1003,6 +1010,10 @@ public class GoalRecord extends BaseRecord {
         long enddate = goalObj.optLong("enddate");
         if (enddate>0) {
             setEndDate(enddate);
+        }
+        long duration = goalObj.optLong("duration");
+        if (duration>0) {
+            setDuration(duration);
         }
         int rank = goalObj.optInt("rank");
         if (rank>0) {

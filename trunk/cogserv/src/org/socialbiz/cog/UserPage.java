@@ -340,9 +340,8 @@ public class UserPage extends ContainerCommon
     {
         throw new RuntimeException("isDeleted not implemented on UserPage");
     }
-    public long getLastModifyTime()throws Exception
-    {
-        throw new ProgramLogicError("getLastModifyTime not implemented on UserPage");
+    public long getLastModifyTime()throws Exception {
+        return userInfo.getModTime();
     }
     public String[] getContainerNames()
     {
@@ -571,7 +570,11 @@ public class UserPage extends ContainerCommon
 
     public void save(String modUser, long modTime, String comment)
             throws Exception {
-        throw new ProgramLogicError("Extended save method not implemented on UserPage.");
+        userInfo.setModTime(modTime);
+        userInfo.setModUser(modUser);
+
+        //TODO: save the comment someplace ... a history capability?
+        save();
     }
 
     public List<RemoteGoal> getUserTaskRefs() throws Exception {
@@ -600,6 +603,16 @@ public class UserPage extends ContainerCommon
         newOne.setId(id);
         return newOne;
 
+    }
+
+    public RemoteGoal findRemoteGoal(String accessUrl) throws Exception {
+
+        for (RemoteGoal tr : getUserTaskRefs()) {
+            if (accessUrl.equals(tr.getAccessURL())) {
+                return tr;
+            }
+        }
+        return null;
     }
 
     public RemoteGoal findOrCreateRemoteGoal(String accessUrl) throws Exception {

@@ -45,19 +45,24 @@ public class RemoteProfile {
      * get a JSONObject back with the response.
      */
     public void syncRemoteGoals(UserPage uPage) throws Exception {
-        InputStream is = url.openStream();
-        JSONTokener jt = new JSONTokener(is);
-        JSONObject root = new JSONObject(jt);
+        try {
+            InputStream is = url.openStream();
+            JSONTokener jt = new JSONTokener(is);
+            JSONObject root = new JSONObject(jt);
 
-        JSONArray goals = root.getJSONArray("goals");
+            JSONArray goals = root.getJSONArray("goals");
 
-        uPage.clearTaskRefFlags();
-        int numGoals = goals.length();
-        for (int i=0; i<numGoals; i++) {
-            JSONObject oneGoal = goals.getJSONObject(i);
-            String accessURL = oneGoal.getString("content");
-            RemoteGoal remGoal = uPage.findOrCreateRemoteGoal(accessURL);
-            remGoal.setFromJSONObject(oneGoal);
+            uPage.clearTaskRefFlags();
+            int numGoals = goals.length();
+            for (int i=0; i<numGoals; i++) {
+                JSONObject oneGoal = goals.getJSONObject(i);
+                String accessURL = oneGoal.getString("content");
+                RemoteGoal remGoal = uPage.findOrCreateRemoteGoal(accessURL);
+                remGoal.setFromJSONObject(oneGoal);
+            }
+        }
+        catch (Exception e) {
+            throw new Exception("Unable to sync goals from remote profile url="+url, e);
         }
     }
 
