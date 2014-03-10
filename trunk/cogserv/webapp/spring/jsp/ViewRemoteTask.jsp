@@ -169,222 +169,145 @@ Required parameters:
 
     <!-- Content Area Starts Here -->
     <div class="generalArea">
-        <div class="pageHeading">
-            <img src="<%=ar.retPath%>/assets/images/tb_<%=BaseRecord.stateImg(currentTaskRecord.getState())%>" />
-            <span style="color:#5377ac"> <%=BaseRecord.stateName(currentTaskRecord.getState())%> Goal:</span>
-            <%
-                ar.writeHtml(currentTaskRecord.getSynopsis());
-            %>
-        </div>
-
-        <div class="pageSubHeading">
-            <table>
-                <tr>
-                    <td valign="top">assigned to:&nbsp;&nbsp;
-                        <div id="assignDivContent" class="assignDivContent" style="display:none">
-
-                        </div>
-                         <a href=""><span style="color:red">XXXX</span></a>
-                    </td>
-                    <td valign="top">&nbsp;&nbsp;&nbsp;<a href="#" title="More" onclick="expandDiv('assignDivContent')"><img src="<%=ar.retPath%>/assets/iconMore.gif" border="0" alt="More" /></a></td>
-                    <td valign="top">&nbsp;&nbsp;&nbsp;&nbsp;
-                        due date:
-                        <span  id="top_btn_dueDate" style="color: red">
-                            <%
-                                writeDate(ar,currentTaskRecord.getDueDate());
-                            %>
-                        </span>
-                        start date:
-                        <span id="top_btn_dueDate" style="color: red">
-                            <%
-                                writeDate(ar,currentTaskRecord.getStartDate());
-                            %>
-                        </span>
-
-                        end date:
-                        <span  id="top_btn_dueDate" style="color: red">
-                            <%
-                                writeDate(ar,currentTaskRecord.getEndDate());
-                            %>
-                        </span>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <p style="padding-top:10px"><%
-            ar.writeHtmlWithLines(currentTaskRecord.getDescription());
-        %></p>
 
         <div id="TabbedPanels1" class="TabbedPanels">
             <div class="TabbedPanelsContentGroup">
                 <div class="TabbedPanelsContent">
                     <table width="600">
                         <!-- ========================================================================= -->
-                        <form name="updateTaskFormB" action="updateTask.form" method="post">
-                            <input type="hidden" name="go" id="go" value="<%=ar.getCompleteURL()%>"/>
-                            <input type="hidden" name="url" value="<%ar.writeHtml(url);%>">
-                            <tr><td height="23px"></td></tr>
-                            <tr>
-                                <td colspan="3" class="generalHeading">Status</td>
-                            </tr>
-                            <tr><td height="10px"></td></tr>
-                            <tr>
-                                <td class="gridTableColummHeader"><fmt:message key="nugen.process.taskname.display.text"/>:</td>
-                                <td style="width:20px;"></td>
-                                <td><input type="text" name="taskname_update" id="taskname_update" class="inputGeneral" size="50" tabindex=1  value='<%ar.writeHtml(currentTaskRecord.getSynopsis());%>'/>
-                                </td>
-                            </tr>
-                            <tr><td height="10px"></td></tr>
-                            <tr>
-                                <td class="gridTableColummHeader"><fmt:message key="nugen.process.priority.text"/></td>
-                                <td style="width:20px;"></td>
+                        <tr><td height="23px"></td></tr>
+                        <tr>
+                            <form action="<% ar.writeHtml(currentTaskRecord.getUserInterfaceURL());%>" method="get">
+                            <td colspan="3" class="generalHeading">Remote Goal Status
+                                &nbsp; &nbsp; &nbsp; &nbsp;
+                                <input type="submit" value="Visit Project Site" class="inputBtn" /></td>
+                            </form>                        </tr>
+                        <tr><td height="10px"></td></tr>
+                        <tr>
+                            <td class="gridTableColummHeader"><fmt:message key="nugen.process.taskname.display.text"/>:</td>
+                            <td style="width:20px;"></td>
+                            <td class="textAreaGeneral">
+                                <%ar.writeHtml(currentTaskRecord.getSynopsis());%>
+                            </td>
+                        </tr>
+                        <tr><td height="10px"></td></tr>
+                        <tr>
+                            <td class="gridTableColummHeader">Assigned To:</td>
+                            <td style="width:20px;"></td>
+                            <td class="textAreaGeneral">
+                                <%ar.writeHtml("unknown");%>
+                            </td>
+                        </tr>
+                        <tr><td height="10px"></td></tr>
+                        <tr>
+                            <td class="gridTableColummHeader"><fmt:message key="nugen.process.priority.text"/></td>
+                            <td style="width:20px;"></td>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td style="width:150px;" class="textAreaGeneral">
+                                            <%ar.writeHtml(BaseRecord.getPriorityStr(currentTaskRecord.getPriority()));%>
+                                         </td>
+                                         <td style="width:45px;"></td>
+                                         <td style="color:#000000"><b><fmt:message key="nugen.process.state.text"/></b></td>
+                                        <td style="width:10px;"></td>
+                                        <td class="textAreaGeneral">
+                                            <img src="<%=ar.retPath%>assets/images/<%=BaseRecord.stateImg(currentTaskRecord.getState())%>">
+                                            &nbsp; &nbsp;<%ar.writeHtml(BaseRecord.stateName(currentTaskRecord.getState()));%>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr><td height="10px"></td></tr>
+                        <tr>
+                            <td class="gridTableColummHeader"><fmt:message key="nugen.project.duedate.text"/></td>
+                            <td style="width:20px;"></td>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td class="textAreaGeneral">
+                                            <%=(currentTaskRecord.getDueDate()==0)?"":formatter.format(new Date(currentTaskRecord.getDueDate()))%>
+                                        </td>
+                                        <td style="width:17px;"></td>
+                                        <td style="color:#000000"><b><fmt:message key="nugen.project.startdate.text"/></b></td>
+                                        <td style="width:10px;"></td>
+                                        <td class="textAreaGeneral">
+                                            <%=(currentTaskRecord.getStartDate()==0)?"":formatter.format(new Date(currentTaskRecord.getStartDate()))%>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr><td height="10px"></td></tr>
+                        <tr>
+                            <td class="gridTableColummHeader"><fmt:message key="nugen.project.enddate.text"/></td>
+                            <td style="width:20px;"></td>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td class="textAreaGeneral">
+                                            <%=(currentTaskRecord.getEndDate()==0)?"&nbsp;":formatter.format(new Date(currentTaskRecord.getEndDate()))%>
+                                        </td>
+                                        <td style="width:17px;"></td>
+                                        <td style="color:#000000"></td>
+                                        <td style="width:10px;"></td>
+                                        <td> &nbsp;
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                         <tr><td height="10px"></td></tr>
+                        <tr>
+                            <td class="gridTableColummHeader" valign="top"><fmt:message key="nugen.project.desc.text"/></td>
+                            <td style="width:20px;"></td>
+                            <td><textarea name="description" id="description" class="textAreaGeneral" rows="4" tabindex=7><%
+                                ar.writeHtml(currentTaskRecord.getDescription());
+                            %></textarea></td>
+                        </tr>
+                        <tr><td height="25px"></td></tr>
+                        <tr>
+                            <td class="gridTableColummHeader" valign="top"><fmt:message key="nugen.project.status.text"/></td>
+                            <td style="width:20px;"></td>
+                            <td><textarea id="status" name="status" class="textAreaGeneral" rows="4"><%
+                                ar.writeHtml(currentTaskRecord.getStatus());
+                            %></textarea></td>
+                        </tr>
+                        <tr><td height="20px"></td></tr>
+                        <tr>
+                            <td class="gridTableColummHeader"><fmt:message key="nugen.process.state.text"/></td>
+                            <td style="width:20px;"></td>
+                            <td><table><tr>
                                 <td>
-                                    <table>
-                                        <tr>
-                                            <td><select name="priority" id="priority" tabindex="4">
-                                                <%
-                                                    int taskPrior = currentTaskRecord.getPriority();
-                                                    for (int i=0; i<3; i++)
-                                                    {
-                                                        ar.write("\n     <option ");
-                                                        if (i==taskPrior) {
-                                                            out.write("selected=\"selected\" ");
-                                                        }
-                                                        ar.write("value=\"");
-                                                        ar.write(Integer.toString(i));
-                                                        ar.write("\">");
-                                                        ar.writeHtml(BaseRecord.getPriorityStr(i));
-                                                        ar.write("</option>");
-                                                    }
-                                                %>
-                                                </select>
-                                             </td>
-                                             <td style="width:45px;"></td>
-                                             <td style="color:#000000"><b><fmt:message key="nugen.process.state.text"/></b></td>
-                                            <td style="width:10px;"></td>
-                                            <td>
-                                                <select name="state" id="state" class="specialNo" tabindex="5">
-                                                <%
-                                                    int taskState = currentTaskRecord.getState();
-                                                    for(int i=1;i<=8;i++){
-                                                        String img4=ar.retPath+"assets/images/"+BaseRecord.stateImg(i);
-                                                        ar.write("\n     <option ");
-                                                        if (i==taskState) {
-                                                            ar.write("selected=\"selected\"");
-                                                        }
-                                                        ar.write(" value=\"");
-                                                        ar.write(Integer.toString(i));
-                                                        ar.write("\"  title=\"");
-                                                        ar.writeHtml(img4);
-                                                        ar.write("\" >");
-                                                        ar.writeHtml(BaseRecord.stateName(i));
-                                                        ar.write("</option>");
-                                                    }
-                                                    String img5=ar.retPath+"assets/images/"+BaseRecord.stateImg(0);
-                                                    ar.write("\n     <option ");
-                                                    if(taskState==0){
-                                                         ar.write("selected=\"selected\"");
-                                                    }
-                                                    ar.write(" value=\"0\"  title=\"");
-                                                    ar.writeHtml(img5);
-                                                    ar.write("\" >");
-                                                    ar.writeHtml(BaseRecord.stateName(0));
-                                                    ar.write("</option>");
-                                                %>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                    </table>
+                                    <select name="states" id="states" class="specialx" tabindex=5 >
+                                    <%
+                                        for(int i=1;i<=9;i++){
+                                            String selected = "";
+                                            if (i==currentTaskRecord.getState()) {
+                                                selected = "selected=\"selected\"";
+                                            }
+                                            String img3=ar.retPath+"assets/images/"+BaseRecord.stateImg(i);
+                                            out.write("     <option " + selected + " value=\"" + i + "\"  title=\""+img3+"\" >" + BaseRecord.stateName(i) + "</option>");
+                                        }
+                                        String errorselected="";
+                                        if(currentTaskRecord.getState()==0){
+                                            errorselected = "selected=\"selected\"";
+                                        }
+                                        String image=ar.retPath+"assets/images/"+BaseRecord.stateImg(0);
+                                        out.write("     <option " + errorselected + " value=\"" + 0 + "\"  title=\""+image+"\" >" + BaseRecord.stateName(0) + "</option>");
+                                    %>
+                                    </select>
                                 </td>
-                            </tr>
-                            <tr><td height="10px"></td></tr>
-                            <tr>
-                                <td class="gridTableColummHeader"><fmt:message key="nugen.project.duedate.text"/></td>
                                 <td style="width:20px;"></td>
+                                <td style="color:#000000"><b>Completed:</b></td>
+                                <td style="width:10px;"></td>
                                 <td>
-                                    <table>
-                                        <tr>
-                                            <td><input type="text" size="16" name="dueDate_update" id="dueDate_update"
-                                                value='<%=(currentTaskRecord.getDueDate()==0)?"":formatter.format(new Date(currentTaskRecord.getDueDate()))%>' readonly="1"/>
-                                            </td>
-                                            <td style="width:17px;"></td>
-                                            <td style="color:#000000"><b><fmt:message key="nugen.project.startdate.text"/></b></td>
-                                            <td style="width:10px;"></td>
-                                            <td><input type="text" size="16" name="startDate_update" id="startDate_update" value='<%=(currentTaskRecord.getStartDate()==0)?"":formatter.format(new Date(currentTaskRecord.getStartDate()))%>' readonly="1"/>
-                                            </td>
-                                        </tr>
-                                    </table>
+                                    <input type="text" name="percentage" id="percentage" value="<%=currentTaskRecord.getPercentComplete()%>"
+                                        style="font-size:12px;color:#333333;width: 25px;" onchange="validatePercentage()"/>%
                                 </td>
-                            </tr>
-                            <tr><td height="10px"></td></tr>
-                            <tr>
-                                <td class="gridTableColummHeader"><fmt:message key="nugen.project.enddate.text"/></td>
-                                <td style="width:20px;"></td>
-                                <td><input type="text" size="16" name="endDate_update" id="endDate_update"  value='<%=(currentTaskRecord.getEndDate()==0)?"":formatter.format(new Date(currentTaskRecord.getEndDate()))%>' readonly="1"/>
-                                </td>
-                            </tr>
-                             <tr><td height="10px"></td></tr>
-                            <tr>
-                                <td class="gridTableColummHeader" valign="top"><fmt:message key="nugen.project.desc.text"/></td>
-                                <td style="width:20px;"></td>
-                                <td><textarea name="description" id="description" class="textAreaGeneral" rows="4" tabindex=7><%
-                                    ar.writeHtml(currentTaskRecord.getDescription());
-                                %></textarea></td>
-                            </tr>
-                            <tr><td height="25px"></td></tr>
-                            <tr>
-                                <td class="gridTableColummHeader" valign="top"><fmt:message key="nugen.project.status.text"/></td>
-                                <td style="width:20px;"></td>
-                                <td><textarea id="status" name="status" class="textAreaGeneral" rows="4"><%
-                                    ar.writeHtml(currentTaskRecord.getStatus());
-                                %></textarea></td>
-                            </tr>
-                            <tr><td height="20px"></td></tr>
-                            <tr>
-                                <td class="gridTableColummHeader"><fmt:message key="nugen.process.state.text"/></td>
-                                <td style="width:20px;"></td>
-                                <td><table><tr>
-                                    <td>
-                                        <select name="states" id="states" class="specialx" tabindex=5 >
-                                        <%
-                                            for(int i=1;i<=9;i++){
-                                                String selected = "";
-                                                if (i==currentTaskRecord.getState()) {
-                                                    selected = "selected=\"selected\"";
-                                                }
-                                                String img3=ar.retPath+"assets/images/"+BaseRecord.stateImg(i);
-                                                out.write("     <option " + selected + " value=\"" + i + "\"  title=\""+img3+"\" >" + BaseRecord.stateName(i) + "</option>");
-                                            }
-                                            String errorselected="";
-                                            if(currentTaskRecord.getState()==0){
-                                                errorselected = "selected=\"selected\"";
-                                            }
-                                            String image=ar.retPath+"assets/images/"+BaseRecord.stateImg(0);
-                                            out.write("     <option " + errorselected + " value=\"" + 0 + "\"  title=\""+image+"\" >" + BaseRecord.stateName(0) + "</option>");
-                                        %>
-                                        </select>
-                                    </td>
-                                    <td style="width:20px;"></td>
-                                    <td style="color:#000000"><b>Completed:</b></td>
-                                    <td style="width:10px;"></td>
-                                    <td>
-                                        <input type="text" name="percentage" id="percentage" value="<%=currentTaskRecord.getPercentComplete()%>"
-                                            style="font-size:12px;color:#333333;width: 25px;" onchange="validatePercentage()"/>%
-                                    </td>
-                                </tr></table></td>
-                            </tr>
-                            <tr><td height="10px"></td></tr>
-                            <tr>
-                                <td class="gridTableColummHeader" valign="top"></td>
-                                <td style="width:20px;"></td>
-                                </form>
-                                <form action="<% ar.writeHtml(currentTaskRecord.getUserInterfaceURL());%>" method="get">
-                                <td><input type="submit" value="Visit Task Update Page" class="inputBtn" /></td>
-                            </tr>
-                        </form>
-
-
+                            </tr></table></td>
+                        </tr>
                         <tr><td height="30px"></td></tr>
                         <tr>
                             <td colspan="3" class="generalHeading">Local Project</td>
