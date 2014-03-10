@@ -7,25 +7,17 @@
 
 Required Parameters:
 
-    1. memberOfAccounts : This parameter provide the list of those sites which belong to user.
-
 */
     ar.assertLoggedIn("You must be logged in to create a project");
 
     //note, this page only displays info for the current logged in user, regardless of URL
     UserProfile  userProfile =ar.getUserProfile();
-    if (userProfile==null)
-    {
+    if (userProfile==null) {
         //this should never happen, and if it does it is not the users fault
         throw new ProgramLogicError("user profile setting is null.");
     }
 
-    List<NGBook> memberOfAccounts = (List<NGBook>) request.getAttribute("memberOfAccounts");
-    if (memberOfAccounts==null)
-    {
-        //this should never happen, and if it does it is not the users fault
-        throw new ProgramLogicError("memberOfAccounts setting is null.");
-    }
+    List<NGBook> memberOfSites = userProfile.findAllMemberSites();
 
 
 
@@ -39,7 +31,7 @@ Required Parameters:
     <div class="section_body">
         <div style="height:10px;"></div>
 <%
-if(memberOfAccounts.size()>0) {
+if(memberOfSites.size()>0) {
 %>
         <div class="generalHeadingBorderLess">Choose Site for Project</div>
         <div class="generalContent">
@@ -57,7 +49,7 @@ if(memberOfAccounts.size()>0) {
                 </tr>
 
                 <%
-                for (NGBook account : memberOfAccounts) {
+                for (NGBook account : memberOfSites) {
                     String accountLink =ar.baseURL+"t/"+account.getKey()+"/$/accountCreateProject.htm";
                     %>
                     <tr>

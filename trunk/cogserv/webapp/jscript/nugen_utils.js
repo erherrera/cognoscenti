@@ -195,7 +195,11 @@ function createSubLinks(){
         var arrayOfTabs2 = [new Tab(retPath+"v/"+userKey+"/userActiveTasks.htm","My Active Goals"),
             new Tab(retPath+"v/"+userKey+"/userCompletedTasks.htm","Completed Goals"),
             new Tab(retPath+"v/"+userKey+"/userFutureTasks.htm","Future Goals"),
-            new Tab(retPath+"v/"+userKey+"/userAllTasks.htm","All Goals")
+            new Tab(retPath+"v/"+userKey+"/userAllTasks.htm","All Goals"),
+            new Tab(retPath+"v/"+userKey+"/ShareRequests.htm","Share Requests"),
+            new Tab(retPath+"v/"+userKey+"/RemoteProfiles.htm","Remote Profiles"),
+            new Tab(retPath+"v/"+userKey+"/ConsolidatedTasks.htm","Consolidated Goals"),
+            new Tab(retPath+"v/"+userKey+"/Agents.htm","Agent Rules")
         ];
 
         var arrayOfTabs3 = [new Tab(retPath+"v/"+userKey+"/userSettings.htm","Personal"),

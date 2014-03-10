@@ -6,56 +6,53 @@
 
 Required Parameters:
 
-    1. memberOfAccounts : This parameter provide the list of those sites which belong to user.
-
 */
 
-    List memberOfAccounts = (List) request.getAttribute("memberOfAccounts");
-    if (memberOfAccounts==null)
-    {
-        //this should never happen, and if it does it is not the users fault
-        throw new ProgramLogicError("memberOfAccounts setting is null.");
+    ar.assertLoggedIn("Must be logged in to see anything about a user");
+
+    UserProfile uProf = (UserProfile)request.getAttribute("userProfile");
+    if (uProf == null) {
+        throw new NGException("nugen.exception.cant.find.user",null);
     }
 
-    ar.assertLoggedIn("You must be logged in to see user site information");
-
-    //note, this page only displays info for the current logged in user, regardless of URL
-    UserProfile  userProfile =ar.getUserProfile();
-    if (userProfile==null)
-    {
+    UserProfile  operatingUser =ar.getUserProfile();
+    if (operatingUser==null) {
         //this should never happen, and if it does it is not the users fault
-        throw new ProgramLogicError("user profile setting is null.");
+        throw new ProgramLogicError("user profile setting is null.  No one appears to be logged in.");
     }
 
-    List<SiteRequest> allaccount = SiteReqFile.getAllSiteReqs();
+    boolean viewingSelf = uProf.getKey().equals(operatingUser.getKey());
+
+    List<NGBook> memberOfSites = uProf.findAllMemberSites();
+
+
+    List<SiteRequest> allRequests = SiteReqFile.getAllSiteReqs();
     boolean isSuper = ar.isSuperAdmin();
     List<SiteRequest> superRequests = new ArrayList<SiteRequest>();
     List<SiteRequest> myAccountRequests = new ArrayList<SiteRequest>();
-    for (SiteRequest accountDetails: allaccount)
-    {
-        if(userProfile.hasAnyId(accountDetails.getUniversalId()))
-        {
-            myAccountRequests.add(accountDetails);
+    for (SiteRequest oneRequest: allRequests) {
+        if(uProf.hasAnyId(oneRequest.getUniversalId())) {
+            myAccountRequests.add(oneRequest);
         }
-        if (isSuper && accountDetails.getStatus().equalsIgnoreCase("requested"))
-        {
-            superRequests.add(accountDetails);
+        if (isSuper && oneRequest.getStatus().equalsIgnoreCase("requested")) {
+            superRequests.add(oneRequest);
         }
     }
 
 
-    List accReqs = userProfile.getUsersSiteRequests();
-    if (accReqs==null)
-    {
+    List accReqs = uProf.getUsersSiteRequests();
+    if (accReqs==null) {
         //this should never happen, and if it does it is not the users fault
         throw new ProgramLogicError("user profile returned a null for site requests.");
     }
-    ngb = null;%>
+    ngb = null;
+
+%>
 <div class="content tab04" style="display:block;">
     <div class="section_body">
         <div style="height:10px;"></div>
         <%
-            if(memberOfAccounts.size()>0) {
+            if(memberOfSites.size()>0) {
         %>
         <div class="generalHeadingBorderLess">List of Sites</div>
         <div class="generalContent">
@@ -72,16 +69,13 @@ Required Parameters:
                     <tbody>
                     <%
                         int i=0;
-                                Iterator it = memberOfAccounts.iterator();
-                                while (it.hasNext()) {
-                                    i++;
-                                    String rowStyleClass="tableBodyRow even";
-                                    if(i%2 == 0){
-                                        rowStyleClass = "tableBodyRow odd";
-                                    }
-
-                                    NGBook account  = (NGBook) it.next();
-                                    String accountLink =ar.baseURL+"t/"+account.getKey()+"/$/accountListProjects.htm";
+                        for (NGBook account : memberOfSites) {
+                            i++;
+                            String rowStyleClass="tableBodyRow even";
+                            if(i%2 == 0){
+                                rowStyleClass = "tableBodyRow odd";
+                            }
+                            String accountLink =ar.baseURL+"t/"+account.getKey()+"/$/accountListProjects.htm";
                     %>
                         <tr>
                            <td>
@@ -155,23 +149,23 @@ Required Parameters:
                     </thead>
                     <tbody>
                     <%
-                        for (SiteRequest accountDetails : myAccountRequests)
+                        for (SiteRequest oneRequest : myAccountRequests)
                                             {
-                                                String accountLink =ar.baseURL+"t/"+accountDetails.getSiteId()+"/$/accountListProjects.htm";
+                                                String accountLink =ar.baseURL+"t/"+oneRequest.getSiteId()+"/$/accountListProjects.htm";
                     %><tr><td><%
-                        if(accountDetails.getStatus().equalsIgnoreCase("Granted")){
+                        if(oneRequest.getStatus().equalsIgnoreCase("Granted")){
                             %><a href="<%ar.writeHtml(accountLink); %>"><%
-                            ar.writeHtml(accountDetails.getName());
+                            ar.writeHtml(oneRequest.getName());
                             %></a><%
                         }else{
-                            ar.writeHtml(accountDetails.getName());
+                            ar.writeHtml(oneRequest.getName());
                         }
                         %></td>
                         <td><%
-                        ar.writeHtml(accountDetails.getDescription());
+                        ar.writeHtml(oneRequest.getDescription());
                         %></td>
                         <td><%
-                        ar.writeHtml(accountDetails.getStatus());
+                        ar.writeHtml(oneRequest.getStatus());
                         %></td></tr><%
                      }
                      %>

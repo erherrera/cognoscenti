@@ -1200,14 +1200,77 @@ public class AuthRequest
     }
 
 
-    public void writeJSLiteral(String data)
-            throws Exception
-    {
-        //TODO: put the actual conversion here, and eliminate elsewhere if possible
-        w.write(UtilityMethods.quote4JS(data));
+    /**
+     * writeJSEncoded makes sure that no quote characters are in the output
+     * and properly escaping backslash character, and converting high
+     * characters to a code-point expression.
+     */
+    public void writeJS(String val)  throws Exception {
+        // passing a null in results a no output, no quotes, nothing
+        if (val == null) {
+            return;
+        }
+        int len = val.length();
+        int startPos = 0;
+        String trans = null;
+        for (int i = 0; i < len; i++) {
+            char ch = val.charAt(i);
+            switch (ch) {
+            case '\"':
+                trans = "\\x22";   //avoid all quotes in output
+                break;
+            case '\\':
+                trans = "\\\\";
+                break;
+            case '\'':
+                trans = "\\x27";   //avoid all quotes in output
+                break;
+            case '\n':
+                trans = "\\n";
+                break;
+            case '\t':
+                trans = "\\t";
+                break;
+            case '\r':
+                trans = "\\r";
+                break;
+            case '\f':
+                trans = "\\f";
+                break;
+            case '\b':
+                trans = "\\b";
+                break;
+            default:
+                if (ch < 128) {
+                    continue;
+                }
+                if (ch < 256) {
+                    char firstHex = hexchars[(ch / 16) % 16];
+                    char secondHex = hexchars[ch % 16];
+                    trans = "\\x" + firstHex + secondHex;
+                }
+                else {
+                    char firstHex = hexchars[(ch / 4096) % 16];
+                    char secondHex = hexchars[(ch / 256) % 16];
+                    char thirdHex = hexchars[(ch / 16) % 16];
+                    char fourthHex = hexchars[ch % 16];
+                    trans = "\\u" + firstHex + secondHex + thirdHex + fourthHex;
+                }
+            }
+            if (trans != null) {
+                if (i > startPos) {
+                    w.write(val.substring(startPos, i));
+                }
+                w.write(trans);
+                startPos = i + 1;
+                trans = null;
+            }
+        }
+        // now write out whatever is left
+        if (len > startPos) {
+            w.write(val.substring(startPos));
+        }
     }
-
-
 
     static char[] hexchars = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
             '9', 'A', 'B', 'C', 'D', 'E', 'F' };

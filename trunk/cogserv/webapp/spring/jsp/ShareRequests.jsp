@@ -1,9 +1,8 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
-%><%!
-    String pageTitle = "";
+%><%@page import="org.socialbiz.cog.RssServlet"
 %><%
-    request.setCharacterEncoding("UTF-8");
+
     ar.assertLoggedIn("Must be logged in to see anything about a user");
 
     UserProfile uProf = (UserProfile)request.getAttribute("userProfile");
@@ -18,25 +17,21 @@
     }
 
     boolean viewingSelf = uProf.getKey().equals(operatingUser.getKey());
+
+    String rssLink = "Tasks.rss?user="+ java.net.URLEncoder.encode(uProf.getUniversalId(), "UTF-8");
     String loggingUserName=uProf.getName();
+
+
 %>
 <body class="yui-skin-sam">
-    <div class="rightDivContent">
-    <form method="post" action="RefreshFromRemoteProfiles.form">
-    <input type="hidden" name="go" value="<%=ar.getCompleteURL()%>">
-    <input type="hidden" name="" value="">
-    <img src="<%= ar.retPath%>assets/iconBluePlus.gif" width="13" height="15" alt="" />
-    <button type="submit">Refresh</button>
-    </form>
-    </div>
-    <div class="generalHeadingBorderLess">Goals Gathered from Remote Profiles</div>
+    <div class="generalHeadingBorderLess">Reminders To Share Document</div>
     <div id="paging5"></div>
-    <div id="reminderDiv1">
-        <table id="reminderTable1">
+    <div id="reminderDiv">
+        <table id="reminderTable">
             <thead>
                 <tr>From</tr>
                 <tr>Subject</tr>
-                <tr>DueDate</tr>
+                <tr>Sent On</tr>
                 <th>Project</th>
                 <th>timePeriod</th>
                 <th>rid</th>
@@ -44,42 +39,73 @@
                 <th>bookKey</th>
             </thead>
         <%
-            UserPage uPage2 = uProf.getUserPage();
+            for (NGPageIndex ngpi : NGPageIndex.getAllContainer())
+                {
+            //start by clearing any outstanding locks in every loop
+            NGPageIndex.clearLocksHeldByThisThread();
 
-            for (RemoteGoal tr : uPage2.getUserTaskRefs())
+            if (!ngpi.isProject())
             {
+                continue;
+            }
+            NGPage aPage = ngpi.getPage();
+
+            ReminderMgr rMgr = aPage.getReminderMgr();
+            Vector<ReminderRecord> rVec = rMgr.getUserReminders(ar.getUserProfile());
+            AddressListEntry ale = null;
+            for(ReminderRecord reminder : rVec)
+            {
+                ale = new AddressListEntry(reminder.getModifiedBy());
         %>
 
             <tr>
-                <td><%=BaseRecord.stateImg(tr.getState())%></td>
                 <td><%
-                    ar.writeHtml(tr.getSynopsis());
+                    ale.writeLink(ar);
                 %></td>
                 <td><%
-                    SectionUtil.nicePrintDate(ar.w, tr.getDueDate());
+                    ar.write(reminder.getSubject());
                 %></td>
-                <td>ViewRemoteTask.htm?url=<% ar.writeURLData(tr.getAccessURL());%></td>
-                <td>4444</td>
-                <td><% ar.writeHtml(tr.getProjectName());%></td>
-                <td>xx</td>
-                <td>xx</td>
+                <td><%
+                    SectionUtil.nicePrintTime(ar, reminder.getModifiedDate(), ar.nowTime);
+                %></td>
+                <td><%
+                    ar.write(aPage.getFullName());
+                %></td>
+                <td><%
+                    ar.writeHtml(String.valueOf((ar.nowTime - reminder.getModifiedDate())/1000 ));
+                %></td>
+                <td><%
+                    ar.writeHtml(reminder.getId());
+                %></td>
+                <td><%
+                    ar.writeHtml(aPage.getKey());
+                %></td>
+                <td><%
+                    ar.writeHtml(aPage.getSite().getKey());
+                %></td>
             </tr>
         <%
-
+            }
         }
         %>
         </table>
-
-
-
+    </div>
     <!-- Display the search results here -->
 
     <form name="taskList">
-        <input type="hidden" name="filter" value="<%ar.writeHtml(DataFeedServlet.ALLTASKS);%>"/>
+        <input type="hidden" name="filter" value="<%ar.writeHtml(DataFeedServlet.COMPLETEDTASKS);%>"/>
+        <input type="hidden" name="rssfilter" value="<%ar.writeHtml(RssServlet.STATUS_COMPLETED);%>"/>
     </form>
 
+    <script type="text/javascript">
+
+    </script>
 
 <script type="text/javascript">
+
+    function invokeRSSLink(link) {
+        window.location.href = "<%=ar.retPath + rssLink%>&status=" + document.taskList.rssfilter.value ;
+    }
 
     YAHOO.util.Event.addListener(window, "load", function()
     {
@@ -87,27 +113,26 @@
         YAHOO.example.EnhanceFromMarkup = function()
         {
             var myColumnDefs = [
-                {key:"State",    label:"State", formatter:stateUrlFormater2, sortable:true,resizeable:true},
-                {key:"synopsis", label:"Synopsis", sortable:true, resizeable:true},
-                {key:"Page",label:"Project", formatter:pageNameUrlFormater2, sortable:true,resizeable:true},
+                {key:"from",label:"Requested By",sortable:true,resizeable:true},
+                {key:"subject",label:"Document to upload",formatter:reminderNameFormater,sortable:true,resizeable:true},
+                {key:"sentOn",label:"Sent On",sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
                 {key:"projectName",label:"Project Name",formatter:prjectNameFormater,sortable:true,resizeable:true},
-                {key:"DueDate",label:"DueDate",formatter:YAHOO.widget.DataTable.formatDate,sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
                 {key:"timePeriod",label:"timePeriod",sortable:true,resizeable:false,hidden:true},
                 {key:"rid",label:"rid",sortable:true,resizeable:false,hidden:true},
                 {key:"pageKey",label:"pageKey",sortable:true,resizeable:false,hidden:true},
                 {key:"bookKey",label:"bookKey",sortable:true,resizeable:false,hidden:true}
                 ];
 
-            var myDataSource = new YAHOO.util.DataSource(YAHOO.util.Dom.get("reminderTable1"));
+            var myDataSource = new YAHOO.util.DataSource(YAHOO.util.Dom.get("reminderTable"));
             myDataSource.responseType = YAHOO.util.DataSource.TYPE_HTMLTABLE;
             myDataSource.responseSchema = {
                 fields: [
-                        {key:"StateImg"},
-                        {key:"synopsis"},
-                        {key:"DueDate"},
-                        {key:"PageURL"},
+                        {key:"from"},
+                        {key:"subject"},
+                        {key:"sentOn"},
+                        {key:"projectName"},
                         {key:"timePeriod", parser:YAHOO.util.DataSource.parseNumber},
-                        {key:"PageName"},
+                        {key:"rid"},
                         {key:"pageKey"},
                         {key:"bookKey"}]
             };
@@ -121,7 +146,7 @@
 
             };
 
-            var myDataTable = new YAHOO.widget.DataTable("reminderDiv1", myColumnDefs, myDataSource, oConfigs,
+            var myDataTable = new YAHOO.widget.DataTable("reminderDiv", myColumnDefs, myDataSource, oConfigs,
             {caption:""});
 
             myDataTable.sortColumn(myDataTable.getColumn(4));
@@ -149,22 +174,5 @@
         elCell.innerHTML = '<a href="<%=ar.baseURL%>t/'+bookKey+'/'+pageKey+'/public.htm" >'+projectName+'</a>';
 
     };
-
-    var stateUrlFormater2 = function(elCell, oRecord, oColumn, sData)
-    {
-        elCell.innerHTML = '<a name="' + oRecord.getData("StateImg") + '" href="'
-                            + oRecord.getData("PageURL") + '"  target=\"_blank\" title=\"Access goal details\">'
-                            + '<img src="<%=ar.retPath%>assets/images/'
-                            + oRecord.getData("StateImg") +'"/></a>';
-    };
-    var pageNameUrlFormater2 = function(elCell, oRecord, oColumn, sData)
-    {
-        elCell.innerHTML = '<a name="' + oRecord.getData("PageName") + '" href="<%=ar.retPath%>'
-                            + oRecord.getData("PageURL") +
-                            'public.htm" target=\"_blank\" title=\"Navigate to project\">'
-                            + oRecord.getData("PageName") + '</a>';
-    };
-
-
 
 </script>

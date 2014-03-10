@@ -1,13 +1,29 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="UserProfile.jsp"
-%><%String userKey = ar.reqParam("userKey");
-    UserProfile up = UserManager.getUserProfileOrFail(userKey);%>
+%><%
+
+    ar.assertLoggedIn("Must be logged in to see anything about a user");
+
+    UserProfile uProf = (UserProfile)request.getAttribute("userProfile");
+    if (uProf == null) {
+        throw new NGException("nugen.exception.cant.find.user",null);
+    }
+
+    UserProfile  operatingUser =ar.getUserProfile();
+    if (operatingUser==null) {
+        //this should never happen, and if it does it is not the users fault
+        throw new ProgramLogicError("user profile setting is null.  No one appears to be logged in.");
+    }
+
+    boolean viewingSelf = uProf.getKey().equals(operatingUser.getKey());
+
+%>
 <script type="text/javascript" language="javascript" src="<%=ar.baseURL%>jscript/jquery.ui.js"></script>
 <div class="content tab05" style="display:block;">
     <div class="section_body">
         <div class="pageHeading">
             Notifications Settings for <%
-            ar.writeHtml(up.getName());
+            ar.writeHtml(uProf.getName());
         %>
         </div>
 
@@ -15,7 +31,7 @@
             Below is a list of things you are subscribed to that might cause you to receive email.
             If you wish to avoid email in the future, you can unsubscribe to any of them below.
             <%
-            if (!ar.isLoggedIn() && ar.hasSpecialSessionAccess("Notifications:"+userKey)) {
+            if (!ar.isLoggedIn() && ar.hasSpecialSessionAccess("Notifications:"+uProf.getKey())) {
                 ar.write("  Note, you are able to access this page because you used a special link from an email message that gives you acces to this page only.");
             }
         %>
@@ -25,7 +41,7 @@
         <%
             String formId= "";
             int counter = 0;
-            Vector<NGPageIndex> v = NGPageIndex.getProjectsUserIsPartOf(up);
+            Vector<NGPageIndex> v = NGPageIndex.getProjectsUserIsPartOf(uProf);
             for(NGPageIndex ngpi : v){
                 NGPage ngp = ngpi.getPage();
 
@@ -65,11 +81,11 @@
                 formId = "notificationSettingsForm"+counter;
             %>
                 <form id="<%=formId%>"
-                    action="<%=ar.baseURL%>v/<%=up.getKey()%>/saveNotificationSettings.form" method="post">
+                    action="<%=ar.baseURL%>v/<%=uProf.getKey()%>/saveNotificationSettings.form" method="post">
 
                     <input type="hidden" id="pageId" name="pageId" value="<%ar.write(ngp.getKey());%>">
                     <%
-                        boolean isNotified = up.isNotifiedForProject(ngp.getKey());
+                        boolean isNotified = uProf.isNotifiedForProject(ngp.getKey());
                     %>
                     <div class="leafContentArea" id="leafContent<%ar.write(String.valueOf(counter));%>" style="display:none">
                         <div class="notificationContent">
@@ -99,14 +115,14 @@
                                                             Vector<GoalRecord> activeTask = new Vector<GoalRecord>();
                                                             for(GoalRecord task : ngp.getAllGoals())
                                                             {
-                                                                if ((!task.isAssignee(up)) && (!task.isReviewer(up)))
+                                                                if ((!task.isAssignee(uProf)) && (!task.isReviewer(uProf)))
                                                                 {
                                                                     continue;
                                                                 }
                                                                 int state = task.getState();
                                                                 if(state == BaseRecord.STATE_ERROR)
                                                                 {
-                                                                    if (task.isAssignee(up)) {
+                                                                    if (task.isAssignee(uProf)) {
                                                                         activeTask.add(task);
                                                                     }
                                                                 }
@@ -114,14 +130,14 @@
                                                                           state == BaseRecord.STATE_STARTED ||
                                                                           state == BaseRecord.STATE_WAITING)
                                                                 {
-                                                                    if (task.isAssignee(up)) {
+                                                                    if (task.isAssignee(uProf)) {
                                                                         activeTask.add(task);
                                                                     }
 
                                                                 }
                                                                 else if(state == BaseRecord.STATE_REVIEW)
                                                                 {
-                                                                    if (task.isNextReviewer(up))
+                                                                    if (task.isNextReviewer(uProf))
                                                                     {
                                                                         activeTask.add(task);
                                                                     }
@@ -193,7 +209,7 @@
 
                                         <%
                                             for(NGRole role : roles){
-                                                                                if(role.isExpandedPlayer(up, ngp)){
+                                                                                if(role.isExpandedPlayer(uProf, ngp)){
                                         %>
 
                                                     <input type="checkbox" id="stoproleplayer" name="stoproleplayer" value="<%ar.write(role.getName());%>" onclick="unSelect('stoproleplayerAll','<%=formId%>')"/>
@@ -209,7 +225,7 @@
                                 </tr>
                                 <%
                                     ReminderMgr rMgr = ngp.getReminderMgr();
-                                                        Vector<ReminderRecord> rVec = rMgr.getUserReminders(up);
+                                                        Vector<ReminderRecord> rVec = rMgr.getUserReminders(uProf);
                                                         if(rVec != null && rVec.size() > 0){
                                 %>
                                 <tr><td style="height:30px;"></td></tr>

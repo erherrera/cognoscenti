@@ -4,26 +4,20 @@
 %><%@page import="org.socialbiz.cog.ConfigFile"
 %><%
 
+    ar.assertLoggedIn("Must be logged in to see anything about a user");
 
     UserProfile uProf = (UserProfile)request.getAttribute("userProfile");
-
-    UserProfile  userProfile =ar.getUserProfile();
-    if (userProfile==null)
-    {
-        //this should never happen, and if it does it is not the users fault
-        throw new ProgramLogicError("user profile setting is null.");
-    }
-
-    if (uProf == null)
-    {
+    if (uProf == null) {
         throw new NGException("nugen.exception.cant.find.user",null);
     }
 
-    boolean viewingSelf = false;
-    if (userProfile!=null)
-    {
-        viewingSelf = uProf.getKey().equals(userProfile.getKey());
+    UserProfile  operatingUser =ar.getUserProfile();
+    if (operatingUser==null) {
+        //this should never happen, and if it does it is not the users fault
+        throw new ProgramLogicError("user profile setting is null.  No one appears to be logged in.");
     }
+
+    boolean viewingSelf = uProf.getKey().equals(operatingUser.getKey());
 
     String key = uProf.getKey();
     String name = uProf.getName();

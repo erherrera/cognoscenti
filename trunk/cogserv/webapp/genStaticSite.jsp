@@ -98,12 +98,15 @@
             NGPage aPage = NGPage.readPageAbsolutePath(chile);
             if (aPage.isDeleted())
             {
-                %>DELETED PAGE: <%ar.writeHtml(aPage.getPermaLink());%>(ix=<%=ix%>)<%
-                continue;
-            }
-
-            %>(ix=<%=ix%>)
-            <a href="<%ar.writeHtml(ar.getResourceURL(aPage,""));%>"><%ar.writeHtml(aPage.getPermaLink());%></a>
+                %>DELETED PAGE: <%
+    ar.writeHtml(aPage.getOldUIPermaLink());
+%>(ix=<%=ix%>)<%
+    continue;
+    }
+%>(ix=<%=ix%>)
+            <a href="<%ar.writeHtml(ar.getResourceURL(aPage,""));%>"><%
+    ar.writeHtml(aPage.getOldUIPermaLink());
+%></a>
                 <a href="genStaticSite.jsp?p=<%ar.writeURLData(cname);%>"><img src="createicon.gif" border="0"></a></li>
             <%
             ar.flush();

@@ -80,10 +80,10 @@ public class NGWebUtils {
         return out.toString();
     }
 
-    public static void nicePrintTime(Writer out, long timestamp,
-            long currentTime) throws Exception {
-        SectionUtil.nicePrintTime(out, timestamp, currentTime);
-    }
+//    public static void nicePrintTime(Writer out, long timestamp,
+//            long currentTime) throws Exception {
+//        SectionUtil.nicePrintTime(out, timestamp, currentTime);
+//    }
 
     public static void writePadded(Writer out, int desiredLen, String value)
             throws Exception {

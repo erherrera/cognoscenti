@@ -22,8 +22,13 @@
     ar.assertLoggedIn("Unable to see user profile.");
 
     uProf = findSpecifiedUserOrDefault(ar);
+    if (uProf==null) {
+        //actually it will never get here, just including this code to make it
+        //clear that uProf will never be null
+        throw new Exception("Unable to find the user with specified key.");
+    }
 
-    String go  = "UserList.jsp";
+    String go  = "EditUserProfile.jsp?u="+uProf.getKey();
 
     pageTitle = "User: unknown";
     specialTab = "Settings";
@@ -31,37 +36,24 @@
     //this controls the displaying of the magic number on the profile page
     boolean isTestSetup = false;
 
-    if (uProf!=null)
-    {
-        pageTitle = "User: "+uProf.getName();
-    }
+    pageTitle = "User: "+uProf.getName();
+
 %>
-
 <%@ include file="Header.jsp"%>
-
 <%
-    if (!ar.isLoggedIn())
-    {
-        out.write("<p>please log in to see the user profile</p>");
-    }
-    else if (uProf==null)
-    {
-        out.write("<p>Unable to find a user profile specified.</p>");
-    }
-    else
-    {
-        go  = "EditUserProfile.jsp?u="+uProf.getKey();
-        String key = uProf.getKey();
-        String name = uProf.getName();
-        String reviewers = uProf.getReviewers();
-        String homePage = uProf.getHomePage();
-        long lastLogin = uProf.getLastLogin();
-        long lastUpdated = uProf.getLastUpdated();
-        ValueElement[] favs = uProf.getFavorites();
-        Vector<WatchRecord> watchList = uProf.getWatchList();
-        List<IDRecord> allIds = uProf.getIdList();
 
-        boolean viewingSelf = ar.getUserProfile().getKey().equals(uProf.getKey());
+    String key = uProf.getKey();
+    String name = uProf.getName();
+    String reviewers = uProf.getReviewers();
+    String homePage = uProf.getHomePage();
+    long lastLogin = uProf.getLastLogin();
+    long lastUpdated = uProf.getLastUpdated();
+    ValueElement[] favs = uProf.getFavorites();
+    Vector<WatchRecord> watchList = uProf.getWatchList();
+    List<IDRecord> allIds = uProf.getIdList();
+
+    boolean viewingSelf = ar.getUserProfile().getKey().equals(uProf.getKey());
+    String apuLink = "apu/"+uProf.getKey()+"/user.json";
 
 %>
 
@@ -97,13 +89,11 @@
                     <col width="80%"/>
                     <tr>
                         <td>Unique Id</td>
-                        <td class="Odd"><% ar.writeHtml(key);%>
-                        <% if (isTestSetup) {
-                            ar.write(" - <font color=\"grey\">");
-                            ar.writeHtml(uProf.getMagicNumber());
-                            ar.write("</font>");
-                        } %>
-                        </td>
+                        <td class="Odd"><% ar.writeHtml(key);%></td>
+                    </tr>
+                    <tr>
+                        <td>APU Link</td>
+                        <td class="Odd"><a href="<% ar.writeHtml(apuLink);%>"><% ar.writeHtml(apuLink);%></a></td>
                     </tr>
                     <tr>
                         <td>Name</td>
@@ -307,7 +297,7 @@
 <%
             }
         }
-    }
+
 %>
     </ul>
 

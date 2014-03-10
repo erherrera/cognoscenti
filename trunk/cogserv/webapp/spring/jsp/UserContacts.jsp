@@ -2,24 +2,20 @@
 %><%@ include file="UserProfile.jsp"
 %><%
 
-    UserProfile uProf = (UserProfile)request.getAttribute("userProfile");
+    ar.assertLoggedIn("Must be logged in to see anything about a user");
 
-    if (uProf == null)
-    {
+    UserProfile uProf = (UserProfile)request.getAttribute("userProfile");
+    if (uProf == null) {
         throw new NGException("nugen.exception.cant.find.user",null);
     }
-    UserProfile  userProfile =ar.getUserProfile();
-    if (userProfile==null)
-    {
+
+    UserProfile  operatingUser =ar.getUserProfile();
+    if (operatingUser==null) {
         //this should never happen, and if it does it is not the users fault
-        throw new ProgramLogicError("user profile setting is null.");
+        throw new ProgramLogicError("user profile setting is null.  No one appears to be logged in.");
     }
 
-    boolean viewingSelf = false;
-    if (userProfile!=null)
-    {
-        viewingSelf = uProf.getKey().equals(userProfile.getKey());
-    }
+    boolean viewingSelf = uProf.getKey().equals(operatingUser.getKey());
 
 %>
 <div class="content tab02" style="display:block;">

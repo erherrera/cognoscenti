@@ -114,6 +114,7 @@ public class NGPageIndex {
 
     private static Vector<NGPageIndex> allContainers;
     private static Hashtable<String, NGPageIndex> keyToContainer;
+    private static Hashtable<String, NGPageIndex> upstreamToContainer;
 
     // there may be a number of pages that have unsent email, and so this is a
     // list of keys
@@ -413,6 +414,7 @@ public class NGPageIndex {
     public synchronized static void clearAllStaticVars() {
         allContainers = null;
         keyToContainer = null;
+        upstreamToContainer = null;
         NGBook.clearAllStaticVars();
         NGPage.clearAllStaticVars();
         NGTerm.clearAllStaticVars();
@@ -497,6 +499,7 @@ public class NGPageIndex {
         Vector<File> allProjectFiles = new Vector<File>();
         NGTerm.initialize();
         keyToContainer = new Hashtable<String, NGPageIndex>();
+        upstreamToContainer = new Hashtable<String, NGPageIndex>();
         allContainers = new Vector<NGPageIndex>();
 
         String rootDirectory = ConfigFile.getProperty("dataFolder");
@@ -646,6 +649,15 @@ public class NGPageIndex {
         allContainers.add(bIndex);
         keyToContainer.put(key, bIndex);
 
+        if (ngc instanceof NGPage) {
+            String upstream = ((NGPage)ngc).getUpstreamLink();
+            if (upstream!=null && upstream.length()>0) {
+                upstreamToContainer.put(upstream, bIndex);
+            }
+        }
+
+
+
         // look for email and remember if there is some
         if (ngc instanceof NGPage) {
             if (((NGPage) ngc).countEmailToSend() > 0) {
@@ -704,6 +716,14 @@ public class NGPageIndex {
         }
 
         return (NGBook) ngc;
+    }
+
+    public static NGPage getProjectByUpstreamLink(String upstream) throws Exception {
+        NGPageIndex ngpi = upstreamToContainer.get(upstream);
+        if (ngpi != null) {
+            return ngpi.getPage();
+        }
+        return null;
     }
 
     /**

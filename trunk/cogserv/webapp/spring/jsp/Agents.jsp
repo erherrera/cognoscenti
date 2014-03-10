@@ -1,6 +1,7 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="functions.jsp"
+%><%@page import="org.socialbiz.cog.AgentRule"
 %><%
 
     String go = ar.getCompleteURL();
@@ -19,7 +20,7 @@
 
     boolean viewingSelf = uProf.getKey().equals(operatingUser.getKey());
     UserPage uPage = uProf.getUserPage();
-    List<ProfileRef> remoteRefs = uPage.getProfileRefs();
+    List<AgentRule> agentRules = uPage.getAgentRules();
 
 %>
 <body class="yui-skin-sam">
@@ -40,16 +41,16 @@
 <div class="content tab03" style="display:block;">
     <div class="section_body">
         <div style="height:10px;"></div>
-        <div id="NewConnection" style="border:1px solid red;display: none;">
+        <div id="NewAgent" style="border:1px solid red;display: none;">
             <div class="generalSettings">
-                <form name="newProfile" id="newProfile" action="RemoteProfileAction.form" method="post">
+                <form name="newProfile" id="newProfile" action="AgentAction.form" method="post">
                     <input type="hidden" name="go" id="updateGo" value="<%ar.writeHtml(ar.getCompleteURL());%>">
                     <input type="hidden" name="act" value="Create">
                     <table>
                         <tr id="trspath">
-                            <td class="gridTableColummHeader">URL:</td>
+                            <td class="gridTableColummHeader">Expression:</td>
                             <td style="width:20px;"></td>
-                            <td colspan="2"><input type="text" name="address" id="address" class="inputGeneral" size="69" /></td>
+                            <td colspan="2"><input type="text" name="expression" class="inputGeneral" size="69" /></td>
                         </tr>
                         <tr><td style="height:30px"></td></tr>
                         <tr>
@@ -69,8 +70,8 @@
         </div>
 
         <div class="rightDivContent"><img src="<%= ar.retPath%>assets/iconBluePlus.gif" width="13" height="15" alt="" />
-        <a href="#" onclick="openModalDialogue('NewConnection','Add Remote Profile','640px');">Add New Remote Profile</a></div>
-        <div class="generalHeading">Remote Profiles (for accessing Goals)</div>
+        <a href="#" onclick="openModalDialogue('NewAgent','Add New Agent','640px');">Add New Agent</a></div>
+        <div class="generalHeading">Agents</div>
         <br />
         <table class="gridTable2" width="100%">
             <tr class="gridTableHeader">
@@ -80,19 +81,20 @@
             </tr>
             <%
 
-            for (ProfileRef oneRef : remoteRefs) {
+            for (AgentRule oneRef : agentRules) {
                 %>
                 <tr>
-                <td class="repositoryName"><a href="<%ar.writeHtml(oneRef.getAddress());%>"><%
-                ar.writeHtml(oneRef.getAddress());
+                <td class="repositoryName"><a href="<%ar.writeHtml(oneRef.getExpression());%>"><%
+                ar.writeHtml(oneRef.getExpression());
                 %></a></td>
-                <td><%SectionUtil.nicePrintTime(ar.w, oneRef.getLastAccess(), ar.nowTime);%></td>
-                <form method="post" action="RemoteProfileAction.form">
+                <td><%SectionUtil.nicePrintTime(ar.w, 0, ar.nowTime);%></td>
+                <form method="post" action="AgentAction.form" id="deleteForm<%ar.writeHtml(oneRef.getId());%>">
                 <input type="hidden" name="act" value="Delete">
                 <input type="hidden" name="go" value="<%ar.writeHtml(ar.getCompleteURL());%>">
-                <input type="hidden" name="address" value="<%ar.writeHtml(oneRef.getAddress());%>">
+                <input type="hidden" name="id" value="<%ar.writeHtml(oneRef.getId());%>">
                 <td>
-                <button type="submit"><img src="<%=ar.retPath%>assets/iconDelete.gif"/></button>
+                <button type="button" onclick="confirmDeletion('deleteForm<%ar.writeJS(oneRef.getId());%>','<%ar.writeJS(oneRef.getExpression());%>');">
+                     <img src="<%=ar.retPath%>assets/iconDelete.gif"/></button>
                 </td>
                 </form>
                 </tr>
@@ -103,13 +105,18 @@
         </table>
     </div>
 </div>
-    <script type="text/javascript">
+<script type="text/javascript">
 
-        function confirmDeletion(){
-            if(confirm("Do you want to delete this remote profile?")){
-                return true;
-            }else {
-                return false;
-            }
+    function confirmDeletion(id, name){
+        form = document.getElementById(id);
+        if(confirm("Do you want to delete the agent with following expression? \n-- '"+name+"'")) {
+            form.submit();
+            return true;
         }
-    </script>
+        else {
+            return false;
+        }
+    }
+
+</script>
+

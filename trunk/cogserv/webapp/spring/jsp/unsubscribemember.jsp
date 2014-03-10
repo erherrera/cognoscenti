@@ -1,6 +1,8 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="UserProfile.jsp"
 %><%
+    throw new Exception("is this used");
+
     String emailadd = ar.reqParam("emailId");
     AddressListEntry ale = new AddressListEntry(emailadd);
 %>
@@ -16,7 +18,7 @@
             If you wish to avoid email in the future, you can unsubscribe to any of them below.
             <%
             ar.write("  Note, you are able to access this page because you used a special link from an email message that gives you acces to this page only.");
-            
+
 
             %>
         </div>
@@ -65,11 +67,11 @@
 
                     <input type="hidden" id="pageId" name="pageId" value="<%ar.write(ngp.getKey()); %>">
                     <input type="hidden" id="emailId" name="emailId" value="<%ar.write(emailadd); %>">
-                    
+
                     <div class="leafContentArea" id="leafContent<%ar.write(String.valueOf(counter)); %>" style="display:none">
                         <div class="notificationContent">
                             <table width="100%" cellpadding="0" cellspacing="0">
-                                
+
                                 <tr>
                                     <td class="notificationSubHeading">Stop being a player of roles</td>
                                 </tr>
@@ -110,7 +112,7 @@
             }else{
             %>
             You are not member of any role.
-            
+
             <%
             }
             %>

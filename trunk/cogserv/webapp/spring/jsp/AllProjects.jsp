@@ -13,9 +13,9 @@
     if(bookList!=null && bookList.size()<1){
     %>
        <div class="guideVocal">
-           You have not created any projects, and you do not have any access to sites to create one in.
+           User has not created any projects, and does not have any access to sites to create one in.
            <br/>
-           When you create projects, they will be listed here.<br/>
+           When a user create projects, they will be listed here.<br/>
            <br/>
            In order to create a project, you need to be an "Owner" or an "Executive" of an "Site".<br/>
            <br/>

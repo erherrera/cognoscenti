@@ -201,11 +201,6 @@
         <put-attribute name="body" value="/spring/jsp/UserAlerts.jsp" />
     </definition>
 
-    <definition name="UserTasks" extends="baseLayout">
-        <put-attribute name="title" value="User Goals" />
-        <put-attribute name="body" value="/spring/jsp/MyTaskList.jsp" />
-    </definition>
-
     <definition name="FillProfileForm" extends="baseLayout">
         <put-attribute name="title" value="Fill In User Details" />
         <put-attribute name="body" value="/spring/jsp/FillProfile.jsp" />
@@ -680,6 +675,11 @@
         <put-attribute name="body" value="/spring/jsp/UserAllTasks.jsp" />
     </definition>
 
+    <definition name="ShareRequests" extends="baseLayout">
+        <put-attribute name="title" value="User Goals" />
+        <put-attribute name="body" value="/spring/jsp/ShareRequests.jsp" />
+    </definition>
+
     <definition name="RemoteProfiles" extends="baseLayout">
         <put-attribute name="title" value="User Goals" />
         <put-attribute name="body" value="/spring/jsp/RemoteProfiles.jsp" />
@@ -688,6 +688,11 @@
     <definition name="ConsolidatedTasks" extends="baseLayout">
         <put-attribute name="title" value="User Goals" />
         <put-attribute name="body" value="/spring/jsp/ConsolidatedTasks.jsp" />
+    </definition>
+
+    <definition name="Agents" extends="baseLayout">
+        <put-attribute name="title" value="User Goals" />
+        <put-attribute name="body" value="/spring/jsp/Agents.jsp" />
     </definition>
 
     <definition name="UserConnections" extends="baseLayout">

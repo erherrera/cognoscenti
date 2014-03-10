@@ -283,7 +283,7 @@ public class DataFeedServlet extends HttpServlet {
                     continue;
                 }
                 TaskListRecord tr = new TaskListRecord(gr, pageKey, aPage.getFullName(),
-                        aPage.getPermaLink());
+                        aPage.getOldUIPermaLink());
                 int state = gr.getState();
 
                 allTask.add(tr);

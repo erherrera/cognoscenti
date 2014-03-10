@@ -20,7 +20,6 @@
 
 package org.socialbiz.cog.spring;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
@@ -36,7 +35,6 @@ import org.socialbiz.cog.BaseRecord;
 import org.socialbiz.cog.GoalRecord;
 import org.socialbiz.cog.HistoryRecord;
 import org.socialbiz.cog.LicensedURL;
-import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.NGRole;
@@ -333,13 +331,7 @@ public class ProcessController extends BaseController {
                 modelAndView=new ModelAndView("displayTaskInfo");
             }else{
                 modelAndView=new ModelAndView("editprocess");
-                List<NGBook> memberOfAccounts = new ArrayList<NGBook>();
-                for(NGBook aBook : NGBook.getAllSites()) {
-                    if (aBook.primaryOrSecondaryPermission(ar.getUserProfile())) {
-                        memberOfAccounts.add(aBook);
-                    }
-                }
-                request.setAttribute("bookList",memberOfAccounts);
+                request.setAttribute("bookList",ar.getUserProfile().findAllMemberSites());
             }
 
             request.setAttribute("realRequestURL", ar.getRequestURL());
