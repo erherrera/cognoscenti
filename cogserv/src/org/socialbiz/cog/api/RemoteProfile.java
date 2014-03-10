@@ -21,6 +21,7 @@
 package org.socialbiz.cog.api;
 
 import java.net.URL;
+import java.util.Hashtable;
 import java.io.InputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -56,7 +57,7 @@ public class RemoteProfile {
             int numGoals = goals.length();
             for (int i=0; i<numGoals; i++) {
                 JSONObject oneGoal = goals.getJSONObject(i);
-                String accessURL = oneGoal.getString("content");
+                String accessURL = oneGoal.getString("goalinfo");
                 RemoteGoal remGoal = uPage.findOrCreateRemoteGoal(accessURL);
                 remGoal.setFromJSONObject(oneGoal);
             }
@@ -64,6 +65,17 @@ public class RemoteProfile {
         catch (Exception e) {
             throw new Exception("Unable to sync goals from remote profile url="+url, e);
         }
+    }
+
+    Hashtable<String,RemoteProject> projIndex = new Hashtable<String,RemoteProject>();
+
+    private RemoteProject getProject(String urlStr) throws Exception {
+        RemoteProject rp = projIndex.get(urlStr);
+        if (rp==null) {
+            rp = new RemoteProject(urlStr);
+            projIndex.put(urlStr, rp);
+        }
+        return rp;
     }
 
 }

@@ -466,7 +466,7 @@ public class ProjectSync {
         for (SyncStatus goalStat : goalsNeedingUp) {
 
             GoalRecord goal = local.findGoalByUIDorNull(goalStat.universalId);
-            JSONObject goalObj = goal.getJSON4Goal(local, urlRoot);
+            JSONObject goalObj = goal.getJSON4Goal(local, ar.baseURL, "xxx");
             JSONObject request = new JSONObject();
             if (goalStat.isRemote) {
                 request.put("operation", "updateGoal");
@@ -550,7 +550,8 @@ public class ProjectSync {
         JSONObject resp = remote.call(msg);
         String op = resp.getString("operation");
         if (op==null || op.length()==0) {
-            throw new Exception("Unable to contact server for a PING response, no operation in response object from: "+remote.url);
+            throw new Exception("Unable to contact server for a PING response, no operation in response object from: "
+                    +remote.urlStr);
         }
         if (!"ping".equals(op)) {
             throw new Exception("Error in PING response, wrong operation returned: "+op);

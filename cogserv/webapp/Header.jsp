@@ -117,6 +117,15 @@
                         ar.write(ar.retPath);
                         ar.write("newui.gif\"/></a>");
                     }
+                    else if (uProf!=null) {
+                        ar.write("<a href=\"");
+                        ar.write(ar.retPath);
+                        ar.write("v/");
+                        ar.write(uProf.getKey());
+                        ar.write("/userSettings.htm\"><img src=\"");
+                        ar.write(ar.retPath);
+                        ar.write("newui.gif\"/></a>");
+                    }
                     %></h2>
                 <div class="clearer">&nbsp;</div>
             </div>

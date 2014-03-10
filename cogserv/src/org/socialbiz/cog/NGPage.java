@@ -667,7 +667,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
     * Returns the HTTP relative address for normal resource
     */
-    public String getPermaLink() {
+    public String getOldUIPermaLink() {
         return "p/"+getKey()+"/";
     }
 
@@ -1298,7 +1298,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         ar.write( "<a href=\"" );
         ar.writeHtml(ar.baseURL );
         ar.write( "t/" );
-        ar.writeHtml(getSite().getKey());
+        ar.writeHtml(getSiteKey());
         ar.write( "/" );
         ar.writeHtml(getKey());
     }

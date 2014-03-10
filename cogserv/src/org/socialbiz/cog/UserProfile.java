@@ -1025,4 +1025,16 @@ public class UserProfile extends DOMFace implements UserRef
     public UserPage getUserPage() throws Exception {
         return UserPage.findOrCreateUserPage(key);
     }
+
+    public List<NGBook> findAllMemberSites() throws Exception {
+        List<NGBook> memberOfSites=new ArrayList<NGBook>();
+        for (NGBook aBook : NGBook.getAllSites()){
+            if (aBook.primaryOrSecondaryPermission(this)) {
+                memberOfSites.add(aBook);
+            }
+        }
+        return memberOfSites;
+    }
+
+
 }

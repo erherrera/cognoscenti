@@ -35,30 +35,49 @@ import org.socialbiz.cog.License;
 */
 public class RemoteProject
 {
-    URL        url;
+    String     urlStr;
     JSONObject root;
 
-    public RemoteProject(String urlStr) throws Exception {
+    public RemoteProject(String s) throws Exception {
+        urlStr = s;
+    }
 
-        url = new URL(urlStr);
-        InputStream is = url.openStream();
-        JSONTokener jt = new JSONTokener(is);
-        root = new JSONObject(jt);
+    public JSONObject getJSONObj() throws Exception {
+        try {
+            if (root == null) {
+                URL url = new URL(urlStr);
+                InputStream is = url.openStream();
+                JSONTokener jt = new JSONTokener(is);
+                root = new JSONObject(jt);
+            }
+            return root;
+        }
+        catch (Exception e) {
+            throw new Exception("Unable to get site detail from url=" + urlStr, e);
+        }
     }
 
     public JSONArray getNotes() throws Exception {
-        return root.getJSONArray("notes");
+        return getJSONObj().getJSONArray("notes");
     }
     public JSONArray getDocs() throws Exception {
-        return root.getJSONArray("docs");
+        return getJSONObj().getJSONArray("docs");
     }
     public JSONArray getGoals() throws Exception {
-        return root.getJSONArray("goals");
+        return getJSONObj().getJSONArray("goals");
     }
     public License getLicense() throws Exception {
-        return new RemoteLicense(root.optJSONObject("license"));
+        return new RemoteLicense(getJSONObj().optJSONObject("license"));
     }
-
+    public String getName() throws Exception {
+        return getJSONObj().optString("projectname");
+    }
+    public String getSiteURL() throws Exception {
+        return getJSONObj().optString("siteinfo");
+    }
+    public String getSiteName() throws Exception {
+        return getJSONObj().optString("sitename");
+    }
 
     /**
      * Send a JSONObject to this server as a POST and
@@ -66,6 +85,7 @@ public class RemoteProject
      */
     public JSONObject call(JSONObject msg) throws Exception {
         try {
+            URL url = new URL(urlStr);
             HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
             httpCon.setDoOutput(true);
             httpCon.setDoInput(true);
@@ -107,7 +127,7 @@ public class RemoteProject
             return resp;
         }
         catch (Exception e) {
-            throw new Exception("Unable to call the server site located at "+url, e);
+            throw new Exception("Unable to call the server site located at "+urlStr, e);
         }
     }
 }

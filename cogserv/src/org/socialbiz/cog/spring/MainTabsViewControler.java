@@ -449,6 +449,7 @@ public class MainTabsViewControler extends BaseController {
              }
 
              request.setAttribute("headerType", "index");
+             //TODO: see if bookList is really needed
              modelAndView.addObject("bookList",list);
          }catch(Exception ex){
              throw new NGException("nugen.operation.fail.project.welcome.page", null , ex);

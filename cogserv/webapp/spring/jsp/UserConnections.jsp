@@ -1,6 +1,21 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="UserProfile.jsp"
 %><%
+    ar.assertLoggedIn("Must be logged in to see anything about a user");
+
+    UserProfile uProf = (UserProfile)request.getAttribute("userProfile");
+    if (uProf == null) {
+        throw new NGException("nugen.exception.cant.find.user",null);
+    }
+
+    UserProfile  operatingUser =ar.getUserProfile();
+    if (operatingUser==null) {
+        //this should never happen, and if it does it is not the users fault
+        throw new ProgramLogicError("user profile setting is null.  No one appears to be logged in.");
+    }
+
+    boolean viewingSelf = uProf.getKey().equals(operatingUser.getKey());
+
     Vector<CVSConfig> cvsConnections =  FolderAccessHelper.getCVSConnections();
     Vector<LocalFolderConfig> lclConnections =  FolderAccessHelper.getLoclConnections();
 %>
@@ -272,7 +287,7 @@
                 <td>Update Connection</td>
                 <td>Delete Connection</td>
             </tr>
-            <% displayUserFolders(ar); %>
+            <% displayUserFolders(ar, uProf); %>
         </table>
     </div>
 </div>
@@ -409,12 +424,12 @@
     </script>
 <%!
 
-    public void displayUserFolders(AuthRequest ar)
+    public void displayUserFolders(AuthRequest ar, UserProfile uProf)
     throws Exception {
         try {
             String go = ar.getCompleteURL();
 
-            UserPage uPage = ar.getUserPage();
+            UserPage uPage = uProf.getUserPage();
             Vector allFolders = uPage.getAllConnectionSettings();
 
             for (int i = 0; i < allFolders.size(); i++) {

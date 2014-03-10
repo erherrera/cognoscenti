@@ -229,6 +229,27 @@ public class RemoteGoal extends DOMFace {
         setScalar("accessUrl", newVal);
     }
 
+
+    public String getUserInterfaceURL() {
+        return getScalar("ui");
+    }
+    public void setUserInterfaceURL(String newVal) {
+        setScalar("ui", newVal);
+    }
+
+    public String getProjectName() {
+        return getScalar("projectName");
+    }
+    public void setProjectName(String newVal) {
+        setScalar("projectName", newVal);
+    }
+    public String getSiteName() {
+        return getScalar("siteName");
+    }
+    public void setSiteName(String newVal) {
+        setScalar("siteName", newVal);
+    }
+
     public JSONObject getJSONObject() throws Exception {
         JSONObject obj = new JSONObject();
         obj.put("synopsis", getSynopsis());
@@ -240,6 +261,7 @@ public class RemoteGoal extends DOMFace {
         obj.put("status", getStatus());
         obj.put("percent", getPercentComplete());
         obj.put("universalid", getUniversalId());
+        obj.put("ui", getUserInterfaceURL());
         return obj;
     }
 
@@ -277,9 +299,21 @@ public class RemoteGoal extends DOMFace {
         if (universalid != null) {
             setUniversalId(universalid);
         }
-        String content = obj.optString("content");
-        if (content != null) {
-            setAccessURL(content);
+        String goalinfo = obj.optString("goalinfo");
+        if (goalinfo != null) {
+            setAccessURL(goalinfo);
+        }
+        String uiurl = obj.optString("ui");
+        if (uiurl != null) {
+            setUserInterfaceURL(uiurl);
+        }
+        String pname = obj.optString("projectname");
+        if (pname != null) {
+            setProjectName(pname);
+        }
+        String sname = obj.optString("sitename");
+        if (sname != null) {
+            setSiteName(sname);
         }
     }
 

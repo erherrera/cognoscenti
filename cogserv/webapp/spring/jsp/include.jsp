@@ -45,6 +45,7 @@
 %><%@page import="org.socialbiz.cog.RemoteGoal"
 %><%@page import="org.socialbiz.cog.UserManager"
 %><%@page import="org.socialbiz.cog.UserProfile"
+%><%@page import="org.socialbiz.cog.UserPage"
 %><%@page import="org.socialbiz.cog.UtilityMethods"
 %><%@page import="org.socialbiz.cog.UtilityMethods"
 %><%@page import="org.socialbiz.cog.WikiConverter"

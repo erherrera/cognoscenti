@@ -43,7 +43,9 @@
         NGPage aPage = NGPage.readPageAbsolutePath(chile);
 
         %>
-        <li>TESTING: <a href="<%ar.writeHtml(ar.getResourceURL(aPage,""));%>"><%ar.writeHtml(aPage.getPermaLink());%></a>
+        <li>TESTING: <a href="<%ar.writeHtml(ar.getResourceURL(aPage,""));%>"><%
+            ar.writeHtml(aPage.getOldUIPermaLink());
+        %></a>
         <%
         out.flush();
         Thread.sleep(999);   //wait a second so you don't max the machine

@@ -204,13 +204,12 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
                 continue;
             }
             NGPage aPage = ngpi.getPage();
-            String urlRoot = ar.baseURL + "api/" + aPage.getSiteKey() + "/" +aPage.getKey()+"/";
 
             for (GoalRecord gr : aPage.getAllGoals()) {
                 if (!gr.isAssignee(up)) {
                     continue;
                 }
-                goalArray.put(gr.getJSON4Goal(aPage, urlRoot));
+                goalArray.put(gr.getJSON4Goal(aPage, ar.baseURL, "xxx"));
 
             }
         }

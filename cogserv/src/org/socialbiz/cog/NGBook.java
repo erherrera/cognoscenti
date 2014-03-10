@@ -440,17 +440,6 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     /**
-     * getPermaLink returns the best name to use for linking to this page that
-     * is guaranteed not to change. This will be the name of the directory that
-     * the file is stored in, which might be randomly generated. This will not
-     * necessarily be a descriptive name of the page. But it will be one that
-     * does not change.
-     */
-    public String getPermaLink(String pageResource) {
-        return "p/" + getKey() + "/" + pageResource;
-    }
-
-    /**
      * Walk through whatever elements this owns and put all the four digit IDs
      * into the vector so that we can generate another ID and assure it does not
      * duplication any id found here.

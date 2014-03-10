@@ -939,7 +939,7 @@ public class GoalRecord extends BaseRecord {
     }
 
 
-    public JSONObject getJSON4Goal(NGPage ngp, String urlRoot) throws Exception {
+    public JSONObject getJSON4Goal(NGPage ngp, String baseURL, String license) throws Exception {
         JSONObject thisGoal = new JSONObject();
         thisGoal.put("universalid", getUniversalId());
         thisGoal.put("id", getId());
@@ -948,6 +948,7 @@ public class GoalRecord extends BaseRecord {
         thisGoal.put("modifiedtime", getModifiedDate());
         thisGoal.put("modifieduser", getModifiedBy());
         thisGoal.put("state",     getState());
+        thisGoal.put("status",    getStatus());
         thisGoal.put("priority",  getPriority());
         thisGoal.put("duedate",   getDueDate());
         thisGoal.put("startdate", getStartDate());
@@ -963,9 +964,18 @@ public class GoalRecord extends BaseRecord {
         }
         thisGoal.put("assignee", peopleList);
         */
-        String contentUrl = urlRoot + "goal" + getId() + "/goal.json";
-        thisGoal.put("content", contentUrl);
-        thisGoal.put("goalinfo", contentUrl);
+        String urlRoot = baseURL + "api/" + ngp.getSiteKey() + "/" + ngp.getKey() + "/";
+        String uiUrl = baseURL + "t/" + ngp.getSiteKey() + "/" + ngp.getKey()
+                + "/task" + getId() + ".htm";
+        String goalinfo = urlRoot + "goal" + getId() + "/goal.json?lic=" + license;
+        thisGoal.put("goalinfo", goalinfo);
+        thisGoal.put("projectinfo", urlRoot+"?lic="+license);
+        thisGoal.put("projectname", ngp.getFullName());
+        NGBook site = ngp.getSite();
+        String siteRoot = baseURL + "api/" + ngp.getSiteKey() + "/$/";
+        thisGoal.put("siteinfo", siteRoot);
+        thisGoal.put("sitename", site.getName());
+        thisGoal.put("ui", uiUrl);
         return thisGoal;
     }
     public void updateGoalFromJSON(JSONObject goalObj) throws Exception {

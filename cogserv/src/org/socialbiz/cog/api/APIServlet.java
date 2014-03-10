@@ -443,7 +443,8 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         JSONObject root = new JSONObject();
 
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/$/";
-        root.put("root", urlRoot);
+        root.put("siteinfo", urlRoot);
+//        root.put("hostinfo", ar.baseURL + "api/$/$/");
         root.put("name", resDec.site.getName());
         root.put("id", resDec.site.getKey());
         root.put("deleted", resDec.site.isDeleted());
@@ -471,7 +472,15 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
                     +"To exchange information, you will need to get an updated license");
         }
         root.put("license", getLicenseInfo(resDec.lic));
+        NGBook site = ngp.getSite();
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/" + resDec.projId + "/";
+        String siteRoot = ar.baseURL + "api/" + resDec.siteId + "/$/";
+        root.put("projectname", ngp.getFullName());
+        root.put("projectinfo", urlRoot+"?lic="+resDec.licenseId);
+        root.put("sitename", site.getName());
+        root.put("siteinfo", siteRoot);
+        String uiUrl = ar.baseURL + "t/" + ngp.getSiteKey() + "/" + ngp.getKey() + "/";
+        root.put("ui", uiUrl);
 
         String role = resDec.lic.getRole();
 
@@ -482,7 +491,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         JSONArray goals = new JSONArray();
         if (isPrimeRole) {
             for (GoalRecord goal : resDec.project.getAllGoals()) {
-                goals.put(goal.getJSON4Goal(resDec.project, urlRoot));
+                goals.put(goal.getJSON4Goal(resDec.project, ar.baseURL, resDec.licenseId));
             }
         }
         root.put("goals", goals);
@@ -537,9 +546,8 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
     }
 
     private void genGoalInfo(AuthRequest ar, ResourceDecoder resDec) throws Exception {
-        String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/" + resDec.projId + "/";
         GoalRecord goal = resDec.project.getGoalOrFail(resDec.goalId);
-        JSONObject goalObj = goal.getJSON4Goal(resDec.project, urlRoot);
+        JSONObject goalObj = goal.getJSON4Goal(resDec.project, ar.baseURL, resDec.licenseId);
         ar.resp.setContentType("application/json");
         goalObj.write(ar.resp.getWriter(), 2, 0);
         ar.flush();

@@ -20,28 +20,7 @@
 %><%!
     String pageTitle = "";
 %>
-    <script>
-        var specialSubTab = '<fmt:message key="${requestScope.subTabId}"/>';
-
-        var tab0_userSettings = '<fmt:message key="nugen.usersettings.subtab.personal.settings"/>';
-        var tab1_userSettings = '<fmt:message key="nugen.usersettings.subtab.contacts"/>';
-        var tab2_userSettings = '<fmt:message key="nugen.usersettings.subtab.connections"/>';
-        var tab3_userSettings = '<fmt:message key="nugen.usersettings.subtab.accounts"/>';
-        var tab4_userSettings = '<fmt:message key="nugen.usersettings.subtab.unsubscribe"/>';
-
-    </script>
 <body class="yui-skin-sam">
-    <!-- for the tab view -->
-    <div id="container">
-        <div>
-            <ul id="subTabs" class="menu">
-
-            </ul>
-        </div>
-        <script>
-            createSubTabs("_userSettings");
-        </script>
-    </div>
 
     <!-- Display the search results here -->
     <script type="text/javascript">
@@ -69,10 +48,10 @@
             var bodyText= document.getElementById(popupId).innerHTML;
             createPanel(header, bodyText, panelWidth);
             myPanel.beforeHideEvent.subscribe(function() {
-                                    if(!isConfirmPopup){
-                                        window.location = "<%=ar.getCompleteURL()%>";
-                                    }
-                                });
+                if(!isConfirmPopup){
+                    window.location = "<%=ar.getCompleteURL()%>";
+                }
+            });
         }
 
         function trim(s) {
