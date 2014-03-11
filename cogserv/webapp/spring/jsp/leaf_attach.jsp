@@ -503,7 +503,10 @@
         List<NGRole> rolesPlayed = ngp.findRolesOfPlayer(up);
         this.ngp = ngp;
         List<HistoryRecord> histRecs = ngp.getAllHistory();
-        boolean canAccessAllDocs = ngp.primaryOrSecondaryPermission(up);
+        boolean canAccessAllDocs = false;
+        if (up!=null) {
+            canAccessAllDocs = ngp.primaryOrSecondaryPermission(up);
+        }
         int count = 0;
         for(AttachmentRecord attachment : ngp.getAllAttachments()) {
             if (attachment.isDeleted()) {

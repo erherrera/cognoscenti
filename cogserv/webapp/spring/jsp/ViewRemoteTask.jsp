@@ -50,6 +50,9 @@ Required parameters:
     }
     NGPageIndex.sortInverseChronological(templates);
 
+    NGPage localProject = NGPageIndex.getProjectByUpstreamLink(currentTaskRecord.getAccessURL());
+
+
 
 %>
 
@@ -230,10 +233,10 @@ Required parameters:
                                             <%=(currentTaskRecord.getDueDate()==0)?"":formatter.format(new Date(currentTaskRecord.getDueDate()))%>
                                         </td>
                                         <td style="width:17px;"></td>
-                                        <td style="color:#000000"><b><fmt:message key="nugen.project.startdate.text"/></b></td>
+                                        <td style="color:#000000"><b>Completed:</b></td>
                                         <td style="width:10px;"></td>
                                         <td class="textAreaGeneral">
-                                            <%=(currentTaskRecord.getStartDate()==0)?"":formatter.format(new Date(currentTaskRecord.getStartDate()))%>
+                                            <%=currentTaskRecord.getPercentComplete()%>%
                                         </td>
                                     </tr>
                                 </table>
@@ -241,18 +244,19 @@ Required parameters:
                         </tr>
                         <tr><td height="10px"></td></tr>
                         <tr>
-                            <td class="gridTableColummHeader"><fmt:message key="nugen.project.enddate.text"/></td>
+                            <td class="gridTableColummHeader"><fmt:message key="nugen.project.startdate.text"/></td>
                             <td style="width:20px;"></td>
                             <td>
                                 <table>
                                     <tr>
                                         <td class="textAreaGeneral">
-                                            <%=(currentTaskRecord.getEndDate()==0)?"&nbsp;":formatter.format(new Date(currentTaskRecord.getEndDate()))%>
+                                            <%=(currentTaskRecord.getStartDate()==0)?"":formatter.format(new Date(currentTaskRecord.getStartDate()))%>
                                         </td>
                                         <td style="width:17px;"></td>
-                                        <td style="color:#000000"></td>
+                                        <td style="color:#000000"><b>End:</b></td>
                                         <td style="width:10px;"></td>
-                                        <td> &nbsp;
+                                        <td class="textAreaGeneral">
+                                            <%=(currentTaskRecord.getEndDate()==0)?"&nbsp;":formatter.format(new Date(currentTaskRecord.getEndDate()))%>
                                         </td>
                                     </tr>
                                 </table>
@@ -262,64 +266,30 @@ Required parameters:
                         <tr>
                             <td class="gridTableColummHeader" valign="top"><fmt:message key="nugen.project.desc.text"/></td>
                             <td style="width:20px;"></td>
-                            <td><textarea name="description" id="description" class="textAreaGeneral" rows="4" tabindex=7><%
-                                ar.writeHtml(currentTaskRecord.getDescription());
-                            %></textarea></td>
+                            <td class="textAreaGeneral"><%ar.writeHtml(currentTaskRecord.getDescription());%></td>
                         </tr>
                         <tr><td height="25px"></td></tr>
                         <tr>
                             <td class="gridTableColummHeader" valign="top"><fmt:message key="nugen.project.status.text"/></td>
                             <td style="width:20px;"></td>
-                            <td><textarea id="status" name="status" class="textAreaGeneral" rows="4"><%
-                                ar.writeHtml(currentTaskRecord.getStatus());
-                            %></textarea></td>
+                            <td class="textAreaGeneral"><%ar.writeHtml(currentTaskRecord.getStatus());%></td>
                         </tr>
-                        <tr><td height="20px"></td></tr>
-                        <tr>
-                            <td class="gridTableColummHeader"><fmt:message key="nugen.process.state.text"/></td>
-                            <td style="width:20px;"></td>
-                            <td><table><tr>
-                                <td>
-                                    <select name="states" id="states" class="specialx" tabindex=5 >
-                                    <%
-                                        for(int i=1;i<=9;i++){
-                                            String selected = "";
-                                            if (i==currentTaskRecord.getState()) {
-                                                selected = "selected=\"selected\"";
-                                            }
-                                            String img3=ar.retPath+"assets/images/"+BaseRecord.stateImg(i);
-                                            out.write("     <option " + selected + " value=\"" + i + "\"  title=\""+img3+"\" >" + BaseRecord.stateName(i) + "</option>");
-                                        }
-                                        String errorselected="";
-                                        if(currentTaskRecord.getState()==0){
-                                            errorselected = "selected=\"selected\"";
-                                        }
-                                        String image=ar.retPath+"assets/images/"+BaseRecord.stateImg(0);
-                                        out.write("     <option " + errorselected + " value=\"" + 0 + "\"  title=\""+image+"\" >" + BaseRecord.stateName(0) + "</option>");
-                                    %>
-                                    </select>
-                                </td>
-                                <td style="width:20px;"></td>
-                                <td style="color:#000000"><b>Completed:</b></td>
-                                <td style="width:10px;"></td>
-                                <td>
-                                    <input type="text" name="percentage" id="percentage" value="<%=currentTaskRecord.getPercentComplete()%>"
-                                        style="font-size:12px;color:#333333;width: 25px;" onchange="validatePercentage()"/>%
-                                </td>
-                            </tr></table></td>
+                        <tr><td height="30px"></td>
                         </tr>
-                        <tr><td height="30px"></td></tr>
-                        <tr>
-                            <td colspan="3" class="generalHeading">Local Project</td>
-                        </tr>
-
-
                     </table>
                     <div class="generalArea">
-                        <!--  Start here -->
+                        <div class="generalHeading">Local Project</div>
                         <div class="generalContent">
                     <%
-                        if(bookList!=null && bookList.size()<1){
+                        if(localProject!=null){
+                    %>
+                            <div>
+                            A local project exists on this host:  <a href="<%=ar.retPath%><%=ar.getResourceURL(localProject, "projectActiveTasks.htm")%>">
+                                <%ar.writeHtml(localProject.getFullName());%></a>
+                            </div>
+                    <%
+                        }
+                        else if(bookList!=null && bookList.size()<1){
                     %>
                             <div id="loginArea">
                                 <span class="black">
@@ -328,9 +298,9 @@ Required parameters:
                             </div>
                     <%
                         }
-                                    else
-                                    {
-                                        String actionPath=ar.retPath+"t/createProjectFromRemoteGoal.form";
+                        else
+                        {
+                            String actionPath=ar.retPath+"t/createProjectFromRemoteGoal.form";
                     %>
                             <form name="projectform" action='<%=actionPath%>' method="post" autocomplete="off" >
                                 <table width="600">

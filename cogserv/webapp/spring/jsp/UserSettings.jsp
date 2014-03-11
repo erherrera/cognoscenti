@@ -39,6 +39,7 @@
     String emailOpenIDProvider = ConfigFile.getProperty("emailOpenIDProvider");
     String visitLoginPrompt = "";
     String prefEmail = uProf.getPreferredEmail();
+    String remoteProfileURL = ar.baseURL+"apu/"+uProf.getKey()+"/user.json";
 
 %>
 <div class="content tab01" style="display:block;" >
@@ -254,6 +255,11 @@
                         <td><%SectionUtil.nicePrintTime(ar.w, uProf.getLastLogin(), ar.nowTime); %> as <% ar.writeHtml(uProf.getLastLoginId()); %> </td>
                     </tr>
                     <tr><td style="height:10px"></td></tr>
+                    <tr>
+                        <td class="gridTableColummHeader">Remote URL:</td>
+                        <td style="width:20px;"></td>
+                        <td><a href="<%=remoteProfileURL%>"><%=remoteProfileURL%></a></td>
+                    </tr>
                     <tr><td style="height:10px"></td></tr>
                     <tr>
                         <td class="gridTableColummHeader"><fmt:message key="nugen.userprofile.Id"/>:</td>

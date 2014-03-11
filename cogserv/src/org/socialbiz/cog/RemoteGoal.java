@@ -20,11 +20,14 @@
 
 package org.socialbiz.cog;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -97,35 +100,28 @@ public class RemoteGoal extends DOMFace {
     }
 
     public long getDueDate() throws Exception {
-        String endDate = getScalar("dueDate");
-        return safeConvertLong(endDate);
+        return safeConvertLong(getScalar("dueDate"));
     }
-
     public void setDueDate(long newVal) throws Exception {
         setScalar("dueDate", Long.toString(newVal));
     }
 
     public long getStartDate() throws Exception {
-        String startDate = getScalar("startDate");
-        return safeConvertLong(startDate);
+        return safeConvertLong(getScalar("startDate"));
     }
-
     public void setStartDate(long newVal) throws Exception {
         setScalar("startDate", Long.toString(newVal));
     }
 
     public long getEndDate() throws Exception {
-        String endDate = getScalar("endDate");
-        return safeConvertLong(endDate);
+        return safeConvertLong(getScalar("endDate"));
     }
-
     public void setEndDate(long newVal) throws Exception {
         setScalar("endDate", Long.toString(newVal));
     }
 
     public int getPriority() throws Exception {
-        String priority = getScalar("priority");
-        return safeConvertInt(priority);
+        return safeConvertInt(getScalar("priority"));
     }
 
     public static String getPriorityStr(int priority) throws Exception {
@@ -275,6 +271,14 @@ public class RemoteGoal extends DOMFace {
         if (duedate > 0) {
             setDueDate(duedate);
         }
+        long startdate = obj.optLong("startdate");
+        if (startdate > 0) {
+            setStartDate(startdate);
+        }
+        long enddate = obj.optLong("enddate");
+        if (enddate > 0) {
+            setEndDate(enddate);
+        }
         int duration = obj.optInt("duration");
         if (duration > 0) {
             setDuration(duration);
@@ -315,6 +319,14 @@ public class RemoteGoal extends DOMFace {
         if (sname != null) {
             setSiteName(sname);
         }
+    }
+
+    public void refreshFromRemote() throws Exception {
+        URL url = new URL(getAccessURL());
+        InputStream is = url.openStream();
+        JSONTokener jt = new JSONTokener(is);
+        JSONObject goalObj = new JSONObject(jt);
+        setFromJSONObject(goalObj);
     }
 
     public static void sortTasksByRank(List<RemoteGoal> tasks) {

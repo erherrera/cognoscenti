@@ -245,7 +245,7 @@ public class TaskHelper
         }
 
         Vector<RemoteGoal> untouched = new Vector<RemoteGoal>();
-        for (RemoteGoal ref : uPage.getUserTaskRefs()) {
+        for (RemoteGoal ref : uPage.getRemoteGoals()) {
 
             if (!ref.touchFlag) {
                 untouched.add(ref);

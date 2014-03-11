@@ -50,6 +50,7 @@ public class RemoteProfile {
             InputStream is = url.openStream();
             JSONTokener jt = new JSONTokener(is);
             JSONObject root = new JSONObject(jt);
+            Hashtable<String, RemoteGoal> usedTable = new Hashtable<String, RemoteGoal>();
 
             JSONArray goals = root.getJSONArray("goals");
 
@@ -59,7 +60,16 @@ public class RemoteProfile {
                 JSONObject oneGoal = goals.getJSONObject(i);
                 String accessURL = oneGoal.getString("goalinfo");
                 RemoteGoal remGoal = uPage.findOrCreateRemoteGoal(accessURL);
+                usedTable.put(remGoal.getAccessURL(), remGoal);
                 remGoal.setFromJSONObject(oneGoal);
+            }
+
+            //now, update the ones that did not come in the task list
+            //for some reason (maybe they are closed, cancelled, or reassigned)
+            for (RemoteGoal remGoal : uPage.getRemoteGoals()) {
+                if (!usedTable.containsKey(remGoal.getId())) {
+                    remGoal.refreshFromRemote();
+                }
             }
         }
         catch (Exception e) {
