@@ -426,6 +426,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
 
 
+    @SuppressWarnings("unused")
     private void genSiteListing(AuthRequest ar, ResourceDecoder resDec) throws Exception {
 
         NGBook site = resDec.site;
@@ -433,12 +434,14 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             //this is probably unnecessary, having hit an exception earlier, but just begin sure
             throw new Exception("Something is wrong, can not find a site object.");
         }
-        if (resDec.licenseId == null || resDec.licenseId.length()==0 || resDec.lic==null) {
-            throw new Exception("All operations on the site need to be licensed, but did not get a license id in that URL.");
-        }
-        if (!site.isValidLicense(resDec.lic, ar.nowTime)) {
-            throw new Exception("The license ("+resDec.licenseId+") has expired.  "
-                    +"To exchange information, you will need to get an updated license");
+        if (false==true) {
+            if (resDec.licenseId == null || resDec.licenseId.length()==0 || resDec.lic==null) {
+                throw new Exception("All operations on the site need to be licensed, but did not get a license id in that URL.");
+            }
+            if (!site.isValidLicense(resDec.lic, ar.nowTime)) {
+                throw new Exception("The license ("+resDec.licenseId+") has expired.  "
+                        +"To exchange information, you will need to get an updated license");
+            }
         }
         JSONObject root = new JSONObject();
 

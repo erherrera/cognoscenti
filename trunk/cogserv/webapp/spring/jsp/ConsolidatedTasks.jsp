@@ -46,7 +46,7 @@
         <%
             UserPage uPage2 = uProf.getUserPage();
 
-            for (RemoteGoal tr : uPage2.getUserTaskRefs())
+            for (RemoteGoal tr : uPage2.getRemoteGoals())
             {
         %>
 

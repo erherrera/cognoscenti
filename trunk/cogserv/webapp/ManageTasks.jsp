@@ -69,7 +69,7 @@
     <col width="460">
     <col width="150">
 <%
-    List<RemoteGoal> myActive = uPage.getUserTaskRefs();
+    List<RemoteGoal> myActive = uPage.getRemoteGoals();
     RemoteGoal.sortTasksByRank(myActive);
     String lastKey ="";
     for (RemoteGoal tr : myActive)

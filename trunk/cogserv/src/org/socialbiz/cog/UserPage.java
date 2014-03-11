@@ -582,7 +582,7 @@ public class UserPage extends ContainerCommon
         save();
     }
 
-    public List<RemoteGoal> getUserTaskRefs() throws Exception {
+    public List<RemoteGoal> getRemoteGoals() throws Exception {
 
         if (taskRefs==null) {
             taskRefs = requireChild("TaskRefs", DOMFace.class);
@@ -597,7 +597,7 @@ public class UserPage extends ContainerCommon
 
     public RemoteGoal findOrCreateTask(String projectKey, String id) throws Exception {
 
-        for (RemoteGoal tr : getUserTaskRefs()) {
+        for (RemoteGoal tr : getRemoteGoals()) {
             if (projectKey.equals(tr.getProjectKey()) && id.equals(tr.getId())) {
                 return tr;
             }
@@ -612,7 +612,7 @@ public class UserPage extends ContainerCommon
 
     public RemoteGoal findRemoteGoal(String accessUrl) throws Exception {
 
-        for (RemoteGoal tr : getUserTaskRefs()) {
+        for (RemoteGoal tr : getRemoteGoals()) {
             if (accessUrl.equals(tr.getAccessURL())) {
                 return tr;
             }
@@ -622,7 +622,7 @@ public class UserPage extends ContainerCommon
 
     public RemoteGoal findOrCreateRemoteGoal(String accessUrl) throws Exception {
 
-        for (RemoteGoal tr : getUserTaskRefs()) {
+        for (RemoteGoal tr : getRemoteGoals()) {
             if (accessUrl.equals(tr.getAccessURL())) {
                 return tr;
             }
@@ -636,7 +636,7 @@ public class UserPage extends ContainerCommon
     public void deleteTask(String projectKey, String id) throws Exception {
 
         RemoteGoal found = null;
-        for (RemoteGoal tr : getUserTaskRefs()) {
+        for (RemoteGoal tr : getRemoteGoals()) {
             if (projectKey.equals(tr.getProjectKey()) && id.equals(tr.getId())) {
                 found = tr;
             }
@@ -649,14 +649,14 @@ public class UserPage extends ContainerCommon
     }
 
     public void clearTaskRefFlags() throws Exception {
-        for (RemoteGoal tr : getUserTaskRefs()) {
+        for (RemoteGoal tr : getRemoteGoals()) {
             tr.touchFlag = false;
         }
     }
 
     public void cleanUpTaskRanks() throws Exception {
 
-        List<RemoteGoal> refs = getUserTaskRefs();
+        List<RemoteGoal> refs = getRemoteGoals();
         RemoteGoal.sortTasksByRank(refs);
         int count = 0;
 

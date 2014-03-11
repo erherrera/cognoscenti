@@ -19,6 +19,7 @@ package org.socialbiz.cog.api;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.BaseRecord;
 import org.socialbiz.cog.GoalRecord;
 import org.socialbiz.cog.License;
 import org.socialbiz.cog.NGPage;
@@ -209,8 +210,10 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
                 if (!gr.isAssignee(up)) {
                     continue;
                 }
-                goalArray.put(gr.getJSON4Goal(aPage, ar.baseURL, "xxx"));
-
+                if (gr.getState()==BaseRecord.STATE_ACCEPTED ||
+                        gr.getState()==BaseRecord.STATE_STARTED) {
+                    goalArray.put(gr.getJSON4Goal(aPage, ar.baseURL, "xxx"));
+                }
             }
         }
 

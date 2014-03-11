@@ -652,7 +652,8 @@ public class NGPageIndex {
         if (ngc instanceof NGPage) {
             String upstream = ((NGPage)ngc).getUpstreamLink();
             if (upstream!=null && upstream.length()>0) {
-                upstreamToContainer.put(upstream, bIndex);
+                int lastSlash = upstream.indexOf("/");
+                upstreamToContainer.put(upstream.substring(0,lastSlash+1), bIndex);
             }
         }
 
@@ -719,7 +720,8 @@ public class NGPageIndex {
     }
 
     public static NGPage getProjectByUpstreamLink(String upstream) throws Exception {
-        NGPageIndex ngpi = upstreamToContainer.get(upstream);
+        int lastSlash = upstream.indexOf("/");
+        NGPageIndex ngpi = upstreamToContainer.get(upstream.substring(0,lastSlash+1));
         if (ngpi != null) {
             return ngpi.getPage();
         }

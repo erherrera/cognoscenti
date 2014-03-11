@@ -76,7 +76,7 @@
         }
         int highestPreceedingRank = 0;
         RemoteGoal found = null;
-        for (RemoteGoal refx : uPage.getUserTaskRefs()) {
+        for (RemoteGoal refx : uPage.getRemoteGoals()) {
             int rankx = refx.getRank();
             if (rankx<myRank && rankx>highestPreceedingRank) {
                 highestPreceedingRank = rankx;
@@ -97,7 +97,7 @@
         }
         int lowestFollowingRank = 99999;
         RemoteGoal found = null;
-        for (RemoteGoal refx : uPage.getUserTaskRefs()) {
+        for (RemoteGoal refx : uPage.getRemoteGoals()) {
             int rankx = refx.getRank();
             if (rankx>myRank && rankx<lowestFollowingRank) {
                 lowestFollowingRank = rankx;

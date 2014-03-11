@@ -44,10 +44,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-/**
- * @author banerjso
- *
- */
 @Controller
 public class ProjectSettingController extends BaseController {
 
@@ -146,19 +142,15 @@ public class ProjectSettingController extends BaseController {
             }
 
             boolean isPlayer = role.isExpandedPlayer(ar.getUserProfile(), ngp);
-            if (!isPlayer)
-            {
-                ar.assertAdmin("You must be a page administrator to change role '"+r+"' when you are not a player of the role.");
+            if (!isPlayer) {
+                ar.assertAdmin("You must be a player of the role or project admin to change role '"
+                        +r+"'.");
             }
 
             String id = ar.reqParam("id");  //user being added/removed
 
             AddressListEntry ale =null;
-            Vector<AddressListEntry> emailList=null;
-            if(op.equals("Add Member"))
-            {
-                emailList = AddressListEntry.parseEmailList(id);
-            }else{
+            if (!op.equals("Add Member")) {
                 String parseId = pasreFullname(id );
                 ale = AddressListEntry.newEntryFromStorage(parseId);
             }
@@ -174,7 +166,6 @@ public class ProjectSettingController extends BaseController {
                 }
                 eventType = HistoryRecord.EVENT_PLAYER_ADDED;
                 pageSaveComment = "added user "+id+" to role "+r;
-                //role.addPlayer(ale);
                 role.addPlayerIfNotPresent(ale);
             }
             else if (op.equals("Remove"))
@@ -199,13 +190,25 @@ public class ProjectSettingController extends BaseController {
                 role.setDescription(desc);
                 role.setRequirements(reqs);
             }
+            else if (op.equals("Delete Role"))
+            {
+                eventType = HistoryRecord.EVENT_ROLE_MODIFIED;
+                String confirmDelete = ar.defParam("confirmDelete", "no");
+                if (!"yes".equals(confirmDelete)) {
+                    throw new Exception("Please check the 'conform delete' if you really want to delete this role.");
+                }
+                pageSaveComment = "deleted role "+r;
+                ngp.deleteRole(r);
+            }
             else if(op.equals("Add Member"))
             {
+                Vector<AddressListEntry> emailList = AddressListEntry.parseEmailList(id);
                 for (AddressListEntry addressListEntry : emailList) {
                     eventType = HistoryRecord.EVENT_PLAYER_ADDED;
                     pageSaveComment = "added user "+addressListEntry.getUniversalId()+" to role "+r;
 
-                    RoleRequestRecord roleRequestRecord = ngp.getRoleRequestRecord(role.getName(),addressListEntry.getUniversalId());
+                    RoleRequestRecord roleRequestRecord = ngp.getRoleRequestRecord(role.getName(),
+                            addressListEntry.getUniversalId());
                     if(roleRequestRecord != null){
                         roleRequestRecord.setState("Approved");
                     }
@@ -234,12 +237,15 @@ public class ProjectSettingController extends BaseController {
                response.sendRedirect(go);
            }else{
                modelAndView = new ModelAndView(new RedirectView("EditRole.htm"));
-               // modelAndView.addObject works in case of redirect. It adds the parameter in query string.
+               // modelAndView.addObject works in case of redirect. It adds the parameter
+               // in query string.
                modelAndView.addObject("roleName",r);
            }
 
-        }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.project.update.role.or.member", new Object[]{pageId,siteId} , ex);
+        }
+        catch(Exception ex) {
+            throw new NGException("nugen.operation.fail.project.update.role.or.member",
+                    new Object[]{pageId,siteId} , ex);
         }
         return modelAndView;
     }
