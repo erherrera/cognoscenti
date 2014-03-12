@@ -246,6 +246,19 @@ public class RemoteGoal extends DOMFace {
         setScalar("siteName", newVal);
     }
 
+    public String getProjectAccessURL() {
+        return getScalar("projectAccess");
+    }
+    public void setProjectAccessURL(String newVal) {
+        setScalar("projectAccess", newVal);
+    }
+    public String getSiteAccessURL() {
+        return getScalar("siteAccess");
+    }
+    public void setSiteAccessURL(String newVal) {
+        setScalar("siteAccess", newVal);
+    }
+
     public JSONObject getJSONObject() throws Exception {
         JSONObject obj = new JSONObject();
         obj.put("synopsis", getSynopsis());
@@ -263,9 +276,9 @@ public class RemoteGoal extends DOMFace {
 
     public void setFromJSONObject(JSONObject obj) throws Exception {
         setSynopsis(obj.getString("synopsis"));
-        String description = obj.optString("description");
-        if (description != null) {
-            setDescription(description);
+        String str = obj.optString("description");
+        if (str != null) {
+            setDescription(str);
         }
         long duedate = obj.optLong("duedate");
         if (duedate > 0) {
@@ -291,33 +304,41 @@ public class RemoteGoal extends DOMFace {
         if (state > 0) {
             setState(state);
         }
-        String status = obj.optString("status");
-        if (status != null) {
-            setStatus(status);
+        str = obj.optString("status");
+        if (str != null) {
+            setStatus(str);
         }
         int percent = obj.optInt("percent");
         if (percent > 0) {
             setPercentComplete(percent);
         }
-        String universalid = obj.optString("universalid");
-        if (universalid != null) {
-            setUniversalId(universalid);
+        str = obj.optString("universalid");
+        if (str != null) {
+            setUniversalId(str);
         }
-        String goalinfo = obj.optString("goalinfo");
-        if (goalinfo != null) {
-            setAccessURL(goalinfo);
+        str = obj.optString("goalinfo");
+        if (str != null) {
+            setAccessURL(str);
         }
-        String uiurl = obj.optString("ui");
-        if (uiurl != null) {
-            setUserInterfaceURL(uiurl);
+        str = obj.optString("ui");
+        if (str != null) {
+            setUserInterfaceURL(str);
         }
-        String pname = obj.optString("projectname");
-        if (pname != null) {
-            setProjectName(pname);
+        str = obj.optString("projectname");
+        if (str != null) {
+            setProjectName(str);
         }
-        String sname = obj.optString("sitename");
-        if (sname != null) {
-            setSiteName(sname);
+        str = obj.optString("projectinfo");
+        if (str != null) {
+            setProjectAccessURL(str);
+        }
+        str = obj.optString("sitename");
+        if (str != null) {
+            setSiteName(str);
+        }
+        str = obj.optString("siteinfo");
+        if (str != null) {
+            setSiteAccessURL(str);
         }
     }
 
