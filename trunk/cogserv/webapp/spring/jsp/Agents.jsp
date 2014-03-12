@@ -48,9 +48,32 @@
                     <input type="hidden" name="act" value="Create">
                     <table>
                         <tr id="trspath">
+                            <td class="gridTableColummHeader">Name:</td>
+                            <td style="width:20px;"></td>
+                            <td colspan="2"><input type="text" name="name" class="inputGeneral" size="69" /></td>
+                        </tr>
+                        <tr><td style="height:10px"></td></tr>
+                        <tr id="trspath">
                             <td class="gridTableColummHeader">Expression:</td>
                             <td style="width:20px;"></td>
                             <td colspan="2"><input type="text" name="expression" class="inputGeneral" size="69" /></td>
+                        </tr>
+                        <tr><td style="height:10px"></td></tr>
+                        <tr id="trspath">
+                            <td class="gridTableColummHeader">Option:</td>
+                            <td style="width:20px;"></td>
+                            <td colspan="2"><input type="checkbox" name="accept"/> Auto-Accept
+                                <input type="checkbox" name="transform"/> Schema Transform
+                                <input type="checkbox" name="normalize"/> Normalize</td>
+                        </tr>
+                        <tr><td style="height:10px"></td></tr>
+                        <tr id="trspath">
+                            <td class="gridTableColummHeader">Template:</td>
+                            <td style="width:20px;"></td>
+                            <td colspan="2"><select name="refresh"/>
+                                <option>Regular Plan</option>
+                                <option>Long Plan</option>
+                                <option>Short Plan</option></select>
                         </tr>
                         <tr><td style="height:30px"></td></tr>
                         <tr>
@@ -75,7 +98,7 @@
         <br />
         <table class="gridTable2" width="100%">
             <tr class="gridTableHeader">
-                <td width="300px">Address</td>
+                <td width="300px">Name</td>
                 <td>Last Used</td>
                 <td>Delete</td>
             </tr>
