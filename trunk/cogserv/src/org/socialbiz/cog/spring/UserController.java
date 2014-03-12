@@ -469,7 +469,16 @@ public class UserController extends BaseController {
             UserPage uPage = userBeingViewed.getUserPage();
             if ("Create".equals(act)) {
                 AgentRule rule = uPage.createAgentRule();
-                rule.setExpression(ar.reqParam("expression"));
+                rule.setTitle(ar.reqParam("name"));
+                rule.setExpression(ar.defParam("expression", ""));
+                rule.setTemplate(ar.defParam("template", ""));
+            }
+            else if ("Update".equals(act)) {
+                String id = ar.reqParam("id");
+                AgentRule rule = uPage.findAgentRule(id);
+                rule.setTitle(ar.reqParam("name"));
+                rule.setExpression(ar.defParam("expression", ""));
+                rule.setTemplate(ar.defParam("template", ""));
             }
             else if ("Delete".equals(act)) {
                 uPage.deleteAgentRule(ar.reqParam("id"));
@@ -497,6 +506,30 @@ public class UserController extends BaseController {
             UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
 
             return createModelAndView(ar, userBeingViewed, "Goals", "Agents");
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.usertask.page", new Object[]{userKey} , ex);
+        }
+    }
+
+
+    @RequestMapping(value = "/{userKey}/EditAgent.htm", method = RequestMethod.GET)
+    public ModelAndView EditAgent(@PathVariable String userKey,
+            HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            if(!ar.isLoggedIn()){
+                return showWarningView(ar, "message.loginalert.see.page");
+            }
+            UserProfile userBeingViewed = UserManager.getUserProfileOrFail(userKey);
+            UserPage uPage = userBeingViewed.getUserPage();
+            String agentId = ar.reqParam("id");
+            AgentRule agent = uPage.findAgentRule(agentId);
+            if (agent==null) {
+                throw new Exception("Unable to find an agent with id="+agentId);
+            }
+
+            return createModelAndView(ar, userBeingViewed, "Goals", "EditAgent");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.usertask.page", new Object[]{userKey} , ex);
         }
