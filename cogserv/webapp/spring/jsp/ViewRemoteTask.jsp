@@ -195,6 +195,17 @@ Required parameters:
                         </tr>
                         <tr><td height="10px"></td></tr>
                         <tr>
+                            <td class="gridTableColummHeader">Project:</td>
+                            <td style="width:20px;"></td>
+                            <td class="textAreaGeneral">
+                                <a href="<%ar.writeHtml(currentTaskRecord.getProjectAccessURL());%>">
+                                <%ar.writeHtml(currentTaskRecord.getProjectName());%></a> of 
+                                <a href="<%ar.writeHtml(currentTaskRecord.getSiteAccessURL());%>">
+                                <%ar.writeHtml(currentTaskRecord.getSiteName());%></a>
+                            </td>
+                        </tr>
+                        <tr><td height="10px"></td></tr>
+                        <tr>
                             <td class="gridTableColummHeader">Assigned To:</td>
                             <td style="width:20px;"></td>
                             <td class="textAreaGeneral">
