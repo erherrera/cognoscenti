@@ -776,6 +776,16 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
                 return child;
             }
         }
+        int bangPos = id.indexOf("!");
+        if (bangPos>0) {
+            String userKey = id.substring(0, bangPos);
+            String token = id.substring(bangPos+1);
+            UserProfile up = UserManager.getUserProfileOrFail(userKey);
+            if (!token.equals(up.getLicenseToken())) {
+                throw new Exception("License token does not match for user: "+token);
+            }
+            return new LicenseForUser(up);
+        }
         return null;
     }
 
@@ -807,19 +817,19 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
             return false;
         }
 
-        NGRole ngr = getRole(lr.getRole());
-        if (ngr==null) {
-            //can not be valid if the role no longer exists
-            return false;
-        }
-
-        //check to see if the user who created it, is still in the
-        //role or in the member's role
         AddressListEntry ale = new AddressListEntry(lr.getCreator());
-        if (!ngr.isExpandedPlayer(ale,  this) && !primaryOrSecondaryPermission(ale)) {
-            return false;
+        NGRole ngr = getRole(lr.getRole());
+        if (ngr!=null) {
+            //check to see if the user who created it, is still in the
+            //role or in the member's role
+            if (ngr.isExpandedPlayer(ale,  this)) {
+                return true;
+            }
         }
-
-        return true;
+        if (primaryOrSecondaryPermission(ale)) {
+            return true;
+        }
+        return false;
     }
+
 }

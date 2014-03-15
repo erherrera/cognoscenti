@@ -26,13 +26,16 @@ Required parameters:
     SimpleDateFormat formatter  = new SimpleDateFormat ("MM/dd/yyyy");
     String bookKey=null;  //this is always NULL
 
-    RemoteGoal currentTaskRecord = uPage.findRemoteGoal(url);
-    if (currentTaskRecord==null) {
+    RemoteGoal remoteGoal = uPage.findRemoteGoal(url);
+    if (remoteGoal==null) {
         throw new Exception("Unable to find the remote goal record");
     }
 
     List<HistoryRecord> histRecs = new Vector<HistoryRecord>();
     pageTitle = uProf.getName();
+
+    UserProfile  operatingUser =ar.getUserProfile();
+    boolean viewingSelf = uProf.getKey().equals(operatingUser.getKey());
 
 
 
@@ -50,7 +53,23 @@ Required parameters:
     }
     NGPageIndex.sortInverseChronological(templates);
 
-    NGPage localProject = NGPageIndex.getProjectByUpstreamLink(currentTaskRecord.getAccessURL());
+    String accessUrl = remoteGoal.getAccessURL();
+    boolean isLocal = accessUrl.startsWith(ar.baseURL);
+    NGPage localProject = null;
+    if (isLocal) {
+        int siteBegin = accessUrl.indexOf("/", ar.baseURL.length())+1;
+        int projBegin = accessUrl.indexOf("/", siteBegin)+1;
+        int projEnd = accessUrl.indexOf("/", projBegin);
+        String siteKey = accessUrl.substring(siteBegin, projBegin-1);
+        String projKey = accessUrl.substring(projBegin, projEnd);
+        localProject = NGPageIndex.getProjectByKeyOrFail(projKey);
+    }
+    else {
+        localProject = NGPageIndex.getProjectByUpstreamLink(accessUrl);
+        if (localProject!=null && !accessUrl.equals(localProject.getUpstreamLink())) {
+            throw new Exception("Strange, found the project but it has the wrong URL");
+        }
+    }
 
 
 
@@ -61,111 +80,10 @@ Required parameters:
 
     <script type="text/javascript" language = "JavaScript">
 
-        var flag=false;
-        var emailflag=false;
-        var taskNameRequired = '<fmt:message key="nugen.process.taskname.required.error.text"/>';
-        var taskName = '<fmt:message key="nugen.process.taskname.textbox.text"/>';
-        var emailadd='<fmt:message key="nugen.process.emailaddress.textbox.text"/>'
-
-         function submitUpdatedTask(){
-            var taskname =  document.getElementById("taskname_update");
-            if(!(!taskname.value=='' || !taskname.value==null)){
-                alert(taskNameRequired);
-                    return false;
-            }
-            document.forms["updateTaskForm"].submit();
-        }
-
         function createProject(){
             document.forms["projectform"].submit();
         }
-        function inviteUser(bookId,pageId,emailId)
-        {
-            var uri='<%=ar.retPath%>'+"t/"+bookId+"/"+pageId+"/inviteUser.htm?emailId="+emailId;
-            window.open(uri,TARGET="_parent");
-        }
 
-        function AddNewAssigne(){
-            document.forms["assignTask"].submit();
-        }
-
-        var callbackprocess = {
-           success: function(o) {
-               var respText = o.responseText;
-               var json = eval('(' + respText+')');
-               if(json.msgType != "success"){
-                   showErrorMessage("Result", json.msg , json.comments );
-              }
-           },
-           failure: function(o) {
-                   alert("callbackprocess Error:" +o.responseText);
-           }
-        }
-
-    function removeAssigne(assigneeId){
-        document.getElementById("remove").value="true";
-        document.getElementById("removeAssignee").value=assigneeId;
-        document.forms["assignTask"].submit();
-    }
-
-    function updateAssigneeVal(){
-        emailflag=true;
-    }
-
-
-    function createSubTask(){
-        var taskname =  document.getElementById("taskname");
-        var assignto =  document.getElementById("assignto_SubTask");
-
-        if(taskname.value=='' || taskname.value==null){
-            alert(taskNameRequired);
-                return false;
-        }
-
-        if(assignto.value==emailadd){
-            document.getElementById("assignto_SubTask").value="";
-        }
-        document.forms["createSubTaskForm"].elements["assignto"].value = assignto.value;
-        document.forms["createSubTaskForm"].submit();
-    }
-
-    function updateTaskVal(){
-        flagSubTask=true;
-    }
-
-    function clearField(elementName) {
-        var task=document.getElementById(elementName).value;
-        if(task==taskName){
-            document.getElementById(elementName).value="";
-            document.getElementById(elementName).style.color="black";
-        }
-    }
-
-    function defaultTaskValue(elementName) {
-        var task=document.getElementById(elementName).value;
-        if(task==""){
-            flag=false;
-            document.getElementById(elementName).value=taskName;
-            document.getElementById(elementName).style.color = "gray";
-        }
-    }
-
-    function validatePercentage(){
-        var percentage = document.getElementById("percentage").value;
-        if(percentage==""){
-            document.getElementById("percentage").value = 0;
-        }else{
-            var x = parseInt(percentage);
-            var numericExpression = /^[0-9]+$/;
-            if(percentage.match(numericExpression)) {
-                if (isNaN(x) || x < 0 || x > 100) {
-                    alert("Please enter correct percentage, a numeric value between 0 to 100");
-                }
-            } else {
-                alert("Please enter correct percentage, a numeric value between 0 to 100");
-            }
-        }
-    }
 </script>
 
 <body class="yui-skin-sam">
@@ -180,17 +98,17 @@ Required parameters:
                         <!-- ========================================================================= -->
                         <tr><td height="23px"></td></tr>
                         <tr>
-                            <form action="<% ar.writeHtml(currentTaskRecord.getUserInterfaceURL());%>" method="get">
+                            <form action="<% ar.writeHtml(remoteGoal.getUserInterfaceURL());%>" method="get">
                             <td colspan="3" class="generalHeading">Remote Goal Status
                                 &nbsp; &nbsp; &nbsp; &nbsp;
-                                <input type="submit" value="Visit Project Site" class="inputBtn" /></td>
+                                <input type="submit" value="Visit Original Goal" class="inputBtn" /></td>
                             </form>                        </tr>
                         <tr><td height="10px"></td></tr>
                         <tr>
                             <td class="gridTableColummHeader"><fmt:message key="nugen.process.taskname.display.text"/>:</td>
                             <td style="width:20px;"></td>
                             <td class="textAreaGeneral">
-                                <%ar.writeHtml(currentTaskRecord.getSynopsis());%>
+                                <%ar.writeHtml(remoteGoal.getSynopsis());%>
                             </td>
                         </tr>
                         <tr><td height="10px"></td></tr>
@@ -198,10 +116,10 @@ Required parameters:
                             <td class="gridTableColummHeader">Project:</td>
                             <td style="width:20px;"></td>
                             <td class="textAreaGeneral">
-                                <a href="<%ar.writeHtml(currentTaskRecord.getProjectAccessURL());%>">
-                                <%ar.writeHtml(currentTaskRecord.getProjectName());%></a> of 
-                                <a href="<%ar.writeHtml(currentTaskRecord.getSiteAccessURL());%>">
-                                <%ar.writeHtml(currentTaskRecord.getSiteName());%></a>
+                                <a href="<%ar.writeHtml(remoteGoal.getProjectAccessURL());%>">
+                                <%ar.writeHtml(remoteGoal.getProjectName());%></a> of
+                                <a href="<%ar.writeHtml(remoteGoal.getSiteAccessURL());%>">
+                                <%ar.writeHtml(remoteGoal.getSiteName());%></a>
                             </td>
                         </tr>
                         <tr><td height="10px"></td></tr>
@@ -220,14 +138,14 @@ Required parameters:
                                 <table>
                                     <tr>
                                         <td style="width:150px;" class="textAreaGeneral">
-                                            <%ar.writeHtml(BaseRecord.getPriorityStr(currentTaskRecord.getPriority()));%>
+                                            <%ar.writeHtml(BaseRecord.getPriorityStr(remoteGoal.getPriority()));%>
                                          </td>
                                          <td style="width:45px;"></td>
                                          <td style="color:#000000"><b><fmt:message key="nugen.process.state.text"/></b></td>
                                         <td style="width:10px;"></td>
                                         <td class="textAreaGeneral">
-                                            <img src="<%=ar.retPath%>assets/images/<%=BaseRecord.stateImg(currentTaskRecord.getState())%>">
-                                            &nbsp; &nbsp;<%ar.writeHtml(BaseRecord.stateName(currentTaskRecord.getState()));%>
+                                            <img src="<%=ar.retPath%>assets/images/<%=BaseRecord.stateImg(remoteGoal.getState())%>">
+                                            &nbsp; &nbsp;<%ar.writeHtml(BaseRecord.stateName(remoteGoal.getState()));%>
                                         </td>
                                     </tr>
                                 </table>
@@ -241,13 +159,13 @@ Required parameters:
                                 <table>
                                     <tr>
                                         <td class="textAreaGeneral">
-                                            <%=(currentTaskRecord.getDueDate()==0)?"":formatter.format(new Date(currentTaskRecord.getDueDate()))%>
+                                            <%=(remoteGoal.getDueDate()==0)?"":formatter.format(new Date(remoteGoal.getDueDate()))%>
                                         </td>
                                         <td style="width:17px;"></td>
                                         <td style="color:#000000"><b>Completed:</b></td>
                                         <td style="width:10px;"></td>
                                         <td class="textAreaGeneral">
-                                            <%=currentTaskRecord.getPercentComplete()%>%
+                                            <%=remoteGoal.getPercentComplete()%>%
                                         </td>
                                     </tr>
                                 </table>
@@ -261,13 +179,13 @@ Required parameters:
                                 <table>
                                     <tr>
                                         <td class="textAreaGeneral">
-                                            <%=(currentTaskRecord.getStartDate()==0)?"":formatter.format(new Date(currentTaskRecord.getStartDate()))%>
+                                            <%=(remoteGoal.getStartDate()==0)?"":formatter.format(new Date(remoteGoal.getStartDate()))%>
                                         </td>
                                         <td style="width:17px;"></td>
                                         <td style="color:#000000"><b>End:</b></td>
                                         <td style="width:10px;"></td>
                                         <td class="textAreaGeneral">
-                                            <%=(currentTaskRecord.getEndDate()==0)?"&nbsp;":formatter.format(new Date(currentTaskRecord.getEndDate()))%>
+                                            <%=(remoteGoal.getEndDate()==0)?"&nbsp;":formatter.format(new Date(remoteGoal.getEndDate()))%>
                                         </td>
                                     </tr>
                                 </table>
@@ -277,13 +195,13 @@ Required parameters:
                         <tr>
                             <td class="gridTableColummHeader" valign="top"><fmt:message key="nugen.project.desc.text"/></td>
                             <td style="width:20px;"></td>
-                            <td class="textAreaGeneral"><%ar.writeHtml(currentTaskRecord.getDescription());%></td>
+                            <td class="textAreaGeneral"><%ar.writeHtml(remoteGoal.getDescription());%></td>
                         </tr>
                         <tr><td height="25px"></td></tr>
                         <tr>
                             <td class="gridTableColummHeader" valign="top"><fmt:message key="nugen.project.status.text"/></td>
                             <td style="width:20px;"></td>
-                            <td class="textAreaGeneral"><%ar.writeHtml(currentTaskRecord.getStatus());%></td>
+                            <td class="textAreaGeneral"><%ar.writeHtml(remoteGoal.getStatus());%></td>
                         </tr>
                         <tr><td height="30px"></td>
                         </tr>
@@ -292,11 +210,22 @@ Required parameters:
                         <div class="generalHeading">Local Project</div>
                         <div class="generalContent">
                     <%
-                        if(localProject!=null){
+                        if(!isLocal && localProject!=null){
                     %>
                             <div>
                             A local project exists on this host:  <a href="<%=ar.retPath%><%=ar.getResourceURL(localProject, "projectActiveTasks.htm")%>">
-                                <%ar.writeHtml(localProject.getFullName());%></a>
+                                <%ar.writeHtml(localProject.getFullName());%></a><br/>
+                                <%ar.writeHtml(remoteGoal.getAccessURL());%>
+                            </div>
+                    <%
+                        }
+                        else if (isLocal && localProject!=null) {
+                    %>
+                            <div>
+                            This project is on this local host: <a href="<%=ar.retPath%><%=ar.getResourceURL(localProject,"projectActiveTasks.htm")%>">
+                                <%ar.writeHtml(localProject.getFullName());%></a><br/>
+                                <%ar.writeHtml(remoteGoal.getAccessURL());%><br/>
+                                <%ar.writeHtml(ar.baseURL);%>
                             </div>
                     <%
                         }
@@ -309,28 +238,42 @@ Required parameters:
                             </div>
                     <%
                         }
+                        else if(!viewingSelf){
+                    %>
+                            <div id="loginArea">
+                                <span class="black">No project available.  Can't create a project on someone else's remote task.</span>
+                            </div>
+                    <%
+                        }
                         else
                         {
-                            String actionPath=ar.retPath+"t/createProjectFromRemoteGoal.form";
                     %>
-                            <form name="projectform" action='<%=actionPath%>' method="post" autocomplete="off" >
+                            <form action="userCreateProject.htm" method="get">
+                                <input type="hidden" name="upstream" value="<%ar.writeHtml(remoteGoal.getProjectAccessURL());%>"/>
+                                <input type="hidden" name="pname" value="<%ar.writeHtml(remoteGoal.getProjectName());%> (clone)"/>
+                                <input type="hidden" name="desc" value="This is a local clone of a project named '<%ar.writeHtml(remoteGoal.getProjectName());%>' on a remote site named '<%ar.writeHtml(remoteGoal.getSiteName());%>'"/>
+                                <input type="submit" value="Create Alternate" class="inputBtn" />
+                            </form>
+                            <form name="projectform" action="createProjectFromRemoteGoal.form" method="post">
+                                <input type="hidden" name="goUrl" value="<%ar.writeHtml(ar.getCompleteURL());%>"/>
+                                <input type="hidden" name="upstream" value="<%ar.writeHtml(remoteGoal.getProjectAccessURL());%>"/>
                                 <table width="600">
                                     <tr><td style="height:20px"></td></tr>
                                     <tr>
-                                        <td class="gridTableColummHeader">Sub Project Name:</td>
+                                        <td class="gridTableColummHeader">Clone Project Name:</td>
                                         <td style="width:20px;"></td>
                                         <td>
                                             <input type="text" onblur="validateProjectField()" class="inputGeneral"
-                                            name="projectname" id="projectname" value="<%ar.writeHtml(currentTaskRecord.getSynopsis());%>"
-                                            onKeyup="updateVal();" onblur="addvalue();" />
+                                            name="projectname" id="projectname" value="<%ar.writeHtml(remoteGoal.getProjectName());%> (clone)"/>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="gridTableColummHeader"></td>
                                         <td style="width:20px;"></td>
                                         <td width="396px">
-                                            <b>Note:</b> From here you can create a new subproject.The subproject will be connected to this activity, and will be completed when the subproject process is completed.
-                                        </td>
+                                            <b>Note:</b> From here you can create a new project which is a downstream clone
+                                            of the project this goal is in.
+                                            </td>
                                     </tr>
                                     <tr><td style="height:10px"></td></tr>
                                     <tr>
@@ -351,7 +294,7 @@ Required parameters:
                                       <tr>
                                           <td class="gridTableColummHeader"><fmt:message key="nugen.userhome.Account"/></td>
                                           <td style="width:20px;"></td>
-                                          <td><select class="selectGeneral" name="accountId" id="accountId">
+                                          <td><select class="selectGeneral" name="siteId">
                                             <%
                                                 for (NGBook nGBook : bookList) {
                                                     String id =nGBook.getKey();
@@ -374,10 +317,7 @@ Required parameters:
                                          <td class="gridTableColummHeader"></td>
                                          <td style="width:20px;"></td>
                                          <td>
-                                             <input type="button" value="Create Sub Project" class="inputBtn" onclick="createProject();" />
-                                             <input type="hidden" name="goUrl" value="<%ar.writeHtml(ar.getCompleteURL());%>" />
-                                             <input type="hidden" id="parentProcessUrl" name="parentProcessUrl"
-                                                value="XXX" />
+                                             <input type="submit" value="Create Clone" class="inputBtn" />
                                          </td>
 
                                      </tr>

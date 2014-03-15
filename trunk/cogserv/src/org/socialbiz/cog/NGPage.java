@@ -825,6 +825,22 @@ public class NGPage extends ContainerCommon implements NGContainer
         return lr;
     }
 
+    public boolean isValidLicense(License lr, long time) throws Exception {
+        if (super.isValidLicense(lr, time)) {
+            return true;
+        }
+        if (lr instanceof LicenseForUser) {
+            //check all the tasks, the license will be valid if the person
+            //is still assigned to a task, and the license is a LicenseForUser
+            AddressListEntry ale = new AddressListEntry(lr.getCreator());
+            for (GoalRecord goal : this.getAllGoals()) {
+                if (goal.isAssignee(ale)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
 
     ////////////////////////////////////////////////////////////////

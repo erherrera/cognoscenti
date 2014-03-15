@@ -19,6 +19,9 @@ Required Parameters:
 
     List<NGBook> memberOfSites = userProfile.findAllMemberSites();
 
+    String upstream = ar.defParam("upstream", null);
+    String desc = ar.defParam("desc", null);
+    String pname = ar.defParam("pname", null);
 
 
 %>
@@ -54,7 +57,10 @@ if(memberOfSites.size()>0) {
                     %>
                     <tr>
                     <td class="acctListElem">
-                    <form action="<%ar.writeHtml(accountLink);%>">
+                    <form action="<%ar.writeHtml(accountLink);%>" method="get">
+                    <%if (upstream!=null) {%><input type="hidden" value="<%ar.writeHtml(upstream);%>" name="upstream"><%}%>
+                    <%if (desc!=null) {%><input type="hidden" value="<%ar.writeHtml(desc);%>" name="desc"><%}%>
+                    <%if (pname!=null) {%><input type="hidden" value="<%ar.writeHtml(pname);%>" name="pname"><%}%>
                     <input type="submit" value="<%ar.writeHtml(account.getName());%>" class="inputBtn">
                     </form></td>
                     <td class="acctListElem">

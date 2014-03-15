@@ -84,7 +84,9 @@ public class ResourceDecoder {
 
         if ("$".equals(projId)) {
             isSite = true;
+            //TODO: should throw exception if no license id
             lic = site.getLicense(licenseId);
+            //TODO: should throw exception if license not found
             setUserFromLicense(ar);
             return;
         }

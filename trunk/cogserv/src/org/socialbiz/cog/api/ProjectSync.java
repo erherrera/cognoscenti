@@ -34,6 +34,7 @@ import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.GoalRecord;
+import org.socialbiz.cog.LicenseForUser;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.SectionDef;
@@ -463,10 +464,14 @@ public class ProjectSync {
 
         String urlRoot = ar.baseURL + "api/" + local.getSiteKey() + "/" + local.getKey() + "/";
         Vector<SyncStatus> goalsNeedingUp  = getToUpload(SyncStatus.TYPE_TASK);
+
+        //This license is not really used after upload is complete, so any license will do
+        LicenseForUser lfu = new LicenseForUser(ar.getUserProfile());
+
         for (SyncStatus goalStat : goalsNeedingUp) {
 
             GoalRecord goal = local.findGoalByUIDorNull(goalStat.universalId);
-            JSONObject goalObj = goal.getJSON4Goal(local, ar.baseURL, "xxx");
+            JSONObject goalObj = goal.getJSON4Goal(local, ar.baseURL, lfu);
             JSONObject request = new JSONObject();
             if (goalStat.isRemote) {
                 request.put("operation", "updateGoal");

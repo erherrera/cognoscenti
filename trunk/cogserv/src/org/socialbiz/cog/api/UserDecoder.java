@@ -17,6 +17,7 @@ package org.socialbiz.cog.api;
 
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.License;
+import org.socialbiz.cog.LicenseForUser;
 import org.socialbiz.cog.UserManager;
 import org.socialbiz.cog.UserPage;
 import org.socialbiz.cog.UserProfile;
@@ -57,8 +58,9 @@ public class UserDecoder {
 
         resource = path.substring(slashPos+1);
 
-        lic = uPage.getLicense(licenseId);
-
+        if (licenseId.equals(uProf.getLicenseToken())) {
+            lic = new LicenseForUser(uProf);
+        }
     }
 
 }

@@ -39,7 +39,7 @@
     String emailOpenIDProvider = ConfigFile.getProperty("emailOpenIDProvider");
     String visitLoginPrompt = "";
     String prefEmail = uProf.getPreferredEmail();
-    String remoteProfileURL = ar.baseURL+"apu/"+uProf.getKey()+"/user.json";
+    String remoteProfileURL = ar.baseURL+"apu/"+uProf.getKey()+"/user.json?lic="+uProf.getLicenseToken();
 
 %>
 <div class="content tab01" style="display:block;" >
@@ -265,6 +265,11 @@
                         <td class="gridTableColummHeader"><fmt:message key="nugen.userprofile.Id"/>:</td>
                         <td style="width:20px;"></td>
                         <td><% ar.writeHtml(key);%></td>
+                    </tr>
+                    <tr>
+                        <td class="gridTableColummHeader">API Token:</td>
+                        <td style="width:20px;"></td>
+                        <td><% ar.writeHtml(uProf.getLicenseToken());%></td>
                     </tr>
                     <tr>
                         <td class="gridTableColummHeader"></td>

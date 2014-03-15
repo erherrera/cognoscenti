@@ -1,5 +1,7 @@
 <%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
+%><%!
+    String pageTitle="";
 %><%
 /*
 Required parameter:
@@ -9,10 +11,6 @@ Required parameter:
 */
 
     String accountKey = ar.reqParam("accountId");
-
-%><%!
-    String pageTitle="";
-%><%
 
     UserProfile  uProf =ar.getUserProfile();
     Vector<NGPageIndex> templates = new Vector<NGPageIndex>();
@@ -27,6 +25,10 @@ Required parameter:
         }
         NGPageIndex.sortInverseChronological(templates);
     }
+
+    String upstream = ar.defParam("upstream", "");
+    String desc = ar.defParam("desc", "");
+    String pname = ar.defParam("pname", "");
 
 %>
 
@@ -88,9 +90,10 @@ Required parameter:
                     <table cellpadding="0" cellspacing="0">
                        <tr>
                            <td class="createInput" style="padding:0px;">
-                               <input type="text" class="inputCreateButton" name="projectname" id="projectname" value='<fmt:message key="nugen.project.projectname.textbox.text"/>' onKeyup="updateVal();" onfocus="ClearForm();" onblur="addvalue();" onclick="" />
+                               <input type="text" class="inputCreateButton" name="projectname"
+                                   value="<%ar.writeHtml(pname);%>"/>
                            </td>
-                           <td class="createButton" onclick="submitForm();">&nbsp;</td>
+                           <td><button type="submit" class="createButton"></button></td>
                        </tr>
                    </table>
                </td>
@@ -127,29 +130,19 @@ Required parameter:
                     <tr>
                         <td class="gridTableColummHeader_2" style="vertical-align:top"><fmt:message key="nugen.project.desc.text"/></td>
                         <td style="width:20px;"></td>
-                        <td><textarea name="description" id="description" class="textAreaGeneral" rows="4" tabindex=7></textarea></td>
+                        <td><textarea name="description" id="description" class="textAreaGeneral" rows="4"
+                              tabindex=7><%ar.writeHtml(desc);%></textarea></td>
                     </tr>
                     <tr><td style="height:20px"></td></tr>
                     <tr>
                         <td width="148" class="gridTableColummHeader_2">Upstream Link:</td>
                         <td style="width:20px;"></td>
-                        <td><input type="text" class="inputGeneral" style="width:368px" size="50" name="upstream" value=""/>
+                        <td><input type="text" class="inputGeneral" style="width:368px" size="50" name="upstream"
+                            value="<%ar.writeHtml(upstream);%>"/>
                         </td>
                     </tr>
                     <tr><td style="height:20px"></td></tr>
                 </table>
-               </td>
-            </tr>
-            <tr>
-               <td width="148" class="gridTableColummHeader_2"></td>
-               <td width="39" style="width:20px;"></td>
-               <td style="cursor:pointer">
-                <span id="showDiv" style="display:inline" onclick="">
-                    <img src="<%=ar.retPath %>/assets/createSeperatorDown.gif" width="398" height="13"
-                    title="Expand" alt="" /></span>
-                <span id="hideDiv" style="display:none" onclick="">
-                    <img src="<%=ar.retPath %>/assets/createSeperatorUp.gif" width="398" height="13"
-                    title="Collapse" alt="" /></span>
                </td>
             </tr>
        </table>
