@@ -186,20 +186,13 @@ public interface NGContainer
 
     ////////////// Other container bookkeeping methods ////////////////////
 
-
-
     public void saveContent(AuthRequest ar, String comment)  throws Exception;
-
-
 
     public  License getLicense(String id) throws Exception;
 
-
     public  String getFullName();
 
-
     public  String getUniqueOnPage() throws Exception;
-
 
     public boolean isDeleted();
 
@@ -212,7 +205,6 @@ public interface NGContainer
     public File getFilePath();
 
     public String[] getContainerNames();
-
     public void setContainerNames(String[] nameSet);
 
     public ReminderMgr getReminderMgr() throws Exception;

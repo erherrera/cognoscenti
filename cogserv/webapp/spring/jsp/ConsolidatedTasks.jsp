@@ -40,8 +40,10 @@
                 <th>Project</th>
                 <th>timePeriod</th>
                 <th>rid</th>
-                <th>projectKey</th>
-                <th>bookKey</th>
+                <th>projectName</th>
+                <th>siteName</th>
+                <th>projectURL</th>
+                <th>siteURL</th>
             </thead>
         <%
             UserPage uPage2 = uProf.getUserPage();
@@ -49,20 +51,17 @@
             for (RemoteGoal tr : uPage2.getRemoteGoals())
             {
         %>
-
             <tr>
                 <td><%=BaseRecord.stateImg(tr.getState())%></td>
-                <td><%
-                    ar.writeHtml(tr.getSynopsis());
-                %></td>
-                <td><%
-                    SectionUtil.nicePrintDate(ar.w, tr.getDueDate());
-                %></td>
+                <td><%ar.writeHtml(tr.getSynopsis());%></td>
+                <td><%SectionUtil.nicePrintDate(ar.w, tr.getDueDate());%></td>
                 <td>ViewRemoteTask.htm?url=<% ar.writeURLData(tr.getAccessURL());%></td>
                 <td>4444</td>
+                <td><% ar.writeHtml(tr.getAccessURL());%></td>
                 <td><% ar.writeHtml(tr.getProjectName());%></td>
-                <td>xx</td>
-                <td>xx</td>
+                <td><% ar.writeHtml(tr.getSiteName());%></td>
+                <td><% ar.writeHtml(tr.getProjectAccessURL());%></td>
+                <td><% ar.writeHtml(tr.getSiteAccessURL());%></td>
             </tr>
         <%
 
@@ -89,14 +88,9 @@
             var myColumnDefs = [
                 {key:"State",    label:"State", formatter:stateUrlFormater2, sortable:true,resizeable:true},
                 {key:"synopsis", label:"Synopsis", sortable:true, resizeable:true},
-                {key:"Page",label:"Project", formatter:pageNameUrlFormater2, sortable:true,resizeable:true},
-                {key:"projectName",label:"Project Name",formatter:prjectNameFormater,sortable:true,resizeable:true},
-                {key:"DueDate",label:"DueDate",formatter:YAHOO.widget.DataTable.formatDate,sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true},
-                {key:"timePeriod",label:"timePeriod",sortable:true,resizeable:false,hidden:true},
-                {key:"rid",label:"rid",sortable:true,resizeable:false,hidden:true},
-                {key:"pageKey",label:"pageKey",sortable:true,resizeable:false,hidden:true},
-                {key:"bookKey",label:"bookKey",sortable:true,resizeable:false,hidden:true}
-                ];
+                {key:"projectName",label:"Project", formatter:projectNameFormater, sortable:true,resizeable:true},
+                {key:"siteName",label:"Site",formatter:siteNameFormater,sortable:true,resizeable:true},
+                {key:"DueDate",label:"DueDate",formatter:YAHOO.widget.DataTable.formatDate,sortable:true,sortOptions:{sortFunction:sortDates},resizeable:true}];
 
             var myDataSource = new YAHOO.util.DataSource(YAHOO.util.Dom.get("reminderTable1"));
             myDataSource.responseType = YAHOO.util.DataSource.TYPE_HTMLTABLE;
@@ -108,8 +102,10 @@
                         {key:"PageURL"},
                         {key:"timePeriod", parser:YAHOO.util.DataSource.parseNumber},
                         {key:"PageName"},
-                        {key:"pageKey"},
-                        {key:"bookKey"}]
+                        {key:"projectName"},
+                        {key:"siteName"},
+                        {key:"projectURL"},
+                        {key:"siteURL"}]
             };
 
              var oConfigs = {
@@ -140,13 +136,18 @@
         elCell.innerHTML = '<a href="<%=ar.baseURL%>t/'+bookKey+'/'+pageKey+'/viewEmailReminder.htm?rid='+rid+'" ><div style="color:gray;">'+name+'</a></div>';
 
     };
-    var prjectNameFormater = function(elCell, oRecord, oColumn, sData)
+    var projectNameFormater = function(elCell, oRecord, oColumn, sData)
     {
-        var name = oRecord.getData("subject");
-        var pageKey = oRecord.getData("pageKey");
-        var bookKey = oRecord.getData("bookKey");
         var projectName = oRecord.getData("projectName");
-        elCell.innerHTML = '<a href="<%=ar.baseURL%>t/'+bookKey+'/'+pageKey+'/public.htm" >'+projectName+'</a>';
+        var projectURL = oRecord.getData("projectURL");
+        elCell.innerHTML = '<a href="'+projectURL+'">'+projectName+'</a>';
+
+    };
+    var siteNameFormater = function(elCell, oRecord, oColumn, sData)
+    {
+        var siteName = oRecord.getData("siteName");
+        var siteURL = oRecord.getData("siteURL");
+        elCell.innerHTML = '<a href="'+siteURL+'">'+siteName+'</a>';
 
     };
 

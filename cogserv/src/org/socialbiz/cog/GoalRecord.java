@@ -939,7 +939,7 @@ public class GoalRecord extends BaseRecord {
     }
 
 
-    public JSONObject getJSON4Goal(NGPage ngp, String baseURL, String license) throws Exception {
+    public JSONObject getJSON4Goal(NGPage ngp, String baseURL, License license) throws Exception {
         JSONObject thisGoal = new JSONObject();
         thisGoal.put("universalid", getUniversalId());
         thisGoal.put("id", getId());
@@ -967,12 +967,13 @@ public class GoalRecord extends BaseRecord {
         String urlRoot = baseURL + "api/" + ngp.getSiteKey() + "/" + ngp.getKey() + "/";
         String uiUrl = baseURL + "t/" + ngp.getSiteKey() + "/" + ngp.getKey()
                 + "/task" + getId() + ".htm";
-        String goalinfo = urlRoot + "goal" + getId() + "/goal.json?lic=" + license;
+        String goalinfo = urlRoot + "goal" + getId() + "/goal.json?lic=" + license.getId();
         thisGoal.put("goalinfo", goalinfo);
         thisGoal.put("projectinfo", urlRoot+"?lic="+license);
         thisGoal.put("projectname", ngp.getFullName());
+        LicenseForUser lfu = LicenseForUser.getUserLicense(license);
         NGBook site = ngp.getSite();
-        String siteRoot = baseURL + "api/" + ngp.getSiteKey() + "/$/";
+        String siteRoot = baseURL + "api/" + ngp.getSiteKey() + "/$/?lic=" + lfu.getId();
         thisGoal.put("siteinfo", siteRoot);
         thisGoal.put("sitename", site.getName());
         thisGoal.put("ui", uiUrl);

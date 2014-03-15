@@ -96,7 +96,7 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
             if (userDec.lic != null) {
                 root.put("license", getLicenseInfo(userDec.lic));
             }
-            root.put("goals", getGoalList(ar, userDec.uProf));
+            root.put("goals", getGoalList(ar, userDec));
 
             ar.resp.setContentType("application/json");
             root.write(ar.w, 2, 0);
@@ -189,7 +189,9 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
     }
 
 
-    public static JSONArray getGoalList(AuthRequest ar, UserProfile up) throws Exception {
+    public static JSONArray getGoalList(AuthRequest ar, UserDecoder userDec) throws Exception {
+
+        UserProfile up = userDec.uProf;
 
         JSONArray goalArray = new JSONArray();
 
@@ -212,7 +214,7 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
                 }
                 if (gr.getState()==BaseRecord.STATE_ACCEPTED ||
                         gr.getState()==BaseRecord.STATE_STARTED) {
-                    goalArray.put(gr.getJSON4Goal(aPage, ar.baseURL, "xxx"));
+                    goalArray.put(gr.getJSON4Goal(aPage, ar.baseURL, userDec.lic));
                 }
             }
         }

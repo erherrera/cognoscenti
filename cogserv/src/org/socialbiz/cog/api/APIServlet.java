@@ -24,6 +24,7 @@ import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.GoalRecord;
 import org.socialbiz.cog.License;
+import org.socialbiz.cog.LicenseForUser;
 import org.socialbiz.cog.MimeTypes;
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
@@ -32,6 +33,8 @@ import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.SectionUtil;
 import org.socialbiz.cog.SectionWiki;
 import org.socialbiz.cog.ServerInitializer;
+import org.socialbiz.cog.UserManager;
+import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.WikiConverter;
 import java.io.File;
@@ -430,12 +433,13 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
     private void genSiteListing(AuthRequest ar, ResourceDecoder resDec) throws Exception {
 
         NGBook site = resDec.site;
+        String licenseId = resDec.licenseId;
         if (site==null) {
             //this is probably unnecessary, having hit an exception earlier, but just begin sure
             throw new Exception("Something is wrong, can not find a site object.");
         }
         if (false==true) {
-            if (resDec.licenseId == null || resDec.licenseId.length()==0 || resDec.lic==null) {
+            if (licenseId == null || licenseId.length()==0 || resDec.lic==null) {
                 throw new Exception("All operations on the site need to be licensed, but did not get a license id in that URL.");
             }
             if (!site.isValidLicense(resDec.lic, ar.nowTime)) {
@@ -445,7 +449,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         }
         JSONObject root = new JSONObject();
 
-        String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/$/";
+        String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/$/?lic="+licenseId;
         root.put("siteinfo", urlRoot);
 //        root.put("hostinfo", ar.baseURL + "api/$/$/");
         root.put("name", resDec.site.getName());
@@ -477,11 +481,14 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         root.put("license", getLicenseInfo(resDec.lic));
         NGBook site = ngp.getSite();
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/" + resDec.projId + "/";
-        String siteRoot = ar.baseURL + "api/" + resDec.siteId + "/$/";
         root.put("projectname", ngp.getFullName());
         root.put("projectinfo", urlRoot+"?lic="+resDec.licenseId);
         root.put("sitename", site.getName());
+
+        LicenseForUser lfu = LicenseForUser.getUserLicense(resDec.lic);
+        String siteRoot = ar.baseURL + "api/" + resDec.siteId + "/$/?lic="+lfu.getId();
         root.put("siteinfo", siteRoot);
+
         String uiUrl = ar.baseURL + "t/" + ngp.getSiteKey() + "/" + ngp.getKey() + "/";
         root.put("ui", uiUrl);
 
@@ -494,7 +501,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         JSONArray goals = new JSONArray();
         if (isPrimeRole) {
             for (GoalRecord goal : resDec.project.getAllGoals()) {
-                goals.put(goal.getJSON4Goal(resDec.project, ar.baseURL, resDec.licenseId));
+                goals.put(goal.getJSON4Goal(resDec.project, ar.baseURL, resDec.lic));
             }
         }
         root.put("goals", goals);
@@ -550,7 +557,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
     private void genGoalInfo(AuthRequest ar, ResourceDecoder resDec) throws Exception {
         GoalRecord goal = resDec.project.getGoalOrFail(resDec.goalId);
-        JSONObject goalObj = goal.getJSON4Goal(resDec.project, ar.baseURL, resDec.licenseId);
+        JSONObject goalObj = goal.getJSON4Goal(resDec.project, ar.baseURL, resDec.lic);
         ar.resp.setContentType("application/json");
         goalObj.write(ar.resp.getWriter(), 2, 0);
         ar.flush();

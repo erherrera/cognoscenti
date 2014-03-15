@@ -1002,16 +1002,6 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return v;
     }
 
-    public License getLicense(String id) throws Exception {
-        Vector<LicenseRecord> vc = siteInfoRec.getChildren("license", LicenseRecord.class);
-        for (License child : vc) {
-            if (id.equals(child.getId())) {
-                return child;
-            }
-        }
-        return null;
-    }
-
     public boolean removeLicense(String id) throws Exception {
         Vector<LicenseRecord> vc = siteInfoRec.getChildren("license", LicenseRecord.class);
         for (LicenseRecord child : vc) {

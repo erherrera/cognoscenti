@@ -84,6 +84,12 @@ public class UserProfile extends DOMFace implements UserRef
         name = getScalar("name");
         lastLogin   = safeConvertLong(getScalar("lastlogin"));
         lastUpdated = safeConvertLong(getScalar("lastupdated"));
+
+        //make sure that this profile has a license token
+        String token = getLicenseToken();
+        if (token==null || token.length()==0) {
+            genNewLicenseToken();
+        }
     }
 
     public List<IDRecord> getIdList()
@@ -444,6 +450,22 @@ public class UserProfile extends DOMFace implements UserRef
     public String getMagicNumber()
     {
         return getScalar("magicnumber");
+    }
+
+    /**
+    * The license token is a randomly generated value that controls API
+    * access to the user's information.  It is, so to speak, a password
+    * for use in the API.  The user should be able to reset this token
+    * on demand, which then requires all user-licensed links to be
+    * refreshed.
+    *
+    * If you generate a new token, don't forget to save user profiles
+    */
+    public void genNewLicenseToken() {
+        setScalar("licensetoken", IdGenerator.generateKey());
+    }
+    public String getLicenseToken() {
+        return getScalar("licensetoken");
     }
 
     public String toString()

@@ -211,6 +211,32 @@ public class CreateProjectController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/{userId}/createProjectFromRemoteGoal.form", method = RequestMethod.POST)
+    public void createProjectFromRemoteGoal(@PathVariable String userId,
+            ModelMap model, HttpServletRequest request,
+            HttpServletResponse response)
+    throws Exception {
+
+        try {
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            if(!ar.isLoggedIn()){
+                sendRedirectToLogin(ar, "message.login.create.template.from.project",null);
+                return;
+            }
+            String goUrl = ar.reqParam("goUrl");
+            String siteId=ar.reqParam("siteId");
+
+            NGPage project= createTemplateProject(ar,siteId);
+
+            if (goUrl==null) {
+                goUrl = ar.retPath+"t/"+siteId+"/"+project.getKey()+"/public.htm";
+            }
+            response.sendRedirect(goUrl);
+        }catch(Exception ex){
+            throw new Exception("Failed to create project for user "+userId, ex);
+        }
+    }
+
 
     ////////////////// HELPER FUNCTIONS /////////////////////////////////
 
