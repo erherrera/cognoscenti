@@ -92,6 +92,10 @@ public class ResourceDecoder {
         }
         project = NGPageIndex.getProjectByKeyOrFail(projId);
         lic = project.getLicense(licenseId);
+        if (lic==null) {
+            throw new Exception("Can not find a license for id: "+licenseId+" in project "
+                        +project.getFullName());
+        }
         setUserFromLicense(ar);
 
         curPos = slashPos+1;
