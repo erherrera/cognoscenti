@@ -43,7 +43,10 @@ public class LicenseForUser implements License
 
     public UserProfile uProf;
 
-    public LicenseForUser(UserProfile up) {
+    public LicenseForUser(UserProfile up) throws Exception {
+        if (up==null) {
+            throw new Exception("Program Logic Error: Unable to create a LicenseForUser on a null user profile");
+        }
         uProf = up;
     }
 
@@ -52,7 +55,10 @@ public class LicenseForUser implements License
             return (LicenseForUser)other;
         }
 
-        UserProfile up = UserManager.getUserProfileByKey(other.getCreator());
+        UserProfile up = UserManager.findUserByAnyId(other.getCreator());
+        if (up==null) {
+            throw new Exception("Attempt to use a user license for a user that does not exist");
+        }
         return new LicenseForUser(up);
     }
 

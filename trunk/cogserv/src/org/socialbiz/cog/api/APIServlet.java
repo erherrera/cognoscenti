@@ -33,8 +33,6 @@ import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.SectionUtil;
 import org.socialbiz.cog.SectionWiki;
 import org.socialbiz.cog.ServerInitializer;
-import org.socialbiz.cog.UserManager;
-import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.WikiConverter;
 import java.io.File;
