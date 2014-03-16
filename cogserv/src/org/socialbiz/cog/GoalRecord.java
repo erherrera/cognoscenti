@@ -969,7 +969,7 @@ public class GoalRecord extends BaseRecord {
                 + "/task" + getId() + ".htm";
         String goalinfo = urlRoot + "goal" + getId() + "/goal.json?lic=" + license.getId();
         thisGoal.put("goalinfo", goalinfo);
-        thisGoal.put("projectinfo", urlRoot+"?lic="+license);
+        thisGoal.put("projectinfo", urlRoot+"?lic="+license.getId());
         thisGoal.put("projectname", ngp.getFullName());
         LicenseForUser lfu = LicenseForUser.getUserLicense(license);
         NGBook site = ngp.getSite();
