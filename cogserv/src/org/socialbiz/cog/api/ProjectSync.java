@@ -500,7 +500,6 @@ public class ProjectSync {
             httpCon.setDoOutput(true);
             httpCon.setRequestProperty( "Content-Type", "application/octet-stream" );
             httpCon.setRequestMethod("PUT");
-            //httpCon.setRequestMethod("POST");
             httpCon.setUseCaches(false);
             httpCon.setDoInput(true);
             httpCon.setConnectTimeout(60000); //60 secs
@@ -528,7 +527,7 @@ public class ProjectSync {
             }
             request.put("tempFileName", tempFileName);
             newAtt = local.findAttachmentByID(docStat.idLocal);
-            request.put("doc", newAtt.getJSON4Doc(local, urlRoot));
+            request.put("doc", newAtt.getJSON4Doc(local, urlRoot, lfu));
             response = remote.call(request);
         }
         Vector<SyncStatus> notesNeedingUp  = getToUpload(SyncStatus.TYPE_NOTE);
@@ -541,7 +540,7 @@ public class ProjectSync {
             else {
                 request.put("operation", "newNote");
             }
-            request.put("note", note.getJSON4Note(urlRoot, true));
+            request.put("note", note.getJSON4Note(urlRoot, true, lfu));
             remote.call(request);
         }
 

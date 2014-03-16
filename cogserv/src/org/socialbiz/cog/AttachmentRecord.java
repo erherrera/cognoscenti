@@ -868,10 +868,10 @@ public class AttachmentRecord extends DOMFace {
     }
 
 
-    public JSONObject getJSON4Doc(NGPage ngp, String urlRoot) throws Exception {
+    public JSONObject getJSON4Doc(NGPage ngp, String urlRoot, License license) throws Exception {
         JSONObject thisDoc = new JSONObject();
         String contentUrl = urlRoot + "doc" + getId() + "/"
-                    + URLEncoder.encode(getNiceName(), "UTF-8");
+                    + URLEncoder.encode(getNiceName(), "UTF-8") + "?lic="+ license.getId();
         thisDoc.put("universalid",  getUniversalId());
         thisDoc.put("id",           getId());
         thisDoc.put("name",         getNiceName());
