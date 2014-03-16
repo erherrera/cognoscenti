@@ -648,10 +648,10 @@ public class NoteRecord extends DOMFace
       }
 
 
-     public JSONObject getJSON4Note(String urlRoot, boolean withData) throws Exception {
+     public JSONObject getJSON4Note(String urlRoot, boolean withData, License license) throws Exception {
          JSONObject thisNote = new JSONObject();
          String contentUrl = urlRoot + "note" + getId() + "/"
-                     + SectionWiki.sanitize(getSubject()) + ".txt";
+                     + SectionWiki.sanitize(getSubject()) + ".txt?lic="+license.getId();
          thisNote.put("subject", getSubject());
          thisNote.put("modifiedtime", getLastEdited());
          thisNote.put("modifieduser", getLastEditedBy());

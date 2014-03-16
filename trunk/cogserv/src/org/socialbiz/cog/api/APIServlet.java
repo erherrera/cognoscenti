@@ -371,7 +371,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             tempFile.delete();
 
             //send all the info back for a reasonable response
-            responseOK.put("doc",  att.getJSON4Doc(resDec.project, urlRoot));
+            responseOK.put("doc",  att.getJSON4Doc(resDec.project, urlRoot, resDec.lic));
             resDec.project.save(ar.getBestUserId(), ar.nowTime, "Document synchronized from downstream linked project.");
             return responseOK;
         }
@@ -518,16 +518,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             if (!isPrimeRole && !att.roleCanAccess(role) && !att.isPublic()) {
                 continue;
             }
-            JSONObject thisDoc = new JSONObject();
-            String contentUrl = urlRoot + "doc" + att.getId() + "/"
-                    + URLEncoder.encode(att.getNiceName(), "UTF-8");
-            thisDoc.put("universalid", att.getUniversalId());
-            thisDoc.put("id", att.getId());
-            thisDoc.put("name", att.getNiceName());
-            thisDoc.put("size", att.getFileSize(resDec.project));
-            thisDoc.put("modifiedtime", att.getModifiedDate());
-            thisDoc.put("modifieduser", att.getModifiedBy());
-            thisDoc.put("content", contentUrl);
+            JSONObject thisDoc = att.getJSON4Doc(resDec.project, urlRoot, resDec.lic);
             docs.put(thisDoc);
         }
         root.put("docs", docs);
@@ -535,7 +526,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         JSONArray notes = new JSONArray();
         for (NoteRecord note : resDec.project.getAllNotes()) {
             if (isPrimeRole || note.isPublic() || note.roleCanAccess(role)) {
-                notes.put(note.getJSON4Note(urlRoot, false));
+                notes.put(note.getJSON4Note(urlRoot, false, resDec.lic));
             }
         }
         root.put("notes", notes);
