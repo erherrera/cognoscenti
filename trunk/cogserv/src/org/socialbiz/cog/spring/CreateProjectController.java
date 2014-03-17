@@ -284,12 +284,12 @@ public class CreateProjectController extends BaseController {
                 String descExpr = rule.getDescExpr();
                 String subj = rg.getSynopsis();
                 String desc = rg.getDescription();
-                if (subjExpr!=null & subj!=null) {
+                if (subjExpr!=null & subj!=null & subjExpr.length()>0) {
                     if (!subj.contains(subjExpr)) {
                         continue;
                     }
                 }
-                if (descExpr!=null & desc!=null) {
+                if (descExpr!=null & desc!=null & descExpr.length()>0) {
                     if (!desc.contains(descExpr)) {
                         continue;
                     }
