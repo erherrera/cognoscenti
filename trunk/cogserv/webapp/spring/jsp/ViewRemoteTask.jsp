@@ -49,7 +49,7 @@ Required parameters:
     }
     NGPageIndex.sortInverseChronological(templates);
 
-    String accessUrl = remoteGoal.getAccessURL();
+    String accessUrl = remoteGoal.getProjectAccessURL();
     boolean isLocal = accessUrl.startsWith(ar.baseURL);
     NGPage localProject = null;
     if (isLocal) {
@@ -204,11 +204,15 @@ Required parameters:
                     <%
                         if(!isLocal && localProject!=null){
                     %>
-                            <div>
-                            A local project exists on this host:  <a href="<%=ar.retPath%><%=ar.getResourceURL(localProject, "projectActiveTasks.htm")%>">
-                                <%ar.writeHtml(localProject.getFullName());%></a><br/>
-                                <%ar.writeHtml(remoteGoal.getAccessURL());%>
-                            </div>
+                        <table WIDTH="600"><tr><td>
+                            <form action="<%=ar.retPath%><%=ar.getResourceURL(localProject, "projectActiveTasks.htm")%>" method="get">
+                                <input type="submit" value="Access Local Clone" class="inputBtn" />
+                            </form>
+                        </td>
+                        <td style="width:20px;"></td>
+                        <td> Use this button to access the local project (<%ar.writeHtml(localProject.getFullName());%>)
+                             which is a clone of the remote project that the goal is on.
+                        </td></tr></table>
                     <%
                         }
                         else if (isLocal && localProject!=null) {
