@@ -897,11 +897,15 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public NGPage convertFolderToProj(AuthRequest ar, File expectedLoc) throws Exception {
+        UserProfile up = ar.getUserProfile();
+        return convertFolderToProj(up, expectedLoc, ar.nowTime);
+    }
+    public NGPage convertFolderToProj(UserProfile up, File expectedLoc, long nowTime) throws Exception {
         String projectName = expectedLoc.getName();
         String projectKey = SectionWiki.sanitize(projectName);
         projectKey = findUniqueKeyInSite(projectKey);
         File projectFile = new File(expectedLoc, projectKey + ".sp");
-        NGPage ngp = createProjectAtPath(ar, projectFile, projectKey);
+        NGPage ngp = createProjectAtPath(up, projectFile, projectKey, nowTime);
         String[] nameSet = new String[] { projectName };
         ngp.setPageNames(nameSet);
         return ngp;
@@ -939,6 +943,10 @@ public class NGBook extends ContainerCommon implements NGContainer {
      */
     public NGPage createProjectByKey(AuthRequest ar, String key) throws Exception {
         assertPermissionToCreateProject(ar);
+        return createProjectByKey(ar.getUserProfile(), key, ar.nowTime);
+    }
+
+    public NGPage createProjectByKey(UserProfile up, String key, long nowTime) throws Exception {
         if (key.indexOf('/') >= 0) {
             throw new ProgramLogicError(
                     "Expecting a key value, but got something with a slash in it: " + key);
@@ -951,12 +959,19 @@ public class NGBook extends ContainerCommon implements NGContainer {
         // get the sanitized form, just in case
         String sanitizedKey = SectionUtil.sanitize(key);
         File newFilePath = getNewProjectPath(sanitizedKey);
-        return createProjectAtPath(ar, newFilePath, sanitizedKey);
+        return createProjectAtPath(up, newFilePath, sanitizedKey, nowTime);
     }
 
     public NGPage createProjectAtPath(AuthRequest ar, File newFilePath, String newKey)
             throws Exception {
         assertPermissionToCreateProject(ar);
+        UserProfile up = ar.getUserProfile();
+        return createProjectAtPath(up, newFilePath, newKey, ar.nowTime);
+    }
+
+
+    public NGPage createProjectAtPath(UserProfile up, File newFilePath, String newKey, long nowTime)
+            throws Exception {
         if (newFilePath.exists()) {
             throw new ProgramLogicError("Somehow the file given already exists: " + newFilePath);
         }
@@ -972,8 +987,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
         newPage.setKey(newKey);
 
         // make the current user the author, and member, of the new page
-        newPage.addPlayerToRole("Administrators", ar.getBestUserId());
-        newPage.addPlayerToRole("Members", ar.getBestUserId());
+        newPage.addPlayerToRole("Administrators", up.getUniversalId());
+        newPage.addPlayerToRole("Members", up.getUniversalId());
 
         // register this into the page index
         NGPageIndex.makeIndex(newPage);
@@ -981,9 +996,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
         // add this new project into the user's watched projects list
         // so it is easy for them to find later.
         // Only do this if creating directly, and not through API
-        UserProfile up = ar.getUserProfile();
         if (up != null) {
-            up.setWatch(newPage.getKey(), ar.nowTime);
+            up.setWatch(newPage.getKey(), nowTime);
             UserManager.writeUserProfilesToFile();
         }
 

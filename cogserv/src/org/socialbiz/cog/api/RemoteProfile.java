@@ -77,15 +77,4 @@ public class RemoteProfile {
         }
     }
 
-    Hashtable<String,RemoteProject> projIndex = new Hashtable<String,RemoteProject>();
-
-    private RemoteProject getProject(String urlStr) throws Exception {
-        RemoteProject rp = projIndex.get(urlStr);
-        if (rp==null) {
-            rp = new RemoteProject(urlStr);
-            projIndex.put(urlStr, rp);
-        }
-        return rp;
-    }
-
 }

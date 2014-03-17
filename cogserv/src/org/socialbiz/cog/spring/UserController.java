@@ -470,18 +470,27 @@ public class UserController extends BaseController {
             if ("Create".equals(act)) {
                 AgentRule rule = uPage.createAgentRule();
                 rule.setTitle(ar.reqParam("name"));
-                rule.setExpression(ar.defParam("expression", ""));
+                rule.setSubjExpr(ar.defParam("subjexpr", ""));
+                rule.setDescExpr(ar.defParam("descexpr", ""));
                 rule.setTemplate(ar.defParam("template", ""));
+                rule.setSiteKey(ar.defParam("site", ""));
+                rule.setOwner(ar.getBestUserId());
             }
             else if ("Update".equals(act)) {
                 String id = ar.reqParam("id");
                 AgentRule rule = uPage.findAgentRule(id);
                 rule.setTitle(ar.reqParam("name"));
-                rule.setExpression(ar.defParam("expression", ""));
+                rule.setSubjExpr(ar.defParam("subjexpr", ""));
+                rule.setDescExpr(ar.defParam("descexpr", ""));
                 rule.setTemplate(ar.defParam("template", ""));
+                rule.setSiteKey(ar.defParam("site", ""));
+                rule.setOwner(ar.getBestUserId());
             }
             else if ("Delete".equals(act)) {
                 uPage.deleteAgentRule(ar.reqParam("id"));
+            }
+            else if ("Cancel".equals(act)) {
+                //don't need to do anything
             }
             else {
                 throw new Exception("AgentAction does not understand the act "+act);

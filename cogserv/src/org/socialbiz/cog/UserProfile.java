@@ -921,6 +921,25 @@ public class UserProfile extends DOMFace implements UserRef
     }
 
     /**
+     * returns the NGPageIndex entries for each project template, but
+     * only if that key matches a project that still exists.
+     * Invalid template list entries are ignored.
+     */
+    public Vector<NGPageIndex> getValidTemplates() throws Exception {
+        Vector<NGPageIndex> templates = new Vector<NGPageIndex>();
+        for(TemplateRecord tr : getTemplateList()) {
+            String pageKey = tr.getPageKey();
+            NGPageIndex ngpi = NGPageIndex.getContainerIndexByKey(pageKey);
+            if (ngpi!=null) {
+                //silently ignore templates that no longer exist
+                templates.add(ngpi);
+            }
+        }
+        NGPageIndex.sortInverseChronological(templates);
+        return templates;
+    }
+
+    /**
     * Preferred email is where all the notifications to this user will be sent.
     * Should be set to a valid email address that has already been proven
     * to belong to the user.  (Don't let the user just type in any email

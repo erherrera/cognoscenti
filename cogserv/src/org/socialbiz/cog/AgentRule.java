@@ -44,25 +44,45 @@ public class AgentRule extends DOMFace
     }
 
     public String getTitle() throws Exception {
-        return getAttribute("title");
+        return getScalar("title");
     }
     public void setTitle(String newVal) throws Exception {
-        setAttribute("title", newVal);
+        setScalar("title", newVal);
     }
 
-    public String getExpression() throws Exception {
-        return getAttribute("expression");
+    public String getSubjExpr() throws Exception {
+        return getScalar("subjexpr");
     }
-    public void setExpression(String newVal) throws Exception {
-        setAttribute("expression", newVal);
+    public void setSubjExpr(String newVal) throws Exception {
+        setScalar("subjexpr", newVal);
+    }
+
+    public String getDescExpr() throws Exception {
+        return getScalar("descexpr");
+    }
+    public void setDescExpr(String newVal) throws Exception {
+        setScalar("descexpr", newVal);
     }
 
     public String getTemplate() throws Exception {
-        return getAttribute("expression");
+        return getScalar("template");
     }
     public void setTemplate(String newVal) throws Exception {
-        setAttribute("expression", newVal);
+        setScalar("template", newVal);
     }
 
+    public String getSiteKey() throws Exception {
+        return getScalar("site");
+    }
+    public void setSiteKey(String newVal) throws Exception {
+        setScalar("site", newVal);
+    }
+
+    public String getOwner() throws Exception {
+        return getScalar("owner");
+    }
+    public void setOwner(String newVal) throws Exception {
+        setScalar("owner", newVal);
+    }
 
 }

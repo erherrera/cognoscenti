@@ -26,6 +26,8 @@
     if (theAgent==null) {
         throw new Exception("Unagle to find an agent with id="+id);
     }
+    Vector<NGPageIndex> templates = uProf.getValidTemplates();
+    List<NGBook> memberOfSites = uProf.findAllMemberSites();
 
 %>
 <body class="yui-skin-sam">
@@ -47,11 +49,11 @@
     <div class="section_body">
         <div class="generalHeading">Edit Agent</div>
         <div style="height:10px;"></div>
-        <div id="NewAgent" style="border:1px solid red;">
+        <div id="NewAgent">
             <div class="generalSettings">
                 <form name="newProfile" id="newProfile" action="AgentAction.form" method="post">
-                    <input type="hidden" name="go" id="updateGo" value="<%ar.writeHtml(ar.getCompleteURL());%>">
-                    <input type="hidden" name="act" value="Create">
+                    <input type="hidden" name="go" id="updateGo" value="Agents.htm">
+                    <input type="hidden" name="id" id="updateGo" value="<%ar.writeHtml(theAgent.getId());%>">
                     <table>
                         <tr id="trspath">
                             <td class="gridTableColummHeader">Name:</td>
@@ -61,10 +63,16 @@
                         </tr>
                         <tr><td style="height:10px"></td></tr>
                         <tr id="trspath">
-                            <td class="gridTableColummHeader">Expression:</td>
+                            <td class="gridTableColummHeader">Subj Contains:</td>
                             <td style="width:20px;"></td>
-                            <td colspan="2"><input type="text" name="expression" class="inputGeneral" size="69"
-                                value="<%ar.writeHtml(theAgent.getExpression());%>"/></td>
+                            <td colspan="2"><input type="text" name="subjexpr" class="inputGeneral" size="69"
+                                value="<%ar.writeHtml(theAgent.getSubjExpr());%>"/></td>
+                        </tr>
+                        <tr id="trspath">
+                            <td class="gridTableColummHeader">Desc Contains:</td>
+                            <td style="width:20px;"></td>
+                            <td colspan="2"><input type="text" name="descexpr" class="inputGeneral" size="69"
+                                value="<%ar.writeHtml(theAgent.getDescExpr());%>"/></td>
                         </tr>
                         <tr><td style="height:10px"></td></tr>
                         <tr id="trspath">
@@ -78,21 +86,57 @@
                         <tr id="trspath">
                             <td class="gridTableColummHeader">Template:</td>
                             <td style="width:20px;"></td>
-                            <td colspan="2"><select name="refresh"/>
-                                <option>Regular Plan</option>
-                                <option>Long Plan</option>
-                                <option>Short Plan</option></select>
+                            <td colspan="2">
+                                <select name="template" style="width:320px;"/>
+                                <option value="">- Select One -</option>
+                                <%
+                                for (NGPageIndex ngpi : templates) {
+                                      String key = ngpi.containerKey;
+
+                                      %><option value="<%
+                                      ar.writeHtml(key);
+                                      if (key.equals(theAgent.getTemplate())) {
+                                          %>" selected="selected<%
+                                      }
+                                      %>"><%
+                                      ar.writeHtml(ngpi.containerName);
+                                      %></option><%
+                                }
+                                %>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr><td style="height:10px"></td></tr>
+                        <tr id="trspath">
+                            <td class="gridTableColummHeader">Site:</td>
+                            <td style="width:20px;"></td>
+                            <td colspan="2">
+                                <select name="site" style="width:320px;"/>
+                                <option value="">- Select One -</option>
+                                <%
+                                for (NGBook site : memberOfSites) {
+                                      String key = site.getKey();
+
+                                      %><option value="<%
+                                      ar.writeHtml(key);
+                                      if (key.equals(theAgent.getSiteKey())) {
+                                          %>" selected="selected<%
+                                      }
+                                      %>"><%
+                                      ar.writeHtml(site.getName());
+                                      %></option><%
+                                }
+                                %>
+                                </select>
+                            </td>
                         </tr>
                         <tr><td style="height:30px"></td></tr>
                         <tr>
                             <td class="gridTableColummHeader"></td>
                             <td style="width:20px;"></td>
                             <td colspan="2">
-                                <input type="submit" class="inputBtn"
-                                    value="<fmt:message key="nugen.button.general.save" />">
-                                <input type="button" class="inputBtn"
-                                    value="<fmt:message key="nugen.button.general.cancel" />"
-                                    onclick="return cancelPanel();">
+                                <input type="submit" class="inputBtn" name="act" value="Update">
+                                <input type="submit" class="inputBtn" name="act" value="Cancel">
                             </td>
                         </tr>
                     </table>
