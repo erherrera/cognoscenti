@@ -150,6 +150,9 @@
 
             %>
         </table>
+        <form action="RunAgentsManually.form" method="post">
+        <button type="submit">Manually Run Agents Now</button>
+        </form>
     </div>
 </div>
 <script type="text/javascript">
