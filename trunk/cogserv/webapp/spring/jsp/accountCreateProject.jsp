@@ -13,18 +13,7 @@ Required parameter:
     String accountKey = ar.reqParam("accountId");
 
     UserProfile  uProf =ar.getUserProfile();
-    Vector<NGPageIndex> templates = new Vector<NGPageIndex>();
-    if(uProf != null){
-        for(TemplateRecord tr : uProf.getTemplateList()){
-            String pageKey = tr.getPageKey();
-            NGPageIndex ngpi = NGPageIndex.getContainerIndexByKey(pageKey);
-            if (ngpi!=null) {
-                //silently ignore templates that no longer exist
-                templates.add(ngpi);
-            }
-        }
-        NGPageIndex.sortInverseChronological(templates);
-    }
+    Vector<NGPageIndex> templates = uProf.getValidTemplates();
 
     String upstream = ar.defParam("upstream", "");
     String desc = ar.defParam("desc", "");

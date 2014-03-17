@@ -26,6 +26,7 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.socialbiz.cog.AgentRule;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.BaseRecord;
 import org.socialbiz.cog.GoalRecord;
@@ -36,8 +37,14 @@ import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.ProcessRecord;
+import org.socialbiz.cog.RemoteGoal;
 import org.socialbiz.cog.SectionWiki;
+import org.socialbiz.cog.UserManager;
+import org.socialbiz.cog.UserPage;
+import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.UtilityMethods;
+import org.socialbiz.cog.api.ProjectSync;
+import org.socialbiz.cog.api.RemoteProject;
 import org.socialbiz.cog.exception.NGException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -179,6 +186,13 @@ public class CreateProjectController extends BaseController {
                 return;
             }
             NGPage project= createTemplateProject(ar,siteId);
+
+            String upstream = project.getUpstreamLink();
+            if (upstream!=null && upstream.length()>0) {
+                RemoteProject remProj = new RemoteProject(upstream);
+                ProjectSync ps = new ProjectSync(project, remProj, ar, "xxx");
+                ps.downloadAll();
+            }
             response.sendRedirect(ar.retPath+"t/"+siteId+"/"+project.getKey()+"/public.htm");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.create.project.from.template", new Object[]{siteId} , ex);
@@ -237,6 +251,79 @@ public class CreateProjectController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/{userId}/RunAgentsManually.form", method = RequestMethod.POST)
+    public void runAgentsManual(@PathVariable String userId,
+            ModelMap model, HttpServletRequest request,
+            HttpServletResponse response)
+    throws Exception {
+
+        try {
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            if(!ar.isLoggedIn()){
+                sendRedirectToLogin(ar, "message.login.create.template.from.project",null);
+                return;
+            }
+            NGPage created = createProjectFromAgentRules(ar);
+            String goUrl = "Agents.htm";
+            if (created!=null){
+                goUrl = ar.baseURL + ar.getResourceURL(created, "public.htm");
+            }
+            response.sendRedirect(goUrl);
+        }catch(Exception ex){
+            throw new Exception("Failed to create project for user "+userId, ex);
+        }
+    }
+
+    private NGPage createProjectFromAgentRules(AuthRequest ar) throws Exception {
+        UserProfile uProf = ar.getUserProfile();
+        UserPage uPage = uProf.getUserPage();
+
+        for (RemoteGoal rg : uPage.getRemoteGoals()) {
+            for (AgentRule rule : uPage.getAgentRules()) {
+                String subjExpr = rule.getSubjExpr();
+                String descExpr = rule.getDescExpr();
+                String subj = rg.getSynopsis();
+                String desc = rg.getDescription();
+                if (subjExpr!=null & subj!=null) {
+                    if (!subj.contains(subjExpr)) {
+                        continue;
+                    }
+                }
+                if (descExpr!=null & desc!=null) {
+                    if (!desc.contains(descExpr)) {
+                        continue;
+                    }
+                }
+
+                String upstream = rg.getProjectAccessURL();
+                NGPage newPage = NGPageIndex.getProjectByUpstreamLink(upstream);
+                if (newPage!=null) {
+                    //looks like a clone already exists, so nothing more to do with this one
+                    continue;
+                }
+
+                //found one, now use it
+                String siteId = rule.getSiteKey();
+                String templateKey = rule.getTemplate();
+                String projectName = rg.getProjectName() + " (clone)";
+                UserProfile owner = UserManager.findUserByAnyIdOrFail(rule.getOwner());
+                NGBook site = NGPageIndex.getSiteByIdOrFail(siteId);
+                newPage = createPage(owner, site, projectName, null, upstream, ar.nowTime);
+                if (templateKey!=null && templateKey.length()>0) {
+                    NGPage template_ngp = NGPageIndex.getProjectByKeyOrFail(templateKey);
+                    newPage.injectTemplate(ar, template_ngp);
+                }
+                if (upstream!=null && upstream.length()>0) {
+                    RemoteProject remProj = new RemoteProject(upstream);
+                    ProjectSync ps = new ProjectSync(newPage, remProj, ar, "xxx");
+                    ps.downloadAll();
+                }
+
+                return newPage;
+            }
+        }
+        return null;
+    }
 
     ////////////////// HELPER FUNCTIONS /////////////////////////////////
 
@@ -281,19 +368,28 @@ public class CreateProjectController extends BaseController {
 
     private static NGPage createPage(AuthRequest ar, NGBook site)
             throws Exception {
+        UserProfile uProf = ar.getUserProfile();
+        long nowTime = ar.nowTime;
+        String projectName = ar.reqParam("projectname");
+        String loc = ar.defParam("loc", null);
+        String upstream = ar.defParam("upstream", null);
+        NGPage newPage = createPage(uProf, site, projectName, loc, upstream, nowTime);
+        ar.setPageAccessLevels(newPage);
+        return newPage;
+    }
 
-        if (!site.primaryOrSecondaryPermission(ar.getUserProfile())) {
+    private static NGPage createPage(UserProfile uProf, NGBook site, String projectName,
+            String loc, String upstream, long nowTime) throws Exception {
+        if (!site.primaryOrSecondaryPermission(uProf)) {
             throw new NGException("nugen.exception.not.member.of.account",
                     new Object[]{site.getName()});
         }
 
-        String loc = ar.defParam("loc", null);
         NGPage ngPage = null;
         if (loc==null){
-            String projectName = ar.reqParam("projectname");
             String projectFileName = findGoodFileName(projectName);
             String pageKey = SectionWiki.sanitize(projectFileName);
-            ngPage = site.createProjectByKey(ar, pageKey);
+            ngPage = site.createProjectByKey(uProf, pageKey, nowTime);
             String[] nameSet = new String[] { projectName };
             ngPage.setPageNames(nameSet);
         }
@@ -311,21 +407,19 @@ public class CreateProjectController extends BaseController {
                         + expectedLoc.toString());
             }
 
-            ngPage = site.convertFolderToProj(ar, expectedLoc);
+            ngPage = site.convertFolderToProj(uProf, expectedLoc, nowTime);
         }
 
 
         //check for and set the upstream link
-        String upstream = ar.defParam("upstream", null);
         if (upstream!=null && upstream.length()>0) {
             ngPage.setUpstreamLink(upstream);
         }
 
         ngPage.setSite(site);
-        ngPage.saveFile(ar, "Creating a project");
+        ngPage.save(uProf.getUniversalId(), nowTime, "Creating a project");
 
         NGPageIndex.makeIndex(ngPage);
-        ar.setPageAccessLevels(ngPage);
 
         return ngPage;
     }

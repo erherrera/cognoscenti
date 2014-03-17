@@ -21,6 +21,7 @@
     boolean viewingSelf = uProf.getKey().equals(operatingUser.getKey());
     UserPage uPage = uProf.getUserPage();
     List<AgentRule> agentRules = uPage.getAgentRules();
+    Vector<NGPageIndex> templates = uProf.getValidTemplates();
 
 %>
 <body class="yui-skin-sam">
@@ -54,9 +55,14 @@
                         </tr>
                         <tr><td style="height:10px"></td></tr>
                         <tr id="trspath">
-                            <td class="gridTableColummHeader">Expression:</td>
+                            <td class="gridTableColummHeader">Subject Contains:</td>
                             <td style="width:20px;"></td>
-                            <td colspan="2"><input type="text" name="expression" class="inputGeneral" size="69" /></td>
+                            <td colspan="2"><input type="text" name="subjexpr" class="inputGeneral" size="69" /></td>
+                        </tr>
+                        <tr id="trspath">
+                            <td class="gridTableColummHeader">Description Contains:</td>
+                            <td style="width:20px;"></td>
+                            <td colspan="2"><input type="text" name="subjexpr" class="inputGeneral" size="69" /></td>
                         </tr>
                         <tr><td style="height:10px"></td></tr>
                         <tr id="trspath">
@@ -70,10 +76,21 @@
                         <tr id="trspath">
                             <td class="gridTableColummHeader">Template:</td>
                             <td style="width:20px;"></td>
-                            <td colspan="2"><select name="refresh"/>
-                                <option>Regular Plan</option>
-                                <option>Long Plan</option>
-                                <option>Short Plan</option></select>
+                            <td colspan="2">
+                                <select name="template" style="width:320px;"/>
+                                <option value="">- Select One -</option>
+                                <%
+                                for (NGPageIndex ngpi : templates) {
+                                      String key = ngpi.containerKey;
+
+                                      %><option value="<%
+                                      ar.writeHtml(key);
+                                      %>"><%
+                                      ar.writeHtml(ngpi.containerName);
+                                      %></option><%
+                                }
+                                %>
+                                </select>
                         </tr>
                         <tr><td style="height:30px"></td></tr>
                         <tr>
@@ -92,8 +109,15 @@
             </div>
         </div>
 
-        <div class="rightDivContent"><img src="<%= ar.retPath%>assets/iconBluePlus.gif" width="13" height="15" alt="" />
-        <a href="#" onclick="openModalDialogue('NewAgent','Add New Agent','640px');">Add New Agent</a></div>
+        <div class="rightDivContent">
+        <a href="RunAgentsManually.form">
+        <img src="<%= ar.retPath%>assets/iconSync.gif" width="13" height="15"/>
+        Manually Run Agents Now</a>
+        &nbsp; &nbsp;
+        <img src="<%= ar.retPath%>assets/iconBluePlus.gif" width="13" height="15" alt="" />
+        <a href="#" onclick="openModalDialogue('NewAgent','Add New Agent','640px');">
+        Add New Agent</a>
+        </div>
         <div class="generalHeading">Agents</div>
         <br />
         <table class="gridTable2" width="100%">
@@ -108,7 +132,7 @@
                 %>
                 <tr>
                 <td class="repositoryName"><a href="EditAgent.htm?id=<%ar.writeHtml(oneRef.getId());%>"><%
-                ar.writeHtml(oneRef.getExpression());
+                ar.writeHtml(oneRef.getTitle());
                 %></a></td>
                 <td><%SectionUtil.nicePrintTime(ar.w, 0, ar.nowTime);%></td>
                 <form method="post" action="AgentAction.form" id="deleteForm<%ar.writeHtml(oneRef.getId());%>">
@@ -116,7 +140,7 @@
                 <input type="hidden" name="go" value="<%ar.writeHtml(ar.getCompleteURL());%>">
                 <input type="hidden" name="id" value="<%ar.writeHtml(oneRef.getId());%>">
                 <td>
-                <button type="button" onclick="confirmDeletion('deleteForm<%ar.writeJS(oneRef.getId());%>','<%ar.writeJS(oneRef.getExpression());%>');">
+                <button type="button" onclick="confirmDeletion('deleteForm<%ar.writeJS(oneRef.getId());%>','<%ar.writeJS(oneRef.getTitle());%>');">
                      <img src="<%=ar.retPath%>assets/iconDelete.gif"/></button>
                 </td>
                 </form>
