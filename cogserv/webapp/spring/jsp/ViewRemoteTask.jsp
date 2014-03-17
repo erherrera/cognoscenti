@@ -37,10 +37,6 @@ Required parameters:
     UserProfile  operatingUser =ar.getUserProfile();
     boolean viewingSelf = uProf.getKey().equals(operatingUser.getKey());
 
-
-
-
-
     Vector<NGBook> bookList =  new Vector<NGBook>();
     Vector<NGPageIndex> templates = new Vector<NGPageIndex>();
     for(TemplateRecord tr : uProf.getTemplateList()){
@@ -59,7 +55,7 @@ Required parameters:
     if (isLocal) {
         int siteBegin = accessUrl.indexOf("/", ar.baseURL.length())+1;
         int projBegin = accessUrl.indexOf("/", siteBegin)+1;
-        int projEnd = accessUrl.indexOf("/", projBegin);
+        int projEnd   = accessUrl.indexOf("/", projBegin);
         String siteKey = accessUrl.substring(siteBegin, projBegin-1);
         String projKey = accessUrl.substring(projBegin, projEnd);
         localProject = NGPageIndex.getProjectByKeyOrFail(projKey);
@@ -71,20 +67,16 @@ Required parameters:
         }
     }
 
-
-
 %>
 
     <script src="<%=ar.baseURL%>jscript/jquery.dd.js" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="<%=ar.retPath%>css/dd.css" />
 
     <script type="text/javascript" language = "JavaScript">
-
         function createProject(){
             document.forms["projectform"].submit();
         }
-
-</script>
+    </script>
 
 <body class="yui-skin-sam">
 
@@ -229,15 +221,6 @@ Required parameters:
                             </div>
                     <%
                         }
-                        else if(bookList!=null && bookList.size()<1){
-                    %>
-                            <div id="loginArea">
-                                <span class="black">
-                                    <fmt:message key="nugen.userhome.PermissionToCreateProject.text"/>
-                                </span>
-                            </div>
-                    <%
-                        }
                         else if(!viewingSelf){
                     %>
                             <div id="loginArea">
@@ -248,81 +231,20 @@ Required parameters:
                         else
                         {
                     %>
+                        <table WIDTH="600"><tr><td>
                             <form action="userCreateProject.htm" method="get">
                                 <input type="hidden" name="upstream" value="<%ar.writeHtml(remoteGoal.getProjectAccessURL());%>"/>
                                 <input type="hidden" name="pname" value="<%ar.writeHtml(remoteGoal.getProjectName());%> (clone)"/>
                                 <input type="hidden" name="desc" value="This is a local clone of a project named '<%ar.writeHtml(remoteGoal.getProjectName());%>' on a remote site named '<%ar.writeHtml(remoteGoal.getSiteName());%>'"/>
-                                <input type="submit" value="Create Alternate" class="inputBtn" />
+                                <input type="submit" value="Create Local Clone" class="inputBtn" />
                             </form>
-                            <form name="projectform" action="createProjectFromRemoteGoal.form" method="post">
-                                <input type="hidden" name="goUrl" value="<%ar.writeHtml(ar.getCompleteURL());%>"/>
-                                <input type="hidden" name="upstream" value="<%ar.writeHtml(remoteGoal.getProjectAccessURL());%>"/>
-                                <table width="600">
-                                    <tr><td style="height:20px"></td></tr>
-                                    <tr>
-                                        <td class="gridTableColummHeader">Clone Project Name:</td>
-                                        <td style="width:20px;"></td>
-                                        <td>
-                                            <input type="text" onblur="validateProjectField()" class="inputGeneral"
-                                            name="projectname" id="projectname" value="<%ar.writeHtml(remoteGoal.getProjectName());%> (clone)"/>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="gridTableColummHeader"></td>
-                                        <td style="width:20px;"></td>
-                                        <td width="396px">
-                                            <b>Note:</b> From here you can create a new project which is a downstream clone
-                                            of the project this goal is in.
-                                            </td>
-                                    </tr>
-                                    <tr><td style="height:10px"></td></tr>
-                                    <tr>
-                                        <td class="gridTableColummHeader">Select Template:</td>
-                                        <td style="width:20px;"></td>
-                                        <td><Select class="selectGeneral" id="templateName" name="templateName">
-                                            <option value="" selected>Select</option>
-                                            <%
-                                                for (NGPageIndex ngpi : templates){
-                                                    %><option value="<%=ngpi.containerKey%>" ><%
-                                                    ar.writeHtml(ngpi.containerName);
-                                                    %></option><%
-                                                }
-                                            %>
-                                                    </Select></td>
-                                      </tr>
-                                      <tr><td style="height:15px"></td></tr>
-                                      <tr>
-                                          <td class="gridTableColummHeader"><fmt:message key="nugen.userhome.Account"/></td>
-                                          <td style="width:20px;"></td>
-                                          <td><select class="selectGeneral" name="siteId">
-                                            <%
-                                                for (NGBook nGBook : bookList) {
-                                                    String id =nGBook.getKey();
-                                                    String bookName= nGBook.getName();
-                                                    %><option value="<%=id%>"><%
-                                                    ar.writeHtml(bookName);
-                                                    %></option><%
-                                                }
-                                            %>
-                                          </select></td>
-                                     </tr>
-                                     <tr><td style="height:15px"></td></tr>
-                                     <tr>
-                                         <td class="gridTableColummHeader" style="vertical-align:top"><fmt:message key="nugen.project.desc.text"/></td>
-                                         <td style="width:20px;"></td>
-                                         <td><textarea name="description" id="description" class="textAreaGeneral" rows="4" tabindex=7></textarea></td>
-                                     </tr>
-                                     <tr><td style="height:10px"></td></tr>
-                                     <tr>
-                                         <td class="gridTableColummHeader"></td>
-                                         <td style="width:20px;"></td>
-                                         <td>
-                                             <input type="submit" value="Create Clone" class="inputBtn" />
-                                         </td>
+                        </td>
+                        <td style="width:20px;"></td>
+                        <td> Use this button to create a local clone of the remote project,
+                           to download all the document for working off line, and to allow you to 
+                           involve other people in working on the project.
+                        </td></tr></table>
 
-                                     </tr>
-                                </table>
-                            </form>
                   <%
                     }
                   %>
