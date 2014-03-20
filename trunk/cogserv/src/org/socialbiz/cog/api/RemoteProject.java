@@ -20,14 +20,9 @@
 
 package org.socialbiz.cog.api;
 
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.socialbiz.cog.License;
 
 /**
@@ -45,10 +40,7 @@ public class RemoteProject
     public JSONObject getJSONObj() throws Exception {
         try {
             if (root == null) {
-                URL url = new URL(urlStr);
-                InputStream is = url.openStream();
-                JSONTokener jt = new JSONTokener(is);
-                root = new JSONObject(jt);
+                root = RemoteJSON.getFromRemote(new URL(urlStr));
             }
             return root;
         }
@@ -84,50 +76,6 @@ public class RemoteProject
      * get a JSONObject back with the response.
      */
     public JSONObject call(JSONObject msg) throws Exception {
-        try {
-            URL url = new URL(urlStr);
-            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-            httpCon.setDoOutput(true);
-            httpCon.setDoInput(true);
-            httpCon.setUseCaches(false);
-            httpCon.setRequestProperty( "Content-Type", "application/json" );
-            httpCon.setRequestProperty("Accept", "application/json");
-            httpCon.setRequestMethod("POST");
-            httpCon.connect();
-            OutputStream os = httpCon.getOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
-            msg.write(osw, 2, 0);
-            osw.flush();
-            osw.close();
-            os.close();
-
-
-            InputStream is = httpCon.getInputStream();
-            JSONTokener jt = new JSONTokener(is);
-            JSONObject resp = new JSONObject(jt);
-
-            int responseCode = resp.getInt("responseCode");
-            if (responseCode!=200) {
-                JSONObject exception = resp.getJSONObject("exception");
-                JSONArray errorMsgs = exception.getJSONArray("msgs");
-                Exception lastExp = null;
-                int len = errorMsgs.length();
-                for (int i=0; i<len; i++) {
-                    String oneMsg = errorMsgs.getString(i);
-                    if (lastExp==null) {
-                        lastExp = new Exception(oneMsg);
-                    }
-                    else {
-                        lastExp = new Exception(oneMsg, lastExp);
-                    }
-                }
-                throw new Exception("RemoteProjectException: ("+responseCode+"): ", lastExp);
-            }
-
-            return resp;
-        }
-        catch (Exception e) {
-            throw new Exception("Unable to call the server site located at "+urlStr, e);
-        }
+        return RemoteJSON.call(new URL(urlStr), msg);
     }
 }

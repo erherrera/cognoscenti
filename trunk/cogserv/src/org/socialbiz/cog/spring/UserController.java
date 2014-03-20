@@ -591,7 +591,7 @@ public class UserController extends BaseController {
             return redirectBrowser(ar,go);
 
         }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.edit.micro.profile", null, ex);
+            throw new Exception("Unable to refresh consolidates goals list from remote profiles", ex);
         }
     }
 

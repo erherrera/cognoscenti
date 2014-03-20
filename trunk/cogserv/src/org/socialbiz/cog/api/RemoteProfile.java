@@ -22,10 +22,9 @@ package org.socialbiz.cog.api;
 
 import java.net.URL;
 import java.util.Hashtable;
-import java.io.InputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.socialbiz.cog.BaseRecord;
 import org.socialbiz.cog.RemoteGoal;
 import org.socialbiz.cog.UserPage;
 
@@ -46,14 +45,10 @@ public class RemoteProfile {
      * get a JSONObject back with the response.
      */
     public void syncRemoteGoals(UserPage uPage) throws Exception {
+        Hashtable<String, RemoteGoal> usedTable = new Hashtable<String, RemoteGoal>();
         try {
-            InputStream is = url.openStream();
-            JSONTokener jt = new JSONTokener(is);
-            JSONObject root = new JSONObject(jt);
-            Hashtable<String, RemoteGoal> usedTable = new Hashtable<String, RemoteGoal>();
-
+            JSONObject root = RemoteJSON.getFromRemote(url);
             JSONArray goals = root.getJSONArray("goals");
-
             uPage.clearTaskRefFlags();
             int numGoals = goals.length();
             for (int i=0; i<numGoals; i++) {
@@ -63,17 +58,25 @@ public class RemoteProfile {
                 usedTable.put(remGoal.getAccessURL(), remGoal);
                 remGoal.setFromJSONObject(oneGoal);
             }
-
-            //now, update the ones that did not come in the task list
-            //for some reason (maybe they are closed, cancelled, or reassigned)
-            for (RemoteGoal remGoal : uPage.getRemoteGoals()) {
-                if (!usedTable.containsKey(remGoal.getId())) {
-                    remGoal.refreshFromRemote();
-                }
-            }
         }
         catch (Exception e) {
-            throw new Exception("Unable to sync goals from remote profile url="+url, e);
+            //this is one of the few places we ignore exceptions, but if the remote server
+            //is not available, ignore the fact that we did not get it now.
+        }
+
+        //now, update the ones that did not come in the task list
+        //for some reason (maybe they are closed, cancelled, or reassigned)
+        for (RemoteGoal remGoal : uPage.getRemoteGoals()) {
+            if (!usedTable.containsKey(remGoal.getId())) {
+                try {
+                    remGoal.refreshFromRemote();
+                }
+                catch (Exception e) {
+                    remGoal.setState(BaseRecord.STATE_ERROR);
+                    //once again, ignore failures to call servers, mark this as in
+                    //error and continue to try to refresh the rest
+                }
+            }
         }
     }
 
