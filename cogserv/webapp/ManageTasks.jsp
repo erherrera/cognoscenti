@@ -74,24 +74,18 @@
     String lastKey ="";
     for (RemoteGoal tr : myActive)
     {
-        String projectKey = tr.getProjectKey();
-        NGPage ngpx = NGPageIndex.getProjectByKeyOrFail(projectKey);
-        GoalRecord task = ngpx.getGoalOrNull(tr.getId());
-        if (task==null) {
-    //task may have been removed from project ...
-    continue;
-        }
+        String projectURL = tr.getProjectAccessURL();
 
-        String projectPath = "p/"+projectKey+"/process.htm";
-        String taskPath = "WorkItem.jsp?p="+projectKey+"&id="+tr.getId();
+        String projectPath = projectURL;
+        String taskPath = tr.getUserInterfaceURL();
 %>
         <form action="ManageTasksAction.jsp" method="post">
         <input type="hidden" name="taskid" value="<%ar.writeHtml(tr.getId());%>">
-        <input type="hidden" name="projid" value="<%ar.writeHtml(projectKey);%>">
+        <input type="hidden" name="projid" value="<%ar.writeHtml(projectURL);%>">
         <input type="hidden" name="go" value="<%ar.writeHtml(thisPage);%>">
         <tr bgcolor="#EEEEFF">
             <td align="right"><a name="<%ar.writeHtml(tr.getId());%>"></a>Project:</td>
-            <td><a href="<%ar.writeHtml(projectPath);%>"><%ar.writeHtml(ngpx.getFullName());%></a></td>
+            <td><a href="<%ar.writeHtml(projectPath);%>"><%ar.writeHtml(tr.getProjectName());%></a></td>
             <td>Rank:<input type="text" name="rank" value="<%=tr.getRank()%>" size="5"></td></tr>
         <tr>
             <td align="right"><img src="<%ar.writeHtml(BaseRecord.stateImg(tr.getState()));%>">&nbsp;</td>
@@ -110,27 +104,22 @@
         <td align="right">Accomplishment: </td>
         <td><textarea name="accomp" cols="5" rows="5"></textarea></td>
         </tr>
-        <%
-            List<HistoryRecord> histRecs = task.getTaskHistory(ngpx);
-            for (HistoryRecord history : histRecs)
-            {
-                String msg = history.getComments();
-                if(msg==null || msg.length()==0)
-                {
-                    continue;
-                }
-                %><tr><td></td>
-                      <td><%SectionUtil.nicePrintTime(ar, history.getTimeStamp(), ar.nowTime);%> -
-                          <%ar.writeHtml(msg);%></td>
-                  </tr><%
-            }
-        %>
         <tr><td></td>
             <td><input type="submit" name="op" value="Update Status"> &nbsp;</td>
             </tr>
         <%
         }
+        NGPage ngpx = NGPageIndex.getProjectByUpstreamLink(projectURL);
         %>
+        <tr>
+        <td align="right">Local Clone: </td>
+        <td>
+        <% if (ngpx==null) { %>
+            <i>does not exist</i>
+        <% } else { %>
+            exists: <%=ngpx.getKey()%>
+        <% } %>
+        </td></tr>
         </form>
         <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
         <%

@@ -21,9 +21,7 @@
 package org.socialbiz.cog.api;
 
 import java.net.URL;
-import java.io.InputStream;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 /**
 * A remote site
@@ -40,9 +38,7 @@ public class RemoteSite {
         try {
             if (guts == null) {
                 URL url = new URL(urlStr);
-                InputStream is = url.openStream();
-                JSONTokener jt = new JSONTokener(is);
-                guts = new JSONObject(jt);
+                guts = RemoteJSON.getFromRemote(url);
             }
             return guts;
         }

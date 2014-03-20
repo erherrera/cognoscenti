@@ -20,14 +20,13 @@
 
 package org.socialbiz.cog;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.socialbiz.cog.api.RemoteJSON;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -343,11 +342,14 @@ public class RemoteGoal extends DOMFace {
     }
 
     public void refreshFromRemote() throws Exception {
-        URL url = new URL(getAccessURL());
-        InputStream is = url.openStream();
-        JSONTokener jt = new JSONTokener(is);
-        JSONObject goalObj = new JSONObject(jt);
-        setFromJSONObject(goalObj);
+        try {
+            URL url = new URL(getAccessURL());
+            JSONObject goalObj = RemoteJSON.getFromRemote(url);
+            setFromJSONObject(goalObj);
+        }
+        catch (Exception e) {
+            throw new Exception("Unable to refresh remote goal ("+getSynopsis()+")", e);
+        }
     }
 
     public static void sortTasksByRank(List<RemoteGoal> tasks) {

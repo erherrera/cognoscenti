@@ -58,7 +58,7 @@ public class UserDecoder {
 
         resource = path.substring(slashPos+1);
 
-        if (licenseId.equals(uProf.getLicenseToken())) {
+        if (licenseId!=null && licenseId.equals(uProf.getLicenseToken())) {
             lic = new LicenseForUser(uProf);
         }
     }
