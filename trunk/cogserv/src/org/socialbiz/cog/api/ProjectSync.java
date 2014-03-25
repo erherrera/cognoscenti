@@ -225,6 +225,8 @@ public class ProjectSync {
         Vector<String> goalIds = new Vector<String>();
 
         List<GoalRecord> allGoals = local.getAllGoals();
+        //ignore all the local tasks
+        /*
         for (GoalRecord goal : allGoals) {
             //apparently all tasks are considered ... no such thing as a hidden task
             String uid = goal.getUniversalId();
@@ -234,6 +236,7 @@ public class ProjectSync {
             }
             goalIds.add(uid);
         }
+        */
         JSONArray goals2 = remote.getGoals();
         int len = goals2.length();
         for (int i=0; i<len; i++) {
