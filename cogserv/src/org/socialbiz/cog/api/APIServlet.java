@@ -19,6 +19,7 @@ package org.socialbiz.cog.api;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
@@ -29,10 +30,12 @@ import org.socialbiz.cog.MimeTypes;
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
+import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.SectionUtil;
 import org.socialbiz.cog.SectionWiki;
 import org.socialbiz.cog.ServerInitializer;
+import org.socialbiz.cog.UserRef;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.WikiConverter;
 import java.io.File;
@@ -41,6 +44,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
+import java.util.Vector;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -477,6 +483,8 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         }
         root.put("license", getLicenseInfo(resDec.lic));
         NGBook site = ngp.getSite();
+        UserRef user = new AddressListEntry(resDec.lic.getCreator());
+
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/" + resDec.projId + "/";
         root.put("projectname", ngp.getFullName());
         root.put("projectinfo", urlRoot+"?lic="+resDec.licenseId);
@@ -489,22 +497,30 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         String uiUrl = ar.baseURL + "t/" + ngp.getSiteKey() + "/" + ngp.getKey() + "/";
         root.put("ui", uiUrl);
 
-        String role = resDec.lic.getRole();
+        List<NGRole> rolist = null;
+        if (resDec.lic instanceof LicenseForUser) {
+            //for user license, find all the roles they play
+            rolist = ngp.findRolesOfPlayer(user);
+        }
+        else {
+            //for specified license, use only the role specified
+            rolist = new Vector<NGRole>();
+            rolist.add(ngp.getRole(resDec.lic.getRole()));
+        }
 
         //Primary (and secondary) roles should have access to everything.
-        //don't need to check by role name in that case
-        boolean isPrimeRole =  (role.equals(ngp.getPrimaryRole().getName())
-                    || role.equals(ngp.getSecondaryRole().getName()));
+        //all goals, and also any goal that the licensed user is assigned to
+        boolean isPrimeRole = ngp.primaryOrSecondaryPermission(user);
         JSONArray goals = new JSONArray();
-        if (isPrimeRole) {
-            for (GoalRecord goal : resDec.project.getAllGoals()) {
+        for (GoalRecord goal : resDec.project.getAllGoals()) {
+            if (isPrimeRole || goal.isAssignee(user)) {
                 goals.put(goal.getJSON4Goal(resDec.project, ar.baseURL, resDec.lic));
             }
         }
         root.put("goals", goals);
 
         JSONArray docs = new JSONArray();
-        for (AttachmentRecord att : resDec.project.getAllAttachments()) {
+        for (AttachmentRecord att : ngp.getAllAttachments()) {
             if (att.isDeleted()) {
                 continue;
             }
@@ -514,7 +530,13 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             if (!"FILE".equals(att.getType())) {
                 continue;
             }
-            if (!isPrimeRole && !att.roleCanAccess(role) && !att.isPublic()) {
+            boolean canAccess = isPrimeRole || att.isPublic();
+            for (NGRole trole : rolist) {
+                if (att.roleCanAccess(trole.getName())) {
+                    canAccess = true;
+                }
+            }
+            if (!canAccess) {
                 continue;
             }
             JSONObject thisDoc = att.getJSON4Doc(resDec.project, urlRoot, resDec.lic);
@@ -524,9 +546,16 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
         JSONArray notes = new JSONArray();
         for (NoteRecord note : resDec.project.getAllNotes()) {
-            if (isPrimeRole || note.isPublic() || note.roleCanAccess(role)) {
-                notes.put(note.getJSON4Note(urlRoot, false, resDec.lic));
+            boolean canAccess = isPrimeRole || note.isPublic();
+            for (NGRole trole : rolist) {
+                if (note.roleCanAccess(trole.getName())) {
+                    canAccess = true;
+                }
             }
+            if (!canAccess) {
+                continue;
+            }
+            notes.put(note.getJSON4Note(urlRoot, false, resDec.lic));
         }
         root.put("notes", notes);
 
