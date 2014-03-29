@@ -110,7 +110,7 @@ function createTabs(){
             new TabRef(retPath+homePath,"Home","")
         ];
     }
-    
+
     for(var  i=0;i<arrayOfTabs.length ;i++){
 
         var newli   = document.createElement('li');
@@ -164,9 +164,9 @@ function createSubLinks(){
 
     var arrayOfSubMenu=0;
     var arrayOfMainMenu=0;
-    
+
     if(headerType == "site") {
-    
+
         var accountSubMenu1 = [new Tab(retPath+"t/"+accountId+"/$/public.htm","Public Notes"),
             new Tab(retPath+"t/"+accountId+"/$/member.htm","Member Notes"),
             new Tab(retPath+"t/"+accountId+"/$/account_history.htm","Site Bulletin")
@@ -184,7 +184,7 @@ function createSubLinks(){
         arrayOfMainMenu =[accountSubMenu1, accountSubMenu2, accountSubMenu4];
     }
     else if(headerType == "user"){
-    
+
         var arrayOfTabs1 = [new Tab(retPath+"v/"+userKey+"/watchedProjects.htm","Watched Projects"),
             new Tab(retPath+"v/"+userKey+"/notifiedProjects.htm","Notified Projects"),
             new Tab(retPath+"v/"+userKey+"/allProjects.htm","All Projects"),
@@ -199,7 +199,7 @@ function createSubLinks(){
             new Tab(retPath+"v/"+userKey+"/ShareRequests.htm","Share Requests"),
             new Tab(retPath+"v/"+userKey+"/RemoteProfiles.htm","Remote Profiles"),
             new Tab(retPath+"v/"+userKey+"/ConsolidatedTasks.htm","Consolidated Goals"),
-            new Tab(retPath+"v/"+userKey+"/Agents.htm","Agent Rules")
+            new Tab(retPath+"v/"+userKey+"/Agents.htm","Personal Assistant")
         ];
 
         var arrayOfTabs3 = [new Tab(retPath+"v/"+userKey+"/userSettings.htm","Personal"),
@@ -228,9 +228,9 @@ function createSubLinks(){
 
 
     }
-    
+
     else{   //This is the Project case
-    
+
         var arrayOfTabs1 = [
             new Tab(retPath+"t/"+book+"/"+pageId+"/public.htm",      "Public Notes"),
             new Tab(retPath+"t/"+book+"/"+pageId+"/member.htm",      "Member Notes"),

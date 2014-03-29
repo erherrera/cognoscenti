@@ -112,13 +112,13 @@
         <div class="rightDivContent">
         <a href="RunAgentsManually.form">
         <img src="<%= ar.retPath%>assets/iconSync.gif" width="13" height="15"/>
-        Manually Run Agents Now</a>
+        Manually Run Now</a>
         &nbsp; &nbsp;
         <img src="<%= ar.retPath%>assets/iconBluePlus.gif" width="13" height="15" alt="" />
         <a href="#" onclick="openModalDialogue('NewAgent','Add New Agent','640px');">
-        Add New Agent</a>
+        Add New Assistant</a>
         </div>
-        <div class="generalHeading">Agents</div>
+        <div class="generalHeading">Personal Assistants</div>
         <br />
         <table class="gridTable2" width="100%">
             <tr class="gridTableHeader">
@@ -151,7 +151,7 @@
             %>
         </table>
         <form action="RunAgentsManually.form" method="post">
-        <button type="submit">Manually Run Agents Now</button>
+        <button type="submit">Manually Run Now</button>
         </form>
     </div>
 </div>
