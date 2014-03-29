@@ -47,7 +47,7 @@
 
 <div class="content tab03" style="display:block;">
     <div class="section_body">
-        <div class="generalHeading">Edit Agent</div>
+        <div class="generalHeading">Edit Personal Assistant</div>
         <div style="height:10px;"></div>
         <div id="NewAgent">
             <div class="generalSettings">
@@ -62,6 +62,8 @@
                                 value="<%ar.writeHtml(theAgent.getTitle());%>"/></td>
                         </tr>
                         <tr><td style="height:10px"></td></tr>
+                        <tr><td colspan="3" class="generalHeading">Conditions</td></tr>
+                        <tr><td style="height:10px"></td></tr>
                         <tr id="trspath">
                             <td class="gridTableColummHeader">Subj Contains:</td>
                             <td style="width:20px;"></td>
@@ -74,13 +76,55 @@
                             <td colspan="2"><input type="text" name="descexpr" class="inputGeneral" size="69"
                                 value="<%ar.writeHtml(theAgent.getDescExpr());%>"/></td>
                         </tr>
+                        <tr id="trspath">
+                            <td class="gridTableColummHeader">Rule 1:</td>
+                            <td style="width:20px;"></td>
+                            <td colspan="2"><input type="text" name="descexpr" class="inputGeneral" size="69"
+                                value=""/></td>
+                        </tr>
+                        <tr id="trspath">
+                            <td class="gridTableColummHeader">Rule 2:</td>
+                            <td style="width:20px;"></td>
+                            <td colspan="2"><input type="text" name="descexpr" class="inputGeneral" size="69"
+                                value=""/></td>
+                        </tr>
+                        <tr><td style="height:10px"></td></tr>
+                        <tr><td colspan="3" class="generalHeading">Actions</td></tr>
                         <tr><td style="height:10px"></td></tr>
                         <tr id="trspath">
-                            <td class="gridTableColummHeader">Option:</td>
+                            <td class="gridTableColummHeader">Goal:</td>
                             <td style="width:20px;"></td>
-                            <td colspan="2"><input type="checkbox" name="accept"/> Auto-Accept
-                                <input type="checkbox" name="transform"/> Schema Transform
-                                <input type="checkbox" name="normalize"/> Normalize</td>
+                            <td colspan="2"><input type="checkbox" name="accept"/> Auto-Accept</td>
+                        </tr>
+                        <tr id="trspath">
+                            <td class="gridTableColummHeader">Subproject:</td>
+                            <td style="width:20px;"></td>
+                            <td colspan="2"><input type="checkbox" name="clone" checked="checked"/> Auto-clone
+                                <input type="checkbox" name="synchronize" checked="checked"/> Synchronize</td>
+                        </tr>
+                        <tr><td style="height:10px"></td></tr>
+                        <tr id="trspath">
+                            <td class="gridTableColummHeader">in Site:</td>
+                            <td style="width:20px;"></td>
+                            <td colspan="2">
+                                <select name="site" style="width:320px;"/>
+                                <option value="">- Select One -</option>
+                                <%
+                                for (NGBook site : memberOfSites) {
+                                      String key = site.getKey();
+
+                                      %><option value="<%
+                                      ar.writeHtml(key);
+                                      if (key.equals(theAgent.getSiteKey())) {
+                                          %>" selected="selected<%
+                                      }
+                                      %>"><%
+                                      ar.writeHtml(site.getName());
+                                      %></option><%
+                                }
+                                %>
+                                </select>
+                            </td>
                         </tr>
                         <tr><td style="height:10px"></td></tr>
                         <tr id="trspath">
@@ -100,30 +144,6 @@
                                       }
                                       %>"><%
                                       ar.writeHtml(ngpi.containerName);
-                                      %></option><%
-                                }
-                                %>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr><td style="height:10px"></td></tr>
-                        <tr id="trspath">
-                            <td class="gridTableColummHeader">Site:</td>
-                            <td style="width:20px;"></td>
-                            <td colspan="2">
-                                <select name="site" style="width:320px;"/>
-                                <option value="">- Select One -</option>
-                                <%
-                                for (NGBook site : memberOfSites) {
-                                      String key = site.getKey();
-
-                                      %><option value="<%
-                                      ar.writeHtml(key);
-                                      if (key.equals(theAgent.getSiteKey())) {
-                                          %>" selected="selected<%
-                                      }
-                                      %>"><%
-                                      ar.writeHtml(site.getName());
                                       %></option><%
                                 }
                                 %>

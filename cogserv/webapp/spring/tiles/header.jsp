@@ -70,7 +70,7 @@ Parameter used :
         }
         else if (ngp.isFrozen())
         {
-            deletedWarning = " ~ (Frozen)";
+            deletedWarning = " &#10052; (Frozen)";
         }
     }
     UserProfile uProf = ar.getUserProfile();
