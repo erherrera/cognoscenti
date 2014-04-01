@@ -90,14 +90,25 @@ public class ConfigFile {
             configFile = getFile("config.txt");
 
             if (!configFile.exists()) {
-                // config file must exist. The server context folder is a given,
-                // there are no options about that, and the config file must exist
-                // in that folder so if there is no file there, go ahead and create
-                // one with reasonable default values
-                Properties newConfig = new Properties();
-                newConfig.put("dataFolder", sc.getRealPath("data_folder"));
-                newConfig.put("attachFolder", sc.getRealPath("attach_folder"));
-                saveConfigFile(props);
+				//this is probably a new installation.  copy the example config file
+				File exampleConfigFile = getFile("config_example.txt");
+				if (exampleConfigFile.exists()) {
+					UtilityMethods.copyFileContents(exampleConfigFile,configFile);
+				}
+
+				//while we are at it, copy the ssofi config as well
+				File ssofiConfig = getFile("ssofi.config");
+				File exampleSsofiConfig = getFile("ssofi_example.config");
+				if (!ssofiConfig.exists() && exampleSsofiConfig.exists()) {
+					UtilityMethods.copyFileContents(exampleSsofiConfig,ssofiConfig);
+				}
+
+				//while we are at it, copy the email config as well
+				File emailConfig = getFile("EmailNotification.properties");
+				File exampleEmailConfig = getFile("EmailNotification_example.properties");
+				if (!emailConfig.exists() && exampleEmailConfig.exists()) {
+					UtilityMethods.copyFileContents(exampleEmailConfig,emailConfig);
+				}
             }
 
             initializeFromPath();

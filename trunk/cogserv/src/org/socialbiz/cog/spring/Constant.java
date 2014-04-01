@@ -44,7 +44,7 @@ public class Constant {
 
 
     // Default maximum days for a record to be included in history list otherwise it would not be displayed in list.
-    public static final int HISTORY_MAX_DAYS = 15;
+    public static final int HISTORY_MAX_DAYS = 30;
 
     //Property in config file to store maximum days for a history record
     public static final String HISTORY_MAX_DAYS_PROPERTY = "max_days_interval";
