@@ -1108,7 +1108,7 @@ public class NGPageIndex {
             NGPage ngp = (NGPage) container;
             NGBook ngb = ngp.getSite();
             if (ngb != null) {
-                pageBookName = ngb.getName();
+                pageBookName = ngb.getFullName();
                 pageBookKey = ngb.getKey();
             }
         }

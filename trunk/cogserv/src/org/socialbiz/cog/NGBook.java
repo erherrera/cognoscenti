@@ -45,7 +45,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     private static Vector<NGBook> allSites = null;
 
     private Vector<String> existingIds = null;
-    private String[] displayNames;
+    private Vector<String> displayNames;
     private BookInfoRecord siteInfoRec;
     private NGRole executiveRole;
     private NGRole ownerRole;
@@ -54,7 +54,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
         super(theFile, newDoc);
         siteInfoRec = requireChild("bookInfo", BookInfoRecord.class);
         displayNames = siteInfoRec.getPageNames();
-
+        assureNameExists();
+        
         // migration code, make sure there is a stored value for key
         key = siteInfoRec.getScalar("key");
         if (key == null || key.length() == 0) {
@@ -90,9 +91,22 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
         // upgrade all the note records
         cleanUpNoteAndDocUniversalId();
+        //clear this out if it exists here, add this in future
+        //setScalar("name", null);
     }
 
-    /**
+    private void assureNameExists() {
+        if (displayNames.size()==0) {
+        	String possibleName = getScalar("name");
+        	if (possibleName==null || possibleName.length()==0) {
+        		possibleName = key;
+        	}
+        	displayNames.add(possibleName);
+        	//TODO: should this be stored back in file at this point?
+        }
+	}
+
+	/**
      * SCHEMA MIGRATION CODE - old schema required members to be children of a
      * tag 'members' and also prospective memebers in a tag 'pmembers' This code
      * migrates these to the standard Role object storage format, to a role
@@ -145,6 +159,35 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return retVal;
     }
 
+    /**
+     * Designed primarily for testing, this throws the current cached copy away
+     * and re-reads the file from disk, picking up any changes on the disk
+     */
+    public static NGBook forceRereadSiteFile(String key) throws Exception {
+        if (keyToSite == null) {
+            // this should never happen, but if it does....
+            throw new ProgramLogicError("in readSiteByKey called before the site index initialzed.");
+        }
+        if (key == null) {
+            throw new Exception("Program Logic Error: Site key of null is no longer allowed.");
+        }
+
+        NGBook site = keyToSite.get(key);
+        if (site == null) {
+            throw new NGException("nugen.exception.book.not.found", new Object[] { key });
+        }
+        File siteFile = site.getFilePath();
+        if (siteFile==null) {
+        	throw new Exception("Site does not have a file???");
+        }
+        //throw it out of the cache
+        unregisterSite(key);
+        site = NGBook.readSiteAbsolutePath(siteFile);
+        registerSite(site);
+        return site;
+    }
+    
+    
     public static NGBook readSiteAbsolutePath(File theFile) throws Exception {
         try {
             if (!theFile.exists()) {
@@ -165,44 +208,21 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return allSites;
     }
 
-    /**
-     * Creates a book with the specified name. Generates the key automatically.
-     */
-    public static NGBook createNewSite(String name) throws Exception {
-        String key = IdGenerator.generateKey();
-        NGBook ngb = createSiteByKey(key, name);
-        registerSite(ngb);
-        return ngb;
-    }
-
     public static void registerSite(NGBook foundSite) throws Exception {
         allSites.add(foundSite);
         keyToSite.put(foundSite.getKey(), foundSite);
     }
-
+    
     /**
-     * Creates the special default book This should be kept in sync with above
-     * routine.
+     * Erase the memory of a particular site
+     * Used when deleting a site
      */
-    private static NGBook createSiteByKey(String key, String name) throws Exception {
-
-        // TODO: this only creates in the main folder. Archaic
-        File theFile = NGPage.getPathInDataFolder(key + ".book");
-        if (theFile.exists()) {
-            throw new NGException("nugen.exception.cant.crete.new.book", new Object[] { key });
-        }
-        Document newDoc = readOrCreateFile(theFile, "book");
-
-        NGBook newBook = new NGBook(theFile, newDoc);
-
-        // set default values
-        newBook.setName(name);
-        newBook.setStyleSheet("PageViewer.css");
-        newBook.setLogo("logo.gif");
-        newBook.setDescription("");
-
-        return newBook;
+    public static void unregisterSite(String siteKey) throws Exception {
+    	NGBook fSite = keyToSite.get(siteKey);
+        allSites.remove(fSite);
+        keyToSite.remove(siteKey);
     }
+
 
     public void saveSiteAs(String newKey, UserProfile user, String comment) throws Exception {
         try {
@@ -229,30 +249,40 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return key;
     }
 
+    /**
+     * @deprecated
+     */
     public String getName() {
-        String fullName = getFullName();
-        if (fullName != null) {
-            return fullName;
-        }
-
-        return getScalar("name");
+        return getFullName();
     }
 
+    /**
+     * @deprecated
+     */
     public void setName(String newName) {
-        setScalar("name", newName.trim());
+        //setScalar("name", newName.trim());
+    	throw new RuntimeException("The method setName on NGBook is deprecated and should not be used any more.");
     }
 
     public String[] getSiteNames() {
-        if (displayNames == null || displayNames.length < 0) {
-            String name = getFullName();
-            return new String[] { name };
-        }
-        return displayNames;
+        String[] bogusVal = new String[displayNames.size()];
+        displayNames.copyInto(bogusVal);
+        return bogusVal;
     }
 
     public void setSiteNames(String[] newNames) {
+    	if (newNames==null) {
+    		throw new RuntimeException("setSiteNames was passed a null string array");
+    	}
+    	if (newNames.length<1) {
+    		throw new RuntimeException("setSiteNames was passed a zero length string array");
+    	}
         siteInfoRec.setPageNames(newNames);
         displayNames = siteInfoRec.getPageNames();
+        assureNameExists();
+        
+        //schema migration ... clean this out if it exists at this point
+        setScalar("name", null);
     }
 
     public String getStyleSheet() {
@@ -427,7 +457,9 @@ public class NGBook extends ContainerCommon implements NGContainer {
         // set default values
         // TODO: change this to pass a file here
         newBook.setPreferredProjectLocation(newSiteFolder.toString());
-        newBook.setName(name);
+        String[] nameSet = new String[1];
+        nameSet[0] = name;
+        newBook.setSiteNames(nameSet);
         newBook.setStyleSheet("PageViewer.css");
         newBook.setLogo("logo.gif");
 
@@ -435,6 +467,86 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return newBook;
     }
 
+    /**
+     * Note: this is a powerful method.  There is no undo from this.
+     * The site folder, and all containing files are deleted.
+     * You should destroy all projects contained in the site
+     * before calling this.
+     */
+    public static void destroySiteAndAllProjects(NGBook site) throws Exception {
+    	
+    	for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInSite(site.getKey())) {
+	    	//for now, just avoid the project with projects.
+    		throw new Exception("Remove all the projects from site '"+site.getKey()+"' before trying to destroy it: "+ngpi.containerKey);
+    	}
+   	
+		File siteFolder = site.getSiteRootFolder();
+		if (siteFolder==null) {
+			throw new Exception("Something is wrong, the site folder is null");
+		}
+		if (!siteFolder.exists()) {
+			throw new Exception("Something is wrong, the parent of the site folder does not exist: "+siteFolder.toString());
+		}
+		
+		File parent = siteFolder.getParentFile();
+		if (parent==null || !parent.exists()) {
+			throw new Exception("Something is wrong, the parent of the site folder does not exist: "+siteFolder.toString());
+		}
+		
+		//be extra careful that this parent is the expected parent, don't delete anything otherwise
+		if (!NGBook.isLibFolder(parent)) {
+			throw new Exception("Something is wrong, the parent of the site folder is not configured as valid library folder: "+siteFolder.toString());
+		}
+		
+		//so now everything looks OK, delete the folder for the project
+		NGBook.unregisterSite(site.getKey());
+		recursivelyDestroyFolder(siteFolder);
+    }
+    
+	private static void recursivelyDestroyFolder(File folder) throws Exception  {
+		if (!folder.exists()) {
+			return;
+		}
+		
+		//listFiles will return a null if it is empty!
+		if (folder.isDirectory()) {
+			File[] children = folder.listFiles();
+			if (children!=null) {
+				for (File child : children) {
+					recursivelyDestroyFolder(child);
+				}
+			}
+		}
+		
+		if (!folder.delete()) {
+			throw new Exception("Unable to delete folder: "+folder.toString());
+		}
+	}
+
+	
+    
+    /**
+     * Tests a passed in folder to verify that it is a valid lib folder
+     */
+    public static boolean isLibFolder(File folder) throws Exception {
+        // where is the site going to go?
+        String[] libFolders = ConfigFile.getArrayProperty("libFolder");
+        if (libFolders.length == 0) {
+            throw new Exception(
+                    "You must have a setting for 'libFolder' in order to create a new site.");
+        }
+
+        for (String oneLib : libFolders) {
+        	
+        	File oneFolder = new File(oneLib);
+        	if (oneFolder.equals(folder)) {
+        		return true;
+        	}
+        }
+        return false;
+    }
+    
+    
     public void setKey(String key) {
         setScalar("key", key.trim());
     }
@@ -461,13 +573,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public String getFullName() {
-        if (displayNames == null) {
-            return getScalar("name");
-        }
-        if (displayNames.length == 0) {
-            return getScalar("name");
-        }
-        return displayNames[0];
+        return displayNames.get(0);
     }
 
     // /////////////// Role Requests/////////////////////

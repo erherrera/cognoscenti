@@ -18,11 +18,17 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.rest;
 
 import org.w3c.dom.Document;
+import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.DOMFace;
+import org.socialbiz.cog.DOMUtils;
+import org.socialbiz.cog.License;
 import org.socialbiz.cog.NGPage;
+import org.socialbiz.cog.NoteRecord;
+import org.socialbiz.cog.UtilityMethods;
 
 public class CaseExchange {
     AuthRequest ar;

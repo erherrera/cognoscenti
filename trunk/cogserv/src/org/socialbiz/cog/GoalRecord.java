@@ -975,7 +975,7 @@ public class GoalRecord extends BaseRecord {
         NGBook site = ngp.getSite();
         String siteRoot = baseURL + "api/" + ngp.getSiteKey() + "/$/?lic=" + lfu.getId();
         thisGoal.put("siteinfo", siteRoot);
-        thisGoal.put("sitename", site.getName());
+        thisGoal.put("sitename", site.getFullName());
         thisGoal.put("ui", uiUrl);
         return thisGoal;
     }

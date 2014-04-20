@@ -24,11 +24,11 @@ import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.DOMUtils;
-import org.socialbiz.cog.HTMLWriter;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.SectionTask;
 import org.socialbiz.cog.GoalRecord;
+import org.workcast.streams.HTMLWriter;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;

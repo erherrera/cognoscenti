@@ -2,7 +2,7 @@
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@page import="org.socialbiz.cog.IDRecord"
 %><%@page import="org.socialbiz.cog.NotificationRecord"
-%><%@page import="org.socialbiz.cog.RssServlet"
+%><%@page import="org.socialbiz.cog.rest.RssServlet"
 %><%@page import="org.socialbiz.cog.SectionWiki"
 %><%@page import="org.socialbiz.cog.SuperAdminLogFile"
 %><%@page import="org.socialbiz.cog.TemplateRecord"

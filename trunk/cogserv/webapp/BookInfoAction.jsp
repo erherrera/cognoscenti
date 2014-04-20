@@ -24,7 +24,6 @@
     }
     ngb.setStyleSheet(styleSheet);
     ngb.setLogo(logo);
-    ngb.setName(bookname);
     ngb.setDescription(desc);
     ngb.setPreferredProjectLocation(ar.defParam("prefLoc", null));
     ngb.saveFile(ar, "Site Info Action");

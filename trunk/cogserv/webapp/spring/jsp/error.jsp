@@ -4,7 +4,7 @@
 %><%@include file="/spring/jsp/include.jsp"
 %><%@page import="org.socialbiz.cog.exception.NGException"
 %><%@page import="org.socialbiz.cog.AuthRequest"
-%><%@page import="org.socialbiz.cog.HTMLWriter"
+%><%@page import="org.workcast.streams.HTMLWriter"
 %><%@page import="org.socialbiz.cog.ErrorLog"
 %><%@page import="org.socialbiz.cog.ErrorLogDetails"
 %><%@page import="java.io.PrintWriter"

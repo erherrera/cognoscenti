@@ -6,7 +6,7 @@
 %><%@page import="org.socialbiz.cog.NGPage"
 %><%@page import="org.socialbiz.cog.NGPageIndex"
 %><%@page import="org.socialbiz.cog.SectionUtil"
-%><%@page import="org.socialbiz.cog.RssServlet"
+%><%@page import="org.socialbiz.cog.rest.RssServlet"
 %><%@page import="org.socialbiz.cog.NGSection"
 %><%@page import="org.socialbiz.cog.NGSession"
 %><%@page import="org.socialbiz.cog.SectionDef"
