@@ -1,6 +1,6 @@
 <%@page isErrorPage="true"%><%@page import="java.io.PrintWriter"
 %><%@ include file="/spring/jsp/include.jsp"
-%><%@page import="org.socialbiz.cog.HTMLWriter"
+%><%@page import="org.workcast.streams.HTMLWriter"
 %>
 
 <!-- -->

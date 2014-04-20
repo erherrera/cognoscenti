@@ -115,7 +115,7 @@ public class BookInfoRecord  extends DOMFace
     }
 
 
-    String[] getPageNames() {
+    public Vector<String> getPageNames() {
         Vector<String> vc = getVector("bookName");
         Vector<String> vccleaned = new Vector<String>();
         for (String chl : vc) {
@@ -124,10 +124,7 @@ public class BookInfoRecord  extends DOMFace
                 vccleaned.add(aName);
             }
         }
-
-        String[] displayNames = new String[vccleaned.size()];
-        vccleaned.copyInto(displayNames);
-        return displayNames;
+        return vccleaned;
     }
 
     public void setPageNames(String[] newNames)

@@ -334,7 +334,7 @@ public class WikiToPDF
         setH1Font();
         currentLineSize = 8;  //but really small
         newLine();
-        writeWrappedLine("Project: "+ngp.getFullName()+", Site: "+book.getName());
+        writeWrappedLine("Project: "+ngp.getFullName()+", Site: "+book.getFullName());
         newLine();
         writeWrappedLine("Last modified by:  "+lastEditor+" on "+editTime);
 

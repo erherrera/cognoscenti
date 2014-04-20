@@ -1,6 +1,6 @@
 <%@page contentType="text/html;charset=UTF-8" pageEncoding="ISO-8859-1"
 %><%@page isErrorPage="true"
-%><%@page import="org.socialbiz.cog.HTMLWriter"
+%><%@page import="org.workcast.streams.HTMLWriter"
 %><%@page import="java.io.PrintWriter"
 %><%
     ar = AuthRequest.getOrCreate(request, response, out);

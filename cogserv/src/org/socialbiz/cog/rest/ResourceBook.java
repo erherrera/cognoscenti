@@ -25,12 +25,15 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.DOMUtils;
+import org.socialbiz.cog.IdGenerator;
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.UtilityMethods;
+
 import java.util.Hashtable;
 import java.util.Vector;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -92,7 +95,10 @@ public class ResourceBook implements NGResource
             lrstatus.setStatusCode(404);
             throw new NGException ("nugen.exception.book.name.cant.be.empty",null);
         }
-        NGBook ngb = NGBook.createNewSite(name);
+        //should really come up with a better key than this,
+        //but I don't think this old code is used any more so just keep it working.
+        String key = IdGenerator.generateKey();
+        NGBook ngb = NGBook.createNewSite(key, name);
         updateBook(ngb);
         ngb.saveSiteAs(ngb.getKey(), lar.getUserProfile(), "ResourceBook modification 2");
 
@@ -145,9 +151,13 @@ public class ResourceBook implements NGResource
         Element element_book = findElement(lindoc.getDocumentElement(), "book");;
 
         String name = DOMUtils.textValueOfChild(element_book, "name", true);
-        if(name != null && name.length() > 0)
-        {
-            ngb.setName(name);
+        if(name != null && name.length() > 0){
+        	//this piece of code needs to do something differently
+        	//I think this is left over, unused functionality from when "books" 
+        	//were transferred over a web protocol, but this is no longer used
+        	//if it IS used, then figure out the intend of this setting at that time.
+        	//it used to call 'setName' here.
+            throw new Exception("There is no scalar name of a site any more, so attempt to set it should probably do something else.");
         }
 
         String logo = DOMUtils.textValueOfChild(element_book, "logo", true);

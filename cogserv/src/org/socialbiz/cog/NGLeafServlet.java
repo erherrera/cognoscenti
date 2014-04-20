@@ -23,6 +23,7 @@ package org.socialbiz.cog;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.rest.ResourceLocater;
+import org.workcast.streams.HTMLWriter;
 import java.io.File;
 import java.io.PrintWriter;
 import java.net.URLEncoder;

@@ -5,7 +5,7 @@
 %><%@page import="org.socialbiz.cog.spring.SiteRequest"
 %><%@page import="org.socialbiz.cog.SuperAdminLogFile"
 %><%@page import="org.socialbiz.cog.EmailSender"
-%><%@page import="org.socialbiz.cog.HTMLWriter"
+%><%@page import="org.workcast.streams.HTMLWriter"
 %><%@page import="java.io.PrintWriter"
 %><%@page import="java.io.FileInputStream"
 %><%/*

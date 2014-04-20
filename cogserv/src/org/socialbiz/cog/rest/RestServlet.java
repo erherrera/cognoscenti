@@ -81,24 +81,4 @@ public class RestServlet extends javax.servlet.http.HttpServlet {
         }
         ar.logCompletedRequest();
     }
-/*
-    private void doAuthenticatedGet(AuthRequest ar) {
-        //if this servlet is mapped with /r/*
-        //getPathInfo return only the path AFTER the r
-        String path = ar.req.getPathInfo();
-        // TEST: check to see that the servlet path starts with /
-        if (!path.startsWith("/")) {
-            throw new ProgramLogicError("Path should start with / but instead it is: "
-                            + path);
-        }
-
-        int slashPos = path.indexOf("/",1);
-        if (slashPos<1) {
-            throw new ProgramLogicError("Path should start with / but instead it is: "
-                    + path);
-
-        }
-
-    }
-    */
 }

@@ -18,12 +18,19 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.rest;
 
 import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.BaseRecord;
+import org.socialbiz.cog.ConfigFile;
 import org.socialbiz.cog.DOMUtils;
+import org.socialbiz.cog.GoalRecord;
+import org.socialbiz.cog.NGContainer;
+import org.socialbiz.cog.NGPageIndex;
+import org.socialbiz.cog.SectionUtil;
 import org.socialbiz.cog.UtilityMethods;
-import org.socialbiz.cog.rest.TaskHelper;
+import org.workcast.streams.HTMLWriter;
+
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -32,8 +39,10 @@ import java.net.URLEncoder;
 import java.net.URLDecoder;
 import java.util.Properties;
 import java.util.Vector;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
