@@ -112,18 +112,4 @@ public class SectionPoll extends SectionUtil implements SectionFormat
     {
         throw new RuntimeException("Polls are no longer supported.");
     }
-
-
-
-    public String editButtonName()
-    {
-        return "Polls are no longer supported";
-    }
-
-    public boolean isEmpty(NGSection section) throws Exception
-    {
-        return false;
-    }
-
-
 }

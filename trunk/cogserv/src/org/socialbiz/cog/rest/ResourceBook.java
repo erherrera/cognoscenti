@@ -217,7 +217,7 @@ public class ResourceBook implements NGResource
 
             //Adding name element
             DOMUtils.createChildElement(
-                loutdoc, element_book, "name", ngb.getName());
+                loutdoc, element_book, "name", ngb.getFullName());
 
             //Adding description element
             DOMUtils.createChildElement(

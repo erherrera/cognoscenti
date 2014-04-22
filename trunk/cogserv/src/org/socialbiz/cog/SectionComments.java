@@ -112,11 +112,6 @@ public class SectionComments extends SectionWiki {
         writePlainTextForComments(section, out);
     }
 
-    public String editButtonName() {
-        return "Create Note";
-    }
-
-
     public void findLinks(Vector<String> v, NGSection section) throws Exception {
 
         NoteRecord[] cRecs = getLeaflets(section);
@@ -128,24 +123,6 @@ public class SectionComments extends SectionWiki {
                 scanLineForLinks(thisLine, v);
             }
         }
-    }
-
-    /**
-     * comments cna appear at multiple levels, and so the comments section must
-     * appear on all pages ... public, member, admin, and private
-     */
-    public boolean appearsAtMultipleLevels() {
-        return true;
-    }
-
-    public boolean isEmpty(NGSection section) throws Exception {
-        return (null == DOMUtils.getFirstNodeByTagName(section.getElement(),
-                LEAFLET_NODE_NAME));
-    }
-
-    // not a wiki tag, don't convert to a wiki tag.
-    public boolean isJustText() {
-        return false;
     }
 
     /**

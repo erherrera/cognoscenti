@@ -76,15 +76,6 @@ public class SectionFolders extends SectionUtil implements SectionFormat {
 
     }
 
-    public boolean isEmpty(NGSection section) throws Exception {
-        throw new ProgramLogicError("Method Not implemented");
-    }
-
-    public String editButtonName() {
-        return "Mount";
-    }
-
-
     public void displaySubFolder(AuthRequest ar, NGPage ngp, NGSection section,
             String folderId) throws Exception {
         throw new ProgramLogicError("Method Not implemented");

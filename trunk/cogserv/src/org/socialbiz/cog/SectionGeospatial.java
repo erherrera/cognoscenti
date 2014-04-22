@@ -60,9 +60,4 @@ public class SectionGeospatial extends SectionUtil implements SectionFormat
         section.getElement().appendChild(tempNode);
     }
 
-    public boolean isEmpty(NGSection section) throws Exception
-    {
-        return false;
-    }
-
 }

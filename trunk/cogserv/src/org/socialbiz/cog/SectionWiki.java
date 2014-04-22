@@ -148,20 +148,6 @@ public class SectionWiki extends SectionUtil implements SectionFormat {
     }
 
     /**
-     * get the text and return whether there is any non-white-space
-     */
-    public boolean isEmpty(NGSection section) throws Exception {
-        String sectionValue = section.asText().trim();
-        return (sectionValue.length() == 0);
-    }
-
-    // returns true so that this type gets migrated to a wiki tag.
-    public boolean isJustText() {
-        return true;
-    }
-
-
-    /**
     * Converts a Wiki section to a note, copying appropriate information
     * from the wiki section to the note.  The idea is that all (displayable)
     * sections will become notes in the future.

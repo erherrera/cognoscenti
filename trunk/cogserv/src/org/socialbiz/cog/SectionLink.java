@@ -107,12 +107,6 @@ public class SectionLink extends SectionWiki
         }
    }
 
-    // returns true so that this type gets migrated to a wiki tag.
-    public boolean isJustText()
-    {
-        return true;
-    }
-
     /**
     * Converts a Link section to a note, converting the links
     * appropriately.  The idea is that all (displayable)

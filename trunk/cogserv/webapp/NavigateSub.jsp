@@ -29,7 +29,7 @@
     }
 
     //this retrieves the process.xml url
-    String sub = SectionUtil.getFullyQualifiedUrl(task.getSub(), request.getContextPath());
+    String sub = getFullyQualifiedUrl(task.getSub(), request.getContextPath());
 
     String dummy = null;
 
@@ -54,3 +54,23 @@
 
     response.sendRedirect(dummy);%>
 <%@ include file="functions.jsp"%>
+<%!
+
+    //IS THIS NEEDED?
+    public static String getFullyQualifiedUrl(String urlFragment,
+            String contextPath) {
+
+        if (urlFragment != null) {
+            // incase of a relative URL name append the context root to the URL.
+            if ((urlFragment.toUpperCase().indexOf("HTTP://") == -1)
+                    && (urlFragment.toUpperCase().indexOf("WWW.") == -1)) {
+                if (!urlFragment.startsWith("/")) {
+                    urlFragment = "/" + urlFragment;
+                }
+                urlFragment = contextPath + urlFragment;
+            }
+        }
+        return urlFragment;
+    }
+    
+%>
