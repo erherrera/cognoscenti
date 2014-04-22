@@ -382,7 +382,7 @@ public class CreateProjectController extends BaseController {
             String loc, String upstream, long nowTime) throws Exception {
         if (!site.primaryOrSecondaryPermission(uProf)) {
             throw new NGException("nugen.exception.not.member.of.account",
-                    new Object[]{site.getName()});
+                    new Object[]{site.getFullName()});
         }
 
         NGPage ngPage = null;
@@ -399,7 +399,7 @@ public class CreateProjectController extends BaseController {
             File siteRoot = site.getSiteRootFolder();
             if (siteRoot == null) {
                 throw new Exception("Failed to create project at specified site because site does "
-                        +"not have a root folder for some reason: "+site.getName());
+                        +"not have a root folder for some reason: "+site.getFullName());
             }
             File expectedLoc = new File(siteRoot, loc);
             if (!expectedLoc.exists()) {

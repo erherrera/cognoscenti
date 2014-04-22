@@ -203,17 +203,6 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
     }
 
     /**
-    * Some sections have a number of smaller pieces, where each piece can appear
-    * at different levels.  This flag returns true is this is the case, and false
-    * it is a normal section that appears only at one level.
-    */
-    public boolean appearsAtMultipleLevels()
-    {
-        return true;
-    }
-
-
-    /**
     * This is a method to find a file, and output the file as a
     * stream of bytes to the request output stream.
     */

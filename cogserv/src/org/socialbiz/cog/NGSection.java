@@ -105,11 +105,6 @@ public class NGSection extends DOMFace
     public String asText()
         throws Exception
     {
-        if (!getFormat().isJustText())
-        {
-            throw new RuntimeException("Oops, asked to get text ilegally from "+getName()+" which is type "+getFormat().getName());
-        }
-
         // Added June 2009
         // Need for migration.  Originally the wiki
         // source was placed directly in the section tag, while for other
@@ -139,11 +134,6 @@ public class NGSection extends DOMFace
     public void setText(String textValue, AuthRequest ar)
         throws Exception
     {
-        //setting the text on the wrong type of section would be bad
-        if (!getFormat().isJustText())
-        {
-            throw new RuntimeException("Oops, asked to get text ilegally from "+getName()+" which is type "+getFormat().getName());
-        }
         if (fEle==null)
         {
             throw new RuntimeException("Why is the fEle variable null?????");
@@ -168,15 +158,6 @@ public class NGSection extends DOMFace
     public boolean isDeprecated()
     {
         return def.deprecated;
-    }
-
-    /**
-    * Returns 'true' is the section has no content at this time.
-    */
-    public boolean isEmpty() throws Exception
-    {
-        SectionFormat sf = def.format;
-        return sf.isEmpty(this);
     }
 
     public void findLinks(Vector<String> v)

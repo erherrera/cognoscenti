@@ -413,12 +413,175 @@ public class WikiConverter
     }
 
 
-    public void outputProperLink(String linkURL)
-        throws Exception
-    {
-        SectionUtil.outputLink(ar, linkURL);
-    }
+	public void outputProperLink(String linkURL) throws Exception {
+		outputLink(ar, linkURL);
+	}
 
+    /**
+    * outputLink does the job of parsing the "wiki link" value and
+    * producing a valid HTML link to the desire thing.
+    * Wiki Link values may have a vertical bar character separating the
+    * display name of the link from the address.  If that vertical bar is
+    * not there, then the entire thing is taken as an address.
+    *
+    * Either    [ link-name | link-address ]
+    * or        [ link-address ]
+    *
+    * The address can either be the name of another page, or an HTTP hyperlink.
+    * If the address is missing or invalid (no page can be named that)
+    * then the display name is written without being a hyper link.
+    * If the address is to an external page, then a normal hyperlink is made.
+    * If the address is the name of a wiki page, then a hyperlink to that
+    * page is made.  If the address is a valid name, but no page exists
+    * with that name, then a link to the "CreatePage" function is created.
+    *
+    * The name part of the link
+    */
+	private static void outputLink(AuthRequest ar, String linkURL)
+			throws Exception {
+		boolean isImage = linkURL.startsWith("IMG:");
+
+		int barPos = linkURL.indexOf("|");
+		String linkName = linkURL.trim();
+		String linkAddr = linkName;
+		boolean userSpecifiedName = false;
+
+		if (barPos >= 0) {
+			linkName = linkURL.substring(0, barPos).trim();
+			linkAddr = linkURL.substring(barPos + 1).trim();
+			userSpecifiedName = true;
+		}
+
+		// We treat any address that has forward slashes in it as an external
+		// address which is included literally into the href.
+		boolean isExternal = (linkAddr.startsWith("http") && linkAddr.indexOf("/") >= 0);
+		boolean pageExists = true;
+		String specialGraphic = null;
+		String target = null;
+		String titleValue = linkURL;
+		if (isExternal) {
+			target = "_blank";
+			titleValue = "This link leads to an external page";
+		}
+
+		// if the link is missing, then just write the name out
+		// might also include an indicator of the problem ....
+		if (linkAddr.length() == 0) {
+			ar.writeHtml(linkName);
+			return;
+		}
+
+		if (!isExternal) {
+			// if the sanitized version of the link is empty, which might happen
+			// if
+			// the link was all punctuation, then just write the name out
+			// might also include an indicator of the problem ....
+			String sanitizedName = SectionWiki.sanitize(linkAddr);
+			if (sanitizedName.length() == 0) {
+				ar.writeHtml(linkName);
+				return;
+			}
+
+			Vector<NGPageIndex> foundPages = NGPageIndex
+					.getPageIndexByName(linkAddr);
+			if (foundPages.size() == 1) {
+				NGPageIndex foundPI = foundPages.firstElement();
+				linkAddr = ar.baseURL
+						+ ar.getResourceURL(foundPI, "public.htm");
+				if (!userSpecifiedName) {
+					linkName = foundPI.containerName; // use the best name for
+														// page
+				}
+				titleValue = "Navigate to the project: " + linkName;
+				pageExists = !foundPI.isDeleted;
+				specialGraphic = "deletedLink.gif";
+			} else if (foundPages.size() == 0) {
+				pageExists = false;
+				specialGraphic = "createicon.gif";
+				NGPage sourcePage = (NGPage) ar.ngp;
+				String bookName = "mainbook";
+				String sourceName = "main";
+				if (sourcePage != null) {
+					sourceName = sourcePage.getFullName();
+					NGBook ngb = sourcePage.getSite();
+					if (ngb != null) {
+						bookName = ngb.getKey();
+					}
+				}
+				titleValue = "Project does not exist, but click here to create one.";
+
+				if (ar.isNewUI() && ar.isLoggedIn()) {
+					linkAddr = "javascript:brokenLink(" + isImage + ",'"
+							+ linkName + "','" + linkAddr + "')";
+				} else {
+					linkAddr = ar.retPath + "CreatePage.jsp?pt="
+							+ SectionUtil.encodeURLData(linkAddr) + "&b="
+							+ SectionUtil.encodeURLData(bookName) + "&s="
+							+ SectionUtil.encodeURLData(sourceName);
+				}
+			} else {
+				// this is the case where there is more than one page
+				linkAddr = ar.retPath + "Disambiguate.jsp?n="
+						+ SectionUtil.encodeURLData(linkAddr);
+				titleValue = "There is more than one project named " + linkAddr;
+
+			}
+		}
+		if (isImage) {
+			linkName = linkName.substring(4);
+			if (pageExists) {
+				ar.write("<a href=\"");
+				ar.writeHtml(linkAddr);
+				ar.write("\" title=\"");
+				ar.writeHtml(titleValue);
+				ar.write("\">");
+				ar.write("<img src=\"");
+				ar.writeHtml(linkName);
+				ar.write("\"/>");
+				ar.write("</a>");
+			} else {
+				ar.write("<img src=\"");
+				ar.writeHtml(linkName);
+				ar.write("\"/>");
+			}
+		} else // not an image
+		{
+			if (pageExists) {
+				ar.write("<a href=\"");
+				ar.writeHtml(linkAddr);
+				ar.write("\" title=\"");
+				ar.writeHtml(titleValue);
+				if (target != null) {
+					ar.write("\" target=\"");
+					ar.writeHtml(target);
+				}
+				ar.write("\">");
+				ar.writeHtml(linkName);
+				ar.write("</a>");
+			} else if (!ar.isLoggedIn() || ar.isStaticSite()) {
+				// if page does not exist, and you are not logged in, then
+				// simply display
+				// the name without making it a link. Anonymous people will only
+				// see
+				// links (within the wiki) that work.
+				ar.writeHtml(linkName);
+			} else {
+				ar.write("<a href=\"");
+				ar.writeHtml(linkAddr);
+				ar.write("\" title=\"");
+				ar.writeHtml(titleValue);
+				ar.write("\">");
+				ar.writeHtml(linkName);
+				// the icon indicates condition of page
+				ar.write("<img src=\"");
+				ar.write(ar.retPath);
+				ar.write(specialGraphic);
+				ar.write("\"/>");
+				ar.write("</a>");
+			}
+		}
+
+	}
 
     /**
     * Given a block of wiki formatted text, this will strip out all the

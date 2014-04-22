@@ -24,6 +24,7 @@ import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.GoalRecord;
+import org.socialbiz.cog.IdGenerator;
 import org.socialbiz.cog.License;
 import org.socialbiz.cog.LicenseForUser;
 import org.socialbiz.cog.MimeTypes;
@@ -32,12 +33,12 @@ import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.NoteRecord;
-import org.socialbiz.cog.SectionUtil;
 import org.socialbiz.cog.SectionWiki;
 import org.socialbiz.cog.ServerInitializer;
 import org.socialbiz.cog.UserRef;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.WikiConverter;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -303,7 +304,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         responseOK.put("license", getLicenseInfo(resDec.lic));
 
         if ("tempFile".equals(op)) {
-            String fileName = "~tmp~"+SectionUtil.getNewKey()+"~tmp~";
+            String fileName = "~tmp~"+IdGenerator.generateKey()+"~tmp~";
             responseOK.put("tempFileName", fileName);
             responseOK.put("tempFileURL", urlRoot + "temp/" + fileName);
             return responseOK;
@@ -455,7 +456,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/$/?lic="+licenseId;
         root.put("siteinfo", urlRoot);
 //        root.put("hostinfo", ar.baseURL + "api/$/$/");
-        root.put("name", resDec.site.getName());
+        root.put("name", resDec.site.getFullName());
         root.put("id", resDec.site.getKey());
         root.put("deleted", resDec.site.isDeleted());
         root.put("frozen", resDec.site.isFrozen());
@@ -488,7 +489,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/" + resDec.projId + "/";
         root.put("projectname", ngp.getFullName());
         root.put("projectinfo", urlRoot+"?lic="+resDec.licenseId);
-        root.put("sitename", site.getName());
+        root.put("sitename", site.getFullName());
 
         LicenseForUser lfu = LicenseForUser.getUserLicense(resDec.lic);
         String siteRoot = ar.baseURL + "api/" + resDec.siteId + "/$/?lic="+lfu.getId();

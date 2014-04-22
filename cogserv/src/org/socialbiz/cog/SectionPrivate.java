@@ -49,18 +49,6 @@ public class SectionPrivate extends SectionWiki
     }
 
 
-    public boolean isEmpty(NGSection section) throws Exception
-    {
-        return false;
-    }
-
-    // not a wiki tag, don't convert to a wiki tag.
-    public boolean isJustText()
-    {
-        return false;
-    }
-
-
     /**
     * Converts a Wiki section to a note, copying appropriate information
     * from the wiki section to the note.  The idea is that all (displayable)

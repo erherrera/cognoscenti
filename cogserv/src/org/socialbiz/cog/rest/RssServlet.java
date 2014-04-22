@@ -27,7 +27,6 @@ import org.socialbiz.cog.DOMUtils;
 import org.socialbiz.cog.GoalRecord;
 import org.socialbiz.cog.NGContainer;
 import org.socialbiz.cog.NGPageIndex;
-import org.socialbiz.cog.SectionUtil;
 import org.socialbiz.cog.UtilityMethods;
 import org.workcast.streams.HTMLWriter;
 
@@ -200,13 +199,29 @@ public class RssServlet extends javax.servlet.http.HttpServlet
             DOMUtils.createChildElement(doc, itemEle, "ng:process", serverURL + "p/" + ngp.getKey()
                     + "/process.xml");
 
-            String sub = SectionUtil.getFullyQualifiedUrl(tr.getSub(),
+            String sub = getFullyQualifiedUrl(tr.getSub(),
                     serverURL.substring(0, serverURL.length() - 1));
 
             DOMUtils.createChildElement(doc, itemEle, "ng:subprocess", sub);
         }
     }
 
+    private static String getFullyQualifiedUrl(String urlFragment,
+            String contextPath) {
+
+        if (urlFragment != null) {
+            // incase of a relative URL name append the context root to the URL.
+            if ((urlFragment.toUpperCase().indexOf("HTTP://") == -1)
+                    && (urlFragment.toUpperCase().indexOf("WWW.") == -1)) {
+                if (!urlFragment.startsWith("/")) {
+                    urlFragment = "/" + urlFragment;
+                }
+                urlFragment = contextPath + urlFragment;
+            }
+        }
+        return urlFragment;
+    }
+    
     private void initNGPageIndex(HttpServletRequest req) throws Exception {
         Properties props = ConfigFile.getConfigProperties();
         String dataFolder = props.getProperty("dataFolder");

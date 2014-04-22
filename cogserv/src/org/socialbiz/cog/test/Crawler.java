@@ -449,6 +449,8 @@ public class Crawler {
         log.prn(Log.INFO, "\tFound ["+ newAnchorCount + "] new anchors");
     }
 
+    
+    
     private void checkContentType(Page pageToTest) throws Exception
     {
         String contentType = pageToTest.getWebResponse().getContentType();

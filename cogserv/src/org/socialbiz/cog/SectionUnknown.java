@@ -52,15 +52,6 @@ public class SectionUnknown extends SectionWiki {
         // nothing to write
     }
 
-    /**
-     * assume that there is something
-     */
-    public boolean isEmpty(NGSection section) throws Exception
-    {
-        return true;
-    }
-
-
     public NoteRecord convertToLeaflet(NGSection noteSection,
                    NGSection wikiSection) throws Exception
     {

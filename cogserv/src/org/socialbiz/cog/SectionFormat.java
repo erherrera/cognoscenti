@@ -56,31 +56,6 @@ public interface SectionFormat
     public void findIDs(Vector<String> v, NGSection sec) throws Exception;
 
     /**
-    * The top bar of a section has a button, and this is the name of that button.
-    * Defaults to "Edit".
-    */
-    public String editButtonName();
-
-    /**
-    * Some sections have a number of smaller pieces, where each piece can appear
-    * at different levels.  This flag returns true is this is the case, and false
-    * it is a normal section that appears only at one level.
-    */
-    public boolean appearsAtMultipleLevels();
-
-
-    /**
-    * tells whether there is any data stored in this section or not.
-    */
-    public boolean isEmpty(NGSection section) throws Exception;
-
-    /**
-    * Has wiki tag to hold text, and historically the text was directly
-    * in the section tag, and needs to be migrated to the wiki tag.
-    */
-    public boolean isJustText();
-
-    /**
     * In an attempt to convert all the older display section formats to
     * a common Note format, this method will be a format specific way to
     * convert the contents to a NoteRecord and place it with the other notes.
