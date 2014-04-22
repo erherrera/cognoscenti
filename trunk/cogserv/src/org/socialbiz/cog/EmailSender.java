@@ -51,7 +51,6 @@ import javax.servlet.ServletContext;
 
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.spring.SiteRequest;
 import org.socialbiz.cog.spring.NGWebUtils;
 import org.springframework.context.ApplicationContext;
 

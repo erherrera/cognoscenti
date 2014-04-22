@@ -27,9 +27,9 @@ import org.w3c.dom.Element;
 public class AdminEvent extends DOMFace {
 
 
-    public static final String ACCOUNT_CREATED="1";
-    public static final String ACCOUNT_DENIED="2";
-    public static final String NEW_USER_REGISTRATION="3";
+    public static final String SITE_CREATED ="1";
+    public static final String SITE_DENIED = "2";
+    public static final String NEW_USER_REGISTRATION = "3";
 
 
 

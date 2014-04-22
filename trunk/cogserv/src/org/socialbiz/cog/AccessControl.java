@@ -23,8 +23,6 @@ package org.socialbiz.cog;
 import java.net.URLEncoder;
 import java.util.HashMap;
 
-import org.socialbiz.cog.spring.SiteRequest;
-
 public class AccessControl {
 
     //TODO: this is not a good idea, to cache the entire user page for every user

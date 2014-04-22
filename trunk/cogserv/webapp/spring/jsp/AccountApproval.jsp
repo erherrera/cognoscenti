@@ -1,7 +1,7 @@
 <%@page import="org.socialbiz.cog.SiteReqFile"
 %><%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
-%><%@page import="org.socialbiz.cog.spring.SiteRequest"
+%><%@page import="org.socialbiz.cog.SiteRequest"
 %><%/*
 Required parameter:
 

@@ -2,7 +2,7 @@
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="functions.jsp"
 %><%@page import="org.socialbiz.cog.SiteReqFile"
-%><%@page import="org.socialbiz.cog.spring.SiteRequest"
+%><%@page import="org.socialbiz.cog.SiteRequest"
 %><%@page import="org.socialbiz.cog.SuperAdminLogFile"
 %><%@page import="org.socialbiz.cog.EmailSender"
 %><%@page import="org.workcast.streams.HTMLWriter"

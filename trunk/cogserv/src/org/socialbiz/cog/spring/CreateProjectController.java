@@ -21,8 +21,6 @@
 package org.socialbiz.cog.spring;
 
 import java.io.File;
-import java.util.Vector;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,7 +28,7 @@ import org.socialbiz.cog.AgentRule;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.BaseRecord;
 import org.socialbiz.cog.GoalRecord;
-import org.socialbiz.cog.HistoryRecord;
+import org.socialbiz.cog.HistoricActions;
 import org.socialbiz.cog.IdGenerator;
 import org.socialbiz.cog.LicensedURL;
 import org.socialbiz.cog.NGBook;
@@ -42,7 +40,6 @@ import org.socialbiz.cog.SectionWiki;
 import org.socialbiz.cog.UserManager;
 import org.socialbiz.cog.UserPage;
 import org.socialbiz.cog.UserProfile;
-import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.api.ProjectSync;
 import org.socialbiz.cog.api.RemoteProject;
 import org.socialbiz.cog.exception.NGException;
@@ -88,18 +85,11 @@ public class CreateProjectController extends BaseController {
 
             String action = ar.defParam( "action","submit" );
             if(!action.equals( "cancel" )){
-                Vector<String> roleMembers = parseFullname(ar.reqParam("rolemember"));
                 String roleName = ar.reqParam("roleList");
-                for (String newUser : roleMembers) {
-                    page.addPlayerToRole(roleName,newUser);
-                    NGWebUtils.sendInviteEmail( ar, pageId, newUser, roleName );
-                    HistoryRecord.createHistoryRecord(page,newUser,HistoryRecord.CONTEXT_TYPE_PERMISSIONS,
-                            0,HistoryRecord.EVENT_PLAYER_ADDED, ar, roleName);
-                }
-                page.saveFile(ar, "Add New Members ("+roleMembers.size()+") to Role "+roleName);
-
-                String emailIds = ar.reqParam("rolemember");
-                NGWebUtils.updateUserContactAndSaveUserPage(ar, "Add", emailIds);
+                String userList = ar.reqParam("rolemember");
+            	HistoricActions ha = new HistoricActions(ar);
+            	ha.addMembersToRole(page, page.getRoleOrFail(roleName), userList, true);
+                page.saveFile(ar, "Add New Members ("+userList+") to Role "+roleName);
             }
             if(invitedUser.equals( "true" )){
                 modelAndView = new ModelAndView(new RedirectView("projectActiveTasks.htm"));
@@ -111,25 +101,6 @@ public class CreateProjectController extends BaseController {
         }
         return modelAndView;
     }
-
-    private Vector<String> parseFullname(String fullNames) throws Exception {
-
-        Vector<String> assignees = new Vector<String>();
-        String[] fullnames = UtilityMethods.splitOnDelimiter(fullNames, ',');
-        for(int i=0; i<fullnames.length; i++){
-            String fname = fullnames[i];
-            if(!fname.equalsIgnoreCase("")){
-                int bindx = fname.indexOf('<');
-                int length = fname.length();
-                if(bindx > 0){
-                    fname = fname.substring(bindx+1,length-1);
-                }
-                assignees.add(fname);
-            }
-        }
-        return assignees;
-    }
-
 
     @RequestMapping(value = "/getProjectNames.ajax", method = RequestMethod.POST)
     public void getProjectNames(HttpServletRequest request,
