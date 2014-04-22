@@ -18,12 +18,10 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog.spring;
+package org.socialbiz.cog;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import org.socialbiz.cog.DOMFace;
 
 /**
  *
