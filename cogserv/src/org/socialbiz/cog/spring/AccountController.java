@@ -20,24 +20,20 @@
 
 package org.socialbiz.cog.spring;
 
-import java.io.StringWriter;
 import java.net.URLDecoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.socialbiz.cog.AccessControl;
+import org.socialbiz.cog.HistoricActions;
 import org.socialbiz.cog.SiteReqFile;
-import org.socialbiz.cog.AddressListEntry;
-import org.socialbiz.cog.AdminEvent;
-import org.socialbiz.cog.AuthDummy;
 import org.socialbiz.cog.AuthRequest;
-import org.socialbiz.cog.EmailSender;
 import org.socialbiz.cog.LeafletResponseRecord;
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.NoteRecord;
-import org.socialbiz.cog.SuperAdminLogFile;
+import org.socialbiz.cog.SiteRequest;
 import org.socialbiz.cog.UserManager;
 import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.UtilityMethods;
@@ -52,6 +48,35 @@ import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 public class AccountController extends BaseController {
+
+    @RequestMapping(value = "/{userKey}/requestAccount.htm", method = RequestMethod.GET)
+    public ModelAndView requestSite(@PathVariable String userKey,
+            HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            if(!ar.isLoggedIn()){
+                return showWarningView(ar, "message.loginalert.see.page");
+            }
+            if (needsToSetName(ar)) {
+                return new ModelAndView("requiredName");
+            }
+            if (needsToSetEmail(ar)) {
+                return new ModelAndView("requiredEmail");
+            }
+            if (UserManager.getAllSuperAdmins(ar).size()==0) {
+                return showWarningView(ar, "nugen.missingSuperAdmin");
+            }
+
+            ModelAndView modelAndView = new ModelAndView("RequestAccount");
+            request.setAttribute("userKey", userKey);
+            request.setAttribute("pageTitle", "New Site Request Form");
+            request.setAttribute("tabId", "Settings");
+            return modelAndView;
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.account.request.page", null, ex);
+        }
+    }
 
     @RequestMapping(value = "/{userKey}/accountRequests.form", method = RequestMethod.POST)
     public ModelAndView requestNewSite(@PathVariable
@@ -72,10 +97,12 @@ public class AccountController extends BaseController {
                 String accountID = ar.reqParam("accountID");
                 String accountName = ar.reqParam("accountName");
                 String accountDesc = ar.defParam("accountDesc","");
-                SiteRequest accountDetails = SiteReqFile.createNewSiteRequest(accountID,
-                    accountName, accountDesc, ar);
 
-                sendSiteRequestEmail( ar,  accountDetails);
+                HistoricActions ha = new HistoricActions(ar);
+                ha.createNewSiteRequest(accountID, accountName, accountDesc);
+            }
+            else {
+                throw new Exception("Method requestNewSite does not understand the action: "+action);
             }
 
             modelAndView = new ModelAndView(new RedirectView("userAccounts.htm"));
@@ -85,53 +112,46 @@ public class AccountController extends BaseController {
         return modelAndView;
     }
 
-    /**
-     * sends an email to the super admins of the server
-     */
-    private static void sendSiteRequestEmail(AuthRequest ar,
-            SiteRequest accountDetails) throws Exception {
-        StringWriter bodyWriter = new StringWriter();
-        AuthRequest clone = new AuthDummy(ar.getUserProfile(), bodyWriter);
-        clone.setNewUI(true);
-        clone.retPath = ar.baseURL;
-        clone.write("<html><body>\n");
-        clone.write("<table>\n<tr><td>Purpose: &nbsp;</td><td>New Site Request</td></tr>");
-        clone.write("\n<tr><td>Site Name: &nbsp;</td><td>");
-        clone.writeHtml(accountDetails.getName());
-        clone.write("</td></tr>");
-        clone.write("\n<tr><td>Description: &nbsp;</td><td>");
-        clone.writeHtml(accountDetails.getDescription());
-        clone.write("</td></tr>");
-        clone.write("\n<tr><td>Requested By: &nbsp;</td><td>");
-        ar.getUserProfile().writeLink(clone);
-        clone.write("</td></tr>");
-        clone.write("\n<tr><td>Action: &nbsp;</td><td>");
-        clone.write("<a href=\"");
-        clone.write(ar.baseURL);
-        clone.write("v/approveAccountThroughMail.htm?requestId=");
-        clone.write(accountDetails.getRequestId());
+    @RequestMapping(value = "/acceptOrDeny.form", method = RequestMethod.POST)
+    public ModelAndView acceptOrDeny(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            if(!ar.isLoggedIn()){
+                return showWarningView(ar, "message.loginalert.see.page");
+            }
+            if (!ar.isSuperAdmin()) {
+                throw new NGException("nugen.exceptionhandling.account.approval.rights",null);
+            }
 
-        UserProfile up = UserManager.getSuperAdmin(ar);
-        if (up != null) {
-            clone.write("&userId=");
-            clone.write(up.getKey());
+            String requestId = ar.reqParam("requestId");
+            SiteRequest siteRequest = SiteReqFile.getRequestByKey(requestId);
+            if (siteRequest==null) {
+                throw new NGException("nugen.exceptionhandling.not.find.account.request",new Object[]{requestId});
+            }
 
-            clone.write("&");
-            clone.write(AccessControl.getAccessSiteRequestParams(
-                    up.getKey(), accountDetails));
+            String action = ar.reqParam("action");
+            String description = ar.defParam("description", "");
+            HistoricActions ha = new HistoricActions(ar);
+            if ("Granted".equals(action)) {
+                ha.completeSiteRequest(siteRequest, true, description);
+            }
+            else if("Denied".equals(action)) {
+                ha.completeSiteRequest(siteRequest, false, description);
+            }
+            else{
+                throw new Exception("Unrecognized action '"+action+"' in acceptOrDeny.form");
+            }
+            
+            //TODO: need a go parameter
+            return new ModelAndView(new RedirectView("requestedAccounts.htm"));
         }
-
-        clone.write("\">Click here to Accept/Deny</a>");
-        clone.write("</td></tr>");
-        clone.write("</table>\n");
-        clone.write("<p>Being a <b>Super Admin</b> of the Cognoscenti console, you have rights to accept or deny this request.</p>");
-        clone.write("</body></html>");
-
-        EmailSender.simpleEmail(NGWebUtils.getSuperAdminMailList(ar), null,
-                "Site Approval for " + ar.getBestUserId(),
-                bodyWriter.toString());
+        catch(Exception ex){
+            throw new NGException("nugen.operation.fail.acceptOrDeny.account.request", null, ex);
+        }
     }
 
+     
     /**
     * This displays the page of site requests that have been made by others
     * and their current status.  Thus, only current executives and owners should see this.
@@ -162,113 +182,6 @@ public class AccountController extends BaseController {
         }
     }
 
-
-    @RequestMapping(value = "/acceptOrDeny.form", method = RequestMethod.POST)
-    public ModelAndView acceptOrDeny(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-
-        ModelAndView modelAndView = null;
-        try{
-            AuthRequest ar = AuthRequest.getOrCreate(request, response);
-
-            String userKey = ar.defParam("userKey", null);
-
-            String requestId = ar.reqParam("requestId");
-            SiteRequest accountDetails = SiteReqFile.getRequestByKey(requestId);
-            if (accountDetails==null) {
-                throw new NGException("nugen.exceptionhandling.not.find.account.request",new Object[]{requestId});
-            }
-
-            boolean canAccess = false;
-
-            if(userKey != null){
-                canAccess = AccessControl.canAccessSiteRequest(ar, userKey, accountDetails);
-            }
-
-            if(!canAccess){
-                if(!ar.isLoggedIn()){
-                    return showWarningView(ar, "message.loginalert.see.page");
-                }
-
-                if (!ar.isSuperAdmin()) {
-                    throw new NGException("nugen.exceptionhandling.account.approval.rights",null);
-                }
-            }
-
-            String action = ar.reqParam("action");
-            String modUser = "";
-            if(ar.getUserProfile() != null){
-                modUser = ar.getUserProfile().getPreferredEmail();
-            }
-            //Assign default member.
-            AddressListEntry ale = new AddressListEntry(accountDetails.getUniversalId());
-            String context=null;
-            String uniqueId=requestId;
-            String description = ar.defParam("description", "");
-            if ("Granted".equals(action)) {
-
-                //Create new Site
-                NGBook ngb = NGBook.createNewSite(accountDetails.getSiteId(), accountDetails.getName());
-                ngb.setKey(accountDetails.getSiteId());
-                ngb.getPrimaryRole().addPlayer(ale);
-                ngb.getSecondaryRole().addPlayer(ale);
-                ngb.setDescription(description);
-
-                ngb.saveFile(ar, "New Site created");
-                NGPageIndex.makeIndex(ngb);
-
-                //Change the status accepted
-                accountDetails.setStatus("Granted");
-                accountDetails.setDescription(description);
-                context = AdminEvent.ACCOUNT_CREATED;
-                uniqueId=ngb.getKey();
-
-            } else if("Denied".equals(action)) {
-                //Change the status Denied
-                accountDetails.setStatus("Denied");
-                //update the description if change
-                accountDetails.setDescription(description);
-                context = AdminEvent.ACCOUNT_DENIED;
-            }else{
-                throw new Exception("Unrecognized action '"+action+"' in acceptOrDeny.form");
-            }
-
-            NGWebUtils.setSiteGrantedEmail( ar, ale.getUserProfile(), accountDetails);
-            SiteReqFile.saveAll();
-
-            if(ar.getUserProfile() != null){
-                modelAndView = new ModelAndView(new RedirectView(ar.retPath+"v/"
-                        +ar.getUserProfile().getKey()+"/userAccounts.htm"));
-            }
-            else{
-                modelAndView = new ModelAndView(new RedirectView("accountRequestResult.htm?requestId="+requestId));
-            }
-            SuperAdminLogFile.createAdminEvent(uniqueId, ar.nowTime,modUser, context);
-
-        }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.acceptOrDeny.account.request", null, ex);
-        }
-        return modelAndView;
-
-    }
-
-    //this URL address is deprecated, but keep the redirect in case someone can stored a URL someplace
-    @RequestMapping(value = "/{siteId}/$/accountHome.htm", method = RequestMethod.GET)
-    public ModelAndView redirectToPublic1(@PathVariable String siteId,
-            HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        ModelAndView modelAndView = new ModelAndView( new RedirectView("public.htm"));
-        return modelAndView;
-    }
-
-    //this URL address is deprecated, but keep the redirect in case someone can stored a URL someplace
-    @RequestMapping(value = "/{siteId}/$/account_public.htm", method = RequestMethod.GET)
-    public ModelAndView redirectToPublic2(@PathVariable String siteId,
-            HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        ModelAndView modelAndView = new ModelAndView( new RedirectView("public.htm"));
-        return modelAndView;
-    }
 
     @RequestMapping(value = "/{siteId}/$/accountListProjects.htm", method = RequestMethod.GET)
     public ModelAndView showSiteTaskTab(@PathVariable String siteId,
@@ -334,9 +247,6 @@ public class AccountController extends BaseController {
                 return modelAndView;
             }
 
-            //request.setAttribute("realRequestURL", ar.getRequestURL());
-            //request.setAttribute("tabId", "Site Projects");
-            //request.setAttribute("pageTitle", site.getFullName());
             return new ModelAndView("convertFolderProject");
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.process.page",
@@ -527,35 +437,6 @@ public class AccountController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{userKey}/requestAccount.htm", method = RequestMethod.GET)
-    public ModelAndView requestSite(@PathVariable String userKey,
-            HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        try{
-            AuthRequest ar = AuthRequest.getOrCreate(request, response);
-            if(!ar.isLoggedIn()){
-                return showWarningView(ar, "message.loginalert.see.page");
-            }
-            if (needsToSetName(ar)) {
-                return new ModelAndView("requiredName");
-            }
-            if (needsToSetEmail(ar)) {
-                return new ModelAndView("requiredEmail");
-            }
-            if (UserManager.getAllSuperAdmins(ar).size()==0) {
-                return showWarningView(ar, "nugen.missingSuperAdmin");
-            }
-
-            ModelAndView modelAndView = new ModelAndView("RequestAccount");
-            request.setAttribute("userKey", userKey);
-            request.setAttribute("pageTitle", "New Site Request Form");
-            request.setAttribute("tabId", "Settings");
-            return modelAndView;
-        }catch(Exception ex){
-            throw new NGException("nugen.operation.fail.account.request.page", null, ex);
-        }
-    }
-
     @RequestMapping(value = "/{siteId}/$/leafletResponse.htm", method = RequestMethod.POST)
     public ModelAndView handleLeafletResponse(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -621,8 +502,9 @@ public class AccountController extends BaseController {
 
             String roleName = ar.reqParam("roleList");
 
-            site.addPlayerToRole(roleName,roleMember);
-            NGWebUtils.sendInviteEmail( ar, siteId, roleMember, roleName );
+        	HistoricActions ha = new HistoricActions(ar);
+        	ha.addMembersToRole(site, site.getRoleOrFail(roleName), roleMember, true);
+            
             site.saveFile(ar, "Add New Member ("+roleMember+") to Role "+roleName);
 
             String emailIds = ar.reqParam("rolemember");

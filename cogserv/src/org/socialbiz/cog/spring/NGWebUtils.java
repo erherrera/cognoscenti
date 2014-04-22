@@ -48,7 +48,6 @@ import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.OptOutAddr;
 import org.socialbiz.cog.OptOutDirectAddress;
-import org.socialbiz.cog.OptOutIndividualRequest;
 import org.socialbiz.cog.OptOutRolePlayer;
 import org.socialbiz.cog.OptOutSuperAdmin;
 import org.socialbiz.cog.RoleRequestRecord;
@@ -219,60 +218,6 @@ public class NGWebUtils {
     }
     */
 
-    public static void sendInviteEmail(AuthRequest ar, String pageId,
-            String emailId, String role) throws Exception {
-        StringWriter bodyWriter = new StringWriter();
-        NGContainer container = NGPageIndex.getContainerByKey(pageId);
-        UserProfile up = UserManager.findUserByAnyId(emailId);
-        AuthRequest clone = new AuthDummy(up, bodyWriter);
-        UserProfile requestingUser = ar.getUserProfile();
-        String dest = null;
-
-        if (up != null) {
-            dest = up.getPreferredEmail();
-            if (dest == null) {
-                // User does not have an email address, so we can't send an
-                // invite.
-                // This does not seems like a situation that we should bomb out
-                // on
-                // So silently return.
-                return;
-            }
-        } else {
-            // first check to see if the passed value looks like an email
-            // address
-            // if not, OK, it may be an Open ID, and simply don't send the email
-            // in that case.
-            if (emailId.indexOf('@') < 0) {
-                // this is not an email address. Simply return silently, can't
-                // send email.
-                return;
-            }
-            dest = emailId;
-        }
-
-        AddressListEntry ale = new AddressListEntry(emailId);
-        OptOutAddr ooa = new OptOutAddr(ale);
-
-        clone.setNewUI(true);
-        clone.retPath = ar.baseURL;
-
-        clone.write("<html><body>\n");
-        clone.write("<p>");
-        requestingUser.writeLink(clone);
-        clone.write(" has added you to the '");
-        clone.writeHtml(role);
-        clone.write("' role of the ");
-        container.writeContainerLink(clone, 100);
-        clone.write(" project.</p>");
-        standardEmailFooter(clone, requestingUser, ooa, container);
-        clone.write("</body></html>");
-
-        EmailSender.containerEmail(ooa, container, "Added to " + role
-                + " role of " + container.getFullName(), bodyWriter.toString(),
-                null, new Vector<String>());
-        NGPageIndex.releaseLock(container);
-    }
 
     /**
      * get a list of email assignees for all server super admin users.
@@ -289,52 +234,6 @@ public class NGWebUtils {
                     "nugen.exceptionhandling.account.no.super.admin", null);
         }
         return sendTo;
-    }
-
-
-
-    public static void setSiteGrantedEmail(AuthRequest ar,
-            UserProfile owner, SiteRequest accountDetails) throws Exception {
-        StringWriter bodyWriter = new StringWriter();
-        AuthRequest clone = new AuthDummy(ar.getUserProfile(), bodyWriter);
-        clone.setNewUI(true);
-        clone.retPath = ar.baseURL;
-        clone.write("<html><body>\n");
-        clone.write("<p>This message was sent automatically from Cognoscenti to keep you up ");
-        clone.write("to date on the status of your Site.</p>");
-        clone.write("\n<table>");
-        clone.write("\n<tr><td>Purpose: &nbsp;</td><td>You requested a new account</td></tr>\n");
-
-        if (ar.getUserProfile() != null) {
-            clone.write("<tr><td>Updated by: &nbsp;</td><td>");
-            clone.getUserProfile().writeLink(clone);
-        }
-
-        clone.write("</td></tr>");
-        clone.write("\n<tr><td>Result: &nbsp;</td><td>");
-        clone.writeHtml(accountDetails.getStatus());
-        clone.write("</td></tr>");
-        clone.write("\n<tr><td>Site Name: &nbsp;</td><td><a href=\"");
-        clone.write(ar.baseURL);
-        clone.write("v/approveAccountThroughMail.htm?requestId=");
-        clone.write(accountDetails.getRequestId());
-        clone.write("\">");
-        clone.writeHtml(accountDetails.getName());
-        clone.write("</a></td></tr>");
-        clone.write("\n<tr><td>Description: &nbsp;</td><td>");
-        clone.writeHtml(accountDetails.getDescription());
-        clone.write("</td></tr>");
-        clone.write("\n<tr><td>Requested by: &nbsp; </td><td>");
-        owner.writeLink(clone);
-        clone.write("</td></tr>\n</table>\n</body></html>");
-
-        Vector<OptOutAddr> v = new Vector<OptOutAddr>();
-        v.add(new OptOutIndividualRequest(new AddressListEntry(owner
-                .getUniversalId())));
-
-        EmailSender.simpleEmail(v, null,
-                "Site Approval for " + owner.getName(),
-                bodyWriter.toString());
     }
 
 

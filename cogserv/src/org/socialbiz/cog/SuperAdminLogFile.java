@@ -73,7 +73,7 @@ public class SuperAdminLogFile extends DOMFile {
                 AdminEvent.class);
         List<NGBook> newSites = new ArrayList<NGBook>();
         for (AdminEvent event : allEvents) {
-            if (event.getContext().equals(AdminEvent.ACCOUNT_CREATED)) {
+            if (event.getContext().equals(AdminEvent.SITE_CREATED)) {
                 NGBook site = (NGBook) NGPageIndex.getContainerByKey(event
                         .getObjectId());
                 if (site!=null) {

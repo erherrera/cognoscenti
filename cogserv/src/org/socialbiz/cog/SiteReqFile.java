@@ -26,10 +26,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.w3c.dom.Document;
-
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.spring.SiteRequest;
 
 /**
  * Holds New Site Requests

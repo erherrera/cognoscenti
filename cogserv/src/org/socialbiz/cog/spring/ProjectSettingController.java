@@ -21,18 +21,16 @@
 package org.socialbiz.cog.spring;
 
 import java.util.List;
-import java.util.Vector;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.HistoricActions;
 import org.socialbiz.cog.HistoryRecord;
 import org.socialbiz.cog.NGContainer;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGRole;
-import org.socialbiz.cog.RoleRequestRecord;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
@@ -119,7 +117,6 @@ public class ProjectSettingController extends BaseController {
             NGPage ngp = registerRequiredProject(ar, siteId, pageId);
 
             String r  = ar.reqParam("r");   //role name
-            boolean sendEmail  = ar.defParam("sendEmail", null)!=null;
             String op = ar.reqParam("op");  //operation: add or remove
             String go = ar.reqParam("go");  //where to go afterwards
 
@@ -202,22 +199,11 @@ public class ProjectSettingController extends BaseController {
             }
             else if(op.equals("Add Member"))
             {
-                Vector<AddressListEntry> emailList = AddressListEntry.parseEmailList(id);
-                for (AddressListEntry addressListEntry : emailList) {
-                    eventType = HistoryRecord.EVENT_PLAYER_ADDED;
-                    pageSaveComment = "added user "+addressListEntry.getUniversalId()+" to role "+r;
-
-                    RoleRequestRecord roleRequestRecord = ngp.getRoleRequestRecord(role.getName(),
-                            addressListEntry.getUniversalId());
-                    if(roleRequestRecord != null){
-                        roleRequestRecord.setState("Approved");
-                    }
-
-                    role.addPlayerIfNotPresent(addressListEntry);
-                    if (sendEmail) {
-                        NGWebUtils.sendInviteEmail( ar, pageId,  addressListEntry.getEmail(), r );
-                    }
-                }
+            	boolean sendEmail  = ar.defParam("sendEmail", null)!=null;
+            	HistoricActions ha = new HistoricActions(ar);
+    	        eventType = HistoryRecord.EVENT_PLAYER_ADDED;
+                pageSaveComment = "added users to role "+r+": "+id;
+            	ha.addMembersToRole(ngp, role, id, sendEmail);
             }
             else
             {
