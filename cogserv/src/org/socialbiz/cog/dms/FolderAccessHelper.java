@@ -28,8 +28,6 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.AttachmentRecord;
@@ -614,7 +612,7 @@ public class FolderAccessHelper {
     }
 
     public void addFileInRepository(String folderId,
-            String fileName, MultipartFile file) throws Exception {
+            String fileName, byte[] fileContents) throws Exception {
         String id = folderId;
         String rpath = "/";
         int indx = folderId.indexOf('/');
@@ -629,13 +627,13 @@ public class FolderAccessHelper {
         String suffix = fileName + "_temp";
         File tempFile = File.createTempFile(suffix,  ".tmp");
         tempFile.delete();
-        saveToFileFAH(file,tempFile);
+        saveToFileFAH(fileContents,tempFile);
         cType.createNewFile(path, fileName, tempFile);
         tempFile.delete();
 
     }
 
-    public static void saveToFileFAH(MultipartFile file, File destinationFile)
+    private static void saveToFileFAH(byte[] fileContents, File destinationFile)
     throws Exception {
         if (destinationFile == null) {
             throw new IllegalArgumentException(
@@ -652,7 +650,7 @@ public class FolderAccessHelper {
 
         try {
             FileOutputStream fileOut = new FileOutputStream(destinationFile);
-            fileOut.write(file.getBytes());
+            fileOut.write(fileContents);
             fileOut.close();
         } catch (Exception e) {
             throw new NGException("nugen.exception.failed.to.save.file", new Object[]{destinationFile}, e);

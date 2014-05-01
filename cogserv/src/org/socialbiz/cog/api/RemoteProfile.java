@@ -22,10 +22,12 @@ package org.socialbiz.cog.api;
 
 import java.net.URL;
 import java.util.Hashtable;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.socialbiz.cog.BaseRecord;
 import org.socialbiz.cog.RemoteGoal;
+import org.socialbiz.cog.RemoteJSON;
 import org.socialbiz.cog.UserPage;
 
 /**

@@ -25,7 +25,6 @@ import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.socialbiz.cog.AccessControl;
 import org.socialbiz.cog.HistoricActions;
 import org.socialbiz.cog.SiteReqFile;
 import org.socialbiz.cog.AuthRequest;
@@ -112,7 +111,7 @@ public class AccountController extends BaseController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "/acceptOrDeny.form", method = RequestMethod.POST)
+    @RequestMapping(value = "/{userKey}/acceptOrDeny.form", method = RequestMethod.POST)
     public ModelAndView acceptOrDeny(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try{
@@ -120,8 +119,8 @@ public class AccountController extends BaseController {
             if(!ar.isLoggedIn()){
                 return showWarningView(ar, "message.loginalert.see.page");
             }
-            if (!ar.isSuperAdmin()) {
-                throw new NGException("nugen.exceptionhandling.account.approval.rights",null);
+            if(!ar.isSuperAdmin()){
+                return showWarningView(ar, "message.superadmin.required");
             }
 
             String requestId = ar.reqParam("requestId");
@@ -142,7 +141,7 @@ public class AccountController extends BaseController {
             else{
                 throw new Exception("Unrecognized action '"+action+"' in acceptOrDeny.form");
             }
-            
+
             //TODO: need a go parameter
             return new ModelAndView(new RedirectView("requestedAccounts.htm"));
         }
@@ -151,7 +150,7 @@ public class AccountController extends BaseController {
         }
     }
 
-     
+
     /**
     * This displays the page of site requests that have been made by others
     * and their current status.  Thus, only current executives and owners should see this.
@@ -298,7 +297,7 @@ public class AccountController extends BaseController {
     }
 
 
-    @RequestMapping(value = "/approveAccountThroughMail.htm", method = RequestMethod.GET)
+    @RequestMapping(value = "/{adminKey}/approveAccountThroughMail.htm", method = RequestMethod.GET)
     public ModelAndView approveSiteThroughEmail(
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
@@ -307,26 +306,19 @@ public class AccountController extends BaseController {
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
 
             String requestId = ar.reqParam("requestId");
-            String userId = ar.defParam("userId", null);
-            boolean canAccess = false;
-            if(userId != null){
-                SiteRequest accountDetails=SiteReqFile.getRequestByKey(requestId);
-                canAccess = AccessControl.canAccessSiteRequest(ar, userId, accountDetails);
+            if(!ar.isLoggedIn()){
+                return showWarningView(ar, "message.loginalert.see.page");
+            }
+            if(!ar.isSuperAdmin()){
+                return showWarningView(ar, "message.superadmin.required");
             }
 
-            if(!canAccess) {
-                if(!ar.isLoggedIn()){
-                    return showWarningView(ar, "message.loginalert.see.page");
-                }
-                throw new Exception("Not able to access.");
-            }
             //Note: the approval page works in two modes.
             //1. if you are super admin, you have buttons to grant or deny
             //2. if you are not super admin, you can see status, but can not change status
 
             modelAndView = new ModelAndView("approveAccountThroughMail");
             modelAndView.addObject("requestId", requestId);
-            modelAndView.addObject("canAccess", String.valueOf(canAccess));
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.account.approve.through.mail", null, ex);
         }
@@ -502,9 +494,9 @@ public class AccountController extends BaseController {
 
             String roleName = ar.reqParam("roleList");
 
-        	HistoricActions ha = new HistoricActions(ar);
-        	ha.addMembersToRole(site, site.getRoleOrFail(roleName), roleMember, true);
-            
+            HistoricActions ha = new HistoricActions(ar);
+            ha.addMembersToRole(site, site.getRoleOrFail(roleName), roleMember, true);
+
             site.saveFile(ar, "Add New Member ("+roleMember+") to Role "+roleName);
 
             String emailIds = ar.reqParam("rolemember");

@@ -51,7 +51,7 @@ Required parameters:
             ar.write("\"></a>");
 
             //Get Localized string
-            NGWebUtils.writeLocalizedHistoryMessage(history, ngp, ar);
+            history.writeLocalizedHistoryMessage(ngp, ar);
             ar.write("<br/>");
             SectionUtil.nicePrintTime(out, history.getTimeStamp(), ar.nowTime);
 

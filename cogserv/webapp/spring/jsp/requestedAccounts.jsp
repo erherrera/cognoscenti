@@ -204,7 +204,7 @@
                                     var requestedby = oRecord.getData("requestedby");
                                     var body = '<div class="generalArea">'+
                                                 '<div class="generalSettings">'+
-                                                '<form id="acceptOrDenyForm" action="<%=ar.retPath%>t/acceptOrDeny.form" method="post" >'+
+                                                '<form id="acceptOrDenyForm" action="acceptOrDeny.form" method="post" >'+
                                                     '<table>'+
                                                         '<tr>'+
                                                             '<td class="gridTableColummHeader">'+

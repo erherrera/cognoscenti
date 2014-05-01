@@ -21,6 +21,7 @@
 package org.socialbiz.cog.spring;
 
 import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.Cognoscenti;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.rest.ServerInitializer;
 import org.socialbiz.cog.util.SSLPatch;
@@ -76,7 +77,7 @@ public class SpringServletWrapper extends HttpServlet
             requestAddr = ar.getCompleteURL();
 
             //test for initialized, and if not redirect to config page
-            if (!ServerInitializer.isRunning()) {
+            if (!Cognoscenti.isInitialized) {
                 try {
                     String configDest = ar.retPath + "init/config.htm?go="
                             +URLEncoder.encode(requestAddr,"UTF-8");
@@ -122,7 +123,7 @@ public class SpringServletWrapper extends HttpServlet
 
             //This should initialize EVERYTHING.  Most importantly, it starts a thread
             //that allows subsequence initializations automatically.
-            ServerInitializer.startTheServer(config, wrappedServlet.getWebApplicationContext());
+            ServerInitializer.startTheServer(config);
         }
         catch (Exception e)
         {

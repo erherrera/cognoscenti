@@ -10,7 +10,7 @@
 %><%@page import="org.socialbiz.cog.api.RemoteProject"
 %><%@page import="org.socialbiz.cog.SectionDef"
 %><%@page import="org.socialbiz.cog.api.ProjectSync"
-%><%@page import="org.socialbiz.cog.SyncStatus"
+%><%@page import="org.socialbiz.cog.api.SyncStatus"
 %><%@page import="org.socialbiz.cog.SectionFormat"
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.StatusReport"

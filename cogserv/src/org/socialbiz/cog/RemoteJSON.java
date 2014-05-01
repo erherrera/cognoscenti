@@ -18,7 +18,7 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog.api;
+package org.socialbiz.cog;
 
 import java.net.HttpURLConnection;
 import java.net.URL;

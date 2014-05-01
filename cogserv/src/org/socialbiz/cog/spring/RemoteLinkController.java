@@ -787,7 +787,7 @@ public class RemoteLinkController extends BaseController {
             }
 
             FolderAccessHelper fah = new FolderAccessHelper(ar);
-            fah.addFileInRepository(folderId, fileName, file);
+            fah.addFileInRepository(folderId, fileName, file.getBytes());
             return redirectBrowser(ar,go);
 
         }catch(Exception ex){

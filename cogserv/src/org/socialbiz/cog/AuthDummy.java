@@ -24,9 +24,6 @@ import java.io.Writer;
 import java.util.Locale;
 import java.util.Properties;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.workcast.streams.NullWriter;
@@ -48,22 +45,21 @@ public class AuthDummy extends AuthRequest
     * If so, it is returned.
     * If not, one will be created and associated with request, then returned
     */
-    public static AuthRequest serverBackgroundRequest()
-    {
+    public static AuthRequest serverBackgroundRequest() {
         return theDummy;
     }
 
 
-    public static void initializeDummyRequest(ServletConfig config)
-        throws Exception
-    {
-        if (!ConfigFile.isInitialized())
-        {
+    public static void clearStaticVariables() {
+    	theDummy = null;
+    }
+    
+    public static void initializeDummyRequest() throws Exception {
+        if (!ConfigFile.isInitialized()) {
             throw new ProgramLogicError("ConfigFile class must be initialized before AuthDummy!");
         }
-        ServletContext sc = config.getServletContext();
         Writer wr = new NullWriter();
-        theDummy = new AuthDummy(sc,wr);
+        theDummy = new AuthDummy(wr);
     }
 
 
@@ -75,7 +71,7 @@ public class AuthDummy extends AuthRequest
     * been called on the request, and you must pass the writer in here
     * so that we can avoid calling this method twice
     */
-    public AuthDummy(ServletContext sc, Writer w)
+    public AuthDummy(Writer w)
     {
         super(w);
     }

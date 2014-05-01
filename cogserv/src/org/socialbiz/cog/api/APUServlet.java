@@ -20,12 +20,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.BaseRecord;
+import org.socialbiz.cog.Cognoscenti;
 import org.socialbiz.cog.GoalRecord;
 import org.socialbiz.cog.License;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.UserProfile;
-import org.socialbiz.cog.rest.ServerInitializer;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -70,7 +70,7 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         try {
             System.out.println("API_GET: "+ar.getCompleteURL());
-            if (!ServerInitializer.isRunning()) {
+            if (!Cognoscenti.isInitialized) {
                 throw new Exception("Server is not ready to handle requests.");
             }
             doAuthenticatedGet(ar);

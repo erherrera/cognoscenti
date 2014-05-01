@@ -222,7 +222,7 @@ public class HistoricActions {
         clone.write("' role of the ");
         container.writeContainerLink(clone, 100);
         clone.write(" project.</p>");
-       // NGWebUtils.standardEmailFooter(clone, requestingUser, ooa, container);
+        // NGWebUtils.standardEmailFooter(clone, requestingUser, ooa, container);
         clone.write("</body></html>");
 
         EmailSender.containerEmail(ooa, container, "Added to " + role
