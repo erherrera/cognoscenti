@@ -23,6 +23,7 @@ import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.Cognoscenti;
 import org.socialbiz.cog.GoalRecord;
 import org.socialbiz.cog.IdGenerator;
 import org.socialbiz.cog.License;
@@ -37,7 +38,6 @@ import org.socialbiz.cog.SectionWiki;
 import org.socialbiz.cog.UserRef;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.WikiConverter;
-import org.socialbiz.cog.rest.ServerInitializer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -113,7 +113,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         try {
             System.out.println("API_GET: "+ar.getCompleteURL());
-            if (!ServerInitializer.isRunning()) {
+            if (!Cognoscenti.isInitialized) {
                 throw new Exception("Server is not ready to handle requests.");
             }
 

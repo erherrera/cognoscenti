@@ -118,6 +118,10 @@ public class EmailListener extends TimerTask{
                  System.out.println("Email listener: no configuration for mail.pop3.password");
                  return;
              }
+             
+             //the same AuthRequest object is used over and over.  Need to 
+             //refresh the time setting for this use so trace shows a good time.
+             ar.nowTime = System.currentTimeMillis();
 
              //now really attempt to read the email.  Errors after this point recorded in file
              handlePOP3Folder();

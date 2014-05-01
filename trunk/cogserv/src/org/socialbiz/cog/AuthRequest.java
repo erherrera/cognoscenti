@@ -33,6 +33,7 @@ import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.servlet.RequestDispatcher;
@@ -45,8 +46,7 @@ import javax.servlet.http.HttpSession;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.exception.ServletExit;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.workcast.streams.HTMLWriter;
 
 /**
 * AuthRequest is the "Authorized Request and Response" class for the
@@ -163,7 +163,6 @@ public class AuthRequest
     private boolean newUI = false;
     private boolean generateStatic = false;
 
-    private static WebApplicationContext webAppCtx = null;
     /**
     * This is the PREFERRED way to create an AuthRequest object.
     * This will check to see if an AuthRequest object has been associated with this request.
@@ -182,9 +181,6 @@ public class AuthRequest
     */
     public static AuthRequest getOrCreate(HttpServletRequest  areq, HttpServletResponse aresp, Writer aw)
     {
-        if(webAppCtx == null){
-            webAppCtx = WebApplicationContextUtils.getWebApplicationContext(areq.getSession().getServletContext());
-        }
         AuthRequest ar = (AuthRequest) areq.getAttribute("AuthRequest");
         if (ar == null)
         {
@@ -1072,9 +1068,7 @@ public class AuthRequest
     * request, this will alow you to write without having to get the
     * output stream and call write on it.
     */
-    public void write(String t)
-        throws Exception
-    {
+    public void write(String t)  throws Exception {
         w.write(t);
     }
 
@@ -1083,76 +1077,17 @@ public class AuthRequest
     * request, this will alow you to write without having to get the
     * output stream and call write on it.
     */
-    public void write(char ch)
-        throws Exception
-    {
+    public void write(char ch) throws Exception {
         w.write(ch);
     }
 
 
-    public void writeHtml(String t)
-        throws Exception
-    {
-        if (t==null)
-        {
-            return;  //treat it like an empty string
-        }
-        for (int i=0; i<t.length(); i++)
-        {
-            char c = t.charAt(i);
-            switch (c)
-            {
-                case '&':
-                    w.write("&amp;");
-                    continue;
-                case '<':
-                    w.write("&lt;");
-                    continue;
-                case '>':
-                    w.write("&gt;");
-                    continue;
-                case '"':
-                    w.write("&quot;");
-                    continue;
-                default:
-                    w.write(c);
-                    continue;
-            }
-        }
+    public void writeHtml(String t)  throws Exception {
+    	HTMLWriter.writeHtml(w, t);
     }
 
-    public void writeHtmlWithLines(String t)
-        throws Exception
-    {
-        if (t==null)
-        {
-            return;  //treat it like an empty string
-        }
-        for (int i=0; i<t.length(); i++)
-        {
-
-            char c = t.charAt(i);
-            switch (c) {
-                case '&':
-                    w.write("&amp;");
-                    continue;
-                case '<':
-                    w.write("&lt;");
-                    continue;
-                case '>':
-                    w.write("&gt;");
-                    continue;
-                case '"':
-                    w.write("&quot;");
-                    continue;
-                case '\n':
-                    w.write("<br/>\n");
-                    continue;
-                default:
-                    w.write(c);
-                    continue;
-            }
-        }
+    public void writeHtmlWithLines(String t) throws Exception {
+    	HTMLWriter.writeHtmlWithLines(w, t);
     }
 
     public void writeURLData(String data)
@@ -1201,82 +1136,15 @@ public class AuthRequest
 
 
     /**
-     * writeJSEncoded makes sure that no quote characters are in the output
+     * writeJS makes sure that no quote characters are in the output
      * and properly escaping backslash character, and converting high
      * characters to a code-point expression.
      */
     public void writeJS(String val)  throws Exception {
-        // passing a null in results a no output, no quotes, nothing
-        if (val == null) {
-            return;
-        }
-        int len = val.length();
-        int startPos = 0;
-        String trans = null;
-        for (int i = 0; i < len; i++) {
-            char ch = val.charAt(i);
-            switch (ch) {
-            case '\"':
-                trans = "\\x22";   //avoid all quotes in output
-                break;
-            case '\\':
-                trans = "\\\\";
-                break;
-            case '\'':
-                trans = "\\x27";   //avoid all quotes in output
-                break;
-            case '\n':
-                trans = "\\n";
-                break;
-            case '\t':
-                trans = "\\t";
-                break;
-            case '\r':
-                trans = "\\r";
-                break;
-            case '\f':
-                trans = "\\f";
-                break;
-            case '\b':
-                trans = "\\b";
-                break;
-            default:
-                if (ch < 128) {
-                    continue;
-                }
-                if (ch < 256) {
-                    char firstHex = hexchars[(ch / 16) % 16];
-                    char secondHex = hexchars[ch % 16];
-                    trans = "\\x" + firstHex + secondHex;
-                }
-                else {
-                    char firstHex = hexchars[(ch / 4096) % 16];
-                    char secondHex = hexchars[(ch / 256) % 16];
-                    char thirdHex = hexchars[(ch / 16) % 16];
-                    char fourthHex = hexchars[ch % 16];
-                    trans = "\\u" + firstHex + secondHex + thirdHex + fourthHex;
-                }
-            }
-            if (trans != null) {
-                if (i > startPos) {
-                    w.write(val.substring(startPos, i));
-                }
-                w.write(trans);
-                startPos = i + 1;
-                trans = null;
-            }
-        }
-        // now write out whatever is left
-        if (len > startPos) {
-            w.write(val.substring(startPos));
-        }
+    	org.workcast.streams.JavaScriptWriter.encode(w, val);
     }
 
-    static char[] hexchars = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
-            '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-
-
+    
     /**
     * sometimes TomCat will fail to decode the parameters as UTF-8
     * because the indication that the parameters are in UTF-8 come
@@ -1736,7 +1604,8 @@ public class AuthRequest
     }
 
     public String getMessageFromPropertyFile(String key, Object[] argumentArray) throws Exception{
-        return webAppCtx.getMessage (key, argumentArray, getLocale());
+    	ResourceBundle labels = ResourceBundle.getBundle("messages", getLocale());
+        return labels.getString(key);
     }
 
     public String getQuote4JS(String val) throws Exception

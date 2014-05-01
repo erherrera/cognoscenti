@@ -26,7 +26,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.socialbiz.cog.api.RemoteJSON;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

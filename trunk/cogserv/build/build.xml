@@ -22,17 +22,16 @@
    <property name="target.dir" value="../targetbuild" />
     <echo message="Target directory # ${target.dir}"/>
 
-    <property name="tgt.warcontents.dir"            value="${target.dir}/cog" />
-    <property name="src.webcontents.dir"            value="${source.dir}/webapp" />
-    <property name="src.java.src.dir"               value="${source.dir}/src"/>
+    <property name="source.dir.webapp"              value="${source.dir}/webapp" />
+    <property name="source.dir.src"                 value="${source.dir}/src"/>
+    <property name="source.dir.gwt"                 value="${source.dir}/gwt"/>
     <property name="src.htmlunit.home.dir"          value="${source.dir}/thirdparty/htmlunit-2.3"/>
     <property name="src.spring.home.dir"            value="${source.dir}/thirdparty/spring-framework-3.0.2.RELEASE"/>
     <property name="src.servletcontainer.home.dir"  value="${source.dir}/thirdparty/servlet-container"/>
-    <property name="src.gwt.dir"                    value="${source.dir}/gwt"/>
-    <property name="tgt.gwt.dir"                    value="${target.dir}/gwt"/>
-    <property name="tgt.package.file"               value="${env.TARGET_DIR}/cog.war" />
+
+    <property name="target.dir.gwt"                 value="${target.dir}/gwt"/>
+    <property name="target.dir.backup"              value="${target.dir}/backup"/>
     <property name="war.file.name"                  value="cog"/>
-    <property name="backup.dir"                     value="${target.dir}/backup"/>
 
     <condition property="autodeploy"                value="${env.AUTO_DEPLOY}">
       <isset property="${env.AUTO_DEPLOY}" />
@@ -46,81 +45,114 @@
   </exec>
 
      <target name="clean">
-        <mkdir dir="${tgt.warcontents.dir}"/>
-        <mkdir dir="${tgt.gwt.dir}"/>
-        <delete failonerror="false" dir="${tgt.warcontents.dir}" />
-        <delete failonerror="false" dir="${tgt.gwt.dir}" />
-        <delete failonerror="false" file="${tgt.package.file}" />
+        <mkdir dir="${target.dir}/cog"/>
+        <mkdir dir="${target.dir.gwt}"/>
+        <delete failonerror="false" dir="${target.dir}/cog" />
+        <delete failonerror="false" dir="${target.dir}/jartemp" />
+        <delete failonerror="false" dir="${target.dir.gwt}" />
+        <delete failonerror="false" file="${target.dir}/cog.war" />
+        <delete failonerror="false" file="${target.dir}/cog.1.jar" />
     </target>
 
 
     <target name="init">
 
         <mkdir dir="${target.dir}"/>
-        <mkdir dir="${tgt.warcontents.dir}"/>
+        <mkdir dir="${target.dir}/cog"/>
 
         <!-- copy cvs webapps directory -->
-        <copy preservelastmodified="true" todir="${tgt.warcontents.dir}">
-            <fileset dir="${src.webcontents.dir}">
+        <copy preservelastmodified="true" todir="${target.dir}/cog">
+            <fileset dir="${source.dir.webapp}">
                 <include name="**/*"/>
             </fileset>
         </copy>
 
         <!-- copy spring jar files -->
-        <copy preservelastmodified="true" todir="${tgt.warcontents.dir}/WEB-INF/lib">
+        <copy preservelastmodified="true" todir="${target.dir}/cog/WEB-INF/lib">
             <fileset dir="${src.spring.home.dir}">
                 <include name="*.jar"/>
             </fileset>
         </copy>
 
         <!-- copy html unit jar files -->
-        <copy preservelastmodified="true" todir="${tgt.warcontents.dir}/WEB-INF/lib">
+        <copy preservelastmodified="true" todir="${target.dir}/cog/WEB-INF/lib">
             <fileset dir="${src.htmlunit.home.dir}/lib">
                 <include name="*.jar"/>
             </fileset>
         </copy>
 
         <!-- copy gwt files -->
-        <copy preservelastmodified="true" todir="${tgt.gwt.dir}/">
-            <fileset dir="${src.gwt.dir}">
+        <copy preservelastmodified="true" todir="${target.dir.gwt}/">
+            <fileset dir="${source.dir.gwt}">
                 <include name="**/*"/>
             </fileset>
         </copy>
 
     </target>
 
-    <target name="compile">
+    <target name="compileJar" depends="init">
+
+        <delete failonerror="false"
+                file="${target.dir}/cog.1.jar" />
+
+        <mkdir dir="${target.dir}/jartemp"/>
 
         <!-- set classpath for compiling the java classes -->
-        <path id="build.classpath">
+        <path id="build.classpathJar">
+            <fileset dir="${target.dir}/cog/WEB-INF/lib">
+                <include name="*.jar" />
+            </fileset>
             <fileset dir="${src.servletcontainer.home.dir}">
-                <include name="*.jar" />
-            </fileset>
-            <fileset dir="${src.spring.home.dir}">
-                <include name="*.jar" />
-            </fileset>
-            <fileset dir="${src.htmlunit.home.dir}/lib">
-                <include name="*.jar" />
-            </fileset>
-            <fileset dir="${tgt.warcontents.dir}/WEB-INF/lib">
                 <include name="*.jar" />
             </fileset>
         </path>
 
-        <javac debug="on" includeAntRuntime="false" nowarn="true" srcdir="${src.java.src.dir}" destdir="${tgt.warcontents.dir}/WEB-INF/classes" includes="**/*">
+        <javac debug="on" includeAntRuntime="false" nowarn="true"
+               srcdir="${source.dir.src}" destdir="${target.dir}/jartemp"
+               includes="org/socialbiz/cog/util/*.java,org/socialbiz/cog/*.java,org/socialbiz/cog/exception/*.java">
+            <classpath refid="build.classpathJar" />
+        </javac>
+
+        <jar destfile="${target.dir}/cog.1.jar"
+             basedir="${target.dir}/jartemp" />
+    </target>
+
+    <target name="compile" depends="compileJar">
+
+        <copy file="${target.dir}/cog.1.jar" todir="${target.dir}/cog/WEB-INF/lib" />
+        <delete failonerror="false"
+                dir="${target.dir}/cog/WEB-INF/lib"
+                includes="**/*.class" />
+
+        <!-- set classpath for compiling the java classes -->
+        <path id="build.classpath">
+            <fileset dir="${target.dir}/cog/WEB-INF/lib">
+                <include name="*.jar" />
+            </fileset>
+            <fileset dir="${target.dir}/cog/WEB-INF/lib">
+                <include name="cog.1.jar" />
+            </fileset>
+            <fileset dir="${src.servletcontainer.home.dir}">
+                <include name="*.jar" />
+            </fileset>
+        </path>
+
+        <javac debug="on" includeAntRuntime="false" nowarn="true"
+               srcdir="${source.dir.src}" destdir="${target.dir}/cog/WEB-INF/classes"
+               includes="org/socialbiz/cog/rest/*.java,org/socialbiz/cog/spring/*.java,org/socialbiz/cog/test/*.java">
             <classpath refid="build.classpath" />
         </javac>
 
-        <ant antfile="build.xml" dir="${tgt.gwt.dir}/gwt-2.0.3/BeWebApp" inheritAll="true"/>
+        <ant antfile="build.xml" dir="${target.dir.gwt}/gwt-2.0.3/BeWebApp" inheritAll="true"/>
         <!-- Backup important files -->
         <antcall target="backup"/>
 
     </target>
 
-    <target name="package" depends="clean, init, compile">
-        <war destfile="${tgt.package.file}" needxmlfile="false" basedir="${tgt.warcontents.dir}"/>
+  <target name="package" depends="clean, init, compile">
+    <war destfile="${target.dir}/cog.war" needxmlfile="false" basedir="${target.dir}/cog"/>
     <antcall target="deploy"/>
-    </target>
+  </target>
 
   <target name="check-cond">
     <condition property="cond-is-true">
@@ -129,26 +161,25 @@
   </target>
 
 
-   <target name="deploy" depends="check-cond" if="cond-is-true">
-  <echo message="Deleting ${env.CATALINA_HOME}/webapps/${war.file.name}.war"/>
+  <target name="deploy" depends="check-cond" if="cond-is-true">
+    <echo message="Deleting ${env.CATALINA_HOME}/webapps/${war.file.name}.war"/>
     <delete file="${env.CATALINA_HOME}/webapps/${war.file.name}.war" quiet="true" failonerror="false"/>
 
-   <echo message="Deleting ${env.CATALINA_HOME}/webapps/cog"/>
-     <delete dir="${env.CATALINA_HOME}/webapps/cog" quiet="false" failonerror="false"/>
+    <echo message="Deleting ${env.CATALINA_HOME}/webapps/cog"/>
+    <delete dir="${env.CATALINA_HOME}/webapps/cog" quiet="false" failonerror="false"/>
 
-   <copy file="${env.TARGET_DIR}/${war.file.name}.war" todir="${env.CATALINA_HOME}/webapps"/>
-    <!--<antcall target="tomcat-start"/> -->
+    <copy file="${env.TARGET_DIR}/${war.file.name}.war" todir="${env.CATALINA_HOME}/webapps"/>
 
     <!-- Restore important files -->
-     <antcall target="restore"/>
-   </target>
+    <antcall target="restore"/>
+  </target>
 
 
-<target name="tomcat-start">
- <exec executable="cmd.exe" spawn="true" osfamily="windows" dir="${env.CATALINA_HOME}\\bin">
-  <arg line="/c start startup.bat  "/>
- </exec>
-</target>
+  <target name="tomcat-start">
+    <exec executable="cmd.exe" spawn="true" osfamily="windows" dir="${env.CATALINA_HOME}\\bin">
+      <arg line="/c start startup.bat  "/>
+    </exec>
+  </target>
 
 <target name="tomcat-stop">
   <java classname="org.apache.catalina.startup.Bootstrap" fork="yes" failonerror="false">
@@ -164,9 +195,9 @@
 
 <target name="backup">
  <path id="backup-classpath">
-     <pathelement location="${tgt.warcontents.dir}"/>
-     <pathelement location="${tgt.warcontents.dir}/WEB-INF/classes"/>
-     <fileset dir="${tgt.warcontents.dir}/WEB-INF/lib">
+     <pathelement location="${target.dir}/cog"/>
+     <pathelement location="${target.dir}/cog/WEB-INF/classes"/>
+     <fileset dir="${target.dir}/cog/WEB-INF/lib">
          <include name="*.jar" />
      </fileset>
    </path>
@@ -174,11 +205,11 @@
   <echo> Backup: File Copying ...stared</echo>
   <java classname="org.socialbiz.cog.BackupUtils" fork="yes">
     <arg value="${env.CATALINA_HOME}/webapps/${war.file.name}/WEB-INF"/>
-    <arg value="${backup.dir}"/>
+    <arg value="${target.dir.backup}"/>
     <arg value="BackUp"/>
     <classpath>
       <path refid="backup-classpath"/>
-      <path location="${tgt.warcontents.dir}/WebINF/classes"/>
+      <path location="${target.dir}/cog/WebINF/classes"/>
    </classpath>
    </java>
   <echo> Copying ...end</echo>
@@ -187,21 +218,21 @@
 <target name="restore">
  <sleep minutes="3"/>
  <path id="backup-classpath">
-     <pathelement location="${tgt.warcontents.dir}"/>
-     <pathelement location="${tgt.warcontents.dir}/WEB-INF/classes"/>
-     <fileset dir="${tgt.warcontents.dir}/WEB-INF/lib">
+     <pathelement location="${target.dir}/cog"/>
+     <pathelement location="${target.dir}/cog/WEB-INF/classes"/>
+     <fileset dir="${target.dir}/cog/WEB-INF/lib">
          <include name="*.jar" />
      </fileset>
    </path>
 
   <echo> Restore: File Copying ...stared</echo>
   <java classname="org.socialbiz.cog.BackupUtils" fork="yes">
-    <arg value="${backup.dir}"/>
+    <arg value="${target.dir.backup}"/>
     <arg value="${env.CATALINA_HOME}/webapps/${war.file.name}/WEB-INF"/>
     <arg value="Restore"/>
     <classpath>
       <path refid="backup-classpath"/>
-      <path location="${tgt.warcontents.dir}/WebINF/classes"/>
+      <path location="${target.dir}/cog/WebINF/classes"/>
    </classpath>
    </java>
   <echo> Copying ...end</echo>

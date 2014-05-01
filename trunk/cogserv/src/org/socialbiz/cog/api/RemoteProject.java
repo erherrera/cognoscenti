@@ -21,9 +21,11 @@
 package org.socialbiz.cog.api;
 
 import java.net.URL;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.socialbiz.cog.License;
+import org.socialbiz.cog.RemoteJSON;
 
 /**
 * A remote project is access purely through URLs and REST oriented web services

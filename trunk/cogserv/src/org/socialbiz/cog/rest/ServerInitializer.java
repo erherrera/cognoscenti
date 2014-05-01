@@ -28,16 +28,9 @@ import java.util.TimerTask;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
-import org.socialbiz.cog.AttachmentVersionSimple;
-import org.socialbiz.cog.AuthDummy;
+import org.socialbiz.cog.Cognoscenti;
 import org.socialbiz.cog.ConfigFile;
-import org.socialbiz.cog.EmailListener;
-import org.socialbiz.cog.EmailSender;
-import org.socialbiz.cog.MicroProfileMgr;
 import org.socialbiz.cog.NGPageIndex;
-import org.socialbiz.cog.SendEmailTimerTask;
-import org.socialbiz.cog.UserManager;
-import org.springframework.context.ApplicationContext;
 
 /**
  * Implements the server initialization protocol.  The variable "serverInitState" tells
@@ -98,10 +91,8 @@ public class ServerInitializer extends TimerTask {
     private static Timer timerForOtherTasks = null;
 
     private ServletConfig config;
-    private ApplicationContext resourceBundle;
-    private ServerInitializer(ServletConfig newConfig, ApplicationContext _resourceBundle) {
+    private ServerInitializer(ServletConfig newConfig) {
         config = newConfig;
-        resourceBundle = _resourceBundle;
     }
 
     /**
@@ -112,7 +103,7 @@ public class ServerInitializer extends TimerTask {
      * @param config the ServletConfig from the hosting TomCat server
      * @param resourceBundle the resource bundle from the wrapped servlet
      */
-    public static void startTheServer(ServletConfig config, ApplicationContext resourceBundle) {
+    public static void startTheServer(ServletConfig config) {
         if (serverInitState != STATE_INITIAL) {
             //report this, but otherwise ignore it.  Not bad enough to throw exception.
             System.out.println("Somthing wrong, the server is being initialized when not in initial state!");
@@ -120,7 +111,7 @@ public class ServerInitializer extends TimerTask {
 
         //in FAILED state the time task will immediately try to reinitialize it.
         serverInitState = STATE_FAILED;
-        singletonInitializer = new ServerInitializer(config, resourceBundle);
+        singletonInitializer = new ServerInitializer(config);
         timerForInit = new Timer("Initialization Timer", true);
         timerForInit.scheduleAtFixedRate(singletonInitializer, 30000, 30000);
 
@@ -201,27 +192,13 @@ public class ServerInitializer extends TimerTask {
             timerForOtherTasks = new Timer("Main Cog Timer", true);
 
             //start by clearing everything ... in case there is mess left over.
-            //TODO: move this routine to this class
-            NGPageIndex.clearAllStaticVars();
-            MicroProfileMgr.clearAllStaticVars();
+            Cognoscenti.clearAllStaticVariables();
 
             //garbage collect at this time, cleans out the heap space
             //freeing up and defragmenting memory
             System.gc();
 
-            ConfigFile.initialize(rootFolder);
-            ConfigFile.assertConfigureCorrectInternal();
-
-            AuthDummy.initializeDummyRequest( config );
-            UserManager.loadUpUserProfilesInMemory();
-            String attachFolder = ConfigFile.getProperty("attachFolder");
-            File attachFolderFile = new File(attachFolder);
-            AttachmentVersionSimple.attachmentFolder = attachFolderFile;
-            NGPageIndex.initIndex();
-            MicroProfileMgr.loadMicroProfilesInMemory();
-            EmailSender.initSender(timerForOtherTasks, sc, resourceBundle);
-            SendEmailTimerTask.initEmailSender(timerForOtherTasks);
-            EmailListener.initListener(timerForOtherTasks);
+            Cognoscenti.initializeAll(rootFolder, timerForOtherTasks);
 
             SSOFIUserManager.initSSOFI(ConfigFile.getProperty("baseURL"));
             System.out.println("ServerInitializer: successfully initialized and ready");

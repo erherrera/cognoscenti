@@ -47,11 +47,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
-import javax.servlet.ServletContext;
-
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
-import org.springframework.context.ApplicationContext;
 
 /**
  * Support class for sending email messages based on an email configuration
@@ -62,7 +59,6 @@ import org.springframework.context.ApplicationContext;
  * long run.
  */
 public class EmailSender extends TimerTask {
-    private static ApplicationContext resourceBundle;
     private static Properties emailProperties = new Properties();
 
     // expressed in milliseconds
@@ -141,9 +137,7 @@ public class EmailSender extends TimerTask {
      * server starts up. There are some error checks to make sure that this is
      * the case.
      */
-    public static void initSender(Timer timer, ServletContext sc,
-            ApplicationContext _resourceBundle) throws Exception {
-        resourceBundle = _resourceBundle;
+    public static void initSender(Timer timer) throws Exception {
 
         // apparently a timer task can not be reused by a Timer, or in another
         // Timer.  You have to create them every time you schedule them???
@@ -326,7 +320,6 @@ public class EmailSender extends TimerTask {
                     if (containers.size() > 0) {
                         clone.write("<div style=\"margin-top:15px;margin-bottom:20px;\"><span style=\"font-size:24px;font-weight:bold;\">Project Updates</span>&nbsp;&nbsp;&nbsp;");
                         numberOfUpdates += constructDailyDigestEmail(clone, containers,
-                                        resourceBundle,
                                         lastNotificationSentTime,
                                         processingStartTime);
                     }
@@ -410,7 +403,7 @@ public class EmailSender extends TimerTask {
      * Returns the total number of history records actually found.
      */
     public static int constructDailyDigestEmail(AuthRequest clone,
-            List<NGContainer> containers, ApplicationContext context,
+            List<NGContainer> containers, 
             long historyRangeStart, long historyRangeEnd) throws Exception {
         int totalHistoryCount = 0;
         boolean needsFirst = true;
@@ -492,6 +485,8 @@ public class EmailSender extends TimerTask {
 
     private static void writeDelayedSiteList(AuthRequest clone,
             List<SiteRequest> delayedSites) throws Exception {
+        UserProfile superAdmin = UserManager.getSuperAdmin(clone);
+        String adminKey = superAdmin.getKey();
         clone.write("<table width=\"80%\" class=\"Design8\">");
         clone.write("<thead>");
         clone.write("<tr>");
@@ -518,7 +513,9 @@ public class EmailSender extends TimerTask {
             clone.write("<td>");
             clone.write("<a href=\"");
             clone.write(clone.baseURL);
-            clone.write("v/approveAccountThroughMail.htm?requestId=");
+            clone.write("v/");
+            clone.writeURLData(adminKey);
+            clone.write("/approveAccountThroughMail.htm?requestId=");
             clone.writeURLData(details.getRequestId());
             clone.write("\">Click here to Accept/Deny this request</a>");
             clone.write("</td>");

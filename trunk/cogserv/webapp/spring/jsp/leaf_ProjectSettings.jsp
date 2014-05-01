@@ -7,7 +7,7 @@
 %><%@page import="org.socialbiz.cog.dms.ConnectionType"
 %><%@page import="org.socialbiz.cog.api.RemoteProject"
 %><%@page import="org.socialbiz.cog.api.ProjectSync"
-%><%@page import="org.socialbiz.cog.SyncStatus"
+%><%@page import="org.socialbiz.cog.api.SyncStatus"
 %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <%

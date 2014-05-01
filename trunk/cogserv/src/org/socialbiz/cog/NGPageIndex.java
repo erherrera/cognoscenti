@@ -35,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.rest.ServerInitializer;
 
 /**
  * NGPageIndex is an index entry in an index of pages
@@ -148,6 +147,8 @@ public class NGPageIndex {
     public static final String LOCK_ID = "lock";
     public static final String NO_LOCK_ID = "nolock";
     private static HashMap<String, List<NGPageIndex>> lockMap = new HashMap<String, List<NGPageIndex>>();
+
+
 
     private ArrayBlockingQueue<String> lockBlq;
 
@@ -433,7 +434,7 @@ public class NGPageIndex {
         // probably worth
         // waiting a few seconds instead of failing
         int countDown = 40;
-        while (ServerInitializer.isActivelyStarting() && --countDown > 0) {
+        while (Cognoscenti.initializingNow && --countDown > 0) {
             // test every 1/5 second, and wait up to 8 seconds for the
             // server to finish initializing, otherwise give up
             try {
@@ -446,11 +447,11 @@ public class NGPageIndex {
             }
         }
 
-        return (ServerInitializer.isRunning());
+        return (Cognoscenti.isInitialized);
     }
 
     public static Exception initFailureException() {
-        return ServerInitializer.lastFailureMsg;
+        return Cognoscenti.lastFailureMsg;
     }
 
     /**

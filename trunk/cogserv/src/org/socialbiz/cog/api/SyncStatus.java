@@ -18,10 +18,9 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.api;
 
 import org.json.JSONObject;
-import org.socialbiz.cog.api.ProjectSync;
 
 /**
 * supports comparing a local and remote project

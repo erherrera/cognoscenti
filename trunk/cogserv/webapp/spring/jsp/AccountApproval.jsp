@@ -6,17 +6,15 @@
 Required parameter:
 
     1. requestId : This is the id of requested site and here it is used to retrieve requested Site's request Details.
-
-    Optional Parameter:
-
-    2. canAccess : This boolean parameter is used to check if user has special permission to access the page or not.
 */
 
     String requestId = ar.reqParam("requestId");
-    String canAccess = ar.defParam("canAccess", "false");
-    boolean canAccessPage = Boolean.parseBoolean(canAccess);
-
-    String userKey = ar.defParam("userId", null);%><%!String pageTitle="";%><%SiteRequest accountDetails=SiteReqFile.getRequestByKey(requestId);%>
+    String userKey = ar.defParam("userId", null);
+%><%!
+    String pageTitle="";
+%><%
+    SiteRequest accountDetails=SiteReqFile.getRequestByKey(requestId);
+%>
 <style type="text/css">
     html {
         background-color:#C1BFC0;
@@ -48,8 +46,7 @@ Required parameter:
     <div id="loginDivArea">
         <div class="generalArea">
             <div class="generalContent">
-                <form id="acceptOrDenyForm" action="<%=ar.retPath%>t/acceptOrDeny.form" method="post" >
-                    <input type="hidden" id="userKey" name="userKey" value="<%ar.write(userKey); %>" />
+                <form id="acceptOrDenyForm" action="acceptOrDeny.form" method="post" >
                     <table width="100%">
                         <tr><td style="height:20px"></td></tr>
                         <tr><td colspan="3" class="generalHeading">Approve/Reject Site Request</td></tr>
@@ -109,7 +106,7 @@ Required parameter:
                             </td>
                         </tr>
                         <tr><td style="height:15px"></td></tr>
-                        <% if (canAccessPage || ar.isSuperAdmin())  { %>
+                        <% if (ar.isSuperAdmin())  { %>
                         <tr>
                             <td width="148" class="gridTableColummHeader"></td>
                             <td style="width:20px;"></td>

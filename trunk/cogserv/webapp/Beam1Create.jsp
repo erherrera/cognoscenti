@@ -14,7 +14,7 @@
 %><%@page import="org.socialbiz.cog.SectionFormat"
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.StatusReport"
-%><%@page import="org.socialbiz.cog.SyncStatus"
+%><%@page import="org.socialbiz.cog.api.SyncStatus"
 %><%@page import="org.socialbiz.cog.GoalRecord"
 %><%@page import="org.socialbiz.cog.UserProfile"
 %><%@page import="org.socialbiz.cog.WatchRecord"

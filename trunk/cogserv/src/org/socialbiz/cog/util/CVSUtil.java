@@ -21,7 +21,6 @@
 package org.socialbiz.cog.util;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.NGPage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
