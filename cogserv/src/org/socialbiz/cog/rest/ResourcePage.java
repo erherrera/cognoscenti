@@ -26,7 +26,6 @@ import java.util.Vector;
 import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.DOMUtils;
-import org.socialbiz.cog.DataFeedServlet;
 import org.socialbiz.cog.IdGenerator;
 import org.socialbiz.cog.License;
 import org.socialbiz.cog.NGBook;

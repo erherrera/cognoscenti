@@ -18,7 +18,7 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.rest;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -29,6 +29,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.socialbiz.cog.ConfigFile;
+import org.socialbiz.cog.HttpServletResponseWithoutBug;
+import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.workcast.streams.TemplateStreamer;
 import org.workcast.streams.TemplateTokenRetriever;

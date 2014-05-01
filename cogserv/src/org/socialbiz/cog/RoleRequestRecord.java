@@ -23,9 +23,9 @@ package org.socialbiz.cog;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.socialbiz.cog.spring.Constant;
-
 public class RoleRequestRecord extends DOMFace {
+
+    public static final long HISTORY_MAX_DAYS = 30;
 
     public RoleRequestRecord(Document doc, Element upEle, DOMFace p) {
         super(doc, upEle, p);
@@ -110,17 +110,7 @@ public class RoleRequestRecord extends DOMFace {
     }
 
     public boolean showRecord() throws Exception {
-        boolean showRecord = false;
-        long max_days = Constant.HISTORY_MAX_DAYS;
-        long days_diff = UtilityMethods.getDurationInDays(System.currentTimeMillis(),
-                getModifiedDate());
-        String max_days_interval = ConfigFile.getProperty(Constant.HISTORY_MAX_DAYS_PROPERTY);
-        if (max_days_interval != null && !"".equals(max_days_interval.trim())) {
-            max_days = safeConvertLong(max_days_interval);
-        }
-        if (days_diff <= max_days) {
-            showRecord = true;
-        }
-        return showRecord;
+        long oldestLegalRecord = System.currentTimeMillis()-(HISTORY_MAX_DAYS*24*60*60*1000);
+        return getModifiedDate()>oldestLegalRecord;
     }
 }

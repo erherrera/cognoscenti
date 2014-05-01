@@ -493,4 +493,20 @@ public class UserManager
         return superAdmin;
     }
 
+    /**
+     * get a list of email assignees for all server super admin users.
+     */
+    public static Vector<OptOutAddr> getSuperAdminMailList(AuthRequest ar)
+            throws Exception {
+        Vector<OptOutAddr> sendTo = new Vector<OptOutAddr>();
+        for (UserProfile superAdmin : getAllSuperAdmins(ar)) {
+            sendTo.add(new OptOutSuperAdmin(new AddressListEntry(superAdmin.getPreferredEmail())));
+        }
+        if (sendTo.size() == 0) {
+            throw new NGException("nugen.exceptionhandling.account.no.super.admin", null);
+        }
+        return sendTo;
+    }
+
+    
 }

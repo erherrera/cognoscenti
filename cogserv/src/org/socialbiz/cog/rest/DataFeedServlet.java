@@ -18,7 +18,7 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.rest;
 
 import java.util.List;
 import java.util.Vector;
@@ -28,6 +28,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.BaseRecord;
+import org.socialbiz.cog.DOMUtils;
+import org.socialbiz.cog.GoalRecord;
+import org.socialbiz.cog.NGPage;
+import org.socialbiz.cog.NGPageIndex;
+import org.socialbiz.cog.SearchManager;
+import org.socialbiz.cog.SearchResultRecord;
+import org.socialbiz.cog.SectionUtil;
+import org.socialbiz.cog.UserManager;
+import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.w3c.dom.Document;
@@ -384,36 +395,38 @@ public class DataFeedServlet extends HttpServlet {
         String modVal = new String(val.getBytes("iso-8859-1"), "UTF-8");
         return modVal;
     }
-}
-
-class TaskListRecord {
-    boolean isAttachment = false;
-    String taskId;
-    int taskState;
-    String taskSyn;
-    String taskDesc;
-    String taskAssignee;
-    int taskPriority = 0;
-    long taskDue = 0;
-    long taskStart = 0;
-    String pageLink;
-    String pageKey;
-    String pageName;
-    String taskStatus;
-
-    TaskListRecord(GoalRecord goal, String pKey, String pName, String pLink) throws Exception {
-        taskId = goal.getId();
-        taskState = goal.getState();
-        taskSyn = goal.getSynopsis();
-        taskDesc = goal.getDescription();
-        taskAssignee = goal.getAssigneeCommaSeparatedList();
-        taskPriority = goal.getPriority();
-        taskDue = goal.getDueDate();
-        taskStart = goal.getStartDate();
-        taskStatus = goal.getStatus();
-        pageKey = pKey;
-        pageName = pName;
-        pageLink = pLink;
+    
+    
+    static class TaskListRecord {
+        boolean isAttachment = false;
+        String taskId;
+        int taskState;
+        String taskSyn;
+        String taskDesc;
+        String taskAssignee;
+        int taskPriority = 0;
+        long taskDue = 0;
+        long taskStart = 0;
+        String pageLink;
+        String pageKey;
+        String pageName;
+        String taskStatus;
+    
+        TaskListRecord(GoalRecord goal, String pKey, String pName, String pLink) throws Exception {
+            taskId = goal.getId();
+            taskState = goal.getState();
+            taskSyn = goal.getSynopsis();
+            taskDesc = goal.getDescription();
+            taskAssignee = goal.getAssigneeCommaSeparatedList();
+            taskPriority = goal.getPriority();
+            taskDue = goal.getDueDate();
+            taskStart = goal.getStartDate();
+            taskStatus = goal.getStatus();
+            pageKey = pKey;
+            pageName = pName;
+            pageLink = pLink;
+        }
+    
     }
 
 }

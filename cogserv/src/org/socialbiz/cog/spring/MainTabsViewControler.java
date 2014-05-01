@@ -1317,7 +1317,8 @@ public class MainTabsViewControler extends BaseController {
           writeNoteAttachmentEmailBody(clone, ar.ngp, noteRec, tempmem, ooa.getAssignee(), note,
                 includeBody, attachList);
 
-          NGWebUtils.standardEmailFooter(clone, ar.getUserProfile(), ooa, ngp);
+          //comment out because implementation did nothing, but need a standard footer!
+          //NGWebUtils.standardEmailFooter(clone, ar.getUserProfile(), ooa, ngp);
 
           clone.write("</body></html>");
 

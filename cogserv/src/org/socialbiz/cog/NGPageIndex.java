@@ -33,10 +33,9 @@ import java.util.Vector;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.ServletContext;
-
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
+import org.socialbiz.cog.rest.ServerInitializer;
 
 /**
  * NGPageIndex is an index entry in an index of pages
@@ -468,21 +467,6 @@ public class NGPageIndex {
             }
             throw new ProgramLogicError("NGPageIndex has never been initialized");
         }
-    }
-
-    public static synchronized void initializeInternal(ServletContext sc) throws Exception {
-        ConfigFile.initialize(sc);
-        ConfigFile.assertConfigureCorrectInternal();
-
-        UserManager.loadUpUserProfilesInMemory();
-
-        String attachFolder = ConfigFile.getProperty("attachFolder");
-        File attachFolderFile = new File(attachFolder);
-        AttachmentVersionSimple.attachmentFolder = attachFolderFile;
-
-        // reinitialize ... should be as good as new.
-        initIndex();
-        SSOFIUserManager.initSSOFI(ConfigFile.getProperty("baseURL"));
     }
 
     public static synchronized void initIndex() throws Exception {

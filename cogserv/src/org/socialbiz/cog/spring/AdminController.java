@@ -39,6 +39,7 @@ import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.ProcessRecord;
 import org.socialbiz.cog.SectionWiki;
+import org.socialbiz.cog.UserManager;
 import org.socialbiz.cog.UserPage;
 import org.socialbiz.cog.dms.ResourceEntity;
 import org.socialbiz.cog.exception.NGException;
@@ -397,7 +398,7 @@ public class AdminController extends BaseController {
 
         clone.write("<p>You are receiving this message because you are a Super Admin of this server.</p>");
         clone.write("</body></html>");
-        EmailSender.simpleEmail(NGWebUtils.getSuperAdminMailList(ar), null, "Error report", bodyWriter.toString());
+        EmailSender.simpleEmail(UserManager.getSuperAdminMailList(ar), null, "Error report", bodyWriter.toString());
     }
 
     @RequestMapping(value = "/{siteId}/{project}/updateProjectSettings.ajax", method = RequestMethod.POST)

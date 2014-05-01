@@ -2,7 +2,6 @@
 %><%@page import="org.socialbiz.cog.AttachmentVersion"
 %><%@page import="org.socialbiz.cog.AuthRequest"
 %><%@page import="org.socialbiz.cog.BaseRecord"
-%><%@page import="org.socialbiz.cog.DataFeedServlet"
 %><%@page import="org.socialbiz.cog.HistoryRecord"
 %><%@page import="org.socialbiz.cog.NGBook"
 %><%@page import="org.socialbiz.cog.NGPage"

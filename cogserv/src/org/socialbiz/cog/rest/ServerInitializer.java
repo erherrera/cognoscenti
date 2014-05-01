@@ -18,7 +18,7 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.rest;
 
 import java.io.File;
 import java.util.Date;
@@ -28,6 +28,15 @@ import java.util.TimerTask;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
+import org.socialbiz.cog.AttachmentVersionSimple;
+import org.socialbiz.cog.AuthDummy;
+import org.socialbiz.cog.ConfigFile;
+import org.socialbiz.cog.EmailListener;
+import org.socialbiz.cog.EmailSender;
+import org.socialbiz.cog.MicroProfileMgr;
+import org.socialbiz.cog.NGPageIndex;
+import org.socialbiz.cog.SendEmailTimerTask;
+import org.socialbiz.cog.UserManager;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -180,6 +189,7 @@ public class ServerInitializer extends TimerTask {
         //Init fails if any init method throws an exception
         try {
             ServletContext sc = config.getServletContext();
+            File rootFolder = new File(sc.getRealPath(""));
             serverInitState = STATE_TESTING;
             lastInitAttemptTime = System.currentTimeMillis();
 
@@ -199,7 +209,7 @@ public class ServerInitializer extends TimerTask {
             //freeing up and defragmenting memory
             System.gc();
 
-            ConfigFile.initialize(sc);
+            ConfigFile.initialize(rootFolder);
             ConfigFile.assertConfigureCorrectInternal();
 
             AuthDummy.initializeDummyRequest( config );
@@ -208,12 +218,12 @@ public class ServerInitializer extends TimerTask {
             File attachFolderFile = new File(attachFolder);
             AttachmentVersionSimple.attachmentFolder = attachFolderFile;
             NGPageIndex.initIndex();
-            SSOFIUserManager.initSSOFI(ConfigFile.getProperty("baseURL"));
             MicroProfileMgr.loadMicroProfilesInMemory();
             EmailSender.initSender(timerForOtherTasks, sc, resourceBundle);
             SendEmailTimerTask.initEmailSender(timerForOtherTasks);
             EmailListener.initListener(timerForOtherTasks);
 
+            SSOFIUserManager.initSSOFI(ConfigFile.getProperty("baseURL"));
             System.out.println("ServerInitializer: successfully initialized and ready");
             serverInitState = STATE_RUNNING;
             lastFailureMsg = null;

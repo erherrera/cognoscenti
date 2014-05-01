@@ -1,4 +1,4 @@
-<%@page import="org.socialbiz.cog.NGLeafServlet"
+<%@page import="org.socialbiz.cog.rest.NGLeafServlet"
 %><%
     //check to assure that this is not a POST request
     //ar.assertNotPost();

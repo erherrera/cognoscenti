@@ -6,7 +6,7 @@
 %><%@page import="org.socialbiz.cog.NGBook"
 %><%@page import="org.socialbiz.cog.AttachmentRecord"
 %><%@page import="org.socialbiz.cog.AttachmentVersion"
-%><%@page import="org.socialbiz.cog.NGLeafServlet"
+%><%@page import="org.socialbiz.cog.rest.NGLeafServlet"
 %><%@page import="org.socialbiz.cog.NGPage"
 %><%@page import="org.socialbiz.cog.NGPageIndex"
 %><%@page import="org.socialbiz.cog.NGProj"

@@ -4,12 +4,12 @@
 %><%@page import="org.socialbiz.cog.MimeTypes"
 %><%@page import="org.socialbiz.cog.NGBook"
 %><%@page import="org.socialbiz.cog.NGPageIndex"
-%><%@page import="org.socialbiz.cog.NGLeafServlet"
+%><%@page import="org.socialbiz.cog.rest.NGLeafServlet"
 %><%@page import="org.socialbiz.cog.NGSession"
 %><%@page import="org.socialbiz.cog.SuperAdminLogFile"
 %><%@page import="java.io.File"
 %><%@page import="java.util.Properties"
-%><%@page import="org.socialbiz.cog.ServerInitializer"
+%><%@page import="org.socialbiz.cog.rest.ServerInitializer"
 %><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
 
     if (ServerInitializer.serverInitState==ServerInitializer.STATE_PAUSED) {

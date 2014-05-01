@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.socialbiz.cog.AuthRequest;
-import org.socialbiz.cog.NGLeafServlet;
 import org.socialbiz.cog.NGPageIndex;
 
 /**

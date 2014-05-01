@@ -4,7 +4,7 @@
 %><%@page import="org.socialbiz.cog.MimeTypes"
 %><%@page import="org.socialbiz.cog.NGBook"
 %><%@page import="org.socialbiz.cog.NGPageIndex"
-%><%@page import="org.socialbiz.cog.NGLeafServlet"
+%><%@page import="org.socialbiz.cog.rest.NGLeafServlet"
 %><%@page import="org.socialbiz.cog.NGSession"
 %><%@page import="org.socialbiz.cog.SuperAdminLogFile"
 %><%@page import="java.io.File"
