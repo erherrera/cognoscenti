@@ -3,12 +3,10 @@ package org.socialbiz.cog;
 import java.io.StringWriter;
 import java.util.Vector;
 
-import org.socialbiz.cog.spring.NGWebUtils;
-
 public class HistoricActions {
 
 	private AuthRequest ar;
-	
+
 	/**
 	 * Actions that create history and/or send
 	 * email messages, are consolidated into this layer.
@@ -17,18 +15,18 @@ public class HistoricActions {
 		ar = _ar;
 		ar.assertLoggedIn("Action on this resource allowed only when you are logged in.");
 	}
-	
+
 	/**
-	 * When a user wants to create a new site, a request object must be created, and 
+	 * When a user wants to create a new site, a request object must be created, and
 	 * a notification sent to the administrator.  This function performs all that
-	 * 
+	 *
 	 * @param siteId is the proposed site id
 	 * @param siteName
 	 * @param siteDescription
 	 * @return
 	 * @throws Exception
 	 */
-	public SiteRequest createNewSiteRequest(String siteId, String siteName, 
+	public SiteRequest createNewSiteRequest(String siteId, String siteName,
 			String siteDescription) throws Exception {
 		SiteRequest accountDetails = SiteReqFile.createNewSiteRequest(siteId,
             siteName, siteDescription, ar);
@@ -36,7 +34,7 @@ public class HistoricActions {
         sendSiteRequestEmail( ar,  accountDetails);
         return accountDetails;
 	}
-	
+
     private static void sendSiteRequestEmail(AuthRequest ar,
             SiteRequest accountDetails) throws Exception {
         StringWriter bodyWriter = new StringWriter();
@@ -76,11 +74,11 @@ public class HistoricActions {
         clone.write("<p>Being a <b>Super Admin</b> of the Cognoscenti console, you have rights to accept or deny this request.</p>");
         clone.write("</body></html>");
 
-        EmailSender.simpleEmail(NGWebUtils.getSuperAdminMailList(ar), null,
+        EmailSender.simpleEmail(UserManager.getSuperAdminMailList(ar), null,
                 "Site Approval for " + ar.getBestUserId(),
                 bodyWriter.toString());
     }
-	
+
     /**
      * When a user has requested a site, the administrator is involved to approve or deny
      * the site.  This method accomplishes that, and it sends an email to the originating
@@ -105,12 +103,12 @@ public class HistoricActions {
             NGPageIndex.makeIndex(ngb);
 
             siteRequest.setStatus("Granted");
-            SuperAdminLogFile.createAdminEvent(ngb.getKey(), ar.nowTime, 
+            SuperAdminLogFile.createAdminEvent(ngb.getKey(), ar.nowTime,
             	ar.getBestUserId(), AdminEvent.SITE_CREATED);
     	}
     	else {
-            siteRequest.setStatus("Denied");    		
-            SuperAdminLogFile.createAdminEvent(siteRequest.getRequestId(), ar.nowTime, 
+            siteRequest.setStatus("Denied");
+            SuperAdminLogFile.createAdminEvent(siteRequest.getRequestId(), ar.nowTime,
         		ar.getBestUserId(), AdminEvent.SITE_DENIED);
     	}
         siteResolutionEmail(ale.getUserProfile(), siteRequest);
@@ -174,7 +172,7 @@ public class HistoricActions {
 	        if(roleRequestRecord != null){
 	            roleRequestRecord.setState("Approved");
 	        }
-	
+
 	        role.addPlayerIfNotPresent(ale);
 	        if (sendEmail) {
 	            sendInviteEmail(ngc.getKey(),  ale.getEmail(), role.getName() );
@@ -183,7 +181,7 @@ public class HistoricActions {
                     0, HistoryRecord.EVENT_PLAYER_ADDED, ar, role.getName());
 	    }
     }
-    
+
     private void sendInviteEmail(String pageId, String emailId, String role) throws Exception {
         StringWriter bodyWriter = new StringWriter();
         NGContainer container = NGPageIndex.getContainerByKey(pageId);
@@ -201,7 +199,7 @@ public class HistoricActions {
             }
         } else {
             // first check to see if the passed value looks like an email
-            // address if not, OK, it may be an Open ID, and 
+            // address if not, OK, it may be an Open ID, and
             // simply don't send the email in that case.
             if (emailId.indexOf('@') < 0) {
                 // this is not an email address. Simply return silently, can't
@@ -224,7 +222,7 @@ public class HistoricActions {
         clone.write("' role of the ");
         container.writeContainerLink(clone, 100);
         clone.write(" project.</p>");
-        NGWebUtils.standardEmailFooter(clone, requestingUser, ooa, container);
+       // NGWebUtils.standardEmailFooter(clone, requestingUser, ooa, container);
         clone.write("</body></html>");
 
         EmailSender.containerEmail(ooa, container, "Added to " + role
@@ -232,5 +230,8 @@ public class HistoricActions {
                 null, new Vector<String>());
         NGPageIndex.releaseLock(container);
     }
-    
+
+
+
+
 }

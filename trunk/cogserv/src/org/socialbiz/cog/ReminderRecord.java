@@ -23,7 +23,6 @@ package org.socialbiz.cog;
 import java.io.StringWriter;
 import java.util.Vector;
 
-import org.socialbiz.cog.spring.NGWebUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 
@@ -273,7 +272,9 @@ public class ReminderRecord extends DOMFace
             AuthRequest clone = new AuthDummy(ar.getUserProfile(), bodyWriter);
             clone.write("<html><body>");
             rRec.writeReminderEmailBody(clone, ngp);
-            NGWebUtils.standardEmailFooter(clone, ar.getUserProfile(), ooa, ngp);
+            //TODO
+            //commented because this called method had no body, but there should be a standard footer
+            //NGWebUtils.standardEmailFooter(clone, ar.getUserProfile(), ooa, ngp);
             clone.write("</body></html>");
             EmailSender.containerEmail(ooa, ngp, subject, bodyWriter.toString(), null, new Vector<String>());
         }

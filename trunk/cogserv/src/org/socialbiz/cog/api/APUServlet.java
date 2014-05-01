@@ -24,11 +24,12 @@ import org.socialbiz.cog.GoalRecord;
 import org.socialbiz.cog.License;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
-import org.socialbiz.cog.ServerInitializer;
 import org.socialbiz.cog.UserProfile;
+import org.socialbiz.cog.rest.ServerInitializer;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

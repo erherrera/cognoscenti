@@ -50,13 +50,13 @@
 
     <servlet>
         <servlet-name>NGLeafServlet</servlet-name>
-        <servlet-class>org.socialbiz.cog.NGLeafServlet</servlet-class>
+        <servlet-class>org.socialbiz.cog.rest.NGLeafServlet</servlet-class>
         <load-on-startup>6</load-on-startup>
     </servlet>
     <servlet>
         <servlet-name>DataFeedServlet</servlet-name>
         <display-name>DataFeedServlet</display-name>
-        <servlet-class>org.socialbiz.cog.DataFeedServlet</servlet-class>
+        <servlet-class>org.socialbiz.cog.rest.DataFeedServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>dispatcher</servlet-name>
@@ -70,11 +70,11 @@
     <servlet>
         <servlet-name>EmergencyConfigServlet</servlet-name>
         <display-name>EmergencyConfigServlet</display-name>
-        <servlet-class>org.socialbiz.cog.EmergencyConfigServlet</servlet-class>
+        <servlet-class>org.socialbiz.cog.rest.EmergencyConfigServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>RssServlet</servlet-name>
-        <servlet-class>org.socialbiz.cog.RssServlet</servlet-class>
+        <servlet-class>org.socialbiz.cog.rest.RssServlet</servlet-class>
     </servlet>
 
 

@@ -79,40 +79,7 @@ public class CVSUtil
         cvsEnabled = m_isCVSEnabled;
     }
 
-    public static NGPage getLatestCopyFromCVS(NGPage ngp) throws Exception
-    {
-        if (ngp == null) {
-            return null;
-        }
-        // get the latest copy of the file before editing.
-        File filePath = ngp.getFilePath();
-        // do a cvs update.
-        CVSUtil.update(filePath);
-        // do a cvs edit.
-        CVSUtil.edit(filePath);
-        // reconstruct the page from the updated content.
-        ngp = NGPage.readPageAbsolutePath(filePath);
-        return ngp;
-    }
-
-
-    public static String getOutputMessage(Process process) throws Exception
-    {
-        if (process == null) {
-            return "";
-        }
-
-        BufferedReader br=new BufferedReader(new InputStreamReader(process.getInputStream()));
-        StringBuffer sb = new StringBuffer();
-        String str = br.readLine();
-        while( str != null){
-            str = br.readLine();
-            sb.append(str);
-        }
-        return sb.toString();
-    }
-
-    public static String getErrorMessage(Process process) throws Exception
+    private static String getErrorMessage(Process process) throws Exception
     {
         if (process == null) {
             return "";
@@ -129,7 +96,7 @@ public class CVSUtil
         return sb.toString();
     }
 
-    public static boolean isProcessSuccess(Process process) throws Exception
+    private static boolean isProcessSuccess(Process process) throws Exception
     {
         if (process == null) {
             return false;
@@ -138,7 +105,7 @@ public class CVSUtil
         return ((str.length() == 0)? true : false);
     }
 
-    public static Process executeCommand(String command) throws Exception
+    private static Process executeCommand(String command) throws Exception
     {
         if ((command == null) || command .length() == 0)
         {
@@ -150,7 +117,7 @@ public class CVSUtil
         return process;
     }
 
-    public static String getCVSConnectString(String connStr, String password)  throws Exception
+    private static String getCVSConnectString(String connStr, String password)  throws Exception
     {
         if (connStr == null || connStr.length() == 0 || password == null || password.length() == 0) {
             return connStr;
@@ -161,7 +128,7 @@ public class CVSUtil
         return connStr;
     }
 
-    public static boolean login(String cvsConnectStr) throws Exception
+    private static boolean login(String cvsConnectStr) throws Exception
     {
         if (cvsConnectStr == null || cvsConnectStr.length() == 0) {
             return false;
@@ -171,7 +138,7 @@ public class CVSUtil
         return CVSUtil.isProcessSuccess(process);
     }
 
-    public static boolean logout(String cvsConnectStr) throws Exception
+    private static boolean logout(String cvsConnectStr) throws Exception
     {
         if (cvsConnectStr == null || cvsConnectStr.length() == 0) {
             return false;
@@ -271,7 +238,7 @@ public class CVSUtil
                      + convertBStoFWS(filePath) + DBL_QUOTE);
     }
 
-    public static Process executeCVSCommand(String command) throws Exception
+    private static Process executeCVSCommand(String command) throws Exception
     {
         if (!cvsEnabled)
         {
@@ -293,12 +260,7 @@ public class CVSUtil
         return filePath.getPath().replace('\\', '/');
     }
 
-    public static boolean isCVSEnabled() throws Exception
-    {
-        return cvsEnabled;
-    }
-
-    public static String quote4CMDLine(String str) {
+    private static String quote4CMDLine(String str) {
         //passing a null in results a no output, no quotes, nothing
         if (str == null) {
             return "\"\"";
@@ -333,21 +295,5 @@ public class CVSUtil
         res.append("\"");
         return res.toString();
     }
-
-    public static void main(String arg[])
-    {
-        try
-        {
-            Runtime r2 = Runtime.getRuntime();
-            r2.exec("cmd.exe /c cvs -d:pserver:kumar:kumar@133.164.97.10:2401/space/cvs commit -m \"test\" \"C:\\testcvs\\ps\\nugen\\cvstest.txt\"");
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-            System.exit(0);
-        }
-    }
-
-
 
 }

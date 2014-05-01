@@ -25,8 +25,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
-import javax.servlet.ServletContext;
-
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 
@@ -71,16 +69,22 @@ public class ConfigFile {
         return webInfPath;
     }
 
-    public static void initialize(ServletContext sc) throws Exception {
+    /**
+     * Initialize by passing in the root folder for the application.
+     * This is expected to have a {root}/WEB-INF/config.txt file in there.
+     * @param newRoot is the root of the web application
+     * @throws Exception if anything is detected wrong with the configuration
+     */
+    public static void initialize(File newRoot) throws Exception {
         try {
-            rootPath   = new File(sc.getRealPath(""));
+            rootPath = newRoot;
             if (!rootPath.exists()) {
                 //this is just paranoia, should never happen
                 throw new Exception("Something is very wrong with the server ... "+
                      "the root of the application is not being retrieved correctly from the "+
                      "servlet contxt object.  Something is wrong with the TomCat server.");
             }
-            webInfPath = new File(sc.getRealPath("WEB-INF"));
+            webInfPath = new File(rootPath,"WEB-INF");
             if (!webInfPath.exists()) {
                 //this is just paranoia, should never happen
                 throw new Exception("Something is very wrong with the server ... "+

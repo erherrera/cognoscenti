@@ -18,7 +18,9 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.rest;
+
+import org.socialbiz.cog.UserProfile;
 
 import com.fujitsu.loginapplication.interfaces.GlobalId;
 

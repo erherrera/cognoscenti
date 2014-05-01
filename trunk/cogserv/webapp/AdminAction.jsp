@@ -4,11 +4,11 @@
 %><%@page import="org.socialbiz.cog.NGBook"
 %><%@page import="org.socialbiz.cog.NGPage"
 %><%@page import="org.socialbiz.cog.NGPageIndex"
-%><%@page import="org.socialbiz.cog.ServerInitializer"
+%><%@page import="org.socialbiz.cog.rest.ServerInitializer"
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.GoalRecord"
 %><%@page import="org.socialbiz.cog.UserManager"
-%><%@page import="org.socialbiz.cog.ServerInitializer"
+%><%@page import="org.socialbiz.cog.rest.ServerInitializer"
 %><%
 
     //to restart server have to skip all the normal stuff

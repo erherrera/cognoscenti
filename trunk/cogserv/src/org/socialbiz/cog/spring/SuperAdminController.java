@@ -50,7 +50,7 @@ public class SuperAdminController extends BaseController {
 
      @Autowired
      public void setContext(ApplicationContext context) {
-         NGWebUtils.srvContext = context;
+         //NGWebUtils.srvContext = context;
      }
 
      @RequestMapping(value = "/{userKey}/errorLog.htm", method = RequestMethod.GET)

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -39,34 +38,21 @@ import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AuthDummy;
 import org.socialbiz.cog.AuthRequest;
-import org.socialbiz.cog.DOMFace;
 import org.socialbiz.cog.EmailSender;
 import org.socialbiz.cog.HistoryRecord;
 import org.socialbiz.cog.NGContainer;
-import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.OptOutAddr;
 import org.socialbiz.cog.OptOutDirectAddress;
 import org.socialbiz.cog.OptOutRolePlayer;
-import org.socialbiz.cog.OptOutSuperAdmin;
 import org.socialbiz.cog.RoleRequestRecord;
 import org.socialbiz.cog.SectionUtil;
-import org.socialbiz.cog.UserManager;
 import org.socialbiz.cog.UserPage;
 import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.exception.ProgramLogicError;
-import org.springframework.context.ApplicationContext;
 
 public class NGWebUtils {
-
-    /**
-     * This static application context is initialized when SuperAdminController
-     * is initialized by "Autowire" capability. Need to figure out how to assure
-     * that happens before any of these methods need it.
-     */
-    public static ApplicationContext srvContext;
 
     public static void nicePrintDate(Writer out, long timestamp)
             throws Exception {
@@ -78,11 +64,6 @@ public class NGWebUtils {
         nicePrintDate(out, timestamp);
         return out.toString();
     }
-
-//    public static void nicePrintTime(Writer out, long timestamp,
-//            long currentTime) throws Exception {
-//        SectionUtil.nicePrintTime(out, timestamp, currentTime);
-//    }
 
     public static void writePadded(Writer out, int desiredLen, String value)
             throws Exception {
@@ -188,7 +169,7 @@ public class NGWebUtils {
      * Then, when that person does not have a profile, it will add a small
      * section inviting them to register, since this is an email going to them,
      * it will serve to prove that they received the email as well.
-     */
+     *
     public static void standardEmailFooter(AuthRequest ar,
             UserProfile requestingUser, OptOutAddr ooa, NGContainer container)
             throws Exception {
@@ -198,44 +179,7 @@ public class NGWebUtils {
             // they have a profile, so there is nothing more to add
             return;
         }
-    }
-
-    /*
-    public static void writeUsers(AuthRequest clone,
-            Vector<AddressListEntry> toList, Vector<String> addressOnlyOutput)
-            throws Exception {
-        clone.write("\n<p>This message sent to: ");
-        for (AddressListEntry ale : toList) {
-            String email = ale.getEmail();
-            ale.writeLink(clone);
-            if (email != null && email.length() > 0) {
-                addressOnlyOutput.add(email);
-            } else {
-                clone.write("(no email) ");
-            }
-        }
-        clone.write("</p>");
-    }
-    */
-
-
-    /**
-     * get a list of email assignees for all server super admin users.
-     */
-    public static Vector<OptOutAddr> getSuperAdminMailList(AuthRequest ar)
-            throws Exception {
-        Vector<OptOutAddr> sendTo = new Vector<OptOutAddr>();
-        for (UserProfile superAdmin : UserManager.getAllSuperAdmins(ar)) {
-            sendTo.add(new OptOutSuperAdmin(new AddressListEntry(superAdmin
-                    .getPreferredEmail())));
-        }
-        if (sendTo.size() == 0) {
-            throw new NGException(
-                    "nugen.exceptionhandling.account.no.super.admin", null);
-        }
-        return sendTo;
-    }
-
+    }*/
 
 
     public static void sendRoleRequestEmail(AuthRequest ar,
@@ -309,179 +253,7 @@ public class NGWebUtils {
 
     public static void writeLocalizedHistoryMessage(HistoryRecord hr,
             NGContainer ngp, AuthRequest ar) throws Exception {
-        if (srvContext == null) {
-            throw new ProgramLogicError(
-                    "NGWebUtils has not been initialized yet with an applicatin context.  "
-                            + "Must be initialized before anything can be localized by writeLocalizedHistoryMessage.");
-        }
-
-        String key = hr.getCombinedKey();
-        String[] args = null;
-
-        String template = srvContext.getMessage(key, null, ar.getLocale());
-        if (template == null || template.length() == 0) {
-            template = key + " item {1n}; by user {2u}; comments {3}";
-        }
-        args = new String[] { hr.getContext(), hr.getResponsible(),
-                hr.getComments() };
-
-        writeWithParams(ar, template, args, ngp);
-    }
-
-    private static void writeContainerLinkIfExists(AuthRequest ar, String id)
-            throws Exception {
-        NGContainer cx = NGPageIndex.getContainerByKey(id);
-        if (cx == null) {
-            ar.write("(container ");
-            ar.writeHtml(id);
-            ar.write(")");
-        } else {
-            cx.writeContainerLink(ar, 100);
-        }
-    }
-
-    /**
-     * Write the template to the output stream, substituting in the data
-     * parameter values into the appropriate places in the specified template.
-     *
-     * Template must be of this format:
-     *
-     * Added user {1u} to role {2r} by {4u} in project {3p}
-     *
-     * Each token has curley braces around a number a letter. The lowest number
-     * should be 1, and the highest is the number of tokens. Here are the
-     * meanings of the various letters:
-     *
-     * (nothing) just take the parameter and output it directly as text u - find
-     * a user with that key, and output a link to that user p - find a project
-     * with that key, and output a link to that project a - find an account
-     * (book) with that key, and output a link to the account. r - find a role
-     * with that name, and output a link to that role t - find a task with that
-     * id, and output a link to the task d - find a document with that id, and
-     * output a link to that document n - find a note with that id, and output a
-     * link to that note m - find a reminder with that id, and output a link to
-     * that reminder x - don't display anything, hide this parameter and do not
-     * display
-     *
-     * there must be no spaces in the token, and the lower case letter must be
-     * the last character
-     *
-     * @param ar
-     *            The AuthRequest output stream, including locale and request
-     *            context
-     * @param template
-     *            The message to be displayed that can containe placeholders for
-     *            the parameters or causing exception.
-     * @return Nothing, this writes the output to the stream
-     * @throws Exception
-     */
-    private static void writeWithParams(AuthRequest ar, String template,
-            String[] params, NGContainer container) throws Exception {
-        // It should never happen that a null is passed to this method.
-        if (template == null) {
-            throw new ProgramLogicError(
-                    "a null template was passed to writeWithParams.");
-        }
-        if (params == null) {
-            // null can be passed as a convenience, and it means no parameters
-            params = new String[0];
-        }
-        boolean used[] = new boolean[params.length];
-
-        int start = 0;
-        int openPos = template.indexOf("{", start);
-        while (openPos >= 0) {
-            ar.writeHtml(template.substring(start, openPos));
-            openPos++;
-
-            int closePos = template.indexOf("}", openPos);
-            if (closePos < 0) {
-                // make a lot of noise about this so the translator takes care
-                // of the
-                // problem
-                throw new NGException("nugen.exception.incorrect.template",
-                        new Object[] { template });
-            }
-
-            String token = template.substring(openPos, closePos);
-            int tokenNum = DOMFace.safeConvertInt(token);
-            int tokenLetter = token.charAt(token.length() - 1);
-            if (tokenNum <= 0) {
-                throw new ProgramLogicError(
-                        "UI message template has no number, or has number 0.  "
-                                + "Token must have a number 1 or greater.");
-            }
-            if (tokenNum > params.length) {
-                throw new ProgramLogicError(
-                        "UI message template has a token number '" + tokenNum
-                                + "' but only '" + params.length
-                                + "' values were passed.");
-            }
-
-            tokenNum--;
-
-            String tokenVal = params[tokenNum];
-            used[tokenNum] = true;
-
-            switch (tokenLetter) {
-            case 'u':
-                AddressListEntry.writeParsedLinks(ar, tokenVal);
-                break;
-            case 'p':
-                writeContainerLinkIfExists(ar, tokenVal);
-                break;
-            case 'a':
-                writeContainerLinkIfExists(ar, tokenVal);
-                break;
-            case 'r':
-                String roleAddress = ar.getResourceURL(
-                        container,
-                        "permission.htm#"
-                                + URLEncoder.encode(tokenVal, "UTF-8"));
-                ar.write("<a href=\"");
-                ar.writeHtml(ar.retPath);
-                ar.writeHtml(roleAddress);
-                ar.write("\">");
-                ar.writeHtml(tokenVal);
-                ar.write("</a>");
-                break;
-            case 'm':
-                container.writeReminderLink(ar, tokenVal, 60);
-                break;
-            case 't':
-                container.writeTaskLink(ar, tokenVal, 60);
-                break;
-            case 'd':
-                container.writeDocumentLink(ar, tokenVal, 60);
-                break;
-            case 'n':
-                container.writeNoteLink(ar, tokenVal, 60);
-                break;
-            case 'x':
-                // don't display anything for this, hide the value
-                break;
-            default:
-                // this case includes any other letters that might be placed
-                // there. Might want to complain about it...
-                ar.writeHtmlWithLines(tokenVal);
-            }
-            start = closePos + 1;
-            openPos = template.indexOf("{", start);
-        }
-
-        if (start < template.length()) {
-            // write out the tail of the template.
-            ar.writeHtml(template.substring(start));
-        }
-
-        for (int i = 0; i < params.length; i++) {
-            if (!used[i]) {
-                throw new ProgramLogicError(
-                        "UI message template did not have a token for parameter '"
-                                + i + ".  Should have '" + params.length
-                                + "' tokens in all.");
-            }
-        }
+        hr.writeLocalizedHistoryMessage(ngp, ar);
     }
 
     public static String getExceptionMessageForAjaxRequest(Exception e,
@@ -581,30 +353,5 @@ public class NGWebUtils {
         HistoryRecord.createHistoryRecord(up, "Updating contacts",
                 HistoryRecord.CONTEXT_TYPE_ROLE, 0, eventType, ar, "");
     }
-
-
-    /*
-     * Use redirectToLoginView in baseController instead, It uses the message key instead of
-     * message and pick the message from properties file to make translatable. This method will be replaced by BaseController method
-     * from every where in code soon.
-     *
-    public static ModelAndView redirectToLoginView(AuthRequest ar,
-            String message) throws Exception {
-        ModelAndView redirectView = new ModelAndView(new RedirectView(
-                ar.baseURL + "t/EmailLoginForm.htm"));
-        redirectView.addObject("msg", message);
-        redirectView.addObject("go", ar.getCompleteURL());
-        return redirectView;
-    }*/
-
-    /*
-     * public static String getCombinedRepresentation(String url, String token)
-     * throws Exception { if (url == null) { throw new
-     * ProgramLogicError("LicensedURL has a null url value, that is not allowed."
-     * ); } if (url.length()<6) { throw new ProgramLogicError(
-     * "getCombinedRepresentation does not know how to handle url: "+url); } int
-     * pos = url.indexOf('?'); char separator = '?'; if (pos>0) { separator =
-     * '&'; } return url + separator + token; }
-     */
 
 }

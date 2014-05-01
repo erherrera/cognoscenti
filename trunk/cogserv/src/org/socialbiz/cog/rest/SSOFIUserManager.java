@@ -18,14 +18,22 @@
  * Anamika Chaudhari, Ajay Kakkar, Rajeev Rastogi
  */
 
-package org.socialbiz.cog;
+package org.socialbiz.cog.rest;
 
 import com.fujitsu.loginapplication.interfaces.GlobalId;
 import com.fujitsu.loginapplication.service.LoginServlet;
 import com.fujitsu.loginapplication.service.SingleTenantManager;
 import com.fujitsu.loginapplication.service.StringGlobalId;
+
 import java.io.File;
+
 import javax.servlet.http.HttpSession;
+
+import org.socialbiz.cog.AuthRequest;
+import org.socialbiz.cog.ConfigFile;
+import org.socialbiz.cog.NGSession;
+import org.socialbiz.cog.UserManager;
+import org.socialbiz.cog.UserProfile;
 
 /**
  * Implementation of the user manager required by SSOFI, and translating to

@@ -51,7 +51,6 @@ import javax.servlet.ServletContext;
 
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.spring.NGWebUtils;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -466,7 +465,7 @@ public class EmailSender extends TimerTask {
                 clone.write("\"></a>");
 
                 // Get Localized string
-                NGWebUtils.writeLocalizedHistoryMessage(history, container, clone);
+                history.writeLocalizedHistoryMessage(container, clone);
                 SectionUtil.nicePrintTime(clone.w, history.getTimeStamp(),
                         clone.nowTime);
                 if (history.getContextType() != HistoryRecord.CONTEXT_TYPE_PERMISSIONS
@@ -532,9 +531,8 @@ public class EmailSender extends TimerTask {
     public static int formatTaskListForEmail(AuthRequest ar, UserProfile up)
             throws Exception {
         int taskNum = 0;
-        TaskListRecord[] tasks = DataFeedServlet.getTaskList(up,
-                DataFeedServlet.MYACTIVETASKS);
-        if (tasks.length == 0) {
+        List<ProjectGoal> tasks = getActiveTaskList(up);
+        if (tasks.size() == 0) {
             return 0;
         }
         ar.write("<div style=\"margin-top:25px;margin-bottom:5px;\"><span style=\"font-size:24px;font-weight:bold;\">Task Updates</span>&nbsp;&nbsp;&nbsp;");
@@ -556,13 +554,13 @@ public class EmailSender extends TimerTask {
         ar.write("\n </tr> ");
         ar.write("\n </thead> ");
         ar.write("\n <tbody>");
-        for (int i = 0; i < tasks.length; i++) {
+        for (ProjectGoal pg : tasks) {
             taskNum++;
-            TaskListRecord task = tasks[i];
-            NGPageIndex ngpi = NGPageIndex.getContainerIndexByKey(task.pageKey);
+            NGPageIndex ngpi = pg.ngpi;
+            GoalRecord task = pg.goal;
 
             ar.write("\n <tr");
-            if (i % 2 == 0) {
+            if (taskNum % 2 == 0) {
                 ar.write(" class=\"Odd\"");
             }
             ar.write(" valign=\"top\">");
@@ -575,29 +573,27 @@ public class EmailSender extends TimerTask {
             ar.write("<img border=\"0\" align=\"absbottom\" src=\"");
             ar.write(ar.baseURL);
             ar.write("assets/images/");
-            ar.write(BaseRecord.stateImg(task.taskState));
+            ar.write(BaseRecord.stateImg(task.getState()));
             ar.write("\" alt=\"");
-            ar.writeHtml(GoalRecord.stateName(task.taskState));
+            ar.writeHtml(GoalRecord.stateName(task.getState()));
             ar.write("\"/></a>&nbsp;</td><td>");
             ar.write("<a href=\"");
             writeTaskLinkUrl(ar, ngpi, task);
             ar.write("\" title=\"access current status of task\">");
-            ar.writeHtml(task.taskSyn);
+            ar.writeHtml(task.getSynopsis());
             ar.write("</a> - <a href=\"");
             writeProcessLinkUrl(ar, ngpi);
             ar.write("\" title=\"See the project containing this task\">");
-            ar.writeHtml(task.pageName);
+            ar.writeHtml(ngpi.containerName);
             ar.write("</a>");
-            if (task.taskStatus != null && task.taskStatus.length() > 0) {
-                ar.write("\n<br/>Status: ");
-                ar.writeHtml(task.taskStatus);
-            }
+            ar.write("\n<br/>Status: ");
+            ar.writeHtml(task.getStatus());
             ar.write("\n </td>");
 
             // due date column.
             ar.write("\n <td>");
-            if (task.taskDue > 0) {
-                ar.write(SectionUtil.getNicePrintDate(task.taskDue));
+            if (task.getDueDate() > 0) {
+                ar.write(SectionUtil.getNicePrintDate(task.getDueDate()));
             }
             ar.write("\n </td>");
             ar.write("\n </tr>");
@@ -611,18 +607,17 @@ public class EmailSender extends TimerTask {
      * Writes a URL of the task details page for a given task
      */
     private static void writeTaskLinkUrl(AuthRequest ar, NGPageIndex ngpi,
-            TaskListRecord task) throws Exception {
+            GoalRecord gr) throws Exception {
         ar.write(ar.baseURL);
         ar.write("t/");
         ar.writeURLData(ngpi.pageBookKey);
         ar.write("/");
         ar.writeURLData(ngpi.containerKey);
         ar.write("/task");
-        ar.writeURLData(task.taskId);
+        ar.writeURLData(gr.getId());
         ar.write(".htm");
         ar.write("?");
         NGPage ngp = (NGPage) ngpi.getContainer();
-        GoalRecord gr = ngp.getGoalOrFail(task.taskId);
         ar.write(AccessControl.getAccessGoalParams(ngp, gr));
 
     }
@@ -1259,5 +1254,63 @@ public class EmailSender extends TimerTask {
         quickEmail(new OptOutAddr(ale), from, subject, emailBody);
     }
 
+    // operation get task list.
+    public static List<ProjectGoal> getActiveTaskList(UserProfile up) throws Exception {
+        
+        Vector<ProjectGoal> activeTask = new Vector<ProjectGoal>();
 
+        if (up == null) {
+            throw new Exception("can not get list of goals for userwhich is null");
+        }
+
+        for (NGPageIndex ngpi : NGPageIndex.getAllContainer()) {
+            // start by clearing any outstanding locks in every loop
+            NGPageIndex.clearLocksHeldByThisThread();
+
+            if (!ngpi.isProject()) {
+                continue;
+            }
+            NGPage aPage = ngpi.getPage();
+            for (GoalRecord gr : aPage.getAllGoals()) {
+                if ((!gr.isAssignee(up)) && (!gr.isReviewer(up))) {
+                    continue;
+                }
+                int state = gr.getState();
+                if (state == BaseRecord.STATE_ERROR) {
+                    if (gr.isAssignee(up)) {
+                        activeTask.add(new ProjectGoal(gr, aPage));
+                    }
+                }
+                else if (state == BaseRecord.STATE_ACCEPTED || state == BaseRecord.STATE_STARTED
+                        || state == BaseRecord.STATE_WAITING) {
+                    // the assignee should see this task in the active task list.
+                    if (gr.isAssignee(up)) {
+                        activeTask.add(new ProjectGoal(gr, aPage));
+                    }
+                }
+                else if (state == BaseRecord.STATE_REVIEW) {
+                    // when the user is THE reviewer and not yet approved this task
+                    // then this should be in the active tasks list.
+                    if (gr.isNextReviewer(up)) {
+                        activeTask.add(new ProjectGoal(gr, aPage));
+                    }
+                }
+            }
+        }
+
+        return activeTask;
+    }
+
+    
+    static class ProjectGoal {
+        
+        public GoalRecord goal;
+        public NGPageIndex ngpi;
+        
+        
+        public ProjectGoal(GoalRecord aGoal, NGPage aPage) throws Exception {
+            goal = aGoal;
+            ngpi = NGPageIndex.getContainerIndexByKey(aPage.getKey());
+        }
+    }
 }

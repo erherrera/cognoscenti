@@ -1,11 +1,8 @@
 package org.socialbiz.cog.test;
 
-import java.io.File;
-
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGContainer;
 import org.socialbiz.cog.NGPageIndex;
-import org.socialbiz.cog.NGProj;
 import org.socialbiz.cog.NGRole;
 import org.workcast.testframe.TestDriver;
 import org.workcast.testframe.TestRecorder;
@@ -166,7 +163,8 @@ public class TestBuildSite implements TestSet {
 		}
 	}
 
-	private void testNull(String id, Object testVal) {
+	@SuppressWarnings("unused")
+    private void testNull(String id, Object testVal) {
 		if (null==testVal) {
 			tr.markPassed(id);
 		}

@@ -34,10 +34,10 @@ import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.SectionWiki;
-import org.socialbiz.cog.ServerInitializer;
 import org.socialbiz.cog.UserRef;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.WikiConverter;
+import org.socialbiz.cog.rest.ServerInitializer;
 
 import java.io.File;
 import java.io.FileInputStream;
