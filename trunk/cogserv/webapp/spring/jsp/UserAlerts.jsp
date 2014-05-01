@@ -64,7 +64,7 @@ Required Parameters:
     <p>These notifications, if any, will be included in your next daily digest email.</p>
 
     <%
-    EmailSender.constructDailyDigestEmail(ar,containers,context,lastSendTime,ar.nowTime);
+    EmailSender.constructDailyDigestEmail(ar,containers,lastSendTime,ar.nowTime);
 
     out.flush();
 
