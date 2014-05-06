@@ -116,37 +116,6 @@ public class CVSUtil
         return process;
     }
 
-    private static String getCVSConnectString(String connStr, String password)  throws Exception
-    {
-        if (connStr == null || connStr.length() == 0 || password == null || password.length() == 0) {
-            return connStr;
-        }
-
-        int idx = connStr.indexOf("@");
-        connStr = connStr.substring(0, idx) + ":" + password + connStr.substring(idx, connStr.length());
-        return connStr;
-    }
-
-    private static boolean login(String cvsConnectStr) throws Exception
-    {
-        if (cvsConnectStr == null || cvsConnectStr.length() == 0) {
-            return false;
-        }
-
-        Process process = CVSUtil.executeCommand(CVS_D + cvsConnectStr + SPACE + CVSUtil.LOGIN);
-        return CVSUtil.isProcessSuccess(process);
-    }
-
-    private static boolean logout(String cvsConnectStr) throws Exception
-    {
-        if (cvsConnectStr == null || cvsConnectStr.length() == 0) {
-            return false;
-        }
-
-        Process process = CVSUtil.executeCommand(CVS_D + cvsConnectStr + SPACE + CVSUtil.LOGOUT);
-        return CVSUtil.isProcessSuccess(process);
-    }
-
     public static Process add(File filePath, String userName, String comment) throws Exception
     {
         if (!cvsEnabled) {

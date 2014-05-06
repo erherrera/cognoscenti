@@ -44,7 +44,7 @@ public class NGException extends ExceptionBase {
      * Used by ExceptionBase to read the right resource bundle
      */
     protected  String resourceBundleName() {
-        return "error_messages";
+        return "messages";
     }
 
     /**
