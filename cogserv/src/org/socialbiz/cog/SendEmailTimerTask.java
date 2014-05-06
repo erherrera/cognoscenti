@@ -28,7 +28,6 @@ public class SendEmailTimerTask extends TimerTask {
 
     private final static long EVERY_TWO_HOURS = 1000*60*60*2;
 
-    private static SendEmailTimerTask sendEmailSingleton = null;
     public static Exception threadLastCheckException = null;
 
     private SendEmailTimerTask() throws Exception{
@@ -37,12 +36,8 @@ public class SendEmailTimerTask extends TimerTask {
 
     public static void initEmailSender(Timer timer) throws Exception
     {
-        if(sendEmailSingleton != null){
-            return;
-            //throw new Exception("Try to create duplicate instance of SendEmail Singleton class.");
-        }
-        sendEmailSingleton = new SendEmailTimerTask();
-        timer.scheduleAtFixedRate(sendEmailSingleton, 60000, EVERY_TWO_HOURS);
+        SendEmailTimerTask sendEmailObj = new SendEmailTimerTask();
+        timer.scheduleAtFixedRate(sendEmailObj, 60000, EVERY_TWO_HOURS);
     }
 
     @Override

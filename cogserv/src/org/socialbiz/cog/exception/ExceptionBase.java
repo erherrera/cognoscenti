@@ -277,19 +277,6 @@ public class ExceptionBase extends Exception {
                 }
             }
         }
-
-        // check that the <$e> was present if needed, otherwise
-        // add the causing message on the end.
-        // use curley braces so that this does not get confused with the
-        // parentheses used for substitution parameters.
-        /*
-        Actually, this appears to not be very useful...
-        if (!usedCause && getCause() != null) {
-            res.append(" {");
-            res.append(getCauseMessage(locale));
-            res.append("}");
-        }
-        */
         return res.toString();
     }
 

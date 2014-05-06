@@ -22,11 +22,12 @@ public class Cognoscenti {
      * uninitialized state.  You  need to reinitialize after this.
      * Useful before calling garbage collect and reinitialize.
      */
-    public static void clearAllStaticVariables() {
+    public synchronized static void clearAllStaticVariables() {
         NGPageIndex.clearAllStaticVars();
         MicroProfileMgr.clearAllStaticVars();
         AuthDummy.clearStaticVariables();
         isInitialized = false;
+        initializingNow = false;
     }
 
     /**
@@ -38,8 +39,21 @@ public class Cognoscenti {
      *        email sending and receiving
      * @exception will be thrown if anything in the configuration appears to be incorrect
      */
-    public static void initializeAll(File rootFolder, Timer backgroundTimer) throws Exception {
-    	try {
+    public static synchronized void initializeAll(File rootFolder, Timer backgroundTimer) throws Exception {
+    	try {  	    
+    	    if (isInitialized) {
+    	        //NOTE: two or more threads might try to call this at the same time.
+    	        //Method is synchronized which will block threads, but when they get in here, 
+    	        //the first thing to do is check if you were initialized while blocked.
+    	        if (rootFolder.equals(ConfigFile.getFileFromRoot(""))) {
+    	            //all OK, just return
+        	        return;
+    	        }
+    	        //was initialized to a different location, clean up that
+    	        System.out.print("Reinitialization: changing from "+ConfigFile.getFileFromRoot("")
+    	                +" to "+rootFolder);
+    	        clearAllStaticVariables();
+    	    }
 	        initializingNow = true;
 	        ConfigFile.initialize(rootFolder);
 	        ConfigFile.assertConfigureCorrectInternal();
@@ -66,6 +80,5 @@ public class Cognoscenti {
             initializingNow = false;   		
     	}
     }
-
     
 }
