@@ -32,6 +32,7 @@ public class EmailRecord extends DOMFace
     public static final String READY_TO_GO = "Ready";
     public static final String SENT = "Sent";
     public static final String FAILED = "Failed";
+    public static final String SKIPPED = "Skipped";
 
     public EmailRecord(Document doc, Element upEle, DOMFace p)
     {
