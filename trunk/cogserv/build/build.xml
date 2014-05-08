@@ -96,6 +96,13 @@
                 file="${target.dir}/cog.1.jar" />
 
         <mkdir dir="${target.dir}/jartemp"/>
+        
+        <!-- copy the properties files -->
+        <copy preservelastmodified="true" todir="${target.dir}/jartemp">
+            <fileset dir="${source.dir.webapp}/WEB-INF/classes/">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
 
         <!-- set classpath for compiling the java classes -->
         <path id="build.classpathJar">
@@ -109,6 +116,7 @@
 
         <javac debug="on" includeAntRuntime="false" nowarn="true"
                srcdir="${source.dir.src}" destdir="${target.dir}/jartemp"
+               target="1.6" source="1.6"
                includes="org/socialbiz/cog/util/*.java,org/socialbiz/cog/*.java,org/socialbiz/cog/exception/*.java">
             <classpath refid="build.classpathJar" />
         </javac>

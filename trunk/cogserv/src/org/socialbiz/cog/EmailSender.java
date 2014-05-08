@@ -228,7 +228,6 @@ public class EmailSender extends TimerTask {
      * emails with their tasks on it.
      */
     public void sendDailyDigest() throws Exception {
-        Transport transport = null;
         AuthRequest arx = AuthDummy.serverBackgroundRequest();
         Writer debugEvidence = new StringWriter();
 
@@ -260,8 +259,6 @@ public class EmailSender extends TimerTask {
             mailSession.setDebug(Boolean.valueOf(getProperty("mail.debug"))
                     .booleanValue());
 
-            transport = mailSession.getTransport();
-            transport.connect();
             StringWriter bodyOut = null;
             // loop thru all the profiles to send out the email.
             UserProfile[] ups = UserManager.getAllUserProfiles();
@@ -388,12 +385,6 @@ public class EmailSender extends TimerTask {
             throw new NGException(
                     "nugen.exception.unable.to.send.daily.digest", null, e);
         } finally {
-            if (transport != null) {
-                try {
-                    transport.close();
-                } catch (Exception ce) { /* ignore this exception */
-                }
-            }
             NGPageIndex.clearLocksHeldByThisThread();
         }
     }
@@ -403,7 +394,7 @@ public class EmailSender extends TimerTask {
      * Returns the total number of history records actually found.
      */
     public static int constructDailyDigestEmail(AuthRequest clone,
-            List<NGContainer> containers, 
+            List<NGContainer> containers,
             long historyRangeStart, long historyRangeEnd) throws Exception {
         int totalHistoryCount = 0;
         boolean needsFirst = true;
@@ -800,8 +791,19 @@ public class EmailSender extends TimerTask {
                     "sendPreparedMessageImmediately requires a non null eRec parameter");
         }
 
-        String useraddress = "(Initial value)";
         long sendTime = System.currentTimeMillis();
+
+        //check that server is configured to send email
+        if (!"smtp".equals(getProperty("mail.transport.protocol"))) {
+            //if protocol is set to anything else, then just ignore this request
+            //this is an easy way to disable the sending of email across board
+            eRec.setStatus(EmailRecord.SKIPPED);
+            eRec.setLastSentDate(sendTime);
+            System.out.println("Email skipped, not sent, mail.transport.protocol!=smtp ");
+            return;
+        }
+
+        String useraddress = "(Initial value)";
 
         Transport transport = null;
         try {
@@ -1123,7 +1125,7 @@ public class EmailSender extends TimerTask {
         if (proto == null || proto.length() == 0) {
             throw new NGException("nugen.exception.email.config.issue", null);
         }
-        if (!proto.equals("smtp")) {
+        if (!proto.equals("smtp") && !proto.equals("none")) {
             throw new NGException(
                     "nugen.exception.email.config.file.smtp.issue",
                     new Object[] { proto });
@@ -1253,7 +1255,7 @@ public class EmailSender extends TimerTask {
 
     // operation get task list.
     public static List<ProjectGoal> getActiveTaskList(UserProfile up) throws Exception {
-        
+
         Vector<ProjectGoal> activeTask = new Vector<ProjectGoal>();
 
         if (up == null) {
@@ -1298,13 +1300,13 @@ public class EmailSender extends TimerTask {
         return activeTask;
     }
 
-    
+
     static class ProjectGoal {
-        
+
         public GoalRecord goal;
         public NGPageIndex ngpi;
-        
-        
+
+
         public ProjectGoal(GoalRecord aGoal, NGPage aPage) throws Exception {
             goal = aGoal;
             ngpi = NGPageIndex.getContainerIndexByKey(aPage.getKey());
