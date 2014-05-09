@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.json.JSONObject;
+import org.workcast.json.JSONObject;
 import org.openid4java.consumer.ConsumerManager;
 import org.openid4java.consumer.VerificationResult;
 import org.openid4java.discovery.DiscoveryInformation;
@@ -52,7 +52,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.fujitsu.loginapplication.service.LoginServlet;
+import org.workcast.ssoficlient.service.LoginServlet;
 
 @Controller
 public class LoginController extends BaseController {

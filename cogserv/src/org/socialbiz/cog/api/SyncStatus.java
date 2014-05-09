@@ -20,7 +20,7 @@
 
 package org.socialbiz.cog.api;
 
-import org.json.JSONObject;
+import org.workcast.json.JSONObject;
 
 /**
 * supports comparing a local and remote project

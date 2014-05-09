@@ -24,7 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONObject;
+import org.workcast.json.JSONObject;
 import org.socialbiz.cog.AccessControl;
 import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AuthRequest;

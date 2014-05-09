@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.json.JSONObject;
+import org.workcast.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

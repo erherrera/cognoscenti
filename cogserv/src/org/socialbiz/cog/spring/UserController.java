@@ -41,8 +41,8 @@ import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.workcast.json.JSONArray;
+import org.workcast.json.JSONObject;
 import org.socialbiz.cog.AccessControl;
 import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AgentRule;

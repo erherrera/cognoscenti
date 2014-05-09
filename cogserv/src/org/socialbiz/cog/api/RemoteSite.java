@@ -22,7 +22,7 @@ package org.socialbiz.cog.api;
 
 import java.net.URL;
 
-import org.json.JSONObject;
+import org.workcast.json.JSONObject;
 import org.socialbiz.cog.RemoteJSON;
 
 /**

@@ -22,13 +22,13 @@ package org.socialbiz.cog.rest;
 
 import org.socialbiz.cog.UserProfile;
 
-import com.fujitsu.loginapplication.interfaces.GlobalId;
+import org.workcast.ssoficlient.interfaces.GlobalId;
 
 /**
  * implementation of the UserProfile interface required by SSOFI
  * as a wrapper on the cognoscenti UserProfile class
  */
-public class SSOFIUserProfile implements com.fujitsu.loginapplication.interfaces.UserProfile {
+public class SSOFIUserProfile implements org.workcast.ssoficlient.interfaces.UserProfile {
 
     //This is the Cognoscenti user profile
     private UserProfile user;

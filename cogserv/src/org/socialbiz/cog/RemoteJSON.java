@@ -25,9 +25,9 @@ import java.net.URL;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.workcast.json.JSONArray;
+import org.workcast.json.JSONObject;
+import org.workcast.json.JSONTokener;
 
 /**
 * A remote retrieval of JSON (GET) and call (POST)

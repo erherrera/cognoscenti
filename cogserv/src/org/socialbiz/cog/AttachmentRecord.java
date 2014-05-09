@@ -20,7 +20,7 @@
 
 package org.socialbiz.cog;
 
-import org.json.JSONObject;
+import org.workcast.json.JSONObject;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.dms.RemoteLinkCombo;
