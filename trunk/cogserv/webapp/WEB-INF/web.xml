@@ -41,7 +41,7 @@
 
     <servlet>
         <servlet-name>Login</servlet-name>
-        <servlet-class>com.fujitsu.loginapplication.service.LoginServlet</servlet-class>
+        <servlet-class>org.workcast.ssoficlient.service.LoginServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>

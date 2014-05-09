@@ -20,10 +20,10 @@
 
 package org.socialbiz.cog.rest;
 
-import com.fujitsu.loginapplication.interfaces.GlobalId;
-import com.fujitsu.loginapplication.service.LoginServlet;
-import com.fujitsu.loginapplication.service.SingleTenantManager;
-import com.fujitsu.loginapplication.service.StringGlobalId;
+import org.workcast.ssoficlient.interfaces.GlobalId;
+import org.workcast.ssoficlient.service.LoginServlet;
+import org.workcast.ssoficlient.service.SingleTenantManager;
+import org.workcast.ssoficlient.service.StringGlobalId;
 
 import java.io.File;
 
@@ -41,7 +41,7 @@ import org.socialbiz.cog.UserProfile;
  * Cognoscenti has static methods for managing users, so there is no
  * instance object to wrap.
  */
-public class  SSOFIUserManager implements com.fujitsu.loginapplication.interfaces.UserManager {
+public class  SSOFIUserManager implements org.workcast.ssoficlient.interfaces.UserManager {
 
     public static String emailProviderAddress = null;
 
@@ -90,7 +90,7 @@ public class  SSOFIUserManager implements com.fujitsu.loginapplication.interface
      * the UserProfile object if the profile is found else return a null.
      * It return a single object of UserProfile because only one profile exists for one global id.
      */
-    public com.fujitsu.loginapplication.interfaces.UserProfile findUser(String globalId) throws Exception {
+    public org.workcast.ssoficlient.interfaces.UserProfile findUser(String globalId) throws Exception {
         UserProfile user = UserManager.findUserByAnyId(globalId);
         if (user==null) {
             //try again with the processed ID
@@ -113,7 +113,7 @@ public class  SSOFIUserManager implements com.fujitsu.loginapplication.interface
      * particular global id to avoid conflicts in future. So before calling this function it must be checked if any
      * UserProfile already exists associated with this id.
      */
-    public com.fujitsu.loginapplication.interfaces.UserProfile createUser(String globalId) throws Exception {
+    public org.workcast.ssoficlient.interfaces.UserProfile createUser(String globalId) throws Exception {
         String id = processEmailType(globalId);
         UserProfile user =  UserManager.createUserWithId(id);
         if (user==null) {
@@ -145,7 +145,7 @@ public class  SSOFIUserManager implements com.fujitsu.loginapplication.interface
     /**
      * This method returns UserProfile object of logged in user and returns a null if no user is logged in.
      */
-    public com.fujitsu.loginapplication.interfaces.UserProfile loggedInUser(HttpSession session) throws Exception {
+    public org.workcast.ssoficlient.interfaces.UserProfile loggedInUser(HttpSession session) throws Exception {
         NGSession ngs = AuthRequest.getNGSession(session);
         UserProfile user = ngs.findLoginUserProfile();
         if (user==null) {
@@ -162,7 +162,7 @@ public class  SSOFIUserManager implements com.fujitsu.loginapplication.interface
      * Note: Most of the time confirmed id and open id remains the same but two variable are taken for some special
      * case like in case of Google and Yahoo confirmed id have some string appended with openid.
      */
-    public void setLoggedInUser(HttpSession session, com.fujitsu.loginapplication.interfaces.UserProfile up, String confirmedId) throws Exception {
+    public void setLoggedInUser(HttpSession session, org.workcast.ssoficlient.interfaces.UserProfile up, String confirmedId) throws Exception {
         NGSession ngs = AuthRequest.getNGSession(session);
         UserProfile wrapped = ((SSOFIUserProfile)up).getWrappedUser();
         String id = processEmailType(confirmedId);

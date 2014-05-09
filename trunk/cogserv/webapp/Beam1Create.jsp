@@ -19,7 +19,7 @@
 %><%@page import="org.socialbiz.cog.UserProfile"
 %><%@page import="org.socialbiz.cog.WatchRecord"
 %><%@page import="org.socialbiz.cog.rest.TaskHelper"
-%><%@page import="org.json.JSONObject"
+%><%@page import="org.workcast.json.JSONObject"
 %><%@page import="java.io.InputStream"
 %><%@page import="java.net.URL"
 %><%@page import="java.net.URLEncoder"

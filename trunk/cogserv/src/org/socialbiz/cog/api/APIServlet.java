@@ -16,9 +16,9 @@
 
 package org.socialbiz.cog.api;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.workcast.json.JSONArray;
+import org.workcast.json.JSONObject;
+import org.workcast.json.JSONTokener;
 import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AttachmentVersion;

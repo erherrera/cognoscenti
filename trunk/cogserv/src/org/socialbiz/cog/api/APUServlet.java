@@ -16,8 +16,8 @@
 
 package org.socialbiz.cog.api;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.workcast.json.JSONArray;
+import org.workcast.json.JSONObject;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.BaseRecord;
 import org.socialbiz.cog.Cognoscenti;

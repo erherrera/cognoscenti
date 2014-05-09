@@ -1,6 +1,6 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@include file="UserProfile.jsp"
-%><%@page import="com.fujitsu.loginapplication.service.LoginServlet"
+%><%@page import="org.workcast.ssoficlient.service.LoginServlet"
 %><%@page import="org.socialbiz.cog.ConfigFile"
 %><%
 

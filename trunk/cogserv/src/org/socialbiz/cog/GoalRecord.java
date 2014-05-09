@@ -28,10 +28,10 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
-import org.json.JSONObject;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.workcast.json.JSONObject;
 
 public class GoalRecord extends BaseRecord {
     public GoalRecord(Document definingDoc, Element definingElement, DOMFace p)
