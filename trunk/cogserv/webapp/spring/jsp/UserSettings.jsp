@@ -39,6 +39,9 @@
     String emailOpenIDProvider = ConfigFile.getProperty("emailOpenIDProvider");
     String visitLoginPrompt = "";
     String prefEmail = uProf.getPreferredEmail();
+    if (prefEmail==null) {
+        prefEmail = "-none-";
+    }
     String remoteProfileURL = ar.baseURL+"apu/"+uProf.getKey()+"/user.json?lic="+uProf.getLicenseToken();
 
 %>

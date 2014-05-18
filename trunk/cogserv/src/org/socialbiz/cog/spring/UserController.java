@@ -865,7 +865,7 @@ public class UserController extends BaseController {
         return modelAndView;
     }
 
-
+/*
     @RequestMapping(value = "/invitedUserRegitsrationSubmit.form", method = RequestMethod.POST)
     public void invitedUserRegitsrationSubmit(HttpServletRequest request, HttpServletResponse response) throws Exception{
         AuthRequest ar = null;
@@ -897,7 +897,7 @@ public class UserController extends BaseController {
                 throw new NGException("nugen.exceptionhandling.both.password.shouldbe.same",null);
             }
 
-            UserProfile up = UserManager.createUserWithId(emailId);
+            UserProfile up = UserManager.createUserWithId(null, emailId);
             ar.setLoggedInUser(up, emailId,null,null);
             up.setLastUpdated(ar.nowTime);
             up.setPassword(password);
@@ -913,7 +913,8 @@ public class UserController extends BaseController {
         }
         response.sendRedirect(go);
     }
-
+*/
+    
     @RequestMapping(value = "/requestToJoinOrLeaveRole.ajax", method = RequestMethod.POST)
     public void joinOrLeaveRole(HttpServletRequest request, HttpServletResponse response)
     throws Exception {

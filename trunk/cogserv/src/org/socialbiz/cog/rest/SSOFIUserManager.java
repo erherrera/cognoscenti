@@ -110,12 +110,13 @@ public class  SSOFIUserManager implements org.workcast.ssoficlient.interfaces.Us
     /**
      * Method createUser is used to create a new user profile for the provided global id.
      * Implementation class should take care that only single user profile should exists for a
-     * particular global id to avoid conflicts in future. So before calling this function it must be checked if any
-     * UserProfile already exists associated with this id.
+     * particular global id to avoid conflicts in future. So before calling this function it must 
+     * be checked if any UserProfile already exists associated with this id.
      */
-    public org.workcast.ssoficlient.interfaces.UserProfile createUser(String globalId) throws Exception {
-        String id = processEmailType(globalId);
-        UserProfile user =  UserManager.createUserWithId(id);
+    public org.workcast.ssoficlient.interfaces.UserProfile createUser(String key, String globalId)
+            throws Exception {
+        String emailOrId = processEmailType(globalId);
+        UserProfile user =  UserManager.createUserWithId(key, emailOrId);
         if (user==null) {
             return null;
         }

@@ -339,14 +339,12 @@ public class LoginController extends BaseController {
                 throw new NGException("nugen.exception.user.login.conflict.for.create.profile",new Object[]{email});
             }
 
-            UserProfile up = UserManager.findUserByAnyId(email);
-            if (up!=null)
-            {
+            if (UserManager.findUserByAnyId(email)!=null) {
                 throw new NGException("nugen.exception.cant.create.new.profile", new Object[]{email});
             }
 
             //at this point log them in and create profile
-            up = UserManager.createUserWithId(email);
+            UserProfile up = UserManager.createUserWithId(null, email);
             anonPage.removeProfileRequest(chosen.getId());
             anonPage.saveFile(ar, "requested to create profile for "+email);
             ar.setLoggedInUser(up, email,null,null);
@@ -661,7 +659,7 @@ public class LoginController extends BaseController {
         return null;
     }
 
-
+/*
     @RequestMapping(value = "Cognoscenti.htm", method = RequestMethod.GET)
     public void fujitsuProcessLeaves(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
@@ -785,7 +783,7 @@ public class LoginController extends BaseController {
             throw new NGException("nugen.operation.fail.cognoscenti.page", null , ex);
         }
     }
-
+*/
 
     @RequestMapping(value = "/inCompleteProfileAlert.htm", method = RequestMethod.GET)
     public ModelAndView inCompleteProfileAlert(

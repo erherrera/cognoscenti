@@ -231,30 +231,31 @@ public class UserManager
         return up;
     }
 
-    public static UserProfile createUserWithId(String newId)
+    public static UserProfile createUserWithId(String guid, String newId)
         throws Exception
     {
         //lets make sure that no other profile has that id first,
         //to avoid any complicated situations.
-        UserProfile up = UserManager.findUserByAnyId(newId);
-        if (up!=null)
-        {
+        if (guid!=null && UserManager.getUserProfileByKey(guid)!=null) {
+            throw new ProgramLogicError("Can not create a new user profile using a key/guid that some other profile already has: "+guid);
+        }
+        if (UserManager.findUserByAnyId(newId)!=null) {
             throw new ProgramLogicError("Can not create a new user profile using an address that some other profile already has: "+newId);
         }
 
-        up = createUserProfile();
+        UserProfile up = createUserProfile(guid);
         up.addId(newId);
         return up;
     }
 
-    public static UserProfile createUserProfile()
-        throws Exception
-    {
-        if (profileFile==null)
-        {
+    public static UserProfile createUserProfile(String guid) throws Exception {
+        if (profileFile==null) {
             throw new ProgramLogicError("profileFile is null when it shoudl not be.  May not have been initialized correctly.");
         }
         UserProfile nu = profileFile.createChild("userprofile", UserProfile.class);
+        if (guid!=null) {
+            nu.setKey(guid);
+        }
         allUsers.add(nu);
         refreshHashtables();
         return nu;
