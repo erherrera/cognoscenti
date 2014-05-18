@@ -21,7 +21,6 @@
 package org.socialbiz.cog.rest;
 
 import org.socialbiz.cog.UserProfile;
-
 import org.workcast.ssoficlient.interfaces.GlobalId;
 
 /**
@@ -100,6 +99,22 @@ public class SSOFIUserProfile implements org.workcast.ssoficlient.interfaces.Use
         }
         catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void setDisplayName(String newName) {
+        user.setName(newName);
+    }
+
+    @Override
+    public void setEmail(String newEmail) {
+        try {
+            user.addId(newEmail);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            //must swallow to fit the interface pattern
         }
     }
 

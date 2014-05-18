@@ -1543,14 +1543,10 @@ public class MainTabsViewControler extends BaseController {
           try{
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
               registerRequiredProject(ar, siteId, pageId);
-              if(!ar.isLoggedIn()){
-                  return showWarningView(ar, "nugen.project.task.login.msg");
+              ModelAndView modelAndView= memberCheckViews(ar);
+              if (modelAndView!=null) {
+                  return modelAndView;
               }
-              if(!ar.isMember()){
-                  request.setAttribute("roleName", "Members");
-                  return showWarningView(ar, "nugen.projecthome.task.memberlogin");
-              }
-
 
               //this page has a required parameter 'active', test it here so that any error
               //happens in the controller, not the page.
@@ -1576,12 +1572,9 @@ public class MainTabsViewControler extends BaseController {
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
               registerRequiredProject(ar, siteId, pageId);
 
-              if(!ar.isLoggedIn()){
-                  return showWarningView(ar, "nugen.project.task.login.msg");
-              }
-              if(!ar.isMember()){
-                  request.setAttribute("roleName", "Members");
-                  return showWarningView(ar, "nugen.projecthome.task.memberlogin");
+              ModelAndView modelAndView= memberCheckViews(ar);
+              if (modelAndView!=null) {
+                  return modelAndView;
               }
 
               //this page has a required parameter 'active', test it here so that any error
@@ -1606,15 +1599,12 @@ public class MainTabsViewControler extends BaseController {
           try{
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
               registerRequiredProject(ar, siteId, pageId);
-
-              if(!ar.isLoggedIn()){
-                  return showWarningView(ar, "nugen.project.task.login.msg");
+              
+              ModelAndView modelAndView= memberCheckViews(ar);
+              if (modelAndView!=null) {
+                  return modelAndView;
               }
-              if(!ar.isMember()){
-                  request.setAttribute("roleName", "Members");
-                  return showWarningView(ar, "nugen.projecthome.task.memberlogin");
-              }
-
+              
               //this page has a required parameter 'active', test it here so that any error
               //happens in the controller, not the page.
               String active = ar.defParam("active", "1");
@@ -1638,12 +1628,9 @@ public class MainTabsViewControler extends BaseController {
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
               registerRequiredProject(ar, siteId, pageId);
 
-              if(!ar.isLoggedIn()){
-                  return showWarningView(ar, "nugen.project.task.login.msg");
-              }
-              if(!ar.isMember()){
-                  request.setAttribute("roleName", "Members");
-                  return showWarningView(ar, "nugen.projecthome.task.memberlogin");
+              ModelAndView modelAndView= memberCheckViews(ar);
+              if (modelAndView!=null) {
+                  return modelAndView;
               }
 
               //this page has a required parameter 'active', test it here so that any error
@@ -1669,12 +1656,9 @@ public class MainTabsViewControler extends BaseController {
               AuthRequest ar = AuthRequest.getOrCreate(request, response);
               registerRequiredProject(ar, siteId, pageId);
 
-              if(!ar.isLoggedIn()){
-                  return showWarningView(ar, "nugen.project.task.login.msg");
-              }
-              if(!ar.isMember()){
-                  request.setAttribute("roleName", "Members");
-                  return showWarningView(ar, "nugen.projecthome.task.memberlogin");
+              ModelAndView modelAndView= memberCheckViews(ar);
+              if (modelAndView!=null) {
+                  return modelAndView;
               }
 
               //this page has a required parameter 'active', test it here so that any error

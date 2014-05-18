@@ -193,13 +193,12 @@ public class ResourceUser implements NGResource
         {
             throw new NGException("nugen.exception.userid.must.be.factory", null);
         }
-        UserProfile profile = UserManager.findUserByAnyId(lar.getBestUserId());
-        if (profile != null) {
+        if ( UserManager.findUserByAnyId(lar.getBestUserId()) != null) {
             lrstatus.setStatusCode(401);
-            throw new ProgramLogicError("Profile already exists for user '" + profile.getKey()
+            throw new ProgramLogicError("Profile already exists for user '" + lar.getBestUserId()
               + "' Use PUT to update the profile");
         }
-        profile = UserManager.createUserWithId(lar.getBestUserId());
+        UserProfile profile = UserManager.createUserWithId(null, lar.getBestUserId());
         lclupdate(profile);
 
         lrstatus.setResourceid(profile.getKey());

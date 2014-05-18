@@ -49,6 +49,14 @@ public class SiteRequest extends DOMFace {
         setScalar("description", descr.trim());
     }
 
+    public String getAdminComment() {
+        return getScalar("comment");
+    }
+
+    public void setAdminComment(String descr) {
+        setScalar("comment", descr.trim());
+    }
+
     public String getSiteId() {
         return getScalar("accountId");
     }

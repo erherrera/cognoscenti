@@ -102,7 +102,15 @@ Required parameter:
                             <td width="148" class="gridTableColummHeader" valign="top">Description:</td>
                             <td style="width:20px;"></td>
                             <td>
-                                <textarea id="description" name="description" rows="4" class="textAreaGeneral"><%ar.writeHtml(accountDetails.getDescription());%></textarea>
+                                <%ar.writeHtml(accountDetails.getDescription());%>
+                            </td>
+                        </tr>
+                       <tr><td style="height:15px"></td></tr>
+                        <tr>
+                            <td width="148" class="gridTableColummHeader" valign="top">Comment:</td>
+                            <td style="width:20px;"></td>
+                            <td>
+                                <textarea id="description" name="description" rows="4" class="textAreaGeneral"></textarea>
                             </td>
                         </tr>
                         <tr><td style="height:15px"></td></tr>

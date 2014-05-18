@@ -85,20 +85,20 @@ public class HistoricActions {
      * user to let them know what has transpired.
      * @param siteRequest should be looked up and passed in
      * @param granted a boolean true=granted,  false=denied
-     * @param description = the comment from the administrator about why to do it
+     * @param adminComment = the comment from the administrator about why to do it
      * @return the site created, or null if denied
      */
-    public NGBook completeSiteRequest(SiteRequest siteRequest, boolean granted, String description) throws Exception {
-        siteRequest.setDescription(description);
+    public NGBook completeSiteRequest(SiteRequest siteRequest, boolean granted, String adminComment) throws Exception {
+        siteRequest.setAdminComment(adminComment);
         AddressListEntry ale = new AddressListEntry(siteRequest.getUniversalId());
         NGBook ngb = null;
     	if (granted) {
             //Create new Site
             ngb = NGBook.createNewSite(siteRequest.getSiteId(), siteRequest.getName());
             ngb.setKey(siteRequest.getSiteId());
+            ngb.setDescription(siteRequest.getDescription());
             ngb.getPrimaryRole().addPlayer(ale);
             ngb.getSecondaryRole().addPlayer(ale);
-            ngb.setDescription(siteRequest.getDescription());
             ngb.saveFile(ar, "New Site created");
             NGPageIndex.makeIndex(ngb);
 
@@ -135,6 +135,9 @@ public class HistoricActions {
         clone.write("</td></tr>");
         clone.write("\n<tr><td>Result: &nbsp;</td><td>");
         clone.writeHtml(siteRequest.getStatus());
+        clone.write("</td></tr>");
+        clone.write("\n<tr><td>Comment: &nbsp;</td><td>");
+        clone.writeHtml(siteRequest.getAdminComment());
         clone.write("</td></tr>");
         clone.write("\n<tr><td>Site Name: &nbsp;</td><td><a href=\"");
         clone.write(ar.baseURL);

@@ -455,7 +455,7 @@ public class AccountController extends BaseController {
             {
                 //create a user profile for this user at this point because you have to have
                 //a user profile in order to access the response record.
-                designatedUser = UserManager.createUserWithId(uid);
+                designatedUser = UserManager.createUserWithId(null, uid);
                 designatedUser.setLastUpdated(ar.nowTime);
                 UserManager.writeUserProfilesToFile();
             }
