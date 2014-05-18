@@ -147,7 +147,7 @@
 
         <javac debug="on" includeAntRuntime="false" nowarn="true"
                srcdir="${source.dir.src}" destdir="${target.dir}/cog/WEB-INF/classes"
-               includes="org/socialbiz/cog/rest/*.java,org/socialbiz/cog/spring/*.java,org/socialbiz/cog/test/*.java">
+               includes="org/socialbiz/cog/rest/*.java,org/socialbiz/cog/spring/*.java,org/socialbiz/cog/test/*.java,org/socialbiz/cog/api/*.java">
             <classpath refid="build.classpath" />
         </javac>
 
