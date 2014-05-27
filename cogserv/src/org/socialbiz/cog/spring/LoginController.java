@@ -30,9 +30,7 @@ import javax.servlet.http.HttpSession;
 
 import org.workcast.json.JSONObject;
 import org.openid4java.consumer.ConsumerManager;
-import org.openid4java.consumer.VerificationResult;
 import org.openid4java.discovery.DiscoveryInformation;
-import org.openid4java.message.ParameterList;
 import org.socialbiz.cog.AdminEvent;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.ConfigFile;
