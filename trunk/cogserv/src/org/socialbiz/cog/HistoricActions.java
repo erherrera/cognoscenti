@@ -35,6 +35,19 @@ public class HistoricActions {
         return accountDetails;
 	}
 
+	/**
+	 * Do all the things necessary for creating and recording the creation of a site
+	 * but don't send email, and don't wait for the administrator to approve
+	 * the new site.
+	 */
+    public NGBook createNewSiteImmediately(String siteId, String siteName,
+            String siteDescription) throws Exception {
+        SiteRequest immediateRequest = SiteReqFile.createNewSiteRequest(siteId,
+            siteName, siteDescription, ar);
+        return completeSiteRequest(immediateRequest, true, 
+                "Granted immediately without administrator involvement");
+    }
+
     private static void sendSiteRequestEmail(AuthRequest ar,
             SiteRequest accountDetails) throws Exception {
         StringWriter bodyWriter = new StringWriter();
