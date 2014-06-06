@@ -940,6 +940,9 @@ public class GoalRecord extends BaseRecord {
 
 
     public JSONObject getJSON4Goal(NGPage ngp, String baseURL, License license) throws Exception {
+    	if (license==null) {
+    		throw new Exception("getJSON4Goal needs a license object");
+    	}
         JSONObject thisGoal = new JSONObject();
         thisGoal.put("universalid", getUniversalId());
         thisGoal.put("id", getId());
