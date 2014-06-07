@@ -50,16 +50,6 @@
 %><%!private NGPage ngp = null;
     private NGBook ngb = null;
 
-    static
-    public
-    String[]
-    splitOnDelimiter (String str, char delim)
-        throws Exception
-    {
-        return UtilityMethods.splitOnDelimiter(str, delim);
-
-    }
-
 
     boolean needTomcatKludge = false;
 

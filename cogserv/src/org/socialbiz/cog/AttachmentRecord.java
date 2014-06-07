@@ -180,7 +180,13 @@ public class AttachmentRecord extends DOMFace {
             throw new NGException("nugen.exception.display.name.have.slash",
                     new Object[] { newDisplayName });
         }
-        // also, display name needs to be unique within the page
+        
+        // also, display name needs to be unique within the project
+        AttachmentRecord otherFileWithSameName = container.findAttachmentByName(newDisplayName);
+        if (otherFileWithSameName!=null) {
+        	throw new Exception("Can't rename this attachment because there is another attachment named "
+        			+ otherFileWithSameName.getDisplayName() + " in this project.");
+        }
 
         setAttribute("displayName", newDisplayName);
         niceName = newDisplayName;

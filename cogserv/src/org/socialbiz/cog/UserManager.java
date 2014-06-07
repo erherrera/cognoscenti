@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.w3c.dom.Document;
-
+import org.workcast.streams.HTMLWriter;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.util.PasswordEncrypter;
@@ -347,15 +347,15 @@ public class UserManager
                 for (String oneEmail : eList)
                 {
                     osw.write("    <address>");
-                    UtilityMethods.writeHtml(osw,oneEmail);
+                    HTMLWriter.writeHtml(osw,oneEmail);
                     osw.write("</address>\n");
                 }
                 osw.write("    <password>");
-                UtilityMethods.writeHtml(osw,hashedPwd);
+                HTMLWriter.writeHtml(osw,hashedPwd);
                 osw.write("</password>\n");
 
                 osw.write("    <fullname>");
-                UtilityMethods.writeHtml(osw,userx.getName());
+                HTMLWriter.writeHtml(osw,userx.getName());
                 osw.write("</fullname>\n");
                 osw.write("  </user>\n");
             }

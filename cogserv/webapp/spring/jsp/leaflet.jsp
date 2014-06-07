@@ -42,7 +42,7 @@ Required parameter:
     boolean canAccessNote  = AccessControl.canAccessNote(ar, ngp, note);
 
     String choices = note.getChoices();
-    String[] choiceArray = splitOnDelimiter(choices, ',');
+    String[] choiceArray = UtilityMethods.splitOnDelimiter(choices, ',');
 
     pageTitle = ngp.getFullName()+": "+note.getSubject();
 

@@ -21,6 +21,7 @@
 package org.socialbiz.cog;
 
 import org.socialbiz.cog.exception.ProgramLogicError;
+import org.workcast.streams.HTMLWriter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +33,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
+
 import javax.servlet.http.HttpSession;
 
 public class UtilityMethods {
@@ -89,59 +91,11 @@ public class UtilityMethods {
         return res.toString();
     }
 
-    public static String fool(String param) {
-        StringBuffer test = new StringBuffer();
-        test.append("testline1");
-        test.append("testline2");
-        test.append(param != null ? "\"" + param + "\"" : null);
-        test.append("testline4");
-        if (param != null) {
-            test.append("\"" + param + "\"");
-        }
-        else {
-            test.append(param);
-        }
-        test.append("testline5");
-        test.append("testline6");
-        if (param != null) {
-            test.append("\"");
-            test.append(param);
-            test.append("\"");
-        }
-        else {
-            test.append(param);
-        }
-        test.append("testline8");
-        test.append("testline9");
-        return test.toString();
-    }
-
+    /**
+     * @deprecated use HTMLWriter.writeHtml() instead
+     */
     public static void writeHtml(Writer out, String t) throws Exception {
-        if (t == null) {
-            return; // treat it like an empty string
-        }
-        for (int i = 0; i < t.length(); i++) {
-
-            char c = t.charAt(i);
-            switch (c) {
-            case '&':
-                out.write("&amp;");
-                continue;
-            case '<':
-                out.write("&lt;");
-                continue;
-            case '>':
-                out.write("&gt;");
-                continue;
-            case '"':
-                out.write("&quot;");
-                continue;
-            default:
-                out.write(c);
-                continue;
-            }
-
-        }
+    	HTMLWriter.writeHtml(out, t);
     }
 
     public static void writeURLData(Writer w, String data) throws Exception {

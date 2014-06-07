@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.w3c.dom.Document;
+import org.workcast.streams.HTMLWriter;
 
 /**
 * NGProj is a Container that represents a Project.
@@ -227,8 +228,8 @@ public class NGProj extends NGPage {
             OutputStream os = new FileOutputStream(launchFile);
             Writer w = new OutputStreamWriter(os, "UTF-8");
             w.write("<html><body><script>document.location = \"");
-            UtilityMethods.writeHtml(w, ar.baseURL);
-            UtilityMethods.writeHtml(w, ar.getResourceURL(this, "public.htm"));
+            HTMLWriter.writeHtml(w, ar.baseURL);
+            HTMLWriter.writeHtml(w, ar.getResourceURL(this, "public.htm"));
             w.write("\";</script></body></html>");
             w.flush();
             w.close();

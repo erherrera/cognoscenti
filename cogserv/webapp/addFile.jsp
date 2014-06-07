@@ -5,7 +5,6 @@
 %><%@page import="org.socialbiz.cog.NGPage"
 %><%@page import="org.socialbiz.cog.NGPageIndex"
 %><%@page import="org.socialbiz.cog.NGSection"
-%><%@page import="org.socialbiz.cog.SectionFolders"
 %><%@page import="org.socialbiz.cog.SectionFormat"
 %><%@page import="org.socialbiz.cog.SectionUtil"
 %><%@page import="org.socialbiz.cog.BaseRecord"
