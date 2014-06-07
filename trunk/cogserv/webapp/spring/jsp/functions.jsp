@@ -71,12 +71,6 @@ Optional Parameters:
     private NGBook ngb = null;
     private boolean firstLeafLet = true;
 
-    static public String[] splitOnDelimiter (String str, char delim)
-        throws Exception
-    {
-        return UtilityMethods.splitOnDelimiter(str, delim);
-
-    }
     public static void writeHtml(Writer out, String t)
     throws Exception
     {

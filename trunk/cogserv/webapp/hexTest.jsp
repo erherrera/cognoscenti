@@ -7,6 +7,7 @@
 %><%@page import="org.socialbiz.cog.rest.NGLeafServlet"
 %><%@page import="org.socialbiz.cog.UtilityMethods"
 %><%@page import="org.socialbiz.cog.SuperAdminLogFile"
+%><%@page import="org.workcast.streams.HTMLWriter"
 %><%@page import="java.io.File"
 %><%@page import="java.util.Properties"
 %><%@page import="java.util.Random"
@@ -67,7 +68,7 @@ result is:
         else {
             out.write("FAIL . . .: ");
         }
-        UtilityMethods.writeHtml(out, rPassword);
+        HTMLWriter.writeHtml(out, rPassword);
         out.write("</li>");
     }
 

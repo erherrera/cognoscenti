@@ -234,26 +234,26 @@ public class RssServlet extends javax.servlet.http.HttpServlet
 
     private void handleException(HttpServletResponse resp, Exception e)
     {
-            try {
-                OutputStream out = resp.getOutputStream();
-                resp.setContentType("text/html;charset=UTF-8");
-                if (out == null) {
-                    out = resp.getOutputStream();
-                }
-                Writer w = new OutputStreamWriter(out);
-                w.write("<html><body><ul><li>Exception: ");
-                UtilityMethods.writeHtml(w, e.toString());
-                w.write("</li></ul>\n");
-                w.write("<hr/>\n");
-                w.write("<a href=\"main.jsp\">Main</a>\n");
-                w.write("<hr/>\n<pre>");
-                e.printStackTrace(new PrintWriter(new HTMLWriter(w)));
-                w.write("</pre></body></html>\n");
-                w.flush();
+        try {
+            OutputStream out = resp.getOutputStream();
+            resp.setContentType("text/html;charset=UTF-8");
+            if (out == null) {
+                out = resp.getOutputStream();
             }
-            catch (Exception eeeee) {
-                //nothing we can do here...
-            }
+            Writer w = new OutputStreamWriter(out);
+            w.write("<html><body><ul><li>Exception: ");
+            HTMLWriter.writeHtml(w, e.toString());
+            w.write("</li></ul>\n");
+            w.write("<hr/>\n");
+            w.write("<a href=\"main.jsp\">Main</a>\n");
+            w.write("<hr/>\n<pre>");
+            e.printStackTrace(new PrintWriter(new HTMLWriter(w)));
+            w.write("</pre></body></html>\n");
+            w.flush();
+        }
+        catch (Exception eeeee) {
+            //nothing we can do here...
+        }
     }
 
 

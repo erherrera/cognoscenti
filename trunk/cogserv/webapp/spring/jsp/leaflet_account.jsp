@@ -89,7 +89,7 @@ Required parameter:
             UserProfile up = ar.getUserProfile();
             LeafletResponseRecord llr = note.getOrCreateUserResponse(up);
             String choices = note.getChoices();
-            String[] choiceArray = splitOnDelimiter(choices, ',');
+            String[] choiceArray = UtilityMethods.splitOnDelimiter(choices, ',');
             String data = llr.getData();
     %>
 

@@ -47,8 +47,10 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
+
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
+import org.workcast.streams.HTMLWriter;
 
 /**
  * Support class for sending email messages based on an email configuration
@@ -266,10 +268,8 @@ public class EmailSender extends TimerTask {
                 try {
                     String realAddress = up.getPreferredEmail();
                     if (realAddress == null || realAddress.length() == 0) {
-                        debugEvidence
-                                .write("\n<li>User has no email address: ");
-                        UtilityMethods.writeHtml(debugEvidence,
-                                up.getUniversalId());
+                        debugEvidence.write("\n<li>User has no email address: ");
+                        HTMLWriter.writeHtml(debugEvidence, up.getUniversalId());
                         debugEvidence.write("</li>");
                         continue;
                     }
@@ -346,14 +346,14 @@ public class EmailSender extends TimerTask {
                                 + numReminders + " reminders.";
                         quickEmail(ooa, null, thisSubj, bodyOut.toString());
                         debugEvidence.write("\n<li>");
-                        UtilityMethods.writeHtml(debugEvidence, thisSubj);
+                        HTMLWriter.writeHtml(debugEvidence, thisSubj);
                         debugEvidence.write(" for ");
-                        UtilityMethods.writeHtml(debugEvidence,
+                        HTMLWriter.writeHtml(debugEvidence,
                                 up.getPreferredEmail());
                         debugEvidence.write("</li>");
                     } else {
                         debugEvidence.write("\n<li>nothing for ");
-                        UtilityMethods.writeHtml(debugEvidence,
+                        HTMLWriter.writeHtml(debugEvidence,
                                 up.getPreferredEmail());
                         debugEvidence.write("</li>");
                     }
@@ -367,12 +367,11 @@ public class EmailSender extends TimerTask {
                     // requests.
                     debugEvidence
                             .write("\n\n<li>Unable to send the Email notification to the User : ");
-                    UtilityMethods.writeHtml(debugEvidence, up.getName());
+                    HTMLWriter.writeHtml(debugEvidence, up.getName());
                     debugEvidence.write("[");
-                    UtilityMethods
-                            .writeHtml(debugEvidence, up.getUniversalId());
+                    HTMLWriter.writeHtml(debugEvidence, up.getUniversalId());
                     debugEvidence.write("] because ");
-                    UtilityMethods.writeHtml(debugEvidence, e.toString());
+                    HTMLWriter.writeHtml(debugEvidence, e.toString());
                 }
             }// for.
 
