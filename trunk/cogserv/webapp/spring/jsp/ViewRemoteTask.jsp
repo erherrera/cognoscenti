@@ -63,7 +63,8 @@ Required parameters:
     else {
         localProject = NGPageIndex.getProjectByUpstreamLink(accessUrl);
         if (localProject!=null && !accessUrl.equals(localProject.getUpstreamLink())) {
-            throw new Exception("Strange, found the project but it has the wrong URL");
+            throw new Exception("Strange, found the local project but it has the wrong URL: "
+            +accessUrl+" vs. "+localProject.getUpstreamLink());
         }
     }
 
@@ -245,7 +246,7 @@ Required parameters:
                         </td>
                         <td style="width:20px;"></td>
                         <td> Use this button to create a local clone of the remote project,
-                           to download all the document for working off line, and to allow you to 
+                           to download all the document for working off line, and to allow you to
                            involve other people in working on the project.
                         </td></tr></table>
 

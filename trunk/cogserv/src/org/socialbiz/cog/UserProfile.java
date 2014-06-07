@@ -144,6 +144,7 @@ public class UserProfile extends DOMFace implements UserRef
     public void setKey(String nkey)
     {
         key = nkey;
+        setAttribute("id", key);
     }
 
     /**
