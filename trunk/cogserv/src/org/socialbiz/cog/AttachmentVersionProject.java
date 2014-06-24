@@ -21,11 +21,12 @@
 package org.socialbiz.cog;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.FileOutputStream;
 import java.io.FileInputStream;
-import java.util.List;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 
@@ -105,9 +106,9 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 * is included to represent the file in the folder.
 */
 public class AttachmentVersionProject implements AttachmentVersion {
-    private File      actualFile;
-    private int       number;
-    private boolean   readOnly;
+    private final File      actualFile;
+    private final int       number;
+    private final boolean   readOnly;
     public  boolean   isInMainFolder;    //DUPLICATED in the cog subfolder
 
     /**
@@ -168,7 +169,7 @@ public class AttachmentVersionProject implements AttachmentVersion {
         int highestVersionSeen = 0;
         AttachmentVersionProject highestVersion = null;
         // Here we make up a name to store the file on the server by combining the
-        // page key, the attachment key, and then an integer that indicates how many
+        // attachment key, and then an integer that indicates how many
         // time the attachment has been modified.
         String storageNameBase = "att"+attachmentId+"-";
         int len = storageNameBase.length();
@@ -336,14 +337,17 @@ public class AttachmentVersionProject implements AttachmentVersion {
         isInMainFolder = theLatest;
     }
 
+    @Override
     public int getNumber() {
         return number;
     }
 
+    @Override
     public long getCreatedDate() {
         return actualFile.lastModified();
     }
 
+    @Override
     public long getFileSize() {
         return actualFile.length();
     }
@@ -353,14 +357,17 @@ public class AttachmentVersionProject implements AttachmentVersion {
     * But when you ask for a new version, you get a writeable
     * version object.
     */
+    @Override
     public boolean isReadOnly() {
         return readOnly;
     }
 
+    @Override
     public boolean isModified() {
         return isInMainFolder;
     }
 
+    @Override
     public File getLocalFile() {
         return actualFile;
     }
@@ -370,13 +377,25 @@ public class AttachmentVersionProject implements AttachmentVersion {
         //of the versions are simply files in the COG folder.
     }
 
+    @Override
     public void releaseLocalFile() {
         //for the file system implementation, nothing needs to be done because all
         //of the versions are simply files in the COG folder.
     }
 
+    @Override
     public boolean isWorkingCopy() {
         return isInMainFolder;
+    }
+
+    @Override
+    public void purgeLocalFile() throws Exception {
+        if (actualFile.exists()) {
+            actualFile.delete();
+        }
+        if (actualFile.exists()) {
+            throw new Exception("Attempted, and unable to delete file "+actualFile);
+        }
     }
 
 }

@@ -104,6 +104,12 @@ public interface NGContainer
     public void unDeleteAttachment(String id) throws Exception;
     public void eraseAttachmentRecord(String id) throws Exception;
 
+    /**
+     * This is effectively the "empty trashcan" operation.  Documents that
+     * have been marked as deleted will actually, finally, be deleted with
+     * this operation.
+     */
+    public void purgeDeletedAttachments() throws Exception;
 
     /**
     * Returns the ResourceEntity that represents the remote folder that files

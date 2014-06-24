@@ -78,6 +78,12 @@
                </tr>
                 <tr>
                     <td>
+                        <input type="submit" name="action" value="Purge Deleted Documents"/>
+                        Walk through pages and really delete all the deleted documents.
+                    </td>
+               </tr>
+                <tr>
+                    <td>
                         <input type="submit" name="action" value="Send Test Email"/>
                         See if the server can send an email.
                     </td>

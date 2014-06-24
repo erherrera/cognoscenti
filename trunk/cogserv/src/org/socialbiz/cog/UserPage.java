@@ -828,6 +828,9 @@ public class UserPage extends ContainerCommon
         agentRules.removeChild(found);
     }
 
+    public void purgeDeletedAttachments() throws Exception {
+        throw new Exception("purgeDeletedAttachments should never be needed on User");
+    }
 
 
 }

@@ -80,7 +80,7 @@
 
                 <tr>
                     <td>Preferred Location:</td>
-                    <td class="odd"><%ar.writeHtml(ngb.getPreferredProjectLocation());%></td>
+                    <td class="odd"><%ar.writeHtml(ngb.getSiteRootFolder().toString());%></td>
                 </tr>
             </table>
             <br/>

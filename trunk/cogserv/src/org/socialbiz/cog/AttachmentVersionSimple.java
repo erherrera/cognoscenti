@@ -21,10 +21,11 @@
 package org.socialbiz.cog;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.FileOutputStream;
-import java.util.List;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 
@@ -66,9 +67,9 @@ import org.socialbiz.cog.exception.ProgramLogicError;
 */
 public class AttachmentVersionSimple implements AttachmentVersion
 {
-    private File      actualFile;
-    private int       number;
-    private boolean   readOnly;
+    private final File      actualFile;
+    private final int       number;
+    private final boolean   readOnly;
 
     // this must be initialized externally before use!
     public static File attachmentFolder;
@@ -212,14 +213,17 @@ public class AttachmentVersionSimple implements AttachmentVersion
         readOnly = isReadOnly;
     }
 
+    @Override
     public int getNumber() {
         return number;
     }
 
+    @Override
     public long getCreatedDate() {
         return actualFile.lastModified();
     }
 
+    @Override
     public long getFileSize() {
         return actualFile.length();
     }
@@ -229,16 +233,19 @@ public class AttachmentVersionSimple implements AttachmentVersion
     * But when you ask for a new version, you get a writeable
     * version object.
     */
+    @Override
     public boolean isReadOnly() {
         return readOnly;
     }
 
+    @Override
     public boolean isModified() {
         //this type of storage does not allow for locally modified files
         return false;
     }
 
 
+    @Override
     public File getLocalFile() {
         return actualFile;
     }
@@ -248,14 +255,26 @@ public class AttachmentVersionSimple implements AttachmentVersion
         //of the versions are simply files in the local folder.
     }
 
+    @Override
     public void releaseLocalFile()
     {
         //for the file system implementation, nothing needs to be done because all
         //of the versions are simply files in the local folder.
     }
 
+    @Override
     public boolean isWorkingCopy() {
         //simple does not have any working copy, never true
         return false;
+    }
+
+    @Override
+    public void purgeLocalFile() throws Exception {
+        if (actualFile.exists()) {
+            actualFile.delete();
+        }
+        if (actualFile.exists()) {
+            throw new Exception("Attempted, and unable to delete file "+actualFile);
+        }
     }
 }

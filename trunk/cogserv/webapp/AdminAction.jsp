@@ -57,6 +57,15 @@
     else if (action.equals("Restart Server")) {
         ServerInitializer.reinitServer();
     }
+    else if (action.equals("Purge Deleted Documents")) {
+        for (NGPageIndex ngpi : NGPageIndex.getAllContainer())
+        {
+            if (!ngpi.isDeleted && ngpi.isProject()) {
+                NGPage ngp = ngpi.getPage();
+                ngp.purgeDeletedAttachments();
+            }
+        }
+    }
     else {
         throw new Exception ("Unrecognized command: "+action);
     }

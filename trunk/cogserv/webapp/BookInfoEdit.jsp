@@ -113,7 +113,7 @@
                     <tr>
                         <td>Preferred Location:</td>
                         <td class="odd">
-                            <input type="text" name="prefLoc" size="80" value="<%ar.writeHtml(ngb.getPreferredProjectLocation());%>"/>
+                            <input type="text" name="prefLoc" size="80" value="<%ar.writeHtml(ngb.getSiteRootFolder().toString());%>"/>
                         </td>
                     </tr>
 

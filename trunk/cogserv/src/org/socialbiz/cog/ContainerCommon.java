@@ -179,6 +179,20 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
         AttachmentRecord att = findAttachmentByIDOrFail( id );
         attachParent.removeChild(att);
     }
+    public void purgeDeletedAttachments() throws Exception {
+        Vector<AttachmentRecord> cleanList = new Vector<AttachmentRecord>(); 
+        for (AttachmentRecord ar : getAllAttachments()) {
+            if (!ar.isDeleted()) {
+                //don't purge or do anything to non-deleted attachments
+                continue;
+            }
+            ar.purgeAllVersions(this);
+            cleanList.add(ar);
+        }
+        for (AttachmentRecord ar : cleanList) {
+            eraseAttachmentRecord(ar.getId());
+        }
+    }
 
     /**
     * Returns the ResourceEntity that represents the remote folder that files
