@@ -102,4 +102,9 @@ public interface AttachmentVersion
      */
     public boolean isWorkingCopy();
 
+    /**
+     * Actually delete any file or record associated with this version
+     */
+    public void purgeLocalFile() throws Exception;
+    
 }

@@ -24,6 +24,7 @@ import org.workcast.json.JSONObject;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.socialbiz.cog.dms.RemoteLinkCombo;
+
 import java.io.File;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -914,4 +915,17 @@ public class AttachmentRecord extends DOMFace {
         return getAttribute(ATTACHMENT_ATTB_RLINK);
     }
 
+    /**
+     * delete all the files on disk or in DB, presumably just
+     * before deleting this attachment record.  This effectively
+     * clears out the recycle bin, and removes all the physical
+     * evidence of a file from the storage.  After calling this
+     * the documents are really, truly deleted.
+     */
+    public void purgeAllVersions(NGContainer ngc) throws Exception {
+//        List<AttachmentVersion> cleanList = ;
+        for (AttachmentVersion av : getVersions(ngc)) {
+            av.purgeLocalFile();
+        }
+    }
 }

@@ -154,7 +154,7 @@
                     <td class="gridTableColummHeader_2">Storage Path:</td>
                     <td style="width:20px;"></td>
                     <td>
-                        <% ar.writeHtml(ngb.getPreferredProjectLocation()); %>
+                        <% ar.writeHtml(ngb.getSiteRootFolder().toString()); %>
                     </td>
                 </tr>
                 <tr>

@@ -46,25 +46,38 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     private Vector<String> existingIds = null;
     private Vector<String> displayNames;
-    private BookInfoRecord siteInfoRec;
-    private NGRole executiveRole;
-    private NGRole ownerRole;
+    private final BookInfoRecord siteInfoRec;
+    private final NGRole executiveRole;
+    private final NGRole ownerRole;
+
+    //this is the file system folder where projects should be created
+    //or null indicates to create projects in the data folder.
+    private File projectFolder = null;
 
     public NGBook(File theFile, Document newDoc) throws Exception {
         super(theFile, newDoc);
         siteInfoRec = requireChild("bookInfo", BookInfoRecord.class);
         displayNames = siteInfoRec.getPageNames();
         assureNameExists();
-        
+
+        String fileName = theFile.getName();
+        if (fileName.equalsIgnoreCase("SiteInfo.xml")) {
+            File cogFolder = theFile.getParentFile();
+            projectFolder = cogFolder.getParentFile();
+        }
+        else if (fileName.endsWith(".book") || fileName.endsWith(".site")) {
+            if (!fileIsInDataPath(theFile)) {
+                //projects were being created with xxx.site file created directly
+                //in the site folder.  Preserve this kind of site.
+                projectFolder = theFile.getParentFile();
+            }
+        }
+
         // migration code, make sure there is a stored value for key
         key = siteInfoRec.getScalar("key");
         if (key == null || key.length() == 0) {
-            String fileName = theFile.getName();
-            if (fileName.equalsIgnoreCase("SiteInfo.xml")) {
-                // use the name of the containing folder to set the key
-                File cogFolder = theFile.getParentFile();
-                File containingFolder = cogFolder.getParentFile();
-                key = SectionUtil.sanitize(containingFolder.getName());
+            if (projectFolder!=null) {
+                key = SectionUtil.sanitize(projectFolder.getName());
                 siteInfoRec.setScalar("key", key);
             }
             else if (fileName.endsWith(".book") || fileName.endsWith(".site")) {
@@ -97,16 +110,16 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     private void assureNameExists() {
         if (displayNames.size()==0) {
-        	String possibleName = getScalar("name");
-        	if (possibleName==null || possibleName.length()==0) {
-        		possibleName = key;
-        	}
-        	displayNames.add(possibleName);
-        	//TODO: should this be stored back in file at this point?
+            String possibleName = getScalar("name");
+            if (possibleName==null || possibleName.length()==0) {
+                possibleName = key;
+            }
+            displayNames.add(possibleName);
+            //TODO: should this be stored back in file at this point?
         }
-	}
+    }
 
-	/**
+    /**
      * SCHEMA MIGRATION CODE - old schema required members to be children of a
      * tag 'members' and also prospective memebers in a tag 'pmembers' This code
      * migrates these to the standard Role object storage format, to a role
@@ -178,7 +191,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
         File siteFile = site.getFilePath();
         if (siteFile==null) {
-        	throw new Exception("Site does not have a file???");
+            throw new Exception("Site does not have a file???");
         }
         //throw it out of the cache
         unregisterSite(key);
@@ -186,8 +199,8 @@ public class NGBook extends ContainerCommon implements NGContainer {
         registerSite(site);
         return site;
     }
-    
-    
+
+
     public static NGBook readSiteAbsolutePath(File theFile) throws Exception {
         try {
             if (!theFile.exists()) {
@@ -212,13 +225,13 @@ public class NGBook extends ContainerCommon implements NGContainer {
         allSites.add(foundSite);
         keyToSite.put(foundSite.getKey(), foundSite);
     }
-    
+
     /**
      * Erase the memory of a particular site
      * Used when deleting a site
      */
     public static void unregisterSite(String siteKey) throws Exception {
-    	NGBook fSite = keyToSite.get(siteKey);
+        NGBook fSite = keyToSite.get(siteKey);
         allSites.remove(fSite);
         keyToSite.remove(siteKey);
     }
@@ -245,6 +258,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
     }
 
+    @Override
     public String getKey() {
         return key;
     }
@@ -252,6 +266,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     /**
      * @deprecated
      */
+    @Deprecated
     public String getName() {
         return getFullName();
     }
@@ -259,9 +274,10 @@ public class NGBook extends ContainerCommon implements NGContainer {
     /**
      * @deprecated
      */
+    @Deprecated
     public void setName(String newName) {
         //setScalar("name", newName.trim());
-    	throw new RuntimeException("The method setName on NGBook is deprecated and should not be used any more.");
+        throw new RuntimeException("The method setName on NGBook is deprecated and should not be used any more.");
     }
 
     public String[] getSiteNames() {
@@ -271,16 +287,16 @@ public class NGBook extends ContainerCommon implements NGContainer {
     }
 
     public void setSiteNames(String[] newNames) {
-    	if (newNames==null) {
-    		throw new RuntimeException("setSiteNames was passed a null string array");
-    	}
-    	if (newNames.length<1) {
-    		throw new RuntimeException("setSiteNames was passed a zero length string array");
-    	}
+        if (newNames==null) {
+            throw new RuntimeException("setSiteNames was passed a null string array");
+        }
+        if (newNames.length<1) {
+            throw new RuntimeException("setSiteNames was passed a zero length string array");
+        }
         siteInfoRec.setPageNames(newNames);
         displayNames = siteInfoRec.getPageNames();
         assureNameExists();
-        
+
         //schema migration ... clean this out if it exists at this point
         setScalar("name", null);
     }
@@ -446,7 +462,10 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
         newSiteFolder.mkdirs();
 
-        File theFile = new File(newSiteFolder, key + ".site");
+        File cogFolder = new File(newSiteFolder, ".cog");
+        cogFolder.mkdirs();
+
+        File theFile = new File(cogFolder, "SiteInfo.xml");
         if (theFile.exists()) {
             throw new Exception("Unable to create new site, a site with that ID already exists.");
         }
@@ -455,8 +474,6 @@ public class NGBook extends ContainerCommon implements NGContainer {
         NGBook newBook = new NGBook(theFile, newDoc);
 
         // set default values
-        // TODO: change this to pass a file here
-        newBook.setPreferredProjectLocation(newSiteFolder.toString());
         String[] nameSet = new String[1];
         nameSet[0] = name;
         newBook.setSiteNames(nameSet);
@@ -474,57 +491,57 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * before calling this.
      */
     public static void destroySiteAndAllProjects(NGBook site) throws Exception {
-    	
-    	for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInSite(site.getKey())) {
-	    	//for now, just avoid the project with projects.
-    		throw new Exception("Remove all the projects from site '"+site.getKey()+"' before trying to destroy it: "+ngpi.containerKey);
-    	}
-   	
-		File siteFolder = site.getSiteRootFolder();
-		if (siteFolder==null) {
-			throw new Exception("Something is wrong, the site folder is null");
-		}
-		if (!siteFolder.exists()) {
-			throw new Exception("Something is wrong, the parent of the site folder does not exist: "+siteFolder.toString());
-		}
-		
-		File parent = siteFolder.getParentFile();
-		if (parent==null || !parent.exists()) {
-			throw new Exception("Something is wrong, the parent of the site folder does not exist: "+siteFolder.toString());
-		}
-		
-		//be extra careful that this parent is the expected parent, don't delete anything otherwise
-		if (!NGBook.isLibFolder(parent)) {
-			throw new Exception("Something is wrong, the parent of the site folder is not configured as valid library folder: "+siteFolder.toString());
-		}
-		
-		//so now everything looks OK, delete the folder for the project
-		NGBook.unregisterSite(site.getKey());
-		recursivelyDestroyFolder(siteFolder);
-    }
-    
-	private static void recursivelyDestroyFolder(File folder) throws Exception  {
-		if (!folder.exists()) {
-			return;
-		}
-		
-		//listFiles will return a null if it is empty!
-		if (folder.isDirectory()) {
-			File[] children = folder.listFiles();
-			if (children!=null) {
-				for (File child : children) {
-					recursivelyDestroyFolder(child);
-				}
-			}
-		}
-		
-		if (!folder.delete()) {
-			throw new Exception("Unable to delete folder: "+folder.toString());
-		}
-	}
 
-	
-    
+        for (NGPageIndex ngpi : NGPageIndex.getAllProjectsInSite(site.getKey())) {
+            //for now, just avoid the project with projects.
+            throw new Exception("Remove all the projects from site '"+site.getKey()+"' before trying to destroy it: "+ngpi.containerKey);
+        }
+
+        File siteFolder = site.getSiteRootFolder();
+        if (siteFolder==null) {
+            throw new Exception("Something is wrong, the site folder is null");
+        }
+        if (!siteFolder.exists()) {
+            throw new Exception("Something is wrong, the parent of the site folder does not exist: "+siteFolder.toString());
+        }
+
+        File parent = siteFolder.getParentFile();
+        if (parent==null || !parent.exists()) {
+            throw new Exception("Something is wrong, the parent of the site folder does not exist: "+siteFolder.toString());
+        }
+
+        //be extra careful that this parent is the expected parent, don't delete anything otherwise
+        if (!NGBook.isLibFolder(parent)) {
+            throw new Exception("Something is wrong, the parent of the site folder is not configured as valid library folder: "+siteFolder.toString());
+        }
+
+        //so now everything looks OK, delete the folder for the project
+        NGBook.unregisterSite(site.getKey());
+        recursivelyDestroyFolder(siteFolder);
+    }
+
+    private static void recursivelyDestroyFolder(File folder) throws Exception  {
+        if (!folder.exists()) {
+            return;
+        }
+
+        //listFiles will return a null if it is empty!
+        if (folder.isDirectory()) {
+            File[] children = folder.listFiles();
+            if (children!=null) {
+                for (File child : children) {
+                    recursivelyDestroyFolder(child);
+                }
+            }
+        }
+
+        if (!folder.delete()) {
+            throw new Exception("Unable to delete folder: "+folder.toString());
+        }
+    }
+
+
+
     /**
      * Tests a passed in folder to verify that it is a valid lib folder
      */
@@ -537,16 +554,16 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
 
         for (String oneLib : libFolders) {
-        	
-        	File oneFolder = new File(oneLib);
-        	if (oneFolder.equals(folder)) {
-        		return true;
-        	}
+
+            File oneFolder = new File(oneLib);
+            if (oneFolder.equals(folder)) {
+                return true;
+            }
         }
         return false;
     }
-    
-    
+
+
     public void setKey(String key) {
         setScalar("key", key.trim());
     }
@@ -564,6 +581,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
     }
 
+    @Override
     public String getUniqueOnPage() throws Exception {
         if (existingIds == null) {
             existingIds = new Vector<String>();
@@ -572,12 +590,14 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return IdGenerator.generateFourDigit(existingIds);
     }
 
+    @Override
     public String getFullName() {
         return displayNames.get(0);
     }
 
     // /////////////// Role Requests/////////////////////
 
+    @Override
     public RoleRequestRecord createRoleRequest(String roleName, String requestedBy,
             long modifiedDate, String modifiedBy, String requestDescription) throws Exception {
         DOMFace rolelist = siteInfoRec.requireChild("Role-Requests", DOMFace.class);
@@ -596,6 +616,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return newRoleRequest;
     }
 
+    @Override
     public List<RoleRequestRecord> getAllRoleRequest() throws Exception {
 
         List<RoleRequestRecord> requestList = new ArrayList<RoleRequestRecord>();
@@ -610,30 +631,37 @@ public class NGBook extends ContainerCommon implements NGContainer {
 
     // ////////////////// ROLES /////////////////////////
 
+    @Override
     public NGRole getPrimaryRole() {
         return executiveRole;
     }
 
+    @Override
     public NGRole getSecondaryRole() {
         return ownerRole;
     }
 
+    @Override
     protected DOMFace getAttachmentParent() throws Exception {
         return requireChild("attachments", DOMFace.class);
     }
 
+    @Override
     protected DOMFace getNoteParent() throws Exception {
         return requireChild("notes", DOMFace.class);
     }
 
+    @Override
     protected DOMFace getRoleParent() throws Exception {
         return requireChild("roleList", DOMFace.class);
     }
 
+    @Override
     protected DOMFace getHistoryParent() throws Exception {
         return requireChild("history", DOMFace.class);
     }
 
+    @Override
     protected DOMFace getInfoParent() throws Exception {
         return siteInfoRec;
     }
@@ -646,6 +674,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         siteInfoRec.setModUser(ar.getBestUserId());
     }
 
+    @Override
     public void saveFile(AuthRequest ar, String comment) throws Exception {
         try {
             setLastModify(ar);
@@ -659,26 +688,32 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
     }
 
+    @Override
     public void saveContent(AuthRequest ar, String comment) throws Exception {
         saveFile(ar, comment);
     }
 
+    @Override
     public String[] getContainerNames() {
         return getSiteNames();
     }
 
+    @Override
     public void setContainerNames(String[] nameSet) {
         setSiteNames(nameSet);
     }
 
+    @Override
     public long getLastModifyTime() throws Exception {
         return siteInfoRec.getModTime();
     }
 
+    @Override
     public boolean isDeleted() {
         return false;
     }
 
+    @Override
     public ReminderMgr getReminderMgr() throws Exception {
         if (reminderMgr == null) {
             reminderMgr = requireChild("reminders", ReminderMgr.class);
@@ -693,6 +728,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         note.setEffectiveDate(SectionUtil.niceParseDate(ar.defParam("effDate", "")));
     }
 
+    @Override
     public List<HistoryRecord> getAllHistory() throws Exception {
         DOMFace historyContainer = requireChild("history", DOMFace.class);
         Vector<HistoryRecord> vect = historyContainer.getChildren("event", HistoryRecord.class);
@@ -700,6 +736,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return vect;
     }
 
+    @Override
     public HistoryRecord createNewHistory() throws Exception {
         DOMFace historyContainer = requireChild("history", DOMFace.class);
         HistoryRecord newHist = historyContainer.createChild("event", HistoryRecord.class);
@@ -714,10 +751,12 @@ public class NGBook extends ContainerCommon implements NGContainer {
         ar.write("</a>");
     }
 
+    @Override
     public void writeDocumentLink(AuthRequest ar, String documentId, int len) throws Exception {
         throw new Exception("writeDocumentLink should no longer be used on an Site");
     }
 
+    @Override
     public void writeReminderLink(AuthRequest ar, String reminderId, int len) throws Exception {
         throw new Exception("writeReminderLink should no longer be used on an Site");
     }
@@ -725,43 +764,58 @@ public class NGBook extends ContainerCommon implements NGContainer {
     /**
      * overridden in Site to make sure this is never needed
      */
+    @Override
     public AttachmentRecord findAttachmentByID(String id) throws Exception {
         throw new Exception("findAttachmentByID should never be needed on Site");
     }
 
+    @Override
     public AttachmentRecord findAttachmentByIDOrFail(String id) throws Exception {
         throw new Exception("findAttachmentByIDOrFail should never be needed on Site");
     }
 
+    @Override
     public AttachmentRecord findAttachmentByName(String name) throws Exception {
         throw new Exception("findAttachmentByName should never be needed on Site");
     }
 
+    @Override
     public AttachmentRecord findAttachmentByNameOrFail(String name) throws Exception {
         throw new Exception("findAttachmentByNameOrFail should never be needed on Site");
     }
 
+    @Override
     public AttachmentRecord createAttachment() throws Exception {
         throw new Exception("createAttachment should never be needed on Site");
     }
 
+    @Override
     public void deleteAttachment(String id, AuthRequest ar) throws Exception {
         throw new Exception("deleteAttachment should never be needed on Site");
     }
 
+    @Override
     public void unDeleteAttachment(String id) throws Exception {
         throw new Exception("unDeleteAttachment should never be needed on Site");
     }
 
+    @Override
     public void eraseAttachmentRecord(String id) throws Exception {
         throw new Exception("eraseAttachmentRecord should never be needed on Site");
     }
+    @Override
+    public void purgeDeletedAttachments() throws Exception {
+        throw new Exception("purgeDeletedAttachments should never be needed on Site");
+    }
 
+    @Override
     public void writeTaskLink(AuthRequest ar, String taskId, int len) throws Exception {
         throw new ProgramLogicError("This site does not have a task '" + taskId
                 + "' or any other task.  Sites don't have tasks.");
     }
 
+
+    @Override
     public void writeNoteLink(AuthRequest ar, String noteId, int len) throws Exception {
         NoteRecord note = getNote(noteId);
         if (note == null) {
@@ -795,6 +849,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     /**
      * Different sites can have different style sheets (themes)
      */
+    @Override
     public String getThemePath() {
         String val = siteInfoRec.getThemePath();
         if (val == null || val.length() == 0) {
@@ -813,29 +868,11 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * older ones may have been created elsewhere, or moved, but new ones
      * created there. If this has a value, then a new folder is created inside
      * this one for the project.
-     */
-    public String getPreferredProjectLocation() {
-        return siteInfoRec.getScalar("preferredLocation");
-    }
-
-    public void setPreferredProjectLocation(String newLoc) {
-        siteInfoRec.setScalar("preferredLocation", newLoc);
-    }
-
-    /**
      * Modern sites have a folder on disk, and all the projects are inside that
      * folder. If this site has such a folder, return it, otherwise, return null
      */
     public File getSiteRootFolder() {
-        String prefLocStr = getPreferredProjectLocation();
-        if (prefLocStr == null || prefLocStr.length() == 0) {
-            return null;
-        }
-        File prefLoc = new File(prefLocStr);
-        if (prefLoc.exists()) {
-            return prefLoc;
-        }
-        return null;
+        return projectFolder;
     }
 
     /**
@@ -963,20 +1000,24 @@ public class NGBook extends ContainerCommon implements NGContainer {
         }
     }
 
+    @Override
     public boolean isFrozen() throws Exception {
         return false;
     }
 
     // //////////////////// DEPRECATED METHODS//////////////////
 
+    @Override
     public String getAllowPublic() throws Exception {
         return siteInfoRec.getAllowPublic();
     }
 
+    @Override
     public void setAllowPublic(String allowPublic) throws Exception {
         siteInfoRec.setAllowPublic(allowPublic);
     }
 
+    @Override
     public void save(String modUser, long modTime, String comment) throws Exception {
         try {
             siteInfoRec.setModTime(modTime);
@@ -1113,6 +1154,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
     /**
      * Sites have a set of licenses
      */
+    @Override
     public Vector<License> getLicenses() throws Exception {
         Vector<LicenseRecord> vc = siteInfoRec.getChildren("license", LicenseRecord.class);
         Vector<License> v = new Vector<License>();
@@ -1122,6 +1164,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return v;
     }
 
+    @Override
     public boolean removeLicense(String id) throws Exception {
         Vector<LicenseRecord> vc = siteInfoRec.getChildren("license", LicenseRecord.class);
         for (LicenseRecord child : vc) {
@@ -1134,6 +1177,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return false;
     }
 
+    @Override
     public License addLicense(String id) throws Exception {
         LicenseRecord lr = siteInfoRec.createChildWithID("license", LicenseRecord.class, "id", id);
         return lr;
@@ -1150,6 +1194,7 @@ public class NGBook extends ContainerCommon implements NGContainer {
         return lr;
     }
 
+    @Override
     public boolean isValidLicense(License lr, long time) throws Exception {
         if (lr==null) {
             //no license passed, then not valid, handle this quietly so that
