@@ -70,6 +70,14 @@ public class NGBook extends ContainerCommon implements NGContainer {
                 //projects were being created with xxx.site file created directly
                 //in the site folder.  Preserve this kind of site.
                 projectFolder = theFile.getParentFile();
+                
+                //move the file into the subfolder
+                File cogFolder = new File(projectFolder, ".cog");
+                cogFolder.mkdirs();
+                File destFile = new File(cogFolder, "SiteInfo.xml");
+                UtilityMethods.copyFileContents(theFile, destFile);
+                associatedFile = destFile;
+                theFile.delete();
             }
         }
 

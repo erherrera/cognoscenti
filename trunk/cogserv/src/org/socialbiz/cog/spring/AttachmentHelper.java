@@ -55,9 +55,13 @@ public class AttachmentHelper {
                                             String visibility,
                                             String comment,
                                             String modUser) throws Exception {
-
-        AttachmentRecord attachment =  ngc.createAttachment();
-
+    	
+    	//first look for an attachment with this name, if found use that
+    	//and stream a new version of that attachment, otherwise, create a new.
+        AttachmentRecord attachment =  ngc.findAttachmentByName(name);
+        if (attachment==null) {
+        	attachment =  ngc.createAttachment();
+        }
         String fileName = file.getOriginalFilename();
         attachment.setDisplayName(fileName);
         attachment.setComment(comment);
