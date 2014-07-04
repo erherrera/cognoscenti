@@ -160,19 +160,23 @@ public class GWTUploadServlet extends UploadAction {
             if (existingaid != null) {
                 if ((!existingaid.equals("0") && (existingaid.length() > 0))) {
                     attachment = ngp.findAttachmentByIDOrFail(existingaid);
-                } else {
-                    attachment = ngp.createAttachment();
                 }
-            } else {
+            }
+
+            if (attachment==null) {
+                //see if there exists an attachment with that name, and use that
+                attachment = ngp.findAttachmentByName(displayName);
+            }
+            if (attachment==null) {
+                //last resort, actually create one
                 attachment = ngp.createAttachment();
+                attachment.setType("FILE");
             }
 
             attachment.setDisplayName(displayName);
             attachment.setComment(comments);
             attachment.setModifiedBy(ar.getBestUserId());
             attachment.setModifiedDate(ar.nowTime);
-            attachment.setType("FILE");
-            attachment.setVersion(1);
             if (atype.equals("Public")) {
                 attachment.setVisibility(1);
             } else {
