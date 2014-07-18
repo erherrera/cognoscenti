@@ -6,6 +6,35 @@
 <div class="content tab01" style="display:block;" >
     <div class="section_body">
         <div style="height:10px;"></div>
+        <div class="generalHeading">Email Send Settings</div>
+        <table border="0px solid gray" class="gridTable" width="500">
+            <tr>
+                <td>mail.transport.protocol</td>
+                <td><%=EmailSender.getProperty("mail.transport.protocol")%></td>
+            </tr>
+            <tr>
+                <td>mail.smtp.host</td>
+                <td><%=EmailSender.getProperty("mail.smtp.host")%></td>
+            </tr>
+            <tr>
+                <td>mail.smtp.port</td>
+                <td><%=EmailSender.getProperty("mail.smtp.port")%></td>
+            </tr>
+            <tr>
+                <td>mail.smtp.auth</td>
+                <td><%=EmailSender.getProperty("mail.smtp.auth")%></td>
+            </tr>
+            <tr>
+                <td>mail.smtp.user</td>
+                <td><%=EmailSender.getProperty("mail.smtp.user")%></td>
+            </tr>
+            <tr>
+                <td>overrideAddress</td>
+                <td><%=EmailSender.getProperty("overrideAddress")%></td>
+            </tr>
+        </table>
+
+        <div style="height:10px;"></div>
         <div class="generalHeading">Email Listener Settings</div>
         <%
              Properties emailProperties = EmailListener.getEmailProperties();
