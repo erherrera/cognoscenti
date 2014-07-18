@@ -2,11 +2,13 @@
 %><%@ include file="UserProfile.jsp"
 %><%
 
-    ar.assertLoggedIn("Must be logged in to see anything about a user");
-
     UserProfile uProf = (UserProfile)request.getAttribute("userProfile");
     if (uProf == null) {
         throw new NGException("nugen.exception.cant.find.user",null);
+    }
+
+    if (!ar.hasSpecialSessionAccess("Notifications:"+uProf.getKey())) {
+        ar.assertLoggedIn("Must be logged in to see anything about user "+uProf.getKey());
     }
 
     UserProfile  operatingUser =ar.getUserProfile();

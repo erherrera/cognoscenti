@@ -20,6 +20,12 @@
                 SectionUtil.nicePrintDateAndTime(out, EmailSender.threadLastCheckTime);
             %></li>
             <%
+                String protocol = EmailSender.getProperty("mail.transport.protocol");
+                if (!"smtp".equals(protocol)) {
+            %>
+            <li>Protocol: <%ar.writeHtml(protocol);%> -- <b>Will not actually send SMTP email!</b> see 'mail.transport.protocol'</li>
+            <%
+                }
                 if (overDue) {
             %>
             <li><b>Email sending is OverDue!</b></li>
