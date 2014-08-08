@@ -20,11 +20,6 @@
 
 package org.socialbiz.cog;
 
-import org.workcast.json.JSONObject;
-import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.exception.ProgramLogicError;
-import org.socialbiz.cog.dms.RemoteLinkCombo;
-
 import java.io.File;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -33,8 +28,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
+import org.socialbiz.cog.dms.RemoteLinkCombo;
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.workcast.json.JSONObject;
 
 public class AttachmentRecord extends DOMFace {
     private static String ATTACHMENT_ATTB_RLINK = "rlink";
@@ -181,7 +180,7 @@ public class AttachmentRecord extends DOMFace {
             throw new NGException("nugen.exception.display.name.have.slash",
                     new Object[] { newDisplayName });
         }
-        
+
         // also, display name needs to be unique within the project
         AttachmentRecord otherFileWithSameName = container.findAttachmentByName(newDisplayName);
         if (otherFileWithSameName!=null) {
@@ -367,7 +366,7 @@ public class AttachmentRecord extends DOMFace {
         // will be here.
 
         List<AttachmentVersion> list = AttachmentVersionSimple.getSimpleVersions(ngc.getKey(),
-                getStorageFileName());
+                this.getId());
 
         if (list.size() > 0) {
             // file system order is not always in order of version number...
@@ -567,6 +566,7 @@ public class AttachmentRecord extends DOMFace {
         public AttachmentVersionComparator() {
         }
 
+        @Override
         public int compare(AttachmentVersion o1, AttachmentVersion o2) {
             try {
                 int rank1 = o1.getNumber();
@@ -911,6 +911,7 @@ public class AttachmentRecord extends DOMFace {
     /**
      * @deprecated use getRemoteCombo().getComboString() instead
      */
+    @Deprecated
     public String getRemoteLink() {
         return getAttribute(ATTACHMENT_ATTB_RLINK);
     }
