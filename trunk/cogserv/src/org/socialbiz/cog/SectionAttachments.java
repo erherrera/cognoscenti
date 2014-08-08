@@ -20,8 +20,6 @@
 
 package org.socialbiz.cog;
 
-import org.socialbiz.cog.exception.NGException;
-import org.socialbiz.cog.exception.ProgramLogicError;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.Writer;
@@ -30,6 +28,9 @@ import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
+
+import org.socialbiz.cog.exception.NGException;
+import org.socialbiz.cog.exception.ProgramLogicError;
 
 public class SectionAttachments extends SectionUtil implements SectionFormat
 {
@@ -58,43 +59,46 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
     */
     public static void assureSchemaMigration(NGSection sec, NGPage ngp) throws Exception
     {
-        //assure that all attachments have an ID
-        //added Dec 2009
-        //Now, clean up the ids in case there are any missing ids, this will
-        //migrate any existing documents without id values in the record
-        //remove this code when the oldest document is younger than Dec 2009
-        DOMFace allAttachments = sec.requireChild("attachments", DOMFace.class);
-        Vector<AttachmentRecord> attVect = allAttachments.getChildren("attachment", AttachmentRecord.class);
-        for(AttachmentRecord att : attVect)
-        {
+        //attachments are directly in the section element.  Earlier there was an 'attachments'
+        //element, and attachments were in that.  Clean that up.
+
+        DOMFace oldAttachmentsContainer = sec.getChild("attachments", DOMFace.class);
+        if (oldAttachmentsContainer==null) {
+            //if it does not exist then all is OK
+            return;
+        }
+
+        Vector<AttachmentRecord> oldAtts = oldAttachmentsContainer.getChildren("attachment", AttachmentRecord.class);
+        Hashtable<String,String> idset = new Hashtable<String,String>();
+        sortByVersion(oldAtts);
+        for(AttachmentRecord att : oldAtts) {
+            //assure that all attachments have an ID added Dec 2009
+            //Now, clean up the ids in case there are any missing ids, this will
+            //migrate any existing documents without id values in the record
             String thisId = att.getId();
-            if (thisId.length()==0)
-            {
+            if (thisId.length()==0) {
                 thisId = ngp.getUniqueOnPage();
                 att.setId(thisId);
             }
-        }
 
-        //added Nov 2010
-        //clean up mistake where versions of attachments were being created at new
-        //top level attachment records with the same ID.  This will remove any records
-        //that exist that have the same ID as a previous record.  The assumption is that
-        //the actual file in the directory, has the same ID, and will be detected by
-        //the attachment version object.  So, nothing will be lost by eliminating the
-        //duplicate attachment records.  After this, an ID will be an ID again.
-        sortByVersion(attVect);
-        Hashtable<String,String> idset = new Hashtable<String,String>();
+            //to move this attachment, remove it from the source
+            oldAttachmentsContainer.getElement().removeChild(att.getElement());
 
-        for(AttachmentRecord att : attVect)
-        {
-            String thisId = att.getId();
-            if (idset.get(thisId)!=null)
-            {
-                allAttachments.getElement().removeChild(att.getElement());
+            //added Nov 2010
+            //clean up mistake where versions of attachments were being created at new
+            //top level attachment records with the same ID.  Only add the first occurrence
+            //of any record with a given ID.   Throw away the other duplicates
+
+            if (!idset.containsKey(thisId)) {
+                AttachmentRecord newRec = ngp.createAttachment();
+                newRec.copyFrom(att);
+                newRec.setId(att.getId());
             }
             idset.put(thisId, thisId);
         }
 
+        //remove the old attachments element
+        sec.removeChild(oldAttachmentsContainer);
     }
 
 
@@ -102,6 +106,7 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
     /**
     * get the name of the format
     */
+    @Override
     public String getName()
     {
         return "Attachments Format";
@@ -153,6 +158,7 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
     }
 
 
+    @Override
     public void writePlainText(NGSection section, Writer out) throws Exception
     {
         assertRightAttachmentsSection(section);
@@ -186,6 +192,7 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
     * IDs into the vector so that we can generate another ID and assure it
     * does not duplication any id found here.
     */
+    @Override
     public void findIDs(Vector<String> v, NGSection sec)
         throws Exception
     {
@@ -310,6 +317,7 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
 
     static class AttachmentRecordComparator implements Comparator<AttachmentRecord>{
 
+        @Override
         public int compare(AttachmentRecord paramT1, AttachmentRecord paramT2) {
 
             int version1 = paramT1.getVersion();
@@ -328,6 +336,7 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
     }
     static class AttachmentNameComparator implements Comparator<AttachmentRecord>{
 
+        @Override
         public int compare(AttachmentRecord paramT1, AttachmentRecord paramT2) {
 
             String name1 = paramT1.getNiceName();
@@ -355,6 +364,7 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
     }
     static class AttachmentDateComparator implements Comparator<AttachmentRecord>{
 
+        @Override
         public int compare(AttachmentRecord paramT1, AttachmentRecord paramT2) {
 
             long date1 = paramT1.getModifiedDate();
