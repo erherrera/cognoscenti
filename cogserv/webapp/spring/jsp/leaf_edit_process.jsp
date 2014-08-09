@@ -4,7 +4,14 @@
 %><%@page import="org.socialbiz.cog.TemplateRecord"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
-%><%/*
+%><%!
+    String pageTitle = "";
+    SimpleDateFormat formatter  = new SimpleDateFormat ("MM/dd/yyyy");
+
+    String parentProcess=null;
+    String bookKey=null;
+%><%
+/*
 Required parameters:
 
     1. pageId   : This is the id of an Project and here it is used to retrieve NGPage.
@@ -21,11 +28,9 @@ Required parameters:
     String taskId = ar.reqParam("taskId");
 
     List<NGBook> bookList = (List<NGBook>)request.getAttribute("bookList");
-    String book = (String)request.getAttribute("book");%><%!String pageTitle = "";
-    SimpleDateFormat formatter  = new SimpleDateFormat ("MM/dd/yyyy");
+    String book = (String)request.getAttribute("book");
 
-    String parentProcess=null;
-    String bookKey=null;%><%UserProfile uProf = ar.getUserProfile();
+    UserProfile uProf = ar.getUserProfile();
 
     NGPage ngp =(NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
 
@@ -45,9 +50,16 @@ Required parameters:
             templates.add(ngpi);
         }
     }
-    NGPageIndex.sortInverseChronological(templates);%>
-    <script src="<%=ar.baseURL%>jscript/jquery.dd.js" type="text/javascript"></script>
-    <link rel="stylesheet" type="text/css" href="<%=ar.retPath%>css/dd.css" />
+    NGPageIndex.sortInverseChronological(templates);
+
+%>
+<script src="<%=ar.baseURL%>jscript/jquery.dd.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="<%=ar.retPath%>css/dd.css" />
+<style>
+.datestyle {
+    color: red;
+}
+</style>
 
     <script type="text/javascript" language = "JavaScript">
 
@@ -224,31 +236,31 @@ Required parameters:
                                 <table width="100%" class="tableArea">
                         <%
                             List<AddressListEntry> allUsers = currentTaskRecord.getAssigneeRole().getDirectPlayers();
-                                            for (AddressListEntry ale : allUsers)
-                                            {
-                                                if(ale.getUserProfile() == null){
-                                                    ar.write("<tr><td>");
-                                                    ar.write("<img src=\"");
-                                                    ar.write(ar.retPath+"/assets/photoThumbnailSmall.gif\" alt=\"img\" border=\"0\" />&nbsp;");
-                                                    ar.write("\n    <a href=\"");
-                                                    ar.write(ar.retPath);
-                                                    ar.write("t/");
-                                                    ar.write(ngp.getSite().getKey());
-                                                    ar.write("/");
-                                                    ar.write(ngp.getKey());
-                                                    ar.writeHtml("/inviteUser.htm?");
-                                                    ar.writeHtml("emailId=");
-                                                    ar.write(ale.getEmail());
-                                                    ar.write("\">");
-                                                    ar.write("\n    <span style=\"color:red\">");
-                                                    ar.writeHtml(ale.getStorageRepresentation());
-                                                    ar.write("</span></a>");
-                                                    ar.write("&nbsp;&nbsp;<a href=\"#\" title=\"Remove\" onclick=\"removeAssigne('"+ale.getStorageRepresentation()+"')\">");
-                                                    ar.write("<img src=\"");
-                                                    ar.write(ar.retPath+"/assets/iconBlackDelete.gif\" alt=\"Remove\" border=\"0\" /></a>");
-                                                    ar.write("</td></tr>");
-                                                    ar.write("<tr><td style=\"border-top:0px solid #ccc; height:5px\"></td></tr>");
-                                                }else{
+                            for (AddressListEntry ale : allUsers)
+                            {
+                                if(ale.getUserProfile() == null){
+                                    ar.write("<tr><td>");
+                                    ar.write("<img src=\"");
+                                    ar.write(ar.retPath+"/assets/photoThumbnailSmall.gif\" alt=\"img\" border=\"0\" />&nbsp;");
+                                    ar.write("\n    <a href=\"");
+                                    ar.write(ar.retPath);
+                                    ar.write("t/");
+                                    ar.write(ngp.getSite().getKey());
+                                    ar.write("/");
+                                    ar.write(ngp.getKey());
+                                    ar.writeHtml("/inviteUser.htm?");
+                                    ar.writeHtml("emailId=");
+                                    ar.write(ale.getEmail());
+                                    ar.write("\">");
+                                    ar.write("\n    <span style=\"color:red\">");
+                                    ar.writeHtml(ale.getStorageRepresentation());
+                                    ar.write("</span></a>");
+                                    ar.write("&nbsp;&nbsp;<a href=\"#\" title=\"Remove\" onclick=\"removeAssigne('"+ale.getStorageRepresentation()+"')\">");
+                                    ar.write("<img src=\"");
+                                    ar.write(ar.retPath+"/assets/iconBlackDelete.gif\" alt=\"Remove\" border=\"0\" /></a>");
+                                    ar.write("</td></tr>");
+                                    ar.write("<tr><td style=\"border-top:0px solid #ccc; height:5px\"></td></tr>");
+                                }else{
                         %>
                                     <tr>
                                         <td>
@@ -311,25 +323,23 @@ Required parameters:
                     </td>
                     <td valign="top">&nbsp;&nbsp;&nbsp;<a href="#" title="More" onclick="expandDiv('assignDivContent')"><img src="<%=ar.retPath%>/assets/iconMore.gif" border="0" alt="More" /></a></td>
                     <td valign="top">&nbsp;&nbsp;&nbsp;&nbsp;
-                        due date:
-                        <span  id="top_btn_dueDate" style="color: red">
-                            <%
-                                writeDate(ar,currentTaskRecord.getDueDate());
-                            %>
-                        </span>
-                        start date:
-                        <span id="top_btn_dueDate" style="color: red">
-                            <%
-                                writeDate(ar,currentTaskRecord.getStartDate());
-                            %>
-                        </span>
-
-                        end date:
-                        <span  id="top_btn_dueDate" style="color: red">
-                            <%
-                                writeDate(ar,currentTaskRecord.getEndDate());
-                            %>
-                        </span>
+                    <%
+                        if(currentTaskRecord.getDueDate()!=0){
+                            %> due date: <span class="datestyle"><%
+                            SectionUtil.nicePrintDate(ar.w, currentTaskRecord.getDueDate());
+                            %></span><%
+                        }
+                        if(currentTaskRecord.getStartDate()!=0){
+                            %> start date: <span class="datestyle"><%
+                            SectionUtil.nicePrintDate(ar.w, currentTaskRecord.getStartDate());
+                            %></span><%
+                        }
+                        if(currentTaskRecord.getEndDate()!=0){
+                            %> end date: <span class="datestyle"><%
+                            SectionUtil.nicePrintDate(ar.w, currentTaskRecord.getEndDate());
+                            %></span><%
+                        }
+                    %>
                     </td>
                 </tr>
             </table>

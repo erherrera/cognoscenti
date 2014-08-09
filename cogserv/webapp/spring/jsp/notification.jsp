@@ -7,17 +7,22 @@
         throw new NGException("nugen.exception.cant.find.user",null);
     }
 
-    if (!ar.hasSpecialSessionAccess("Notifications:"+uProf.getKey())) {
+    UserProfile  operatingUser =null;
+    boolean viewingSelf = false;
+    if (ar.hasSpecialSessionAccess("Notifications:"+uProf.getKey())) {
+        operatingUser = uProf;
+        viewingSelf = true;
+    }
+    else {
         ar.assertLoggedIn("Must be logged in to see anything about user "+uProf.getKey());
+        operatingUser =ar.getUserProfile();
+        viewingSelf = uProf.getKey().equals(operatingUser.getKey());
     }
 
-    UserProfile  operatingUser =ar.getUserProfile();
     if (operatingUser==null) {
         //this should never happen, and if it does it is not the users fault
         throw new ProgramLogicError("user profile setting is null.  No one appears to be logged in.");
     }
-
-    boolean viewingSelf = uProf.getKey().equals(operatingUser.getKey());
 
 %>
 <script type="text/javascript" language="javascript" src="<%=ar.baseURL%>jscript/jquery.ui.js"></script>

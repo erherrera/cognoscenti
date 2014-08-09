@@ -66,11 +66,17 @@ public class RemoteProject
     public String getName() throws Exception {
         return getJSONObj().optString("projectname");
     }
+    public String getUIAddress() throws Exception {
+        return getJSONObj().optString("projectui");
+    }
     public String getSiteURL() throws Exception {
         return getJSONObj().optString("siteinfo");
     }
     public String getSiteName() throws Exception {
         return getJSONObj().optString("sitename");
+    }
+    public String getSiteUIAddress() throws Exception {
+        return getJSONObj().optString("siteui");
     }
 
     /**

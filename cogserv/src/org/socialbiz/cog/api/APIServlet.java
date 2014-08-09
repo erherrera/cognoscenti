@@ -495,8 +495,10 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         String siteRoot = ar.baseURL + "api/" + resDec.siteId + "/$/?lic="+lfu.getId();
         root.put("siteinfo", siteRoot);
 
-        String uiUrl = ar.baseURL + "t/" + ngp.getSiteKey() + "/" + ngp.getKey() + "/";
-        root.put("ui", uiUrl);
+        String uiUrl = ar.baseURL + "t/" + ngp.getSiteKey() + "/" + ngp.getKey() + "/public.htm";
+        root.put("projectui", uiUrl);
+        String siteUI = ar.baseURL + "t/" + ngp.getSiteKey() + "/$/public.htm";
+        root.put("siteui", siteUI);
 
         List<NGRole> rolist = null;
         if (resDec.lic instanceof LicenseForUser) {
