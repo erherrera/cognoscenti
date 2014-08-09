@@ -38,7 +38,11 @@
     specialTab = "Stream";
     newUIResource = "history.htm";
 
-    String hookLink = (String) session.getAttribute("hook");
+    String hookLink = ar.defParam("hook", null);
+
+    if (hookLink==null) {
+        hookLink = (String) session.getAttribute("hook");
+    }
     NGPage hookPage = null;
     if (hookLink!=null)
     {
@@ -75,7 +79,29 @@ else
 
 <%
     if (hookPage==null) {
-%><p>Hook a project to get its resources to appear here to be moved.</p><%
+%><p>Pick a project:</p>
+  <form action="move.htm" method="get">
+  <ul>
+<%
+    NGSession ngsession = ar.ngsession;
+    if (ngsession!=null) {
+        Vector<RUElement> recent = ngsession.recentlyVisited;
+        RUElement.sortByDisplayName(recent);
+        for(RUElement rue : recent) {
+            if (rue.key.equals(p)) {
+                continue;
+            }
+            %>
+            <li><input type="submit" name="hook" value="<%ar.writeHtml(rue.key);%>"></li><%
+        }
+    }
+%>
+  </ul>
+  <p>If the project to want to move from does not appear here, then
+     visit that project briefly (search for it, or browse to it),
+     and come back here to move things from it.</p>
+  </form>
+<%
     }
     else if (!ar.isAdmin()) {
 %><p>You have to be administrator of the hooked project in order to move resources from it.</p><%
@@ -99,88 +125,85 @@ else
         <table><%
             for (NoteRecord lr : hookPage.getAllNotes()) {
 
-                            //if (lr.isDeleted()) {
-                            //    continue;
-                            //}
-                            int viz = lr.getVisibility();
-                            if (viz != SectionDef.PUBLIC_ACCESS && viz != SectionDef.MEMBER_ACCESS) {
-                                continue;
-                            }
-                            ar.write("\n<tr><td align=\"right\" width=\"70\">");
-                            if (lr.isDeleted()) {
-                                ar.write("Deleted");
-                            }
-                            else if (viz == SectionDef.PUBLIC_ACCESS) {
-                                ar.write("Public");
-                            }
-                            else if (viz == SectionDef.MEMBER_ACCESS) {
-                                ar.write("Member");
-                            }
-                            else {
-                                ar.write("Other");
-                            }
-                            ar.write("</td><td><input type=\"checkbox\" name=\"note\" value=\"");
-                            ar.write(lr.getId());
-                            ar.write("\"> ");
-                            ar.writeHtml(lr.getSubject());
-                            if (lr.isDeleted()) {
-                                appendProjectInfo(ar, lr.getMovedToProjectKey(), lr.getMovedToNoteId());
-                            }
-                            ar.write("</td></tr>");
+                int viz = lr.getVisibility();
+                if (viz != SectionDef.PUBLIC_ACCESS && viz != SectionDef.MEMBER_ACCESS) {
+                    continue;
+                }
+                ar.write("\n<tr><td align=\"right\" width=\"70\">");
+                if (lr.isDeleted()) {
+                    ar.write("Deleted");
+                }
+                else if (viz == SectionDef.PUBLIC_ACCESS) {
+                    ar.write("Public");
+                }
+                else if (viz == SectionDef.MEMBER_ACCESS) {
+                    ar.write("Member");
+                }
+                else {
+                    ar.write("Other");
+                }
+                ar.write("</td><td><input type=\"checkbox\" name=\"note\" value=\"");
+                ar.write(lr.getId());
+                ar.write("\"> ");
+                ar.writeHtml(lr.getSubject());
+                if (lr.isDeleted()) {
+                    appendProjectInfo(ar, lr.getMovedToProjectKey(), lr.getMovedToNoteId());
+                }
+                ar.write("</td></tr>");
 
-                        }
+            }
 
-                        ar.write("\n</table>\n<h3>Documents</h3>\n<table>");
+            ar.write("\n</table>\n<h3>Documents</h3>\n<table>");
 
-                        for (AttachmentRecord tar : hookPage.getAllAttachments()) {
+            for (AttachmentRecord tar : hookPage.getAllAttachments()) {
 
-                            ar.write("\n<tr><td align=\"right\" width=\"70\">");
-                            int viz = tar.getVisibility();
-                            if (tar.isDeleted()) {
-                                ar.write("Deleted");
-                            }
-                            else if (viz == SectionDef.PUBLIC_ACCESS) {
-                                ar.write("Public");
-                            }
-                            else if (viz == SectionDef.MEMBER_ACCESS) {
-                                ar.write("Member");
-                            }
-                            else {
-                                ar.write("Other");
-                            }
-                            ar.write("</td><td><input type=\"checkbox\" name=\"doc\" value=\"");
-                            ar.write(tar.getId());
-                            ar.write("\"> ");
-                            ar.writeHtml(tar.getNiceName());
-                            if (tar.isDeleted()) {
-                                appendProjectInfo(ar, tar.getMovedToProjectKey(), tar.getMovedToAttachId());
-                            }
-                            ar.write("</td></tr>");
+                ar.write("\n<tr><td align=\"right\" width=\"70\">");
+                int viz = tar.getVisibility();
+                if (tar.isDeleted()) {
+                    ar.write("Deleted");
+                }
+                else if (viz == SectionDef.PUBLIC_ACCESS) {
+                    ar.write("Public");
+                }
+                else if (viz == SectionDef.MEMBER_ACCESS) {
+                    ar.write("Member");
+                }
+                else {
+                    ar.write("Other");
+                }
+                ar.write("</td><td><input type=\"checkbox\" name=\"doc\" value=\"");
+                ar.write(tar.getId());
+                ar.write("\"> ");
+                ar.writeHtml(tar.getNiceName());
+                if (tar.isDeleted()) {
+                    appendProjectInfo(ar, tar.getMovedToProjectKey(), tar.getMovedToAttachId());
+                }
+                ar.write("</td></tr>");
 
-                        }
+            }
 
-                        ar.write("\n</table>\n<h3>Goals</h3>\n<table>");
+            ar.write("\n</table>\n<h3>Goals</h3>\n<table>");
 
-                        for (GoalRecord tr : hookPage.getAllGoals()) {
+            for (GoalRecord tr : hookPage.getAllGoals()) {
 
-                            int state = tr.getState();
+                int state = tr.getState();
 
-                            if (state==BaseRecord.STATE_ERROR || state==BaseRecord.STATE_COMPLETE
-                             || state==BaseRecord.STATE_SKIPPED ) {
-                                continue;
-                            }
-                            ar.write("\n<tr><td align=\"right\" width=\"70\">");
-                            ar.writeHtml(BaseRecord.stateName(state));
-                            ar.write("</td><td><input type=\"checkbox\" name=\"task\" value=\"");
-                            ar.write(tr.getId());
-                            ar.write("\"> ");
-                            ar.writeHtml(tr.getSynopsis());
-                            if (state==BaseRecord.STATE_DELETED) {
-                                appendProjectInfo(ar, tr.getMovedToProjectKey(), tr.getMovedToTaskId());
-                            }
-                            ar.write("</td></tr>");
+                if (state==BaseRecord.STATE_ERROR || state==BaseRecord.STATE_COMPLETE
+                 || state==BaseRecord.STATE_SKIPPED ) {
+                    continue;
+                }
+                ar.write("\n<tr><td align=\"right\" width=\"70\">");
+                ar.writeHtml(BaseRecord.stateName(state));
+                ar.write("</td><td><input type=\"checkbox\" name=\"task\" value=\"");
+                ar.write(tr.getId());
+                ar.write("\"> ");
+                ar.writeHtml(tr.getSynopsis());
+                if (state==BaseRecord.STATE_DELETED) {
+                    appendProjectInfo(ar, tr.getMovedToProjectKey(), tr.getMovedToTaskId());
+                }
+                ar.write("</td></tr>");
 
-                        }
+            }
         %></table><%
 
     }

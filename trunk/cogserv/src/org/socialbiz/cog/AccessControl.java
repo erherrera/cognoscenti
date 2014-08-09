@@ -120,7 +120,7 @@ public class AccessControl {
     }
 
     public static boolean canAccessGoal(AuthRequest ar, NGContainer ngc, GoalRecord gr)
-    throws Exception {
+    		throws Exception {
 
         //then, if user is logged in, and is a member, then can access
         if (ar.isLoggedIn()) {
@@ -138,10 +138,10 @@ public class AccessControl {
 
         //now, check the query parameters, and if apprpriate, set up the special access
         //url must have "mntask"  (magic number for task)
-        String mndoc = ar.defParam("mntask", null);
-        if (mndoc != null) {
+        String mntask = ar.defParam("mntask", null);
+        if (mntask != null) {
             String expectedMN = ngc.emailDependentMagicNumber(resourceId);
-            if (expectedMN.equals(mndoc)) {
+            if (expectedMN.equals(mntask)) {
                 ar.setSpecialSessionAccess(resourceId);
                 return true;
             }
@@ -150,6 +150,13 @@ public class AccessControl {
         return false;
     }
 
+    public static boolean isMagicNumber(AuthRequest ar, NGContainer ngc, 
+    		GoalRecord gr, String mntask) throws Exception {
+        String resourceId = "goal:"+gr.getId()+":"+ngc.getKey();
+        String encodedValue = URLEncoder.encode(ngc.emailDependentMagicNumber(resourceId), "UTF-8");
+        return mntask.equals(encodedValue);
+    }    
+    
     public static String getAccessGoalParams(NGContainer ngc, GoalRecord gr) throws Exception{
         String resourceId = "goal:"+gr.getId()+":"+ngc.getKey();
         String encodedValue = URLEncoder.encode(ngc.emailDependentMagicNumber(resourceId), "UTF-8");

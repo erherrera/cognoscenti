@@ -62,7 +62,17 @@
                     <%
                 }
                 else if (upstreamError!=null)  {
-                    %><i>Encountered an error accessing the upstream project: <%ar.writeHtml(upstreamError.toString());%></i>
+                    %><p><i>Encountered an error accessing the upstream project:
+                         <%ar.writeHtml(upstreamError.toString());%></i></p>
+                      <p>An error of this type usually means that there is a problem with
+                         the upstream link URL.  Is the link correct?  Another possibility
+                         is that the upstream server may be offline, or may not be reachable
+                         from this server at this time.  </p>
+                      <p>Upstream URL: <a href="<%ar.writeHtml(upstreamLink);%>">
+                         <%ar.writeHtml(upstreamLink);%></a></p>
+                      <p>The upstream link can be changed from this project's
+                         <button class="inputBtn" onclick="window.location='admin.htm'"
+                         type="button">Admin</button> page.</p>
                     <%
                 }
                 else {
@@ -81,7 +91,9 @@
                     int goalsNeedingUp   = ps.getToUpload(SyncStatus.TYPE_TASK).size();
                     int goalsEqual       = ps.getEqual(SyncStatus.TYPE_TASK).size();
                 %>
-                <p>Link to project is valid for <%=days%> more day as long as
+                <p>Link to project <a href="<%ar.writeHtml(upstreamLink);%>"><%ar.writeHtml(rp.getName());%></a>
+                    on the remote site <a href="<%ar.writeHtml(rp.getSiteURL());%>"><%ar.writeHtml(rp.getSiteName());%></a>
+                    is valid for <%=days%> more day as long as
                     <% ar.writeHtml(lic.getCreator()); %> remains in the
                     <% ar.writeHtml(lic.getRole()); %> role in that project</p>
 

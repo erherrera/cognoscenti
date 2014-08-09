@@ -555,7 +555,7 @@ public class EmailSender extends TimerTask {
             // task state, name and the page link.
             ar.write("\n <td>");
             ar.write("<a href=\"");
-            writeTaskLinkUrl(ar, ngpi, task);
+            writeGoalLinkUrl(ar, ngpi, task, up);
             ar.write("\" title=\"access current status of task\">");
             ar.write("<img border=\"0\" align=\"absbottom\" src=\"");
             ar.write(ar.baseURL);
@@ -565,7 +565,7 @@ public class EmailSender extends TimerTask {
             ar.writeHtml(GoalRecord.stateName(task.getState()));
             ar.write("\"/></a>&nbsp;</td><td>");
             ar.write("<a href=\"");
-            writeTaskLinkUrl(ar, ngpi, task);
+            writeGoalLinkUrl(ar, ngpi, task, up);
             ar.write("\" title=\"access current status of task\">");
             ar.writeHtml(task.getSynopsis());
             ar.write("</a> - <a href=\"");
@@ -592,9 +592,10 @@ public class EmailSender extends TimerTask {
 
     /**
      * Writes a URL of the task details page for a given task
+     * along with the magic number and user key for anonymous access.
      */
-    private static void writeTaskLinkUrl(AuthRequest ar, NGPageIndex ngpi,
-            GoalRecord gr) throws Exception {
+    private static void writeGoalLinkUrl(AuthRequest ar, NGPageIndex ngpi,
+            GoalRecord gr, UserProfile up) throws Exception {
         ar.write(ar.baseURL);
         ar.write("t/");
         ar.writeURLData(ngpi.pageBookKey);
@@ -606,7 +607,8 @@ public class EmailSender extends TimerTask {
         ar.write("?");
         NGPage ngp = (NGPage) ngpi.getContainer();
         ar.write(AccessControl.getAccessGoalParams(ngp, gr));
-
+        ar.write("&ukey=");
+        ar.writeURLData(up.getKey());
     }
 
     private static void writeProcessLinkUrl(AuthRequest ar, NGPageIndex ngpi)

@@ -20,6 +20,7 @@
 
 package org.socialbiz.cog.spring;
 
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
@@ -40,6 +41,7 @@ import org.socialbiz.cog.NGPageIndex;
 import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.ProcessRecord;
 import org.socialbiz.cog.SectionUtil;
+import org.socialbiz.cog.UserManager;
 import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.exception.NGException;
@@ -503,6 +505,69 @@ public class ProcessController extends BaseController {
 
             taskActionUpdate(ar, ngp, taskId);
 
+            return redirectBrowser(ar,go);
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.project.update.task", new Object[]{pageId,siteId} , ex);
+        }
+    }
+
+    @RequestMapping(value = "/{siteId}/{pageId}/updateGoalSpecial.form", method = RequestMethod.POST)
+    public ModelAndView updateGoalSpecial(@PathVariable String siteId,
+            @PathVariable String pageId,HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            
+            //note: this form is for people NOT logged in!
+            //ukey specifies user, and mntask verifies they have a proper link to the goal
+            
+            NGPage ngp = registerRequiredProject(ar, siteId, pageId);
+            String taskId = ar.reqParam("taskId");
+            String mntask = ar.reqParam("mntask");
+            String ukey = ar.reqParam("ukey");
+            String go = ar.reqParam("go");
+            String cmd = ar.reqParam("cmd");
+            
+            GoalRecord goal  = ngp.getGoalOrFail(taskId);
+            if (!AccessControl.isMagicNumber(ar, ngp, goal, mntask)) {
+            	throw new Exception("Program Logic Error: improperly constructed request mntask = "+mntask);
+            }
+            UserProfile uProf = UserManager.getUserProfileByKey(ukey);
+            ar.setUserForOneRequest(uProf);
+            int eventType = HistoryRecord.EVENT_TYPE_MODIFIED;
+            String accomp = "";
+            
+            if ("Remove Me".equals(cmd))  {
+	            NGRole assignees = goal.getAssigneeRole();
+            	if (assignees.isPlayer(uProf)) {
+            		String userId = assignees.whichIDForUser(uProf);
+            		AddressListEntry ale = new AddressListEntry(userId);
+            		assignees.removePlayer(ale);
+                    eventType = HistoryRecord.EVENT_PLAYER_REMOVED;
+                    accomp = "using 'Remove Me' from anonymous web form";
+            	}
+            	//silently ignore requests for users that are not assigned
+            }
+            else if ("Complete".equals(cmd))  {
+            	goal.setState(GoalRecord.STATE_COMPLETE);
+                eventType = HistoryRecord.EVENT_TYPE_STATE_CHANGE_COMPLETE;
+                accomp = "using 'Completed' through anonymous web form";
+            }
+            else if ("Other".equals(cmd))  {
+            	String loginUrl = ar.retPath + "t/EmailLoginForm.htm?go="+URLEncoder.encode(go, "UTF-8");
+            	return redirectBrowser(ar,loginUrl);
+            	//do not save any changes
+            }
+            else {
+            	throw new Exception("Program Logic Error: don't understand command = "+cmd);
+            }
+            
+            goal.setModifiedDate(ar.nowTime);
+            goal.setModifiedBy(ar.getBestUserId());
+            HistoryRecord.createHistoryRecord(ngp, goal.getId(),
+                    HistoryRecord.CONTEXT_TYPE_TASK, eventType, ar, accomp);
+            ngp.save();
+           
             return redirectBrowser(ar,go);
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.project.update.task", new Object[]{pageId,siteId} , ex);

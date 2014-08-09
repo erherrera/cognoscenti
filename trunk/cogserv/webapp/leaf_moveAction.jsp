@@ -53,7 +53,7 @@
         }
 
         for (String aNote : notes) {
-            NoteRecord leaf = hookProj.getLeaflet(aNote);
+            NoteRecord leaf = hookProj.getNoteOrFail(aNote);
             if (leaf==null) {
                 throw new Exception("Not able to find the note with id ("+aNote+") so aborting the entire transfer.");
             }
