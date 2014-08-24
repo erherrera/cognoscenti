@@ -67,7 +67,13 @@ public class RemoteProject
         return getJSONObj().optString("projectname");
     }
     public String getUIAddress() throws Exception {
-        return getJSONObj().optString("projectui");
+        String projectui = getJSONObj().optString("projectui");
+        
+        //old api had a field for 'ui' attempt to reconstruct
+        if (projectui == null || projectui.length()==0) {
+        	projectui = getJSONObj().optString("ui") + "public.htm";
+        }
+        return projectui;
     }
     public String getSiteURL() throws Exception {
         return getJSONObj().optString("siteinfo");
@@ -76,7 +82,17 @@ public class RemoteProject
         return getJSONObj().optString("sitename");
     }
     public String getSiteUIAddress() throws Exception {
-        return getJSONObj().optString("siteui");
+        String siteui = getJSONObj().optString("siteui");
+        
+        //old api had a field for 'ui' attempt to reconstruct
+        if (siteui == null || siteui.length()==0) {
+        	siteui = getJSONObj().optString("ui");
+        	int len = siteui.length();
+        	siteui = siteui.substring(0, len-1);
+        	int slashpos = siteui.lastIndexOf('/');
+        	siteui = siteui.substring(0, slashpos) + "/$/public.htm";
+        }
+        return siteui;
     }
 
     /**
