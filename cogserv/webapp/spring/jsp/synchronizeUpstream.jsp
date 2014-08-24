@@ -91,8 +91,10 @@
                     int goalsNeedingUp   = ps.getToUpload(SyncStatus.TYPE_TASK).size();
                     int goalsEqual       = ps.getEqual(SyncStatus.TYPE_TASK).size();
                 %>
-                <p>Link to project <a href="<%ar.writeHtml(upstreamLink);%>"><%ar.writeHtml(rp.getName());%></a>
-                    on the remote site <a href="<%ar.writeHtml(rp.getSiteURL());%>"><%ar.writeHtml(rp.getSiteName());%></a>
+                <p>Link to project <a href="<%ar.writeHtml(rp.getUIAddress());%>"><%ar.writeHtml(rp.getName());%></a>
+                    (<a href="<%ar.writeHtml(upstreamLink);%>">api</a>)
+                    on the remote site <a href="<%ar.writeHtml(rp.getSiteUIAddress());%>"><%ar.writeHtml(rp.getSiteName());%></a>
+                    (<a href="<%ar.writeHtml(rp.getSiteURL());%>">api</a>)
                     is valid for <%=days%> more day as long as
                     <% ar.writeHtml(lic.getCreator()); %> remains in the
                     <% ar.writeHtml(lic.getRole()); %> role in that project</p>
@@ -140,11 +142,11 @@
                         <td class="gridTableColummHeader_2">Goals:</td>
                         <td style="width:20px;"></td>
                         <td style="width:40px;">
-                            <input type="checkbox" name="docsUp" value="yes" <%if(goalsNeedingUp>0){%>checked="checked"<%}%>>
+                            &nbsp; &nbsp;
                             <%=goalsNeedingUp%> </td>
                         <td style="width:20px;"></td>
                         <td style="width:40px;">
-                            <input type="checkbox" name="docsUp" value="yes" <%if(goalsNeedingDown>0){%>checked="checked"<%}%>>
+                            &nbsp; &nbsp;
                             <%=goalsNeedingDown%> </td>
                         <td style="width:20px;"></td>
                         <td ><%=goalsEqual%></td>
