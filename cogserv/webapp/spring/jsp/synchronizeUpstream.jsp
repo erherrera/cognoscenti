@@ -120,7 +120,7 @@
                             <%=docsNeedingUp%></td>
                         <td style="width:20px;"></td>
                         <td style="width:40px;">
-                            <input type="checkbox" name="docsUp" value="yes" <%if(docsNeedingDown>0){%>checked="checked"<%}%>>
+                            <input type="checkbox" name="docsDown" value="yes" <%if(docsNeedingDown>0){%>checked="checked"<%}%>>
                             <%=docsNeedingDown%></td>
                         <td style="width:20px;"></td>
                         <td ><%=docsEqual%></td>
@@ -129,11 +129,11 @@
                         <td class="gridTableColummHeader_2">Notes:</td>
                         <td style="width:20px"></td>
                         <td style="width:40px;">
-                            <input type="checkbox" name="docsUp" value="yes" <%if(notesNeedingUp>0){%>checked="checked"<%}%>>
+                            <input type="checkbox" name="notesUp" value="yes" <%if(notesNeedingUp>0){%>checked="checked"<%}%>>
                             <%=notesNeedingUp%> </td>
                         <td style="width:20px;"></td>
                         <td style="width:40px;">
-                            <input type="checkbox" name="docsUp" value="yes" <%if(notesNeedingDown>0){%>checked="checked"<%}%>>
+                            <input type="checkbox" name="notesDown" value="yes" <%if(notesNeedingDown>0){%>checked="checked"<%}%>>
                             <%=notesNeedingDown%> </td>
                         <td style="width:20px;"></td>
                         <td ><%=notesEqual%></td>

@@ -1,7 +1,10 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/include.jsp"
 %><%@ include file="/spring/jsp/functions.jsp"
-%><%/*
+%><%!
+    String pageTitle="";
+%><%
+/*
 Required parameter:
 
     1. pageId : This is the id of a Project and used to retrieve NGPage.
@@ -13,24 +16,27 @@ Optional Parameter:
 */
 
     String pageId = ar.reqParam("pageId");
-    String isNewUpload = ar.defParam("isNewUpload", "");%><%!String pageTitle="";%><%NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
-        ar.setPageAccessLevels(ngp);
+    String isNewUpload = ar.defParam("isNewUpload", "");
+%><%
+    NGPage ngp = (NGPage)NGPageIndex.getContainerByKeyOrFail(pageId);
+    ar.setPageAccessLevels(ngp);
 
-        pageTitle = ngp.getFullName();
-        int documentCounts = NGWebUtils.getDocumentCount(ngp, SectionDef.PUBLIC_ACCESS);
-        int memberDocCount = NGWebUtils.getDocumentCount(ngp, SectionDef.MEMBER_ACCESS);
-        documentCounts += memberDocCount;
+    pageTitle = ngp.getFullName();
+    int documentCounts = NGWebUtils.getDocumentCount(ngp, SectionDef.PUBLIC_ACCESS);
+    int memberDocCount = NGWebUtils.getDocumentCount(ngp, SectionDef.MEMBER_ACCESS);
+    documentCounts += memberDocCount;
 
-        int deletedAttachmentsCount = NGWebUtils.getDeletedDocumentCount(ngp);
-        ReminderMgr reminderMgr = ngp.getReminderMgr();
-        Vector openReminders = reminderMgr.getOpenReminders();
-        int reminderCounts = 0;
-        if(openReminders != null){
-            reminderCounts = openReminders.size();
-        }
+    int deletedAttachmentsCount = NGWebUtils.getDeletedDocumentCount(ngp);
+    ReminderMgr reminderMgr = ngp.getReminderMgr();
+    Vector openReminders = reminderMgr.getOpenReminders();
+    int reminderCounts = 0;
+    if(openReminders != null){
+        reminderCounts = openReminders.size();
+    }
 
-        UserProfile uProf = ar.getUserProfile();
-        NGBook ngb = ngp.getSite();%>
+    UserProfile uProf = ar.getUserProfile();
+    NGBook ngb = ngp.getSite();
+%>
 <script>
     var retPath ='<%=ar.retPath%>';
     function trim(s) {
