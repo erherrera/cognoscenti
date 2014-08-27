@@ -1,6 +1,95 @@
 <%@page errorPage="/spring/jsp/error.jsp"
+%><%@page import="org.socialbiz.cog.api.RemoteProject"
+%><%@page import="org.socialbiz.cog.api.ProjectSync"
+%><%@page import="org.socialbiz.cog.api.SyncStatus"
 %><%@ include file="/spring/jsp/attachment_forms.jsp"
-%><%!int countRows = 0;%>
+%><%!
+    int countRows = 0;
+%>
+
+<%
+String thisPage = ar.getResourceURL(ngp,"SyncAttachment.htm");
+String upstreamLink = ngp.getUpstreamLink();
+Exception upstreamError = null;
+RemoteProject rp = null;
+ProjectSync ps = null;
+try {
+    rp = new RemoteProject(upstreamLink);
+    ps = new ProjectSync(ngp, rp, ar, ngp.getLicenses().get(0).getId());
+}
+catch (Exception uu) {
+    upstreamError = uu;
+    PrintWriter pw = new PrintWriter(System.out);
+    uu.printStackTrace(pw);
+    pw.flush();
+}
+if (ps!=null) {
+    Vector<SyncStatus> upDocs = ps.getToUpload(SyncStatus.TYPE_DOCUMENT);
+    Vector<SyncStatus> downDocs = ps.getToDownload(SyncStatus.TYPE_DOCUMENT);
+
+
+    %>
+    <div class="pageHeading">Upstream Synchronization</div>
+    <div class="pageSubHeading">
+        Documents to synchronize with upstream project.
+    </div>
+    <br/>
+    <form action="<%=ar.retPath%>Beam1SyncAll.jsp" method="post">
+        <input type="hidden" name="go" value="<%ar.writeHtml(thisPage);%>">
+        <input type="hidden" name="p" value="<%ar.writeHtml(ngp.getKey());%>">
+        <input type="hidden" value="Upload All" name="op">
+        <button type="submit" name="docsUp" value="yes" class="inputBtn">Send Documents Upstream</button>
+        to project: <b><%ar.writeHtml(rp.getName());%></b>
+    </form>
+    <br/>
+    <ul>
+    <%
+    int i=0;
+    if (upDocs.size()==0) {
+        %> <i>no documents need sending.</i> <%
+    }
+    else {
+        for (SyncStatus upDoc : upDocs) {
+            i++;
+            %><li><%=i%>. <b><%ar.writeHtml(upDoc.nameLocal);%></b>
+            (local ~ <%SectionUtil.nicePrintTime(ar.w,upDoc.timeLocal,ar.nowTime);%>)
+            (remote ~ <%SectionUtil.nicePrintTime(ar.w,upDoc.timeRemote,ar.nowTime);%>)</li><%
+        }
+    }
+    %>
+    </ul>
+    <br/>
+    <form action="<%=ar.retPath%>Beam1SyncAll.jsp" method="post">
+        <input type="hidden" name="go" value="<%ar.writeHtml(thisPage);%>">
+        <input type="hidden" name="p" value="<%ar.writeHtml(ngp.getKey());%>">
+        <input type="hidden" value="Download All" name="op">
+        <button type="submit" name="docsDown" value="yes" class="inputBtn">Fetch Documents from Upstream</button>
+        to project: <b><%ar.writeHtml(rp.getName());%></b>
+    </form>
+    <br/>
+    <ul>
+    <%
+    i=0;
+    if (downDocs.size()==0) {
+        %> <i>no documents need fetching.</i> <%
+    }
+    else {
+        for (SyncStatus downDoc : downDocs) {
+            i++;
+            %><li><%=i%>. <b><%ar.writeHtml(downDoc.nameLocal);%></b>
+            (local ~ <%SectionUtil.nicePrintTime(ar.w,downDoc.timeLocal,ar.nowTime);%>)
+            (remote ~ <%SectionUtil.nicePrintTime(ar.w,downDoc.timeRemote,ar.nowTime);%>)</li><%
+        }
+    }
+    %>
+    </ul>
+    <br/>
+    <%
+}
+%>
+<br/>
+<br/>
+
 <script type="text/javascript">
 
     function onClickAction(flag){
@@ -48,14 +137,10 @@
                 document.getElementById(checkoutId).style.display = "block";
             }
         }
-
-
-
-
     }
 
 </script>
-    <div class="pageHeading">Synchronize Documents</div>
+    <div class="pageHeading">Synchronize Documents to/from Repositories</div>
     <div class="pageSubHeading">
         Check to see if there are newer or older documents linked to these documents.
     </div>
@@ -141,6 +226,8 @@
             }();
         });
 </script>
+
+
 
 <%!public void attachmentDisplay(AuthRequest ar, NGPage _ngp) throws Exception
     {
@@ -309,4 +396,5 @@
             ar.write("</tr>");
             countRows++;
         }
-    }%>
+    }
+%>
