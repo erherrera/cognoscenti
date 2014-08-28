@@ -192,9 +192,11 @@ Required parameter:
             if (aRecord.isDeleted()) {
                 continue;
             }
-            if(rlink.equals(arLink)) {
-                return true;
-            }
+            //Not sure what this was about or what arLink represented
+            //commented out here becausae JSP does not compile with it in.
+            //if(rlink.equals(arLink)) {
+            //    return true;
+            //}
             if (fileFullPath.equals(aRecord.getRemoteFullPath())) {
                 return true;
             }

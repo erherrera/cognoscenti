@@ -896,7 +896,16 @@ public class AttachmentRecord extends DOMFace {
             throw new Exception("Error trying to update the record for a goal with UID ("
                     +getUniversalId()+") with post from goal with UID ("+universalid+")");
         }
-        setDisplayName(thisDoc.getString("name"));
+        String newName = thisDoc.getString("name");
+    	AttachmentRecord otherFileWithSameName = container.findAttachmentByName(newName);
+        if (otherFileWithSameName!=null && (universalid.equals(otherFileWithSameName.getUniversalId()))) {
+        	//TODO: better handling duplicate here
+        	//This just throws up hands and gives up, and you will get the same next
+        	//time.  Better to rename this to a unique name.
+        	return;
+        }
+
+        setDisplayName(newName);
         setComment(thisDoc.optString("description"));
         //Note the following field updates
         //  modifiedtime is set only when a new version is actually created

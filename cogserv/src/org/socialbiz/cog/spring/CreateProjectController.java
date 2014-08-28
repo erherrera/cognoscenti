@@ -157,14 +157,19 @@ public class CreateProjectController extends BaseController {
                 return;
             }
             NGPage project= createTemplateProject(ar,siteId);
+            project.save(ar.getBestUserId(), ar.nowTime, "Created new project");
 
             String upstream = project.getUpstreamLink();
             if (upstream!=null && upstream.length()>0) {
-                RemoteProject remProj = new RemoteProject(upstream);
-                ProjectSync ps = new ProjectSync(project, remProj, ar, "xxx");
-                ps.downloadAll();
+            	//instead of synchronizing in a single action, redirecting allows us to free up the 
+            	//locks on the site object before trying to synchronize.  Otherwise we get a 
+            	//deadlock when pulling from the same site.  It also gives better feedback to the 
+            	//user about progress, and educates first time users about synchronizing.
+            	response.sendRedirect(ar.retPath+"t/"+siteId+"/"+project.getKey()+"/SyncAttachment.htm");
             }
-            response.sendRedirect(ar.retPath+"t/"+siteId+"/"+project.getKey()+"/public.htm");
+            else {
+            	response.sendRedirect(ar.retPath+"t/"+siteId+"/"+project.getKey()+"/public.htm");
+            }
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.create.project.from.template", new Object[]{siteId} , ex);
         }
