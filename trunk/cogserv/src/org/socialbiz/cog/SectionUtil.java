@@ -225,28 +225,28 @@ public class SectionUtil
         if (diff < 90)
         {
             writePadded(out, 10, Long.toString(diff));
-            out.write(" seconds ago.");
+            out.write(" seconds ago");
             return;
         }
         diff = diff/60;
         if (diff < 90)
         {
             writePadded(out, 8, Long.toString(diff));
-            out.write(" minutes ago.");
+            out.write(" minutes ago");
             return;
         }
         diff = diff/60;
         if (diff < 36)
         {
             writePadded(out, 6, Long.toString(diff));
-            out.write(" hours ago.");
+            out.write(" hours ago");
             return;
         }
         diff = diff/24;
         if (diff < 14)
         {
             writePadded(out, 4, Long.toString(diff));
-            out.write(" days ago.");
+            out.write(" days ago");
             return;
         }
         //old than that, just print the date out

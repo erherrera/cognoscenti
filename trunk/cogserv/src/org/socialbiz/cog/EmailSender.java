@@ -475,8 +475,6 @@ public class EmailSender extends TimerTask {
 
     private static void writeDelayedSiteList(AuthRequest clone,
             List<SiteRequest> delayedSites) throws Exception {
-        UserProfile superAdmin = UserManager.getSuperAdmin(clone);
-        String adminKey = superAdmin.getKey();
         clone.write("<table width=\"80%\" class=\"Design8\">");
         clone.write("<thead>");
         clone.write("<tr>");

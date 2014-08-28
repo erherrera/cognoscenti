@@ -380,36 +380,77 @@ public class ProjectSync {
     /**
     * This will walk through the discrepancies, and it will transfer documents or
     * notes until the projects are in sync.
+    * *
+    * Normally an upstream document with a universal ID will be matched with the 
+    * downstream document with that same ID, and they will have the same name.
+    * 
+    * What happens when you have documents that have different universal IDs but
+    * the same name?  This can happen if a document was added upstream and downstream
+    * with the same name at the same time, and upon synchronization the name clash
+    * is noticed.  Each project does not allow duplicate files with the same 
+    * name.  
+    * 
+    * Principle 1: upstream wins.  If there is a name clash, then the upstream
+    * file keeps the name, and the downstream file has to change name.
     */
     public void downloadAll() throws Exception {
 
         Vector<SyncStatus> docsNeedingDown  = getToDownload(SyncStatus.TYPE_DOCUMENT);
         for (SyncStatus docStat : docsNeedingDown) {
             if (docStat.timeRemote==0) {
+            	//this is a programming consistency thing.  A doc falls into the needing
+            	//download category only when it has a reasonable remote timestamp
                 throw new Exception("Something is wrong with information about remote document ("
                         +docStat.nameRemote+") because the timestamp is zero");
             }
-            AttachmentRecord newAtt;
+            AttachmentRecord localAtt;
+        	String newName = docStat.nameRemote;  //might be a new name or same old name
             if (docStat.isLocal) {
-                newAtt = local.findAttachmentByID(docStat.idLocal);
-                if (!newAtt.isUpstream()) {
-                    throw new Exception("Synchronization error with document ("+docStat.idLocal
-                            +") because local version has been marked as NOT being sychronized upstream.");
+                localAtt = local.findAttachmentByID(docStat.idLocal);
+                if (!localAtt.isUpstream()) {
+                    //this is the case of a 'severed' sync.  The User has marked this local document
+                	//to NOT be synchronized upstream, so it is cut off.  Do not synchronize this
+                	//document
+                	//TODO: should we tell the user that a document was skipped?
+                	continue;
+                    //throw new Exception("Synchronization error with document ("+docStat.idLocal
+                    //        +") because local version has been marked as NOT being sychronized upstream.");
+                }
+                //check of name change scenario
+                if (!newName.equals(localAtt.getNiceName())) {
+                	//in this case will will have to change the name, check first that there
+                	//will not a local name conflict.
+                	AttachmentRecord otherFileWithSameName = local.findAttachmentByName(newName);
+                	if (otherFileWithSameName!=null) {
+                		//this is the name conflict ... a local document exists with that name
+                		//that this document is going to be, so ignore the sync request.
+                		continue;
+                		//TODO: should we tell the user about this problem?
+                	}
                 }
             }
             else {
-                newAtt = local.createAttachment();
-                newAtt.setUniversalId(docStat.universalId);
+            	//this is a new document to us, but check for name conflict
+            	AttachmentRecord otherFileWithSameName = local.findAttachmentByName(newName);
+            	if (otherFileWithSameName!=null) {
+            		//this is the name conflict ... a local document exists with that name
+            		//so don't attempt to synchronize it
+            		continue;
+            		//TODO: should we tell the user about this problem?
+            	}
+
+                localAtt = local.createAttachment();
+                localAtt.setUniversalId(docStat.universalId);
                 //this document came from upstream, so set to synch in the future upstream
-                newAtt.setUpstream(true);
+                localAtt.setUpstream(true);
             }
-            newAtt.updateDocFromJSON(docStat.remoteCopy);
+            localAtt.updateDocFromJSON(docStat.remoteCopy);
             String modifieduser = docStat.remoteCopy.getString("modifieduser");
             long modifiedtime = docStat.remoteCopy.getLong("modifiedtime");
 
             URL link = new URL(docStat.urlRemote);
             InputStream is = link.openStream();
-            newAtt.streamNewVersion(local, is, modifieduser, modifiedtime);
+            localAtt.streamNewVersion(local, is, modifieduser, modifiedtime);
         }
 
         Vector<SyncStatus> notesNeedingDown  = getToDownload(SyncStatus.TYPE_NOTE);

@@ -53,7 +53,7 @@ if (ps!=null) {
             i++;
             %><li><%=i%>. <b><%ar.writeHtml(upDoc.nameLocal);%></b>
             (local ~ <%SectionUtil.nicePrintTime(ar.w,upDoc.timeLocal,ar.nowTime);%>)
-            (remote ~ <%if (downDoc.timeLocal<=0) {%><i>none</i><%} else {SectionUtil.nicePrintTime(ar.w,downDoc.timeRemote,ar.nowTime);}%>)</li><%
+            (remote ~ <%if (upDoc.timeLocal<=0) {%><i>none</i><%} else {SectionUtil.nicePrintTime(ar.w,upDoc.timeRemote,ar.nowTime);}%>)</li><%
         }
     }
     %>
@@ -76,9 +76,27 @@ if (ps!=null) {
     else {
         for (SyncStatus downDoc : downDocs) {
             i++;
+            String newName = downDoc.nameRemote;
+            String error = "";
+            if (!downDoc.isLocal) {
+                AttachmentRecord otherFileWithSameName = ngp.findAttachmentByName(newName);
+                if (otherFileWithSameName!=null) {
+                    error = "A local file exists with a conflicting name, and so this file can not be synchronized";
+                }
+            }
+            else {
+                AttachmentRecord localAtt = ngp.findAttachmentByID(newName);
+                if (localAtt!=null && !localAtt.isUpstream()) {
+                    error = "Local version has been marked to NOT synchronize, and so this file can not be synchronized";
+                }
+                if (localAtt!=null && localAtt.isDeleted()) {
+                    error = "Local version has been deleted, and so this file can not be synchronized";
+                }
+            }
             %><li><%=i%>. <b><%ar.writeHtml(downDoc.nameRemote);%></b>
             (local ~ <%if (downDoc.timeLocal<=0) {%><i>none</i><%} else {SectionUtil.nicePrintTime(ar.w,downDoc.timeLocal,ar.nowTime);}%>)
-            (remote ~ <%SectionUtil.nicePrintTime(ar.w,downDoc.timeRemote,ar.nowTime);%>)</li><%
+            (remote ~ <%SectionUtil.nicePrintTime(ar.w,downDoc.timeRemote,ar.nowTime);%>)
+            <span style="color:red"><%ar.writeHtml(error);%></span></li><%
         }
     }
     %>
@@ -299,7 +317,7 @@ if (ps!=null) {
                 if(lModifed && !rModifed){
                     ar.write("<img src=\"");
                     ar.write(ar.retPath);
-                    ar.write("assets/iconChanged.png\" title=\"Modified\">");
+                    ar.write("assets/iconChanged.jpg\" title=\"Modified\">");
                 }
                 ar.write("</td>");
                 ar.write("\n<td>");
@@ -352,7 +370,7 @@ if (ps!=null) {
                 if(!lModifed && rModifed){
                     ar.write("<img src=\"");
                     ar.write(ar.retPath);
-                    ar.write("assets/iconChanged.png\" title=\"Modified\">");
+                    ar.write("assets/iconChanged.jpg\" title=\"Modified\">");
                 }
                 ar.write("</td>");
 
