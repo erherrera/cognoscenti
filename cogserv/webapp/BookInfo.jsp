@@ -107,12 +107,13 @@
     else if (book_members.size()==0)
     {
 %>
-    <tr>This account has no members, would you like to be the first member?.
+    <tr>This account has no executives, would you like to be the first executive?.
         <form action="BookMemberAction.jsp" method="post">
+        <input type="hidden" name="userid" value="<% ar.writeHtml(ar.getBestUserId()); %>">
         <input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
         <input type="hidden" name="b" value="<% ar.writeHtml(b); %>">
         <input type="hidden" name="level" value="2">
-        <td><input type="submit" value="Request to be First Member"></td>
+        <td><input type="submit" value="Request to be First Executive"></td>
         </form>
         </tr>
 <%
@@ -121,10 +122,12 @@
     {
 %>
     <tr><form action="BookMemberAction.jsp" method="post">
+        <input type="hidden" name="userid" value="<% ar.writeHtml(ar.getBestUserId()); %>">
         <input type="hidden" name="b" value="<% ar.writeHtml(b); %>">
         <input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
         <input type="hidden" name="level" value="1">
-        <td><input type="submit" value="Request to be Member"></td>
+        <td><input type="submit" value="Request to be Executive"></td>
+        </form>
         </tr>
 <%
     }
@@ -133,7 +136,7 @@
                   "Executives ("+ngb.getName()+")"            ,
                   2, b);
 
-    if (ar.isMember())
+    if (ar.isMember() || ar.isSuperAdmin())
     {
 %>
     <tr>
@@ -141,7 +144,7 @@
         <input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
         <td colspan="3">
             <br/>
-            <input type="submit" value="Add New Member:">
+            <input type="submit" value="Add New Executive:">
             <input type="text" size="40" name="userid">
             <input type="hidden" name="encodingGuard" value="<%ar.writeHtml("\u6771\u4eac");%>"/>
             <input type="hidden" name="level" value="2">
