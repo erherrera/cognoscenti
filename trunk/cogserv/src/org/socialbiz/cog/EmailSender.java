@@ -503,9 +503,7 @@ public class EmailSender extends TimerTask {
             clone.write("<td>");
             clone.write("<a href=\"");
             clone.write(clone.baseURL);
-            clone.write("v/");
-            clone.writeURLData(adminKey);
-            clone.write("/approveAccountThroughMail.htm?requestId=");
+            clone.write("v/approveAccountThroughMail.htm?requestId=");
             clone.writeURLData(details.getRequestId());
             clone.write("\">Click here to Accept/Deny this request</a>");
             clone.write("</td>");

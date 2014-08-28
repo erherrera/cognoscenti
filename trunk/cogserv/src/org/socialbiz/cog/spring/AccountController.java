@@ -297,7 +297,7 @@ public class AccountController extends BaseController {
     }
 
 
-    @RequestMapping(value = "/{adminKey}/approveAccountThroughMail.htm", method = RequestMethod.GET)
+    @RequestMapping(value = "/approveAccountThroughMail.htm", method = RequestMethod.GET)
     public ModelAndView approveSiteThroughEmail(
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
