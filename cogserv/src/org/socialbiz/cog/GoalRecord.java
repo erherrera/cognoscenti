@@ -276,6 +276,7 @@ public class GoalRecord extends BaseRecord {
         fEle.removeAttribute("parenttask");
     }
 
+    @Override
     public void setDueDate(long newVal) throws Exception {
         super.setDueDate(newVal);
         // set the due date accordingly for all the subtasks.
@@ -664,6 +665,7 @@ public class GoalRecord extends BaseRecord {
         public TaskRankComparator() {
         }
 
+        @Override
         public int compare(GoalRecord o1, GoalRecord o2) {
             try {
                 int rank1 = o1.getRank();
@@ -748,6 +750,7 @@ public class GoalRecord extends BaseRecord {
     /**
      * @deprecated use getApproverRole instead
      */
+    @Deprecated
     public String getApprovers() throws Exception {
         return getScalar("approvedby");
     }
@@ -755,6 +758,7 @@ public class GoalRecord extends BaseRecord {
     /**
      * @deprecated use getApproverRole instead
      */
+    @Deprecated
     public void setApprovers(String newVal) throws Exception {
         setScalar("approvedby", newVal);
     }
@@ -938,6 +942,43 @@ public class GoalRecord extends BaseRecord {
         return getScalar("waitPeriod");
     }
 
+    /**
+     * Passive is a setting that says that the goal was not defined
+     * in this particular replicant of the project, and so it should
+     * only display the status, and not allow any means to change
+     * the state.
+     *
+     * Default (if the setting has not been set) is false.
+     */
+    public void setPassive(boolean isPassive) {
+        if (isPassive) {
+            setAttribute("passive", "true");
+        }
+        else {
+            setAttribute("passive", null);
+        }
+    }
+    public boolean isPassive() {
+        String pVal = getAttribute("passive");
+        if (pVal==null) {
+            return false;
+        }
+        return "true".equals(pVal);
+    }
+
+    /**
+     * RemoteUpdateURL is a URL that is provided during synchronization
+     * for passive tasks that provides a place to redirect to in order
+     * to allow the user to manipulate the state of the task on the
+     * original site.
+     */
+    public void setRemoteUpdateURL(String url) {
+        setScalar("remoteUpdateURL", url);
+    }
+    public String getRemoteUpdateURL() {
+        return getScalar("remoteUpdateURL");
+    }
+
 
     public JSONObject getJSON4Goal(NGPage ngp, String baseURL, License license) throws Exception {
     	if (license==null) {
@@ -968,8 +1009,11 @@ public class GoalRecord extends BaseRecord {
         thisGoal.put("assignee", peopleList);
         */
         String urlRoot = baseURL + "api/" + ngp.getSiteKey() + "/" + ngp.getKey() + "/";
-        String uiUrl = baseURL + "t/" + ngp.getSiteKey() + "/" + ngp.getKey()
+        String uiUrl = getRemoteUpdateURL();
+        if (uiUrl==null || uiUrl.length()==0) {
+            uiUrl = baseURL + "t/" + ngp.getSiteKey() + "/" + ngp.getKey()
                 + "/task" + getId() + ".htm";
+        }
         String goalinfo = urlRoot + "goal" + getId() + "/goal.json?lic=" + license.getId();
         thisGoal.put("goalinfo", goalinfo);
         thisGoal.put("projectinfo", urlRoot+"?lic="+license.getId());
@@ -1033,7 +1077,10 @@ public class GoalRecord extends BaseRecord {
         if (rank>0) {
             setPriority(rank);
         }
-
+        String remoteUI = goalObj.optString("ui");
+        if (remoteUI!=null && remoteUI.length()>0) {
+                setRemoteUpdateURL(remoteUI);
+        }
         //TODO: handle assignees
     }
 }

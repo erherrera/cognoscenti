@@ -206,21 +206,4 @@
         */
     }
 
-    private String getAllQueryParams(HttpServletRequest req)
-            throws Exception
-    {
-        String qs = "?";
-        Enumeration en = req.getParameterNames();
-        for (int i=0; en.hasMoreElements(); i++)
-        {
-            String key = (String)en.nextElement();
-            String value = req.getParameter(key);
-            if (value == null) value = "";
-            qs = qs + ((i>0)? "&" : "") + key + "=" + SectionUtil.encodeURLData(value);
-        }
-        return qs;
-    }
-
-
-
 %>

@@ -16,9 +16,20 @@
 
 package org.socialbiz.cog.api;
 
-import org.workcast.json.JSONArray;
-import org.workcast.json.JSONObject;
-import org.workcast.json.JSONTokener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
+import java.util.Vector;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AttachmentVersion;
@@ -38,20 +49,9 @@ import org.socialbiz.cog.SectionWiki;
 import org.socialbiz.cog.UserRef;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.WikiConverter;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.Vector;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.workcast.json.JSONArray;
+import org.workcast.json.JSONObject;
+import org.workcast.json.JSONTokener;
 
 /**
  * This servlet serves up pages using the following URL format:
@@ -109,6 +109,7 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class APIServlet extends javax.servlet.http.HttpServlet {
 
+    @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         try {
@@ -158,6 +159,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         }
     }
 
+    @Override
     public void doPut(HttpServletRequest req, HttpServletResponse resp) {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         ar.resp.setContentType("application/json");
@@ -182,6 +184,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         }
     }
 
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         ar.resp.setContentType("application/json");
@@ -314,6 +317,8 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             GoalRecord newGoal = resDec.project.createGoal();
             newGoal.setUniversalId(newGoalObj.getString("universalid"));
             newGoal.updateGoalFromJSON(newGoalObj);
+            newGoal.setPassive(true);
+            newGoal.setRemoteUpdateURL(newGoalObj.getString("ui"));
             resDec.project.save(ar.getBestUserId(), ar.nowTime, "New goal synchronized from downstream linked project.");
             return responseOK;
         }
@@ -385,11 +390,13 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         throw new Exception("API does not understand operation: "+op);
     }
 
+    @Override
     public void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         streamException(new Exception("not implemented yet"), ar);
     }
 
+    @Override
     public void init(ServletConfig config) throws ServletException {
         //don't initialize here.  Instead, initialize in SpringServlet!
     }

@@ -183,7 +183,7 @@
            var respText = o.responseText;
            var json = eval('(' + respText+')');
            if(json.msgType == "success"){
-               var gotoPage  = "<%=ar.getRequestURL()%><%=getAllQueryParams(ar.req)%>";
+               var gotoPage  = "<%=ar.getCompleteURL()%>";
                var option = '<%=ProfileRequest.getPromptString(ProfileRequest.ADD_EMAIL)%>';
                openSubPanel('Confirmation',json.newId , option ,'550px');
            }else{
