@@ -368,6 +368,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
+    @Override
     public void saveFile(AuthRequest ar, String comment) throws Exception {
         try {
             setLastModify(ar);
@@ -393,6 +394,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
     //Added new method without using ar parameter to save contents (Need to discuss)
+    @Override
     public void save(String modUser, long modTime, String comment) throws Exception
     {
         try
@@ -436,6 +438,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         pageInfo.clearDeleted();
     }
 
+    @Override
     public boolean isDeleted()
     {
         return pageInfo.isDeleted();
@@ -656,6 +659,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     * and it must never be changed (or links will be
     * broken).  Linking should be by name if possible.
     */
+    @Override
     public String getKey() {
         return pageInfo.getKey();
     }
@@ -674,6 +678,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
      * Returns the current full name of this page
      */
+    @Override
     public String getFullName() {
         if (displayNames == null) {
             return "Uninitialized (displayNames is null)";
@@ -723,6 +728,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
+    @Override
     public long getLastModifyTime()
         throws Exception
     {
@@ -808,6 +814,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
     * Override the superclass implementation to add a license for the process
     */
+    @Override
     public Vector<License> getLicenses() throws Exception {
         Vector<License> vc = super.getLicenses();
         vc.add(new LicenseForProcess(getProcess()));
@@ -825,6 +832,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         return lr;
     }
 
+    @Override
     public boolean isValidLicense(License lr, long time) throws Exception {
         if (super.isValidLicense(lr, time)) {
             return true;
@@ -949,6 +957,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         String uid = getContainerUniversalId() + "@" + id;
         goal.setUniversalId(uid);
         goal.setRank(32000000);
+        goal.setPassive(false);
         renumberGoalRanks();
         return goal;
     }
@@ -966,12 +975,14 @@ public class NGPage extends ContainerCommon implements NGContainer
 
 
 
+    @Override
     public List<HistoryRecord> getAllHistory()
         throws Exception
     {
         return getProcess().getAllHistory();
     }
 
+    @Override
     public HistoryRecord createNewHistory()
         throws Exception
     {
@@ -1036,6 +1047,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
     * Get a four digit numeric id which is unique on the page.
     */
+    @Override
     public String getUniqueOnPage()
         throws Exception
     {
@@ -1062,6 +1074,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
+    @Override
     public ReminderMgr getReminderMgr()
         throws Exception
     {
@@ -1073,9 +1086,11 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
+    @Override
     public NGRole getPrimaryRole() throws Exception {
         return getRequiredRole("Members");
     }
+    @Override
     public NGRole getSecondaryRole() throws Exception {
         return getRequiredRole("Administrators");
     }
@@ -1084,6 +1099,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     * implemented special functionality for projects ... there are site
     * executives, and there are task assignees to consider.
     */
+    @Override
     public boolean primaryOrSecondaryPermission(UserRef user) throws Exception {
         if (primaryPermission(user))
         {
@@ -1125,6 +1141,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
+    @Override
     public RoleRequestRecord createRoleRequest(String roleName, String requestedBy, long modifiedDate, String modifiedBy, String requestDescription) throws Exception
     {
         DOMFace rolelist = pageInfo.requireChild("Role-Requests", DOMFace.class);
@@ -1146,6 +1163,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         return IdGenerator.generateKey();
     }
 
+    @Override
     public List<RoleRequestRecord> getAllRoleRequest() throws Exception {
 
         List<RoleRequestRecord> requestList = new ArrayList<RoleRequestRecord>();
@@ -1161,16 +1179,19 @@ public class NGPage extends ContainerCommon implements NGContainer
 
 
 
+    @Override
     public void saveContent(AuthRequest ar, String comment) throws Exception{
         saveFile( ar, comment );
     }
 
 
+    @Override
     public String[] getContainerNames(){
         return getPageNames();
     }
 
 
+    @Override
     public void setContainerNames(String[] nameSet) {
          setPageNames(nameSet);
     }
@@ -1179,6 +1200,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
     * Used by ContainerCommon to provide methods for this class
     */
+    @Override
     protected DOMFace getAttachmentParent() throws Exception {
         return getRequiredSection("Attachments");
     }
@@ -1186,6 +1208,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
     * Used by ContainerCommon to provide methods for this class
     */
+    @Override
     protected DOMFace getNoteParent() throws Exception {
         return getRequiredSection("Comments");
     }
@@ -1193,6 +1216,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
     * Used by ContainerCommon to provide methods for this class
     */
+    @Override
     protected DOMFace getRoleParent() throws Exception {
         if (pageInfo==null) {
             pageInfo = requireChild("pageInfo", PageInfoRecord.class);
@@ -1203,6 +1227,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
     * Used by ContainerCommon to provide methods for this class
     */
+    @Override
     protected DOMFace getHistoryParent() throws Exception {
         return getProcess().requireChild("history", DOMFace.class);
     }
@@ -1210,6 +1235,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
     * Used by ContainerCommon to provide methods for this class
     */
+    @Override
     protected DOMFace getInfoParent() throws Exception {
         if (pageInfo==null) {
             pageInfo = requireChild("pageInfo", PageInfoRecord.class);
@@ -1218,6 +1244,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
+    @Override
     public void writeContainerLink(AuthRequest ar, int len) throws Exception
     {
         ar.write("<a href=\"");
@@ -1228,6 +1255,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         ar.write( "</a>");
     }
 
+    @Override
     public void writeDocumentLink(AuthRequest ar, String documentId, int len) throws Exception
     {
         AttachmentRecord att = findAttachmentByID(documentId);
@@ -1247,6 +1275,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         ar.write( "</a>");
     }
 
+    @Override
     public void writeReminderLink(AuthRequest ar, String reminderId, int len) throws Exception
     {
         ReminderRecord att = getReminderMgr().findReminderByID( reminderId );
@@ -1267,6 +1296,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     }
 
 
+    @Override
     public void writeTaskLink(AuthRequest ar, String taskId, int len) throws Exception
     {
         GoalRecord task = getGoalOrNull(taskId);
@@ -1285,6 +1315,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         ar.write( "</a>");
     }
 
+    @Override
     public void writeNoteLink(AuthRequest ar,String noteId, int len) throws Exception{
         NoteRecord note = getNote( noteId );
         if(note==null){
@@ -1335,10 +1366,12 @@ public class NGPage extends ContainerCommon implements NGContainer
         }
     }
 
+    @Override
     public void setAllowPublic(String allowPublic)throws Exception{
         pageInfo.setAllowPublic(allowPublic);
     }
 
+    @Override
     public String getAllowPublic() throws Exception{
         String value = pageInfo.getAllowPublic();
         if(value == null || value.length() == 0 ){
@@ -1347,6 +1380,7 @@ public class NGPage extends ContainerCommon implements NGContainer
         return value;
     }
 
+    @Override
     public boolean isFrozen() throws Exception
     {
         return pageInfo.isFrozen();
@@ -1383,6 +1417,7 @@ public class NGPage extends ContainerCommon implements NGContainer
     /**
     * Different projects can have different style sheets (themes)
     */
+    @Override
     public String getThemePath()
     {
         if (prjSite!=null) {

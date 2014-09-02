@@ -1167,23 +1167,6 @@ Optional Parameters:
         return "";
     }
 
-    public String getAllQueryParams(HttpServletRequest req)
-    throws Exception
-    {
-        String qs = "";
-        Enumeration<String> en = req.getParameterNames();
-        if(en.hasMoreElements()){
-            qs = "?";
-        }
-        for (int i=0; en.hasMoreElements(); i++)
-        {
-            String key = (String)en.nextElement();
-            String value = req.getParameter(key);
-            if (value == null) value = "";
-            qs = qs + ((i>0)? "&" : "") + key + "=" + SectionUtil.encodeURLData(value);
-        }
-        return qs;
-    }
 
     public static String pasreFullname(String fullNames) throws Exception {
         String assigness = "";

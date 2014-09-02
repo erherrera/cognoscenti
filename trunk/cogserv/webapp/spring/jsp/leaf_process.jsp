@@ -844,160 +844,165 @@ function reOrderIndex(id){
         ar.write(" </div>");
 
         ar.write("\n<div class=\"taskToolBar\">");
-        ar.write("<img src=\"");
-        ar.writeHtml(ar.retPath);
-        ar.write("/assets/iconEdit.gif\" alt=\"Edit\" />  ");
-        ar.write("\n    <a href=\"task");
-        ar.write(task.getId());
-        ar.write(".htm\"><b>Details</b></a>&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
-        ar.writeHtml(ar.retPath);
-        ar.write("assets/iconReassign.gif\" width=\"15\" height=\"15\" alt=\"Reassign\"  />  ");
-
-        ar.write("\n    <a href=\"#\"");
-        ar.write(" onclick=\"openReassignWindow(\'");
-        ar.writeHtml(task.getId());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getKey());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getSite().getKey());
-        ar.write("\');\" title=\"View details and modify activity state\">");
-
-        ar.write("<b>Reassign</b>");
-        ar.write("</a>");
-
-        ar.write("&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
-        ar.writeHtml(ar.retPath);
-        ar.write("/assets/iconAddSubtask.gif\" alt=\"Add Subtask\"  />  \n<a href=\"#\"");
-
-        ar.write(" onclick=\"createSubTask('");
-        ar.writeHtml(task.getId());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getKey());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getSite().getKey());
-
-        ar.write("')\"");
-        ar.write(">");
-        ar.write("<b>Add Subtask</b>");
-        ar.write("</a>");
-
-        /*Started editing for links like accept and reject*/
-        ar.write("\n<a id =\"");
-        ar.writeHtml(task.getId());
-        ar.write("_startActBtn\" href=\"#\"");
-        ar.write(" onclick=\"return updateStatusAjaxCall(\'");
-        ar.writeHtml(task.getId());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getKey());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getSite().getKey());
-        ar.write("\','Start Offer','");
-        ar.writeHtml(String.valueOf(index));
-        ar.write("');\"");
-        if(state == BaseRecord.STATE_STARTED){
-            ar.write(" class=\"hiddenlink\"");
+        if (task.isPassive()) {
+            ar.write("This goal is not defined on this server.  Access the <a href=\""+task.getRemoteUpdateURL()+"\">Updatable Goal Page</a>.");
         }
-        ar.write(" title=\"Start & Offer the Activity\"/>");
-        ar.write("&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
-        ar.writeHtml(ar.retPath);
-        ar.write("/assets/images/ts_offered.gif\" alt=\"accepted\"  /> <b>Start/Offer</b>");
-        ar.write("</a>");
+        else {
+            ar.write("<img src=\"");
+            ar.writeHtml(ar.retPath);
+            ar.write("/assets/iconEdit.gif\" alt=\"Edit\" />  ");
+            ar.write("\n    <a href=\"task");
+            ar.write(task.getId());
+            ar.write(".htm\"><b>Details</b></a>&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
+            ar.writeHtml(ar.retPath);
+            ar.write("assets/iconReassign.gif\" width=\"15\" height=\"15\" alt=\"Reassign\"  />  ");
+
+            ar.write("\n    <a href=\"#\"");
+            ar.write(" onclick=\"openReassignWindow(\'");
+            ar.writeHtml(task.getId());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getKey());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getSite().getKey());
+            ar.write("\');\" title=\"View details and modify activity state\">");
+
+            ar.write("<b>Reassign</b>");
+            ar.write("</a>");
+
+            ar.write("&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
+            ar.writeHtml(ar.retPath);
+            ar.write("/assets/iconAddSubtask.gif\" alt=\"Add Subtask\"  />  \n<a href=\"#\"");
+
+            ar.write(" onclick=\"createSubTask('");
+            ar.writeHtml(task.getId());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getKey());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getSite().getKey());
+
+            ar.write("')\"");
+            ar.write(">");
+            ar.write("<b>Add Subtask</b>");
+            ar.write("</a>");
+
+            /*Started editing for links like accept and reject*/
+            ar.write("\n<a id =\"");
+            ar.writeHtml(task.getId());
+            ar.write("_startActBtn\" href=\"#\"");
+            ar.write(" onclick=\"return updateStatusAjaxCall(\'");
+            ar.writeHtml(task.getId());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getKey());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getSite().getKey());
+            ar.write("\','Start Offer','");
+            ar.writeHtml(String.valueOf(index));
+            ar.write("');\"");
+            if(state == BaseRecord.STATE_STARTED){
+                ar.write(" class=\"hiddenlink\"");
+            }
+            ar.write(" title=\"Start & Offer the Activity\"/>");
+            ar.write("&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
+            ar.writeHtml(ar.retPath);
+            ar.write("/assets/images/ts_offered.gif\" alt=\"accepted\"  /> <b>Start/Offer</b>");
+            ar.write("</a>");
 
 
-        ar.write("\n<a id =\"");
-        ar.writeHtml(task.getId());
-        ar.write("_acceptActBtn\" href=\"#\"");
-        ar.write(" onclick=\"return updateStatusAjaxCall(\'");
-        ar.writeHtml(task.getId());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getKey());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getSite().getKey());
-        ar.write("\','Mark Accepted','");
-        ar.writeHtml(String.valueOf(index));
-        ar.write("');\"");
+            ar.write("\n<a id =\"");
+            ar.writeHtml(task.getId());
+            ar.write("_acceptActBtn\" href=\"#\"");
+            ar.write(" onclick=\"return updateStatusAjaxCall(\'");
+            ar.writeHtml(task.getId());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getKey());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getSite().getKey());
+            ar.write("\','Mark Accepted','");
+            ar.writeHtml(String.valueOf(index));
+            ar.write("');\"");
 
-        if(state == BaseRecord.STATE_ACCEPTED){
-            ar.write(" class=\"hiddenlink\"");
+            if(state == BaseRecord.STATE_ACCEPTED){
+                ar.write(" class=\"hiddenlink\"");
+            }
+            ar.write(" title=\"Accept the activity\"/>");
+            ar.write("&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
+            ar.writeHtml(ar.retPath);
+            ar.write("/assets/images/ts_accepted.gif\" alt=\"accepted\"  /> <b>Mark Accepted</b>");
+            ar.write("</a>");
+
+
+            ar.write("\n<a id =\"");
+            ar.writeHtml(task.getId());
+            ar.write("_completeActBtn\" href=\"#\"");
+            ar.write(" onclick=\"return updateStatusAjaxCall(\'");
+            ar.writeHtml(task.getId());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getKey());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getSite().getKey());
+            ar.write("\','Complete Activity','");
+            ar.writeHtml(String.valueOf(index));
+            ar.write("');\"");
+            if(state == BaseRecord.STATE_COMPLETE || state == BaseRecord.STATE_REVIEW){
+                ar.write(" class=\"hiddenlink\"");
+            }
+            ar.write(" title=\"Complete this activity\"/>");
+            ar.write("&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
+            ar.writeHtml(ar.retPath);
+            ar.write("/assets/images/ts_completed.gif\" alt=\"completed\"  />&nbsp;<b>Mark Completed</b>");
+            ar.write("</a>");
+
+            ar.write("\n<a id =\"");
+            ar.writeHtml(task.getId());
+            ar.write("_approveActBtn\" href=\"#\"");
+
+            ar.write(" onclick=\"return updateStatusAjaxCall(\'");
+            ar.writeHtml(task.getId());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getKey());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getSite().getKey());
+
+            ar.write("\','Approve','");
+            ar.writeHtml(String.valueOf(index));
+            ar.write("');\"");
+
+
+            if(state != BaseRecord.STATE_COMPLETE && state != BaseRecord.STATE_REVIEW){
+                ar.write(" class=\"hiddenlink\"");
+            }
+            ar.write(" title=\"Review/Approve results of activity\"/>");
+            ar.write(" &nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
+            ar.writeHtml(ar.retPath);
+            ar.write("/assets/iconApprove.gif\" alt=\"Approve\"  /><b>&nbsp;Approve</b>");
+
+            ar.write("</a>");
+
+            ar.write("\n<a id =\"");
+            ar.writeHtml(task.getId());
+            ar.write("_rejectActBtn\" href=\"#\"");
+
+            ar.write(" onclick=\"return updateStatusAjaxCall(\'");
+            ar.writeHtml(task.getId());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getKey());
+            ar.write("\',\'");
+            ar.writeHtml(ngp.getSite().getKey());
+
+            ar.write("\','Reject','");
+            ar.writeHtml(String.valueOf(index));
+            ar.write("');\"");
+
+            if(state != BaseRecord.STATE_COMPLETE && state != BaseRecord.STATE_REVIEW){
+                ar.write(" class=\"hiddenlink\"");
+            }
+            ar.write(" title=\"Review/Reject results of activity\"/>");
+            ar.write("&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
+            ar.writeHtml(ar.retPath);
+            ar.write("/assets/iconReject.gif\" alt=\"Approve\"  /><b>&nbsp;Reject</b>");
+
+            ar.write("</a>");
         }
-        ar.write(" title=\"Accept the activity\"/>");
-        ar.write("&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
-        ar.writeHtml(ar.retPath);
-        ar.write("/assets/images/ts_accepted.gif\" alt=\"accepted\"  /> <b>Mark Accepted</b>");
-        ar.write("</a>");
-
-
-        ar.write("\n<a id =\"");
-        ar.writeHtml(task.getId());
-        ar.write("_completeActBtn\" href=\"#\"");
-        ar.write(" onclick=\"return updateStatusAjaxCall(\'");
-        ar.writeHtml(task.getId());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getKey());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getSite().getKey());
-        ar.write("\','Complete Activity','");
-        ar.writeHtml(String.valueOf(index));
-        ar.write("');\"");
-        if(state == BaseRecord.STATE_COMPLETE || state == BaseRecord.STATE_REVIEW){
-            ar.write(" class=\"hiddenlink\"");
-        }
-        ar.write(" title=\"Complete this activity\"/>");
-        ar.write("&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
-        ar.writeHtml(ar.retPath);
-        ar.write("/assets/images/ts_completed.gif\" alt=\"completed\"  />&nbsp;<b>Mark Completed</b>");
-        ar.write("</a>");
-
-        ar.write("\n<a id =\"");
-        ar.writeHtml(task.getId());
-        ar.write("_approveActBtn\" href=\"#\"");
-
-        ar.write(" onclick=\"return updateStatusAjaxCall(\'");
-        ar.writeHtml(task.getId());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getKey());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getSite().getKey());
-
-        ar.write("\','Approve','");
-        ar.writeHtml(String.valueOf(index));
-        ar.write("');\"");
-
-
-        if(state != BaseRecord.STATE_COMPLETE && state != BaseRecord.STATE_REVIEW){
-            ar.write(" class=\"hiddenlink\"");
-        }
-        ar.write(" title=\"Review/Approve results of activity\"/>");
-        ar.write(" &nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
-        ar.writeHtml(ar.retPath);
-        ar.write("/assets/iconApprove.gif\" alt=\"Approve\"  /><b>&nbsp;Approve</b>");
-
-        ar.write("</a>");
-
-        ar.write("\n<a id =\"");
-        ar.writeHtml(task.getId());
-        ar.write("_rejectActBtn\" href=\"#\"");
-
-        ar.write(" onclick=\"return updateStatusAjaxCall(\'");
-        ar.writeHtml(task.getId());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getKey());
-        ar.write("\',\'");
-        ar.writeHtml(ngp.getSite().getKey());
-
-        ar.write("\','Reject','");
-        ar.writeHtml(String.valueOf(index));
-        ar.write("');\"");
-
-        if(state != BaseRecord.STATE_COMPLETE && state != BaseRecord.STATE_REVIEW){
-            ar.write(" class=\"hiddenlink\"");
-        }
-        ar.write(" title=\"Review/Reject results of activity\"/>");
-        ar.write("&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"");
-        ar.writeHtml(ar.retPath);
-        ar.write("/assets/iconReject.gif\" alt=\"Approve\"  /><b>&nbsp;Reject</b>");
-
-        ar.write("</a>");
 
         ar.write(" </div> </div>\n");
 

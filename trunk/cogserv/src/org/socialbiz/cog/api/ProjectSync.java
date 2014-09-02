@@ -20,17 +20,15 @@
 
 package org.socialbiz.cog.api;
 
-import java.util.List;
-import java.util.Vector;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Vector;
 
-import org.workcast.json.JSONArray;
-import org.workcast.json.JSONObject;
 import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
@@ -40,6 +38,8 @@ import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.SectionDef;
 import org.socialbiz.cog.UtilityMethods;
+import org.workcast.json.JSONArray;
+import org.workcast.json.JSONObject;
 
 /**
 * supports comparing a local and remote project
@@ -280,6 +280,7 @@ public class ProjectSync {
                 retval.nameRemote = remGoalObj.getString("synopsis");
                 retval.editorRemote = remGoalObj.getString("modifieduser");
                 retval.sizeRemote = remGoalObj.getInt("state");
+                retval.urlRemote = remGoalObj.optString("ui");
                 retval.remoteCopy = remGoalObj;
                 break;
             }
@@ -381,15 +382,15 @@ public class ProjectSync {
     * This will walk through the discrepancies, and it will transfer documents or
     * notes until the projects are in sync.
     * *
-    * Normally an upstream document with a universal ID will be matched with the 
+    * Normally an upstream document with a universal ID will be matched with the
     * downstream document with that same ID, and they will have the same name.
-    * 
+    *
     * What happens when you have documents that have different universal IDs but
     * the same name?  This can happen if a document was added upstream and downstream
     * with the same name at the same time, and upon synchronization the name clash
-    * is noticed.  Each project does not allow duplicate files with the same 
-    * name.  
-    * 
+    * is noticed.  Each project does not allow duplicate files with the same
+    * name.
+    *
     * Principle 1: upstream wins.  If there is a name clash, then the upstream
     * file keeps the name, and the downstream file has to change name.
     */
@@ -491,6 +492,8 @@ public class ProjectSync {
             else {
                 goal = local.createGoal();
                 goal.setUniversalId(goalStat.universalId);
+                goal.setPassive(true);
+                goal.setRemoteUpdateURL(goalStat.urlRemote);
             }
             goal.updateGoalFromJSON(goalStat.remoteCopy);
 

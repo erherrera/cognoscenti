@@ -228,7 +228,7 @@ public class LeafletHandler implements ClickHandler {
         if(open){
             mainPanel.setOpen(true);
             mainPanel.setVisible(true);
-            
+
         }else{
             mainPanel.setOpen(false);
         }
@@ -294,48 +294,6 @@ public class LeafletHandler implements ClickHandler {
 
         String emailLink = getEmailLink();
         Window.open(emailLink,"_blank", "" );
-    /*
-        emailCancelBtn = new Button("Cancel");
-        emailCancelBtn.addClickHandler(this);
-        emailSendButton = new Button("Send");
-        emailSendButton.addClickHandler(this);
-
-        emailMTextBbox = new MultiTextBox();
-        emailSuggestBox = new SuggestBox(getEmailOracle(), emailMTextBbox);
-
-        VerticalPanel dialogMPanel = new VerticalPanel();
-        dialogMPanel.setSpacing(5);
-        dialogMPanel.addStyleName("dialogVPanel");
-        HorizontalPanel esuggest = new HorizontalPanel();
-        esuggest.add(new Label("Email To:"));
-        esuggest.add(emailSuggestBox);
-        dialogMPanel.add(esuggest);
-        dialogMPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
-
-        HorizontalPanel ehp = new HorizontalPanel();
-        ehp.add(emailSendButton);
-        ehp.add(emailCancelBtn);
-        dialogMPanel.add(ehp);
-        mainPanel.setContent(dialogMPanel);
-        emailMTextBbox.setFocus(true);
-        */
-
-    }
-
-    private MultiWordSuggestOracle getEmailOracle() {
-        MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
-
-        oracle.add("kraja@us.fujitsu.com");
-        oracle.add("squader@us.fujitsu.com");
-        oracle.add("vabbi@us.fujitsu.com");
-        oracle.add("ivar@us.fujitsu.com");
-        oracle.add("syang@us.fujitsu.com");
-        oracle.add("kswenson@us.fujitsu.com");
-        oracle.add("cychen@us.fujitsu.com");
-        oracle.add("spradhan@us.fujitsu.com");
-
-        return oracle;
-
     }
 
     public void setPanels(VerticalPanel pPanel, VerticalPanel mPanel, VerticalPanel prPanel){
@@ -468,7 +426,7 @@ public class LeafletHandler implements ClickHandler {
       lfh1.initEditPanel();
       lfh1.initViewPanel();
       lfh1.updateViewPanel();
-      
+
       if(tld.getVisibility() == 1){
            pPanel.insert(leafletPane,0);
       }else if(tld.getVisibility() == 2){
@@ -504,7 +462,7 @@ public class LeafletHandler implements ClickHandler {
         return emailUrl;
 
     }
-    
+
     private String getZoomLink(){
         String purl = Window.Location.getHref();
         purl = URL.decode(purl);

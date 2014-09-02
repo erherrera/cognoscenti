@@ -142,7 +142,7 @@ if (!isAssignee && ar.isLoggedIn() && isClaimable)
   <td><%ar.writeHtml(BaseRecord.stateName(state));%>
   [ <img align="absbottom" src = "<%=ar.retPath%><%=BaseRecord.stateImg(state)%>"> ] &nbsp; &nbsp;
   <a href="<%=ar.retPath%>EditTask.jsp?p=<%ar.writeURLData(p);%>&amp;id=<%ar.writeURLData(id);%>&amp;go=<%ar.writeURLData(go);%>">
-          Edit Activity Details</a></td>
+          Edit Activity Details</a><% if(task.isPassive()) {%> (passive)<% } %></td>
 </tr>
 <%
 String sub = task.getSub();
@@ -196,6 +196,12 @@ if (!isCompleted && dueDate!=0)
     <td>Universal:</td>
     <td><%ar.writeHtml(task.getUniversalId());%></td>
 </tr>
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td>Remote UI</td>
+    <td>
+    <%=task.getRemoteUpdateURL()%>
+    </td>
+</tr>
 <tr><td colspan="2"><hr/></td></tr>
 <%
 
@@ -207,8 +213,10 @@ boolean showSubtaskControl = false;
 boolean showSubprojectControl = false;
 boolean showReviewControl = false;
 
-
-if (state==BaseRecord.STATE_UNSTARTED)
+if (task.isPassive()) {
+    //don't do the other things
+}
+else if (state==BaseRecord.STATE_UNSTARTED)
 {
     showStartControl = false;
     showAcceptControl = true;
@@ -216,7 +224,7 @@ if (state==BaseRecord.STATE_UNSTARTED)
     showSubtaskControl = true;
     showSubprojectControl = true;
 }
-if (state==BaseRecord.STATE_STARTED)
+else if (state==BaseRecord.STATE_STARTED)
 {
     showAcceptControl = true;
     showCompleteControl = true;
@@ -224,19 +232,19 @@ if (state==BaseRecord.STATE_STARTED)
     showSubtaskControl = true;
     showSubprojectControl = true;
 }
-if (state==BaseRecord.STATE_ACCEPTED)
+else if (state==BaseRecord.STATE_ACCEPTED)
 {
     showCompleteControl = true;
     showStatusControl = true;
     showSubtaskControl = true;
     showSubprojectControl = true;
 }
-if (state==BaseRecord.STATE_WAITING)
+else if (state==BaseRecord.STATE_WAITING)
 {
     showCompleteControl = true;
     showSubtaskControl = true;
 }
-if (state==BaseRecord.STATE_REVIEW && isReviewer)
+else if (state==BaseRecord.STATE_REVIEW && isReviewer)
 {
     showReviewControl = true;
 }
@@ -338,6 +346,22 @@ if (showSubprojectControl)
         </td>
     </tr>
 <%
+}
+
+if (task.isPassive()) {
+%>
+    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr><td></td>
+        <td>This is a passive goal which means that it was not created in this copy
+        of the project folder, and was replicated from another folder.
+        The goal can only be manipulated by accessing the original server that it was
+        creatd on.
+        <br/><br/>
+        <a href="<%=task.getRemoteUpdateURL()%>">Visit Site of Goal<a/>
+        </td>
+    </tr>
+<%
+
 }
 
 

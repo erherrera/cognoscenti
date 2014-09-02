@@ -250,8 +250,9 @@
             else {
                ar.write("no|");
             }
-
-            //ar.write("-->");
+            if (task.isPassive()) {
+                ar.write(" (passive)");
+            }
         }
         else
         {
