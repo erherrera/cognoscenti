@@ -13,6 +13,8 @@
 %><%@page import="org.socialbiz.cog.NGSession"
 %><%@page import="org.socialbiz.cog.SuperAdminLogFile"
 %><%@page import="java.io.File"
+%><%@page import="java.io.Writer"
+%><%@page import="java.io.OutputStreamWriter"
 %><%@page import="java.io.FileInputStream"
 %><%@page import="java.io.FileOutputStream"
 %><%@page import="java.util.Properties"
@@ -48,6 +50,7 @@
         }
         NGPage ngp = pi.getPage();
         if (ngp instanceof NGProj) {
+            %><p>Project <%ar.writeHtml(pi.containerName);%> SKIPPED Proj object</p><%
             continue;
         }
         if (--limit<=0) {
@@ -59,56 +62,58 @@
         ar.writeHtml(pi.containerName);
         %></p>
         <ul><%
-            NGBook ngb = ngp.getSite();
 
-                File accountFolder = new File(destFolder, stripBadChars(ngb.getFullName()));
+        NGBook ngb = ngp.getSite();
 
-                File projectFolder = new File(accountFolder, stripBadChars(ngp.getFullName()));
+        File accountFolder = new File(destFolder, stripBadChars(ngb.getFullName()));
+        File accountCOGFolder = new File(accountFolder, ".cog");
+        accountCOGFolder.mkdirs();
 
-                projectFolder.mkdirs();
+        File projectFolder = new File(accountFolder, stripBadChars(ngp.getFullName()));
+        File projectCOGFolder = new File(projectFolder, ".cog");
+        projectCOGFolder.mkdirs();
 
-                File projectFile = new File(projectFolder, ngp.getKey()+".sp");
+        projectFolder.mkdirs();
 
-                ngp.saveAs(projectFile);
+        File accountFile = new File(accountCOGFolder, "SiteInfo.xml");
+        File projectFile = new File(projectCOGFolder, "ProjInfo.xml");
+        File projectViewFile = new File(projectFolder, ".cogProjectView.htm");
 
-                for (AttachmentRecord att : ngp.getAllAttachments()) {
+        if (!accountFile.exists()) {
+            ngb.saveAs(accountFile);
+        }
+        ngp.saveAs(projectFile);
 
+        FileOutputStream fos1 = new FileOutputStream(projectViewFile);
+        Writer w = new OutputStreamWriter(fos1,"UTF-8");
+        w.write("<html><body><script>document.location = \"");
+        w.write(ar.baseURL);
+        w.write("t/");
+        w.write(ngb.getKey());
+        w.write("/");
+        w.write(ngp.getKey());
+        w.write("/public.htm\";</script></body></html>");
+        w.close();
+
+
+        for (AttachmentRecord att : ngp.getAllAttachments()) {
             String docName = att.getNiceName();
-        %>
+            %>
             <li><% ar.writeHtml(docName); %></li><%
+
             if (att.getVersions(ngp).size()==0) {
                 //skip the error cases
                 continue;
             }
             File docFile = new File(projectFolder, docName);
-            if (docFile.exists()) {
-                continue;
+            File docStoreFile = new File(projectCOGFolder, "att"+att.getId()+"-1"+att.getFileExtension());
+            if (!docFile.exists()) {
+                writeAttachmentToFile(att, ngp, docFile);
             }
-            AttachmentVersion av = att.getLatestVersion(ngp);
-            if (av==null) {
-                //only happens if, for some reason, there is a GONE attachment
-                continue;
+            if (!docStoreFile.exists()) {
+                writeAttachmentToFile(att, ngp, docStoreFile);
             }
-            File sourceFile = av.getLocalFile();
-            FileInputStream fis = new FileInputStream(sourceFile);
-
-            FileOutputStream fos = null;
-            try {
-                fos = new FileOutputStream(docFile);
-            }
-            catch (Exception e) {
-                continue;
-            }
-            byte[] buf = new byte[2000];
-            int amt = fis.read(buf);
-            while (amt>0) {
-                fos.write(buf, 0, amt);
-                amt = fis.read(buf);
-            }
-            fos.close();
-            fis.close();
             out.flush();
-
         }
 
         %>
@@ -122,11 +127,38 @@
 
 <%!
 
+    public void writeAttachmentToFile(AttachmentRecord att, NGPage ngp, File dest) throws Exception {
+        AttachmentVersion av = att.getLatestVersion(ngp);
+        if (av==null) {
+            //only happens if, for some reason, there is a GONE attachment
+            return;
+        }
+        File sourceFile = av.getLocalFile();
+        FileInputStream fis = new FileInputStream(sourceFile);
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(dest);
+        }
+        catch (Exception e) {
+            return;
+        }
+        byte[] buf = new byte[2000];
+        int amt = fis.read(buf);
+        while (amt>0) {
+            fos.write(buf, 0, amt);
+            amt = fis.read(buf);
+        }
+        fos.close();
+        fis.close();
+    }
+
     public String stripBadChars(String sin) {
 
         StringBuffer sout = new StringBuffer();
 
         int last = sin.length();
+        boolean isHyphen=false;
         for (int i=0; i<last; i++) {
 
             char ch = sin.charAt(i);
@@ -143,7 +175,30 @@
                 case '*':
                     continue;
                 default:
-                    sout.append(ch);
+            }
+            if (ch>='a' && ch<='z') {
+                if (isHyphen) {
+                    sout.append("-");
+                }
+                sout.append(ch);
+                isHyphen=false;
+            }
+            else if (ch>='A' && ch<='Z') {
+                if (isHyphen) {
+                    sout.append("-");
+                }
+                sout.append(Character.toLowerCase(ch));
+                isHyphen=false;
+            }
+            else if (ch>='0' && ch<='9') {
+                if (isHyphen) {
+                    sout.append("-");
+                }
+                sout.append(ch);
+                isHyphen=false;
+            }
+            else {
+                isHyphen = true;
             }
         }
         return sout.toString();

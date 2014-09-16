@@ -100,9 +100,9 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    Manage Task
+                                                    Managing Goals
                                                     <div class="createTask">
-                                                        <a href="../assets/createTaskBig.gif" class="lWOn" title="Manage Task"><img src="../assets/createTaskSmall.gif" width="195" height="157" border="0"></a>
+                                                        <a href="../assets/createTaskBig.gif" class="lWOn" title="Managing Goals"><img src="../assets/createTaskSmall.gif" width="195" height="157" border="0"></a>
                                                     </div>
                                                 </td>
                                                 <td>
