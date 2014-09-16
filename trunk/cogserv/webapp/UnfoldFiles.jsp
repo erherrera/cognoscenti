@@ -134,7 +134,13 @@
             return;
         }
         File sourceFile = av.getLocalFile();
-        FileInputStream fis = new FileInputStream(sourceFile);
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(sourceFile);
+        }
+        catch (Exception e) {
+            return;
+        }
 
         FileOutputStream fos = null;
         try {
