@@ -117,22 +117,29 @@ Optional Parameter:
                     </tr>
                 </thead>
                 <tbody>
-                    <%
-                        Iterator itr = roleRequestRecordHistory.iterator();
-                                long max_days = 0;
-                                while (itr.hasNext())
-                                {
-                                    RoleRequestRecord requestRecord = (RoleRequestRecord) itr.next();
-                                    if(requestRecord != null && requestRecord.showRecord()){
-                                        UserProfile uPro=UserManager.findUserByAnyId(requestRecord.getRequestedBy());
-                    %>
+                <%
+                    Iterator itr = roleRequestRecordHistory.iterator();
+                    long max_days = 0;
+                    while (itr.hasNext())
+                    {
+                        RoleRequestRecord requestRecord = (RoleRequestRecord) itr.next();
+                        if(requestRecord != null && requestRecord.showRecord()){
+                            String uName = requestRecord.getRequestedBy();
+                            String addr = "";
+
+                            //the only time a user profile should not exist is if users have
+                            //been deleted, or data was moved bewteen servers...
+                            UserProfile uPro=UserManager.findUserByAnyId(uName);
+                            if (uPro!=null) {
+                                addr = ar.retPath+"v/"+uPro.getKey()+"/userProfile.htm?active=1";
+                                uName = uPro.getName();
+                            }
+                %>
                     <tr>
-                        <td><%
-                            ar.writeHtml(requestRecord.getRoleName());
-                        %></td>
+                        <td><%ar.writeHtml(requestRecord.getRoleName());%></td>
                         <td><%=SectionUtil.getNicePrintDate(requestRecord.getModifiedDate())%></td>
-                        <td><a href="<%ar.writeHtml(ar.retPath+"v/"+uPro.getKey()+"/userProfile.htm?active=1");%>"title='access the profile for this user, if it exists'><%
-                            ar.writeHtml(uPro.getName());
+                        <td><a href="<%ar.writeHtml(addr);%>"title='access the profile for this user, if it exists'><%
+                            ar.writeHtml(uName);
                         %></a></td>
                         <td><%
                             ar.writeHtml(requestRecord.getRequestDescription());

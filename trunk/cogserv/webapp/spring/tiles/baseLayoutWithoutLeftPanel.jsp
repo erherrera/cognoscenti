@@ -21,8 +21,8 @@
         <!--
             Include the WYSIWYG javascript files
         -->
-        <script type="text/javascript" src="<%=ar.baseURL%>jscript/wiky.js"></script>
-        <script type="text/javascript" src="<%=ar.baseURL%>jscript/wiky.lang.js"></script>
+        <!-- script type="text/javascript" src="<%=ar.baseURL%>jscript/wiky.js"></script -->
+        <!-- script type="text/javascript" src="<%=ar.baseURL%>jscript/wiky.lang.js"></script -->
 
         <link href="<%=ar.baseURL%>css/body.css" rel="styleSheet" type="text/css" media="screen" />
         <link href="<%=ar.baseURL%>css/tables.css" rel="styleSheet" type="text/css" media="screen" />
