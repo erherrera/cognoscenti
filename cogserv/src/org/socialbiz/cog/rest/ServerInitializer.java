@@ -139,7 +139,8 @@ public class ServerInitializer extends TimerTask {
     /**
      * puts the server into the PAUSED state.
      * You should delay for an additional time (30 seconds) before
-     * doing anything else to the server.
+     * doing anything else to the server to all all the other threads
+     * to complete what they are doing.
      */
     public static void pauseServer() {
         serverInitState = STATE_PAUSED;
@@ -149,6 +150,7 @@ public class ServerInitializer extends TimerTask {
             timerForOtherTasks.cancel();
         }
         timerForOtherTasks = null;
+        Cognoscenti.isInitialized = false;
         System.out.println("COG SERVER CHANGE - New state "+getServerStateString());
     }
 

@@ -1,23 +1,25 @@
 <%@page errorPage="error.jsp"
 %><%@page contentType="text/html;charset=UTF-8" pageEncoding="ISO-8859-1"
+%><%@page import="java.io.File"
+%><%@page import="java.util.Properties"
+%><%@page import="org.socialbiz.cog.Cognoscenti"
 %><%@page import="org.socialbiz.cog.EmailSender"
 %><%@page import="org.socialbiz.cog.MimeTypes"
 %><%@page import="org.socialbiz.cog.NGBook"
 %><%@page import="org.socialbiz.cog.NGPageIndex"
-%><%@page import="org.socialbiz.cog.rest.NGLeafServlet"
 %><%@page import="org.socialbiz.cog.NGSession"
 %><%@page import="org.socialbiz.cog.SuperAdminLogFile"
-%><%@page import="java.io.File"
-%><%@page import="java.util.Properties"
+%><%@page import="org.socialbiz.cog.rest.NGLeafServlet"
 %><%@page import="org.socialbiz.cog.rest.ServerInitializer"
 %><%AuthRequest ar = AuthRequest.getOrCreate(request, response, out);
 
-    if (ServerInitializer.serverInitState==ServerInitializer.STATE_PAUSED) {
+    if (ServerInitializer.serverInitState!=ServerInitializer.STATE_RUNNING) {
+        Cognoscenti.isInitialized = false;
 
         %>
         <html>
         <body>
-        <h1>Server Paused</h1>
+        <h1>Server Is In <%=ServerInitializer.getServerStateString()%> State</h1>
         <form action="AdminAction.jsp" method="POST">
             <input type="hidden" name="encodingGuard" value="%E6%9D%B1%E4%BA%AC"/>
             <input type="hidden" name="go" value="Admin.jsp"/>
@@ -53,6 +55,7 @@
         <title>main</title>
     </head>
     <body>
+        <h1>Server Is Running</h1>
             <table>
         <form action="AdminAction.jsp" method="POST">
             <input type="hidden" name="encodingGuard" value="%E6%9D%B1%E4%BA%AC"/>

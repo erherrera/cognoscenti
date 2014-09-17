@@ -94,8 +94,8 @@ Parameter used :
       var pageId = '';
    </script>
 
-    <script type="text/javascript" src="<%=ar.baseURL%>jscript/wiky.js"></script>
-    <script type="text/javascript" src="<%=ar.baseURL%>jscript/wiky.lang.js"></script>
+    <!-- script type="text/javascript" src="<%=ar.baseURL%>jscript/wiky.js"></script -->
+    <!-- script type="text/javascript" src="<%=ar.baseURL%>jscript/wiky.lang.js"></script -->
 
     <link rel="stylesheet" href="<%=ar.retPath%>css/autocomplete.css" media="screen" type="text/css">
     <script language="javascript" type="text/javascript" src="<%=ar.retPath%>jscript/autocomplete.js"></script>
@@ -321,7 +321,7 @@ Parameter used :
      </script>
 <% } %>
 
-<body onload="createTabs();">
+<body onload="">
 
 
     <!-- Begin siteMasthead -->
@@ -457,30 +457,32 @@ Parameter used :
                 </div>
             </ul>
         </div>
-          <!--Top Drop Down Menu for User section HTML Starts Here -->
-                <ul id="userSubMenu1" class="ddsubmenustyle"/></ul>
-                <ul id="userSubMenu2" class="ddsubmenustyle"/></ul>
-                <ul id="userSubMenu3" class="ddsubmenustyle"/></ul>
-                <%if(ar.isSuperAdmin()){
-                %>
-                <ul id="userSubMenu4" class="ddsubmenustyle"/></ul>
-                <%}%>
 
-          <!--Top Drop Down Menu for project section HTML Starts Here -->
-                <ul id="ddsubmenu1" class="ddsubmenustyle"/></ul>
-                <ul id="ddsubmenu2" class="ddsubmenustyle"></ul>
-                <ul id="ddsubmenu3" class="ddsubmenustyle"> </ul>
-                <ul id="ddsubmenu4" class="ddsubmenustyle"></ul>
+        <!--Top Drop Down Menu for User section HTML Starts Here -->
+            <ul id="userSubMenu1" class="ddsubmenustyle"/></ul>
+            <ul id="userSubMenu2" class="ddsubmenustyle"/></ul>
+            <ul id="userSubMenu3" class="ddsubmenustyle"/></ul>
+            <%if(ar.isSuperAdmin()){
+            %>
+            <ul id="userSubMenu4" class="ddsubmenustyle"/></ul>
+            <%}%>
 
-           <!--Top Drop Down Menu for Site section HTML Starts Here -->
-                <ul id="accountSubMenu1" class="ddsubmenustyle"/></ul>
-                <ul id="accountSubMenu2" class="ddsubmenustyle"></ul>
-                <ul id="accountSubMenu4" class="ddsubmenustyle"> </ul>
+        <!--Top Drop Down Menu for project section HTML Starts Here -->
+            <ul id="ddsubmenu1" class="ddsubmenustyle"/></ul>
+            <ul id="ddsubmenu2" class="ddsubmenustyle"></ul>
+            <ul id="ddsubmenu3" class="ddsubmenustyle"> </ul>
+            <ul id="ddsubmenu4" class="ddsubmenustyle"></ul>
+
+        <!--Top Drop Down Menu for Site section HTML Starts Here -->
+            <ul id="accountSubMenu1" class="ddsubmenustyle"/></ul>
+            <ul id="accountSubMenu2" class="ddsubmenustyle"></ul>
+            <ul id="accountSubMenu4" class="ddsubmenustyle"> </ul>
 
     </div>
 
 <script type="text/javascript">
    createSubLinks();
+   createTabs();
 </script>
 
 <!-- End mainNavigation -->
