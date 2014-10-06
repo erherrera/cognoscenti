@@ -21,6 +21,7 @@
 package org.socialbiz.cog;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -246,20 +247,15 @@ public class AttachmentVersionSimple implements AttachmentVersion
 
 
     @Override
+    public InputStream getInputStream() throws Exception {
+        return new FileInputStream(actualFile);
+    }
+
+
+    
+    @Override
     public File getLocalFile() {
         return actualFile;
-    }
-
-    public void commitLocalFile() {
-        //for the file system implementation, nothing needs to be done because all
-        //of the versions are simply files in the local folder.
-    }
-
-    @Override
-    public void releaseLocalFile()
-    {
-        //for the file system implementation, nothing needs to be done because all
-        //of the versions are simply files in the local folder.
     }
 
     @Override

@@ -21,6 +21,7 @@
 package org.socialbiz.cog;
 
 import java.io.File;
+import java.io.InputStream;
 
 /**
 * An attachment can have many different versions, and this object
@@ -63,12 +64,20 @@ public interface AttachmentVersion
     public boolean isReadOnly();
 
     /**
-    * Indicataes that the document has been modified, and those modifications
+    * Indicates that the document has been modified, and those modifications
     * have not been saved yet.  Use commitLocalFile in order to save them permanently
     * in the version stream.
     */
     public boolean isModified();
 
+
+    /**
+    * Retrieves an input stream that the contents of the attachment can be acccessed
+    * as a stream of bytes.
+    */
+    public InputStream getInputStream() throws Exception;
+    
+    
     /**
     * Retrieves the version (if necessary) and returns a File object that points to
     * the (temporary) file that contains the contents.
@@ -78,7 +87,7 @@ public interface AttachmentVersion
     public File getLocalFile();
 
     /**
-    * If you had a writeable version, after writing the contents to the file, you
+    * If you had a writable version, after writing the contents to the file, you
     * must call commit in order to actually save the contents to the versioning system.
     * This will also release and clean up any unnecessary temporary files or resources.
     */
@@ -86,10 +95,10 @@ public interface AttachmentVersion
 
     /**
     * If you called "getLocalFile" then it is possible that a temporary file has been created
-    * or other resources help.  Calling release will eithre delete that file, or otherwise
+    * or other resources help.  Calling release will either delete that file, or otherwise
     * free up the resources help to access the old version.
     */
-    public void releaseLocalFile();
+    //public void releaseLocalFile();
 
     /**
      * Some versioning systems have a 'working copy' of the file hanging around in

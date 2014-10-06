@@ -368,19 +368,13 @@ public class AttachmentVersionProject implements AttachmentVersion {
     }
 
     @Override
+    public InputStream getInputStream() throws Exception {
+        return new FileInputStream(actualFile);
+    }
+    
+    @Override
     public File getLocalFile() {
         return actualFile;
-    }
-
-    public void commitLocalFile() {
-        //for the file system implementation, nothing needs to be done because all
-        //of the versions are simply files in the COG folder.
-    }
-
-    @Override
-    public void releaseLocalFile() {
-        //for the file system implementation, nothing needs to be done because all
-        //of the versions are simply files in the COG folder.
     }
 
     @Override
