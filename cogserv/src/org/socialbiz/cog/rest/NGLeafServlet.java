@@ -274,7 +274,7 @@ public class NGLeafServlet extends javax.servlet.http.HttpServlet {
             // see if this is an attachment
             if (resource.startsWith("a/")) {
                 String attachmentName = resource.substring(2);
-                SectionAttachments.serveUpFile(ar, ngp, attachmentName);
+                SectionAttachments.serveUpFileNewUI(ar, ngp, attachmentName, -1);
                 return;
             }
             if (resource.equals("process.xml")) {

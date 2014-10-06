@@ -22,6 +22,7 @@ package org.socialbiz.cog;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Comparator;
@@ -212,12 +213,12 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
     /**
     * This is a method to find a file, and output the file as a
     * stream of bytes to the request output stream.
-    */
     public static void serveUpFile(AuthRequest ar, NGPage ngp, String fileName)
         throws Exception
     {
         serveUpFileNewUI(ar, ngp, fileName, -1);
     }
+    */
 
 
     /**
@@ -230,7 +231,53 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
         if (ngp==null) {
             throw new ProgramLogicError("SectionAttachments can serve upthe attachment only when the Project is known.");
         }
+    	try {
+            //get the mime type from the file extension
+            String mimeType=MimeTypes.getMimeType(fileName);
+            ar.resp.setContentType(mimeType);
+            //set expiration to about 1 year from now
+            ar.resp.setDateHeader("Expires", ar.nowTime+3000000);
 
+            // Temporary fix: To force the browser to show 'SaveAs' dialogbox with right format.
+            // Note this originally had some code that assumed that old versions of a file
+            // might have a different extension.  I don't see how this can happen.
+            // The attachment has a name, and that name holds for all versions.  If you
+            // change the name, it changes all the versions.  I don't see how old
+            // versions might have a different extension....  Removed complicated logic.
+            ar.resp.setHeader( "Content-Disposition", "attachment; filename=\"" + fileName + "\"" );
+    		
+            AttachmentVersion attachmentVersion = getVersionOrLatest(ngp,fileName,version);
+            File attachmentFile =  attachmentVersion.getLocalFile();
+
+            if (!attachmentFile.exists()) {
+                throw new NGException("nugen.exception.attachment.not.exist", new Object[]{attachmentFile.getAbsolutePath()});
+            }
+
+            ar.resp.setHeader( "Content-Length", Long.toString(attachmentVersion.getFileSize()) );
+
+            InputStream fis = new FileInputStream(attachmentFile);
+	        ar.streamBytesOut(fis);
+	        fis.close();
+	    }
+	    catch (Exception e) {
+	        //why sleep?  Here, this is VERY IMPORTANT
+	        //Someone might be trying all the possible file names just to
+	        //see what is here.  A three second sleep makes that more difficult.
+	        Thread.sleep(3000);
+	        throw new Exception("Unable to serve up a file named '"+fileName+"' from project '"+ngp.getFullName()+"'", e);
+	    }
+    }
+    	
+    	
+    /**
+     * Returns a stream from which the contents of the file can be read.   Be sure to close the 
+     * stream when you are done with it.
+     * 
+     * Specified version is returns, except if specified version does not exist, and then the latest
+     * version is returned.   Throws exceptions if no version or no contents can be found.
+     */
+    public static AttachmentVersion getVersionOrLatest(NGContainer ngp, String fileName, int version) 
+    		throws Exception {
         try {
             ConfigFile.assertConfigureCorrect();
             AttachmentRecord att = null;
@@ -238,66 +285,30 @@ public class SectionAttachments extends SectionUtil implements SectionFormat
             //but the actual file is specified in getStorageFileName from that attachment record
             //first, look to see if there is a public attachments section
             //if so, these attachments can be accessed without logging in
-            att = ngp.findAttachmentByName(fileName);
-            if (att==null) {
-                throw new NGException("nugen.exception.unattached.file.to.page",new Object[]{fileName,ngp.getFullName()});
-            }
+            att = ngp.findAttachmentByNameOrFail(fileName);
 
             if (!att.hasContents()) {
                 throw new NGException("nugen.exception.unable.to.serve.attachment", new Object[]{att.getType()});
             }
 
             AttachmentVersion attachmentVersion = att.getSpecificVersion(ngp, version);
-            if (attachmentVersion==null) {
-                //not sure if this is the best course of action, to serve up the latest
-                //maybe we should throw an exception, because after all they are not
-                //getting the version requested.  Why are they asking for a version that
-                //does not exist?
-                attachmentVersion = att.getLatestVersion(ngp);
-                if (attachmentVersion==null) {
-                    throw new NGException("nugen.exception.unable.to.serve.attachment", new Object[]{att.getType()});
-                }
+            if (attachmentVersion!=null) {
+            	return attachmentVersion;
             }
-
-            File attachmentFile =  attachmentVersion.getLocalFile();
-            if (!attachmentFile.exists()) {
-                throw new NGException("nugen.exception.attachment.not.exist", new Object[]{attachmentFile.getAbsolutePath()});
+            
+            //not sure if this is the best course of action, to serve up the latest
+            //maybe we should throw an exception, because after all they are not
+            //getting the version requested.  Why are they asking for a version that
+            //does not exist?
+            attachmentVersion = att.getLatestVersion(ngp);
+            if (attachmentVersion!=null) {
+            	return attachmentVersion;
             }
-
-            //get the mime type from the file extension
-            String mimeType=MimeTypes.getMimeType(attachmentFile.getName());
-            ar.resp.setContentType(mimeType);
-            //set expiration to about 1 year from now
-            ar.resp.setDateHeader("Expires", ar.nowTime+3000000);
-
-            // Temporary fix: To force the browser to show 'SaveAs' dialogbox with right format.
-            // (Suppose attachment has many versions and latest version of attachment contains .xls file
-            // and earlier version had .doc, now if we try to download earlier version than we have to pass
-            // filename with correct extension in setHeader method. For this we have calculated the
-            // downloadFileName using current display name without extn plus extension of actual file name.
-            String downloadExtn = "";
-            if(attachmentFile.getName().contains(".")){
-                downloadExtn = (attachmentFile.getName()).substring(attachmentFile.getName().lastIndexOf("."));
-            }
-
-            int extinx = fileName.length();
-            if(fileName.contains(".")){
-                extinx = fileName.lastIndexOf(".");
-            }
-            String downloadFileName = fileName.substring(0,extinx)+downloadExtn;
-            ar.resp.setHeader( "Content-Disposition", "attachment; filename=\"" + downloadFileName + "\"" );
-            //end here
-
-            FileInputStream fis = new FileInputStream(attachmentFile);
-            ar.streamBytesOut(fis);
-            fis.close();
+            
+            throw new NGException("Attachment does not have ANY versions", new Object[0]);
         }
         catch (Exception e) {
-            //why sleep?  Here, this is VERY IMPORTANT
-            //Someone might be trying all the possible file names just to
-            //see what is here.  A three second sleep makes that more difficult.
-            Thread.sleep(3000);
-            throw new Exception("Unable to serve up a file named '"+fileName+"' from project '"+ngp.getFullName()+"'", e);
+            throw new Exception("Unable to get contents of version "+version+" file named '"+fileName+"' from project '"+ngp.getFullName()+"'", e);
         }
     }
 

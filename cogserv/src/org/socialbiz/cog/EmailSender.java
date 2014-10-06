@@ -722,6 +722,10 @@ public class EmailSender extends TimerTask {
             emailRec.setProjectId(ngc.getKey());
             emailRec.setAttachmentIds(attachIds);
             ngc.save("SERVER", System.currentTimeMillis(), "Sending an email message");
+            
+            //note, this is a little dangerous because there must not be any modifications
+            //of ngc after this point!
+            NGPageIndex.releaseLock(ngc);
 
             EmailRecordMgr.triggerNextMessageSend();
         } catch (Exception e) {

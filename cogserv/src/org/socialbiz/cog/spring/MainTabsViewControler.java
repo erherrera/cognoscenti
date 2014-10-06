@@ -20,6 +20,7 @@
 
 package org.socialbiz.cog.spring;
 
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import org.workcast.json.JSONObject;
 import org.socialbiz.cog.AccessControl;
 import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AttachmentRecord;
+import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthDummy;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.DOMFace;
@@ -41,6 +43,7 @@ import org.socialbiz.cog.HistoryRecord;
 import org.socialbiz.cog.HtmlToWikiConverter;
 import org.socialbiz.cog.LeafletResponseRecord;
 import org.socialbiz.cog.MicroProfileMgr;
+import org.socialbiz.cog.MimeTypes;
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGContainer;
 import org.socialbiz.cog.NGPage;
@@ -345,13 +348,41 @@ public class MainTabsViewControler extends BaseController {
                 return;
             }
 
-            String version = ar.defParam("version", null);
-            if(version != null && !"".equals(version)){
-               SectionAttachments.serveUpFileNewUI(ar, nGPage, attachmentName,Integer.parseInt(version));
-            }else{
-               SectionAttachments.serveUpFile(ar, nGPage, attachmentName);
-            }
-        }catch(Exception ex){
+            int version = DOMFace.safeConvertInt(ar.defParam("version", null));
+
+            //get the mime type from the file extension
+            String mimeType=MimeTypes.getMimeType(attachmentName);
+            ar.resp.setContentType(mimeType);
+            //set expiration to about 1 year from now
+            ar.resp.setDateHeader("Expires", ar.nowTime + 31000000000L);
+
+            // Temporary fix: To force the browser to show 'SaveAs' dialogbox with right format.
+            // Note this originally had some code that assumed that old versions of a file
+            // might have a different extension.  I don't see how this can happen.
+            // The attachment has a name, and that name holds for all versions.  If you
+            // change the name, it changes all the versions.  I don't see how old
+            // versions might have a different extension....  Removed complicated logic.
+            ar.resp.setHeader( "Content-Disposition", "attachment; filename=\"" + attachmentName + "\"" );
+    		
+            AttachmentVersion attachmentVersion = SectionAttachments.getVersionOrLatest(nGPage,attachmentName,version);
+            ar.resp.setHeader( "Content-Length", Long.toString(attachmentVersion.getFileSize()) );
+
+    		InputStream fis = attachmentVersion.getInputStream();
+    		
+    		//NOTE: now that we have the input stream, we can let go of the project.  This is important
+    		//to prevent holding the lock for the entire time that it takes for the client to download
+    	    //the file.  Remember, slow clients might take minutes to download a large file.
+    		NGPageIndex.releaseLock(nGPage);
+    		nGPage=null;   
+    		
+	        ar.streamBytesOut(fis);
+	        fis.close();
+        }
+        catch(Exception ex){
+	        //why sleep?  Here, this is VERY IMPORTANT
+	        //Someone might be trying all the possible file names just to
+	        //see what is here.  A three second sleep makes that more difficult.
+	        Thread.sleep(3000);
             throw new NGException("nugen.operation.fail.project.download.document", new Object[]{pageId,siteId} , ex);
         }
     }
