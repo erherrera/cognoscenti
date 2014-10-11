@@ -6,6 +6,14 @@
 %><%@ include file="/spring/jsp/functions.jsp"
 %><%!
     String pageTitle = "";
+
+    String removeParamsFromUrl(String orig) {
+        int qPos = orig.indexOf("?");
+        if (qPos<0) {
+            return orig;
+        }
+        return orig.substring(0,qPos);
+    }
 %><%
 /*
 Required parameters:
@@ -62,9 +70,15 @@ Required parameters:
     }
     else {
         localProject = NGPageIndex.getProjectByUpstreamLink(accessUrl);
-        if (localProject!=null && !accessUrl.equals(localProject.getUpstreamLink())) {
-            throw new Exception("Strange, found the local project but it has the wrong URL: "
-            +accessUrl+" vs. "+localProject.getUpstreamLink());
+        if (localProject!=null && false) {
+            //diable this for now .... does not work
+            String accessOmitLicense = removeParamsFromUrl(accessUrl);
+            String remoteOmitLicense = removeParamsFromUrl(localProject.getUpstreamLink());
+
+            if (!accessOmitLicense.equals(remoteOmitLicense)) {
+                throw new Exception("Strange, found the local project but it has the wrong URL: "
+                       +accessUrl+" vs. "+localProject.getUpstreamLink());
+            }
         }
     }
 

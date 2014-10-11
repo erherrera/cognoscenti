@@ -257,23 +257,27 @@
                         <td style="width:20px;"></td>
                         <td><%SectionUtil.nicePrintTime(ar.w, uProf.getLastLogin(), ar.nowTime); %> as <% ar.writeHtml(uProf.getLastLoginId()); %> </td>
                     </tr>
+		    <%if (viewingSelf){ %>
                     <tr><td style="height:10px"></td></tr>
                     <tr>
                         <td class="gridTableColummHeader">Remote URL:</td>
                         <td style="width:20px;"></td>
                         <td><a href="<%=remoteProfileURL%>"><%=remoteProfileURL%></a></td>
                     </tr>
+                    <% } %>
                     <tr><td style="height:10px"></td></tr>
                     <tr>
                         <td class="gridTableColummHeader"><fmt:message key="nugen.userprofile.Id"/>:</td>
                         <td style="width:20px;"></td>
                         <td><% ar.writeHtml(key);%></td>
                     </tr>
+		    <%if (viewingSelf){ %>
                     <tr>
                         <td class="gridTableColummHeader">API Token:</td>
                         <td style="width:20px;"></td>
                         <td><% ar.writeHtml(uProf.getLicenseToken());%></td>
                     </tr>
+                    <% } %>
                     <tr>
                         <td class="gridTableColummHeader"></td>
                         <td></td><td><hr><i>Settings in cookies in this browser:</i><br/>&nbsp;</td>
