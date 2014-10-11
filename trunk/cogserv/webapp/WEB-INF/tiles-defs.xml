@@ -353,6 +353,10 @@
         <put-attribute name="title" value="Create Project" />
         <put-attribute name="body" value="/spring/jsp/accountCreateProject.jsp" />
     </definition>
+    <definition name="accountCloneProject" extends="baseLayout">
+        <put-attribute name="title" value="Clone Remote Project" />
+        <put-attribute name="body" value="/spring/jsp/accountCloneProject.jsp" />
+    </definition>
     <definition name="convertFolderProject" extends="baseLayout">
         <put-attribute name="title" value="Convert Folder" />
         <put-attribute name="body" value="/spring/jsp/convertFolderProject.jsp" />
@@ -718,6 +722,11 @@
     <definition name="displayTaskInfo" extends="baseLayoutWithoutLeftPanel">
         <put-attribute name="title" value="Process" />
         <put-attribute name="body" value="/spring/jsp/displayTaskInfo.jsp" />
+    </definition>
+
+    <definition name="displayPassiveGoal" extends="baseLayout">
+        <put-attribute name="title" value="Process" />
+        <put-attribute name="body" value="/spring/jsp/displayPassiveGoal.jsp" />
     </definition>
 
     <definition name="ViewRemoteTask" extends="baseLayoutWithoutLeftPanel">

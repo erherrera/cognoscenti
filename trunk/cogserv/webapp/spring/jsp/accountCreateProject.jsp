@@ -10,6 +10,9 @@ Required parameter:
 
 */
 
+    //this page should only be called when logged in and having access to the site
+    ar.assertLoggedIn("Must be logged in to create a project");
+
     String accountKey = ar.reqParam("accountId");
 
     UserProfile  uProf =ar.getUserProfile();
@@ -49,19 +52,6 @@ Required parameter:
                 }
         }
 </script>
-<% if(!ar.isLoggedIn()){%>
-
-<%@page import="org.socialbiz.cog.TemplateRecord"%>
-<body>
-<div class="generalArea">
-    <div class="generalContent">In order to see the process section of
-    the project, you need to be logged in, and you need to be an member of
-    the project.
-    </div>
-</div>
-<%
-    } else{
-%>
 <body class="yui-skin-sam">
 
 
@@ -114,13 +104,6 @@ Required parameter:
                         <td><input type="text" class="inputGeneral" style="width:368px" size="50" name="dueDate" id="dueDate"  value="" readonly="1"/>
                             <img src="<%=ar.retPath %>/jscalendar/img.gif" id="btn_dueDate" style="cursor: pointer;" title="Date selector"/>
                         </td>
-                    </tr>
-                    <tr><td style="height:15px"></td></tr>
-                    <tr>
-                        <td class="gridTableColummHeader_2" style="vertical-align:top"><fmt:message key="nugen.project.desc.text"/></td>
-                        <td style="width:20px;"></td>
-                        <td><textarea name="description" id="description" class="textAreaGeneral" rows="4"
-                              tabindex=7><%ar.writeHtml(desc);%></textarea></td>
                     </tr>
                     <tr><td style="height:20px"></td></tr>
                     <tr>
@@ -189,5 +172,4 @@ Required parameter:
 
     </script>
 
-    <%}%>
     </body>

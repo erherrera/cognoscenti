@@ -315,8 +315,8 @@ public class ProcessController extends BaseController {
             AuthRequest ar = AuthRequest.getOrCreate(request, response);
             NGPage ngp = registerRequiredProject(ar, siteId, pageId);
 
-            GoalRecord task = ngp.getGoalOrFail(taskId);
-            boolean canAccessGoal = AccessControl.canAccessGoal(ar, ngp, task);
+            GoalRecord goal = ngp.getGoalOrFail(taskId);
+            boolean canAccessGoal = AccessControl.canAccessGoal(ar, ngp, goal);
 
             if(!canAccessGoal){
                 if(!ar.isLoggedIn()){
@@ -331,7 +331,11 @@ public class ProcessController extends BaseController {
             ModelAndView modelAndView = null;
             if(!ar.isLoggedIn()){
                 modelAndView=new ModelAndView("displayTaskInfo");
-            }else{
+            }
+            else if(goal.isPassive()) {
+                modelAndView=new ModelAndView("displayPassiveGoal");
+            }
+            else{
                 modelAndView=new ModelAndView("editprocess");
                 request.setAttribute("bookList",ar.getUserProfile().findAllMemberSites());
             }

@@ -21,6 +21,7 @@
 package org.socialbiz.cog.spring;
 
 import java.io.File;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -170,6 +171,36 @@ public class CreateProjectController extends BaseController {
             else {
             	response.sendRedirect(ar.retPath+"t/"+siteId+"/"+project.getKey()+"/public.htm");
             }
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.create.project.from.template", new Object[]{siteId} , ex);
+        }
+    }
+
+
+    @RequestMapping(value = "/{siteId}/$/createClone.form", method = RequestMethod.POST)
+    public void createClone(@PathVariable String siteId, HttpServletRequest request,
+            HttpServletResponse response) throws Exception
+    {
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            if(!ar.isLoggedIn()){
+                sendRedirectToLogin(ar, "message.login.to.create.page",null);
+                return;
+            }
+            
+            String upstream = ar.reqParam("upstream");
+            RemoteProject rp = new RemoteProject(upstream);
+            
+            String remoteName = rp.getName();
+
+            NGBook site = NGPageIndex.getSiteByIdOrFail(siteId);
+
+            NGPage project = createPage(ar.getUserProfile(), site, remoteName+"(clone)", null, upstream, ar.nowTime);
+            ar.setPageAccessLevels(project);
+            project.save(ar.getBestUserId(), ar.nowTime, "Created new cloned project");
+
+            response.sendRedirect(ar.retPath+"t/"+siteId+"/"+project.getKey()+"/SyncAttachment.htm");
+
         }catch(Exception ex){
             throw new NGException("nugen.operation.fail.create.project.from.template", new Object[]{siteId} , ex);
         }
@@ -345,10 +376,10 @@ public class CreateProjectController extends BaseController {
     private static NGPage createPage(AuthRequest ar, NGBook site)
             throws Exception {
         UserProfile uProf = ar.getUserProfile();
-        long nowTime = ar.nowTime;
+        long nowTime       = ar.nowTime;
         String projectName = ar.reqParam("projectname");
-        String loc = ar.defParam("loc", null);
-        String upstream = ar.defParam("upstream", null);
+        String loc         = ar.defParam("loc", null);
+        String upstream    = ar.defParam("upstream", null);
         NGPage newPage = createPage(uProf, site, projectName, loc, upstream, nowTime);
         ar.setPageAccessLevels(newPage);
         return newPage;

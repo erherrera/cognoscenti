@@ -231,6 +231,30 @@ public class AccountController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/{siteId}/$/accountCloneProject.htm", method = RequestMethod.GET)
+    public ModelAndView accountCloneProject(@PathVariable String siteId,
+            HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        try{
+            AuthRequest ar = AuthRequest.getOrCreate(request, response);
+            if(!ar.isLoggedIn()){
+                return showWarningView(ar, "message.loginalert.see.page");
+            }
+            NGBook site = prepareSiteView(ar, siteId);
+            ModelAndView modelAndView = executiveCheckViews(ar);
+            if (modelAndView != null) {
+                return modelAndView;
+            }
+
+            request.setAttribute("realRequestURL", ar.getRequestURL());
+            request.setAttribute("tabId", "Site Projects");
+            request.setAttribute("pageTitle", site.getFullName());
+            return new ModelAndView("accountCloneProject");
+        }catch(Exception ex){
+            throw new NGException("nugen.operation.fail.account.process.page", new Object[]{siteId} , ex);
+        }
+    }
+
     @RequestMapping(value = "/{siteId}/$/convertFolderProject.htm", method = RequestMethod.GET)
     public ModelAndView convertFolderProject(@PathVariable String siteId,
             HttpServletRequest request, HttpServletResponse response)

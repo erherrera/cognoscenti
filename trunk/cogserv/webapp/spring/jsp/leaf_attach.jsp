@@ -406,7 +406,7 @@
                             myContextMenu.getItems()[7].cfg.setProperty("disabled", true);
                             myContextMenu.getItems()[8].cfg.setProperty("disabled", true);
                         }else{
-                            myContextMenu.getItems()[0].cfg.setProperty("text", "Go to download document");
+                            myContextMenu.getItems()[0].cfg.setProperty("text", "Access Document");
                             myContextMenu.getItems()[1].cfg.setProperty("disabled", false);
                             myContextMenu.getItems()[2].cfg.setProperty("text", "Edit Document Details");
                             myContextMenu.getItems()[3].cfg.setProperty("disabled", false);
@@ -475,7 +475,7 @@
 <div id="menuwithgroups" class="yuimenu">
     <div class="bd">
         <ul class="first-of-type">
-            <li class="yuimenuitem"><a class="yuimenuitemlabel">Go to Download Document</a></li>
+            <li class="yuimenuitem"><a class="yuimenuitemlabel">Access Document</a></li>
             <li class="yuimenuitem"><a class="yuimenuitemlabel">Upload Revised Document</a></li>
             <li class="yuimenuitem"><a class="yuimenuitemlabel">Edit Document Details</a></li>
             <li class="yuimenuitem"><a class="yuimenuitemlabel">List Versions</a></li>
@@ -487,7 +487,7 @@
             <li class="yuimenuitem"><a class="yuimenuitemlabel">Send Document By Email</a></li>
         </ul>
         <ul>
-            <li class="yuimenuitem"><a class="yuimenuitemlabel">Upload New Document</a></li>
+            <li class="yuimenuitem"><a class="yuimenuitemlabel">Add New Document</a></li>
             <li class="yuimenuitem"><a class="yuimenuitemlabel">Sort by Name</a></li>
             <li class="yuimenuitem"><a class="yuimenuitemlabel">Sort by Date</a></li>
             <li class="yuimenuitem"><a class="yuimenuitemlabel">Unlink Document</a></li>

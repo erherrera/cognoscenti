@@ -173,6 +173,7 @@ function createSubLinks(){
         ];
         var accountSubMenu2 = [new Tab(retPath+"t/"+accountId+"/$/accountListProjects.htm","List Projects"),
             new Tab(retPath+"t/"+accountId+"/$/accountCreateProject.htm","Create New Project"),
+            new Tab(retPath+"t/"+accountId+"/$/accountCloneProject.htm","Clone Remote Project"),
             new Tab(retPath+"t/"+accountId+"/$/convertFolderProject.htm","Convert Folder to Project")
         ];
         var accountSubMenu4 = [new Tab(retPath+"t/"+accountId+"/$/personal.htm","Personal"),
