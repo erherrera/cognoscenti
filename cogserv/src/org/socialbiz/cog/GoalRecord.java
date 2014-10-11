@@ -31,6 +31,7 @@ import java.util.Vector;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.workcast.json.JSONArray;
 import org.workcast.json.JSONObject;
 
 public class GoalRecord extends BaseRecord {
@@ -979,6 +980,65 @@ public class GoalRecord extends BaseRecord {
         return getScalar("remoteUpdateURL");
     }
 
+    /**
+     * RemoteProjectURL is the URL to get information about the 
+     * project that this goal is defined in 
+     */
+    public void setRemoteProjectURL(String url) {
+        setScalar("remoteProjectURL", url);
+    }
+    public String getRemoteProjectURL() {
+        return getScalar("remoteProjectURL");
+    }
+
+    /**
+     * RemoteProjectName is the name of the 
+     * project that this goal is defined in 
+     */
+    public void setRemoteProjectName(String url) {
+        setScalar("remoteProjectName", url);
+    }
+    public String getRemoteProjectName() {
+        return getScalar("remoteProjectName");
+    }
+
+    /**
+     * RemoteSiteURL is the URL to get information about the 
+     * site that this goal is defined in 
+     */
+    public void setRemoteSiteURL(String url) {
+        setScalar("remoteSiteURL", url);
+    }
+    public String getRemoteSiteURL() {
+        return getScalar("remoteSiteURL");
+    }
+
+    /**
+     * RemoteSiteName is the name of the 
+     * site that this goal is defined in 
+     */
+    public void setRemoteSiteName(String url) {
+        setScalar("remoteSiteName", url);
+    }
+    public String getRemoteSiteName() {
+        return getScalar("remoteSiteName");
+    }
+    
+    /**
+     * SnoozeTime is the time, in the future, to wake the
+     * task back up out of WAITING state, and into active 
+     * state.  This is NOT a duration.   Instead it is an
+     * absolute time that the activity will wake up.
+     * Any time in the past is the same as not being set.
+     */
+    public void setSnoozeTime(long time) {
+        setScalar("snooze", Long.toString(time));
+    }
+    public long getSnoozeTime() {
+        return safeConvertLong(getScalar("snooze"));
+    }
+    
+    
 
     public JSONObject getJSON4Goal(NGPage ngp, String baseURL, License license) throws Exception {
     	if (license==null) {
@@ -999,15 +1059,14 @@ public class GoalRecord extends BaseRecord {
         thisGoal.put("enddate",   getEndDate());
         thisGoal.put("duration",  getDuration());
         thisGoal.put("rank",      getRank());
-        /*
-        //TODO: figure out what to do about assignees
+
         NGRole assignees = getAssigneeRole();
         JSONArray peopleList = new JSONArray();
         for (AddressListEntry ale : assignees.getExpandedPlayers(ngp)) {
             peopleList.put(ale.getUniversalId());
         }
-        thisGoal.put("assignee", peopleList);
-        */
+        thisGoal.put("assignees", peopleList);
+
         String urlRoot = baseURL + "api/" + ngp.getSiteKey() + "/" + ngp.getKey() + "/";
         String uiUrl = getRemoteUpdateURL();
         if (uiUrl==null || uiUrl.length()==0) {
@@ -1039,7 +1098,7 @@ public class GoalRecord extends BaseRecord {
         }
         String description = goalObj.optString("description");
         if (description!=null && description.length()>0) {
-            setDescription(synopsis);
+            setDescription(description);
         }
         long modifiedtime = goalObj.optLong("modifiedtime");
         if (modifiedtime>0) {
@@ -1048,6 +1107,10 @@ public class GoalRecord extends BaseRecord {
         String modifieduser = goalObj.optString("modifieduser");
         if (modifieduser!=null && modifieduser.length()>0) {
             setModifiedBy(modifieduser);
+        }
+        String status = goalObj.optString("status");
+        if (status!=null && status.length()>0) {
+            setStatus(status);
         }
         int state = goalObj.optInt("state");
         if (state>0) {
@@ -1079,8 +1142,34 @@ public class GoalRecord extends BaseRecord {
         }
         String remoteUI = goalObj.optString("ui");
         if (remoteUI!=null && remoteUI.length()>0) {
-                setRemoteUpdateURL(remoteUI);
+            setRemoteUpdateURL(remoteUI);
         }
-        //TODO: handle assignees
+        String remoteProjectURL = goalObj.optString("projectinfo");
+        if (remoteProjectURL!=null && remoteProjectURL.length()>0) {
+            setRemoteProjectURL(remoteProjectURL);
+        }
+        String remoteProjectName = goalObj.optString("projectname");
+        if (remoteProjectName!=null && remoteProjectName.length()>0) {
+            setRemoteProjectName(remoteProjectName);
+        }
+        String remoteSiteURL = goalObj.optString("siteinfo");
+        if (remoteSiteURL!=null && remoteSiteURL.length()>0) {
+            setRemoteSiteURL(remoteSiteURL);
+        }
+        String remoteSiteName = goalObj.optString("sitename");
+        if (remoteSiteName!=null && remoteSiteName.length()>0) {
+            setRemoteSiteName(remoteSiteName);
+        }
+        
+        NGRole assigneeRole = getAssigneeRole();
+        assigneeRole.clear();
+        JSONArray peopleList = goalObj.optJSONArray("assignees");
+        if (peopleList!=null) {
+	        int lastPerson = peopleList.length();
+	        for (int i=0; i<lastPerson; i++) {
+	        	assigneeRole.addPlayer(new AddressListEntry(peopleList.getString(i)));       
+	        }
+        }
+
     }
 }

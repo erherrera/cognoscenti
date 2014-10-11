@@ -84,11 +84,16 @@ table.datatable {
                     <td style="datacolumn">
                     <%
                         List<AddressListEntry> allUsers = currentGoalRecord.getAssigneeRole().getDirectPlayers();
+                        boolean needComma = false;
                         for (AddressListEntry ale : allUsers)
                         {
+                            if (needComma) {
+                                %>, <%
+                            }
                             %><span class="datestyle"><%
                             ale.writeLink(ar);
                             %></span><%
+                            needComma = true;
                         }
 
                         %>&nbsp;&nbsp;&nbsp;&nbsp;<%
@@ -115,7 +120,27 @@ table.datatable {
         </div>
         <div >
             <table  class="datatable">
-                <tr><td height="25px"></td></tr>
+                <tr><td height="15px"></td></tr>
+                <tr><td colspan="3">
+                    <form action="<%=currentGoalRecord.getRemoteUpdateURL()%>" method="get">
+                        <input type="submit" class="inputBtn" name="op" value="Access Goal on Remote Project">
+                    </form>
+                    </td>
+                </tr>
+                <tr><td height="15px"></td></tr>
+                <tr>
+                    <td class="labelcolumn">
+                        Upstream:
+                    </td>
+                    <td style="width:20px;"></td>
+                    <td class="datacolumn">
+                        <a href="<%ar.writeHtml(currentGoalRecord.getRemoteProjectURL());%>">
+                            <%ar.writeHtml(currentGoalRecord.getRemoteProjectName());%></a> on site
+                        <a href="<%ar.writeHtml(currentGoalRecord.getRemoteSiteURL());%>">
+                            <%ar.writeHtml(currentGoalRecord.getRemoteSiteName());%></a>
+                    </td>
+                </tr>
+                <tr><td height="15px"></td></tr>
                 <tr>
                     <td class="labelcolumn">
                         <fmt:message key="nugen.project.description.text"/>
@@ -191,14 +216,6 @@ table.datatable {
                 <tr><td height="30px"></td></tr>
 <% } %>
 
-            <tr><td height="15px"></td></tr>
-            <tr><td colspan="3">
-                <form action="<%=currentGoalRecord.getRemoteUpdateURL()%>" method="get">
-                    <input type="submit" class="inputBtn" name="op" value="Access Goal on Remote Project">
-                </form>
-                </td>
-            </tr>
-            <tr><td height="15px"></td></tr>
             </table>
             <table class="datatable">
                 <%

@@ -8,15 +8,15 @@
 %><%@page import="org.socialbiz.cog.AttachmentVersion"
 %><%
 
-
-
-
     String atype = attachment.getType();
     boolean isExtra    = atype.equals("EXTRA");
     boolean isGone     = atype.equals("GONE");
     List<AttachmentVersion> vers = attachment.getVersions(ngp);
     boolean isGhost = vers.size()==0;
     boolean isModified = attachment.hasUncommittedChanges(vers);
+    long fileSizeInt = attachment.getFileSize(ngp);
+    String fileSize = String.format("%,d", fileSizeInt);
+    String mimeType=MimeTypes.getMimeType(attachment.getNiceName());
 
 
 %>
@@ -298,11 +298,18 @@
             </tr>
             <tr><td style="height:5px"></td></tr>
             <tr>
+                <td class="gridTableColummHeader">Size:</td>
+                <td style="width:20px;"></td>
+                <td>
+                <% writeHtml(out, fileSize); %> bytes
+                </td>
+            </tr>
+            <tr><td style="height:5px"></td></tr>
+            <tr>
                 <td class="gridTableColummHeader">Mime Type:</td>
                 <td style="width:20px;"></td>
                 <td>
                 <%
-                    String mimeType=MimeTypes.getMimeType(attachment.getNiceName());
                     ar.writeHtml(mimeType);
                 %>
                 </td>
