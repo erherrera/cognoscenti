@@ -82,11 +82,16 @@ table.datatable {
                     <td style="datacolumn">
                     <%
                         List<AddressListEntry> allUsers = currentGoalRecord.getAssigneeRole().getDirectPlayers();
+                        boolean needComma = false;
                         for (AddressListEntry ale : allUsers)
                         {
+                            if (needComma) {
+                                %>, <%
+                            }
                             %><span class="datestyle"><%
                             ale.writeLink(ar);
                             %></span><%
+                            needComma = true;
                         }
 
                         %>&nbsp;&nbsp;&nbsp;&nbsp;<%

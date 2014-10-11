@@ -405,14 +405,32 @@ public class AttachmentHelper {
             return;
         }
         String trialName = proposedName;
-        int iteration = 0;
 
-        int dotPos = proposedName.lastIndexOf(".");
-        if (dotPos<0) {
-            dotPos = proposedName.length();
+        String proposedRoot = proposedName;
+        String proposedExt = "";
+        int dotPos = proposedRoot.lastIndexOf(".");
+        if (dotPos>0) {
+        	proposedExt = proposedRoot.substring(dotPos);
+        	proposedRoot = proposedRoot.substring(0, dotPos);
         }
-
+        //now strip off any concluding hyphen number if present
+        //but only if it is a hyphen followed by a single digit
+        //if we get into double digit redundant names ... I don't care
+        //about letting more hyphens appear
+        if (proposedRoot.charAt(proposedRoot.length()-2) == '-') {
+        	char lastChar = proposedRoot.charAt(proposedRoot.length()-1);
+        	if (lastChar>='0' && lastChar <= '9') {
+        		proposedRoot = proposedRoot.substring(0, proposedRoot.length()-2);
+        	}
+        }
+        
+        //NOTE: currently deleted documents are still present in the 
+        //project folder.  They probably should not be there.
+        //TODO: remove deleted documents from project folder
+        //so they do not cause a name clash that can not be seen.
+        
         AttachmentRecord att = ngp.findAttachmentByName(trialName);
+        int iteration = 0;
         while (att != null) {
 
             if (att.getType().equals("EXTRA")) {
@@ -420,18 +438,21 @@ public class AttachmentHelper {
                 //been renamed, and discovered as a EXTRA file.   If this is the
                 //case, then remove the EXTRA record.
                 ngp.eraseAttachmentRecord(att.getId());
-                continue;
+                att = null;
             }
-            trialName = proposedName.substring(0, dotPos) + "-"
-                    + Integer.toString(++iteration)
-                    + proposedName.substring(dotPos);
-
-            if (currentName.equals(trialName)) {
-                return; // nothing to do
-            }
-            if (attachment.equivalentName(trialName)) {
-                attachment.setDisplayName(trialName);
-                return;
+            else {
+	            trialName = proposedRoot + "-"
+	                    + Integer.toString(++iteration)
+	                    + proposedExt;
+	
+	            if (currentName.equals(trialName)) {
+	                return; // nothing to do
+	            }
+	            if (attachment.equivalentName(trialName)) {
+	                attachment.setDisplayName(trialName);
+	                return;
+	            }
+	            att = ngp.findAttachmentByName(trialName);
             }
         }
         // if we get here, then there exists no other attachment with the trial

@@ -22,7 +22,8 @@ Required parameters:
     NGBook account = ngp.getSite();
 
     AttachmentRecord attachment = ngp.findAttachmentByIDOrFail(aid);
-    long fileSize = attachment.getFileSize(ngp);
+    long fileSizeInt = attachment.getFileSize(ngp);
+    String fileSize = String.format("%,d", fileSizeInt);
 
     boolean canAccessDoc = AccessControl.canAccessDoc(ar, ngp, attachment);
 
