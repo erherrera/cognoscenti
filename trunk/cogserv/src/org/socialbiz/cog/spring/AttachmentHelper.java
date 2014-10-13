@@ -203,7 +203,16 @@ public class AttachmentHelper {
             attachment.commitWorkingCopy(ngp);
         }
         else if ("Commit".equals(action)) {
+        	//used when a file is modified in the working directory
+        	//and will store the working copy as an official version
+            attachment.setModifiedDate(ar.nowTime);
+            attachment.setModifiedBy(ar.getBestUserId());
             attachment.commitWorkingCopy(ngp);
+            AttachmentVersion aVer = attachment.getLatestVersion(ngp);
+            
+            //sets the file time so they are consistent
+            File curFile = aVer.getLocalFile();
+            curFile.setLastModified(ar.nowTime);
         }
         else if ("RefreshWorking".equals(action)) {
             throw new Exception("Refresh from backup is not implemented yet.");

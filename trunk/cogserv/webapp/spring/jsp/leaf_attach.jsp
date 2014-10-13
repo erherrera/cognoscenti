@@ -1,20 +1,16 @@
 <%@page errorPage="/spring/jsp/error.jsp"
 %><%@ include file="/spring/jsp/attachment_forms.jsp"
-%>
-<%
-    String encodedLoginMsg = URLEncoder.encode("Can't open form","UTF-8");
-    String encodedDeleteMsg = URLEncoder.encode("Can't delete document","UTF-8");
+%><%
 
     String allowPub =  ngp.getAllowPublic();
 
-
 %>
 
 
-    <div class="pageHeading">List Documents</div>
-    <div class="pageSubHeading">
-        These documents are attached to this project.
-    </div>
+<div class="pageHeading">List Documents</div>
+<div class="pageSubHeading">
+    These documents are attached to this project.
+</div>
 <script type="text/javascript">
     var isLoggedIn = "<%=ar.isLoggedIn()%>";
     function onClickAction(flagX){
@@ -202,93 +198,130 @@
              };
 
             var myDataTable = new YAHOO.widget.DataTable("listofpagesdiv1", myColumnDefs, myDataSource, oConfigs,
-                                                            {
-                                                                caption:""
-                                                            }
-                                                        );
+                {
+                    caption:""
+                }
+            );
 
             var onContextMenuClick = function(p_sType, p_aArgs, p_myDataTable) {
-                    var task = p_aArgs[1];
-                    if(task) {
-                      // Extract which TR element triggered the context menu
+                var task = p_aArgs[1];
+                if(task) {
+                  // Extract which TR element triggered the context menu
 
-                        var elRow = this.contextEventTarget;
-                        elRow = p_myDataTable.getTrEl(elRow);
-                        myDataTable2=p_myDataTable;
-                        elRow2=elRow;
-                        var oRecord = p_myDataTable.getRecord(elRow);
-                        attachmentName = oRecord.getData("displayName");
-                        aid = oRecord.getData("aid");
-                        description = oRecord.getData("comment");
-                        version =  oRecord.getData("version");
-                        var visibility = oRecord.getData("visibility");
+                    var elRow = this.contextEventTarget;
+                    elRow = p_myDataTable.getTrEl(elRow);
+                    myDataTable2=p_myDataTable;
+                    elRow2=elRow;
+                    var oRecord = p_myDataTable.getRecord(elRow);
+                    attachmentName = oRecord.getData("displayName");
+                    aid = oRecord.getData("aid");
+                    description = oRecord.getData("comment");
+                    version =  oRecord.getData("version");
+                    var visibility = oRecord.getData("visibility");
 
-                        if(elRow) {
-                            <% if( !ngp.isFrozen()){ %>
+                    if(elRow) {
+                        <% if( !ngp.isFrozen()){ %>
+                        if(task.groupIndex==0){
+                            switch(task.index) {
+
+                                case 0:
+                                    document.location = '<%=ar.baseURL%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/docinfo'+oRecord.getData("aid") +'.htm?version='+ oRecord.getData("version");
+                                    break;
+                                case 1:
+                                    if(oRecord.getData("ftype") != 'URL'){
+                                        if(isLoggedIn == "false"){
+                                            window.location  = "<%=ar.baseURL%>t/EmailLoginForm.htm?&msg=<%ar.writeURLData("Can't open form");%>&go=<%ar.writeURLData(ar.getCompleteURL());%>";
+                                        }else{
+                                            if(oRecord.getData("readonly") != 'on')
+                                            {
+                                                window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/uploadRevisedDocument.htm?aid="+aid;
+                                            }else
+                                            {
+                                                alert("Document is read only type and can't be changed.");
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case 2:
+                                    window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/editDetails"+aid+".htm";
+                                    break;
+                                case 3:
+                                    if(oRecord.getData("ftype") != 'URL'){
+                                        window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/fileVersions.htm?aid="+aid;
+                                    }
+                                    break;
+                            }
+                        }else if(task.groupIndex==1){
+                            switch( task.index){
+                                case 0:
+                                       getRenameForm(aid , attachmentName);
+                                       break;
+                                case 1:
+                                       getPermissionForm(aid , attachmentName , visibility, '<%=allowPub %>');
+                                       break;
+                                case 2:
+                                       if(isLoggedIn == "false"){
+                                           window.location  = "<%=ar.retPath%>t/EmailLoginForm.htm?&msg=<%ar.writeURLData("Can't delete document");%>&go=<%ar.writeURLData(ar.getCompleteURL());%>";
+                                       }else{
+                                        // Delete row upon confirmation
+                                            if(confirm("Are you sure you want to remove '" +
+                                                oRecord.getData("displayName") +"' document?")) {
+
+                                                document.getElementById("aid").value = aid;
+                                                document.getElementById("actionType").value = "Remove";
+                                                document.getElementById("attachmentForm").submit();
+                                           }
+                                        }
+                                       break;
+                                case 3:
+                                       if(oRecord.getData("ftype") != 'URL'){
+                                           openWin('<%=ar.retPath%>t/sendNoteByEmail.htm?p=<%ar.writeHtml(pageId);%>&oid=x&selectedAttachemnt=attach'+oRecord.getData("aid")+"&encodingGuard=%E6%9D%B1%E4%BA%AC");
+                                       }
+                                       break;
+                            }
+                        }else if(task.groupIndex==2){
+                            switch( task.index){
+                                case 0:
+                                    if(oRecord.getData("ftype") != 'URL'){
+                                        onClickAction('addDocument');
+                                    }
+                                    break;
+                                case 1:
+                                    myDataTable.sortColumn(myDataTable.getColumn("attachmentName"));
+                                    break;
+                                case 2:
+                                    myDataTable.sortColumn(myDataTable.getColumn("date"));
+                                    break;
+                                case 3:
+                                    if(oRecord.getData("isLinked") == 'true'){
+                                        // Unlink Document from repository upon confirmation
+                                            if(confirm("Are you sure you want to unlink Document '" +
+                                                oRecord.getData("displayName") +"' document from repository?")) {
+
+                                                document.getElementById("aid").value = aid;
+                                                document.getElementById("actionType").value = "Unlink";
+                                                document.getElementById("attachmentForm").submit();
+                                           }
+                                    }else{
+                                        document.getElementById("aid").value = aid;
+                                        window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/CreateCopy.htm?aid="+aid;
+                                        //onClickAction('createCopy');
+                                    }
+                                    break;
+                            }
+                        }
+                        <%}else{%>
                             if(task.groupIndex==0){
                                 switch(task.index) {
 
                                     case 0:
                                         document.location = '<%=ar.baseURL%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/docinfo'+oRecord.getData("aid") +'.htm?version='+ oRecord.getData("version");
                                         break;
-                                    case 1:
-                                        if(oRecord.getData("ftype") != 'URL'){
-                                            if(isLoggedIn == "false"){
-                                                window.location  = "<%=ar.baseURL%>t/EmailLoginForm.htm?&msg=<%ar.writeHtml(encodedLoginMsg);%>&go=<%ar.writeURLData(ar.getCompleteURL());%>";
-                                            }else{
-                                                if(oRecord.getData("readonly") != 'on')
-                                                {
-                                                    window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/uploadRevisedDocument.htm?aid="+aid;
-                                                }else
-                                                {
-                                                    alert("Document is read only type and can't be changed.");
-                                                }
-                                            }
-                                        }
-                                        break;
-                                    case 2:
-                                        window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/editDetails"+aid+".htm";
-                                        break;
-                                    case 3:
-                                        if(oRecord.getData("ftype") != 'URL'){
-                                            window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/fileVersions.htm?aid="+aid;
-                                        }
-                                        break;
-                                }
-                            }else if(task.groupIndex==1){
-                                switch( task.index){
-                                    case 0:
-                                           getRenameForm(aid , attachmentName);
-                                           break;
-                                    case 1:
-                                           getPermissionForm(aid , attachmentName , visibility, '<%=allowPub %>');
-                                           break;
-                                    case 2:
-                                           if(isLoggedIn == "false"){
-                                               window.location  = "<%=ar.retPath%>t/EmailLoginForm.htm?&msg=<%ar.writeHtml(encodedDeleteMsg);%>&go=<%ar.writeURLData(ar.getCompleteURL());%>";
-                                           }else{
-                                            // Delete row upon confirmation
-                                                if(confirm("Are you sure you want to remove '" +
-                                                    oRecord.getData("displayName") +"' document?")) {
-
-                                                    document.getElementById("aid").value = aid;
-                                                    document.getElementById("actionType").value = "Remove";
-                                                    document.getElementById("attachmentForm").submit();
-                                               }
-                                            }
-                                           break;
-                                    case 3:
-                                           if(oRecord.getData("ftype") != 'URL'){
-                                               openWin('<%=ar.retPath%>t/sendNoteByEmail.htm?p=<%ar.writeHtml(pageId);%>&oid=x&selectedAttachemnt=attach'+oRecord.getData("aid")+"&encodingGuard=%E6%9D%B1%E4%BA%AC");
-                                           }
-                                           break;
                                 }
                             }else if(task.groupIndex==2){
                                 switch( task.index){
                                     case 0:
-                                        if(oRecord.getData("ftype") != 'URL'){
-                                            onClickAction('addDocument');
-                                        }
+                                        openFreezeMessagePopup();
                                         break;
                                     case 1:
                                         myDataTable.sortColumn(myDataTable.getColumn("attachmentName"));
@@ -297,53 +330,16 @@
                                         myDataTable.sortColumn(myDataTable.getColumn("date"));
                                         break;
                                     case 3:
-                                        if(oRecord.getData("isLinked") == 'true'){
-                                            // Unlink Document from repository upon confirmation
-                                                if(confirm("Are you sure you want to unlink Document '" +
-                                                    oRecord.getData("displayName") +"' document from repository?")) {
-
-                                                    document.getElementById("aid").value = aid;
-                                                    document.getElementById("actionType").value = "Unlink";
-                                                    document.getElementById("attachmentForm").submit();
-                                               }
-                                        }else{
-                                            document.getElementById("aid").value = aid;
-                                            window.location  = "<%=ar.retPath%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/CreateCopy.htm?aid="+aid;
-                                            //onClickAction('createCopy');
-                                        }
+                                        openFreezeMessagePopup();
                                         break;
                                 }
+                            }else{
+                                openFreezeMessagePopup();
                             }
-                            <%}else{%>
-                                if(task.groupIndex==0){
-                                    switch(task.index) {
-
-                                        case 0:
-                                            document.location = '<%=ar.baseURL%>t/<%ar.writeHtml(ngb.getKey());%>/<%ar.writeHtml(pageId);%>/docinfo'+oRecord.getData("aid") +'.htm?version='+ oRecord.getData("version");
-                                            break;
-                                    }
-                                }else if(task.groupIndex==2){
-                                    switch( task.index){
-                                        case 0:
-                                            openFreezeMessagePopup();
-                                            break;
-                                        case 1:
-                                            myDataTable.sortColumn(myDataTable.getColumn("attachmentName"));
-                                            break;
-                                        case 2:
-                                            myDataTable.sortColumn(myDataTable.getColumn("date"));
-                                            break;
-                                        case 3:
-                                            openFreezeMessagePopup();
-                                            break;
-                                    }
-                                }else{
-                                    openFreezeMessagePopup();
-                                }
-                            <%}%>
-                            myDataTable.unselectAllCells();
-                        }
+                        <%}%>
+                        myDataTable.unselectAllCells();
                     }
+                  }
                 };
 
                 myContextMenu = new YAHOO.widget.ContextMenu("menuwithgroups",
