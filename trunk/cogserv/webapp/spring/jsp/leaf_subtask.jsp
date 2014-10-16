@@ -96,23 +96,6 @@ Required parameter:
         var assignee = prompt ("Re enter assignee",assignee);
     }
 
-
- /*function taskStatusCall(id){
-
-    var url = "getTaskStatus.htm?statusId=" + id.value;
-    alert(url);
-    var req = initRequest();
-        req.onreadystatechange = function() {
-          if (req.readyState == 4) {
-              if (req.status == 200) {
-                 taskList = new Array();
-                 taskList = req.responseText.split(",");
-              }
-          }};
-     req.open("GET", url, true);
-     req.send(null);
-
-}*/
  </script>
 
 

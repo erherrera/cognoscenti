@@ -1272,6 +1272,10 @@ public class EmailSender extends TimerTask {
             }
             NGPage aPage = ngpi.getPage();
             for (GoalRecord gr : aPage.getAllGoals()) {
+            	if (gr.isPassive()) {
+            		//ignore tasks that are from other servers
+            		continue;
+            	}
                 if ((!gr.isAssignee(up)) && (!gr.isReviewer(up))) {
                     continue;
                 }

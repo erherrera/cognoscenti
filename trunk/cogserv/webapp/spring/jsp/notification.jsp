@@ -118,39 +118,42 @@
                                 </tr>
                                 <tr><td style="height:30px;"></td></tr>
                                 <%
-                                    }
-                                                            Vector<GoalRecord> activeTask = new Vector<GoalRecord>();
-                                                            for(GoalRecord task : ngp.getAllGoals())
-                                                            {
-                                                                if ((!task.isAssignee(uProf)) && (!task.isReviewer(uProf)))
-                                                                {
-                                                                    continue;
-                                                                }
-                                                                int state = task.getState();
-                                                                if(state == BaseRecord.STATE_ERROR)
-                                                                {
-                                                                    if (task.isAssignee(uProf)) {
-                                                                        activeTask.add(task);
-                                                                    }
-                                                                }
-                                                                else if(state == BaseRecord.STATE_ACCEPTED ||
-                                                                          state == BaseRecord.STATE_STARTED ||
-                                                                          state == BaseRecord.STATE_WAITING)
-                                                                {
-                                                                    if (task.isAssignee(uProf)) {
-                                                                        activeTask.add(task);
-                                                                    }
+                                   }
+                                   Vector<GoalRecord> activeTask = new Vector<GoalRecord>();
+                                   for(GoalRecord task : ngp.getAllGoals())
+                                   {
+                                       if (task.isPassive()) {
+                                           continue;
+                                       }
+                                       if ((!task.isAssignee(uProf)) && (!task.isReviewer(uProf)))
+                                       {
+                                           continue;
+                                       }
+                                       int state = task.getState();
+                                       if(state == BaseRecord.STATE_ERROR)
+                                       {
+                                           if (task.isAssignee(uProf)) {
+                                               activeTask.add(task);
+                                           }
+                                       }
+                                       else if(state == BaseRecord.STATE_ACCEPTED ||
+                                                 state == BaseRecord.STATE_STARTED ||
+                                                 state == BaseRecord.STATE_WAITING)
+                                       {
+                                           if (task.isAssignee(uProf)) {
+                                               activeTask.add(task);
+                                           }
 
-                                                                }
-                                                                else if(state == BaseRecord.STATE_REVIEW)
-                                                                {
-                                                                    if (task.isNextReviewer(uProf))
-                                                                    {
-                                                                        activeTask.add(task);
-                                                                    }
-                                                                }
-                                                            }
-                                                            if(activeTask.size() > 0){
+                                       }
+                                       else if(state == BaseRecord.STATE_REVIEW)
+                                       {
+                                           if (task.isNextReviewer(uProf))
+                                           {
+                                               activeTask.add(task);
+                                           }
+                                       }
+                                   }
+                                   if(activeTask.size() > 0){
                                 %>
                                 <tr>
                                     <td class="notificationSubHeading">Email notifications related to goals & sub goals</td>

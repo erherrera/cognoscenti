@@ -94,41 +94,6 @@ public class ProcessRecord extends BaseRecord
         setState(BaseRecord.STATE_COMPLETE);
     }
 
-    //TODO: can this be eliminated?
-    /*
-    private void handleProcessStateChangeEvent(NGPage ngp, int newState) throws Exception
-    {
-        List<GoalRecord> goalList = ngp.getAllGoals();
-
-        if (newState == BaseRecord.STATE_COMPLETE ||
-                newState == BaseRecord.STATE_SKIPPED)
-        {
-            // change the state of the existing incomplete tasks based on process state.
-            for (GoalRecord goal : goalList)
-            {
-                int tstate = goal.getState();
-
-                if (tstate == BaseRecord.STATE_ACCEPTED ||
-                    tstate == BaseRecord.STATE_ERROR ||
-                    tstate == BaseRecord.STATE_WAITING)
-                {
-                    goal.setState(BaseRecord.STATE_COMPLETE);
-                    goal.setPercentComplete(100);
-                }
-                else if (tstate == BaseRecord.STATE_UNSTARTED ||
-                         tstate == BaseRecord.STATE_STARTED)
-                {
-                    goal.setState(BaseRecord.STATE_SKIPPED);
-                }
-            }
-        }
-        else if (newState == BaseRecord.STATE_STARTED ||
-                newState == BaseRecord.STATE_ACCEPTED)
-        {
-            ProcessEnactor.startTheNextTask(goalList, null);
-        }
-    }
-    */
 
     /**
     * Generates a fully qualified, licensed,  Wf-XML link for this process

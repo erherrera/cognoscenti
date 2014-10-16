@@ -1072,7 +1072,7 @@ public class ResourceSection  implements NGResource
         loutdoc = DOMUtils.createDocument("activities");
         Element element_root = loutdoc.getDocumentElement();
         DOMUtils.setSchemAttribute(element_root, schema);
-        th.loadTasData(ngp, loutdoc, element_root, dataIds);
+        th.generateXPDLTaskInfo(ngp, loutdoc, element_root, dataIds);
     }
 
     public static Element findElement(Element parent, String expr) throws Exception

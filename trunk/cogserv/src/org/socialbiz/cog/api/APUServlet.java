@@ -210,7 +210,7 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
             NGPage aPage = ngpi.getPage();
 
             for (GoalRecord gr : aPage.getAllGoals()) {
-                if (!gr.isAssignee(up)) {
+                if (gr.isPassive() || !gr.isAssignee(up)) {
                     continue;
                 }
                 if (gr.getState()==BaseRecord.STATE_ACCEPTED ||

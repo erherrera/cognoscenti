@@ -290,6 +290,13 @@ public class DataFeedServlet extends HttpServlet {
             String pageKey = aPage.getKey();
 
             for (GoalRecord gr : aPage.getAllGoals()) {
+
+                if (gr.isPassive()) {
+                    //ignore tasks that are from other servers.  They will be identified and tracked on
+                    //those other servers
+                    continue;
+                }
+
                 if ((!gr.isAssignee(up)) && (!gr.isReviewer(up))) {
                     continue;
                 }
@@ -395,8 +402,8 @@ public class DataFeedServlet extends HttpServlet {
         String modVal = new String(val.getBytes("iso-8859-1"), "UTF-8");
         return modVal;
     }
-    
-    
+
+
     static class TaskListRecord {
         boolean isAttachment = false;
         String taskId;
@@ -411,7 +418,7 @@ public class DataFeedServlet extends HttpServlet {
         String pageKey;
         String pageName;
         String taskStatus;
-    
+
         TaskListRecord(GoalRecord goal, String pKey, String pName, String pLink) throws Exception {
             taskId = goal.getId();
             taskState = goal.getState();
@@ -426,7 +433,7 @@ public class DataFeedServlet extends HttpServlet {
             pageName = pName;
             pageLink = pLink;
         }
-    
+
     }
 
 }

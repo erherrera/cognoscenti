@@ -225,17 +225,13 @@ public class ProjectSync {
         Vector<String> goalIds = new Vector<String>();
 
         List<GoalRecord> allGoals = local.getAllGoals();
-        //ignore all the local tasks
         /*
-        for (GoalRecord goal : allGoals) {
-            //apparently all tasks are considered ... no such thing as a hidden task
-            String uid = goal.getUniversalId();
-            if (uid==null || uid.length()==0) {
-                throw new Exception("Task "+goal.getId()+" has no universal ID ("
-                        +goal.getSynopsis()+") -- nust have one!");
-            }
-            goalIds.add(uid);
-        }
+        We don't walk through the local goals because:
+        1) local goals created here are never sent upstream
+        2) remote goals can not be changed here, and will never 
+           be updated back.
+        So we never hae any case where we send goals from here upstream   
+        Only download if remote goals have changed.
         */
         JSONArray goals2 = remote.getGoals();
         int len = goals2.length();

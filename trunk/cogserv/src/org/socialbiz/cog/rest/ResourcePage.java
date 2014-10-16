@@ -516,7 +516,7 @@ public class ResourcePage implements NGResource
         loutdoc = DOMUtils.createDocument("activities");
         Element element_root = loutdoc.getDocumentElement();
         DOMUtils.setSchemAttribute(element_root, schema);
-        th.loadTasData(ngp, loutdoc, element_root, activtyId);
+        th.generateXPDLTaskInfo(ngp, loutdoc, element_root, activtyId);
     }
 
     public void setName(String name)

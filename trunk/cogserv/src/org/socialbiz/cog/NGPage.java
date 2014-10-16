@@ -838,11 +838,14 @@ public class NGPage extends ContainerCommon implements NGContainer
             return true;
         }
         if (lr instanceof LicenseForUser) {
-            //check all the tasks, the license will be valid if the person
-            //is still assigned to a task, and the license is a LicenseForUser
+            //check all the goals, the license will be valid if the person
+            //is still assigned to a goals, and the license is a LicenseForUser
             AddressListEntry ale = new AddressListEntry(lr.getCreator());
             for (GoalRecord goal : this.getAllGoals()) {
-                if (goal.isAssignee(ale)) {
+                if (!goal.isPassive() && goal.isAssignee(ale)) {
+                	//passive goals from other project should only effect those other projects,
+                	//and should not allow anyone into a linked sub project.  
+                	//Active goals should allow anyone assigned to be treated as a member.
                     return true;
                 }
             }
@@ -1114,10 +1117,14 @@ public class NGPage extends ContainerCommon implements NGContainer
         {
             return true;
         }
-        //now walk through the tasks, and check if person is assigned to any active task
+        //now walk through the goals, and check if person is assigned to any active goal
 
         for (GoalRecord gr : getAllGoals())
         {
+        	if (gr.isPassive()) {
+        		//ignore any passive goals that are from other projects.  Only consider local goals
+        		continue;
+        	}
             int state = gr.getState();
             if (state == BaseRecord.STATE_STARTED ||
                 state == BaseRecord.STATE_ACCEPTED||
