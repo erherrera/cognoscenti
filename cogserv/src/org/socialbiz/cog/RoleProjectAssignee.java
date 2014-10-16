@@ -49,9 +49,9 @@ public class RoleProjectAssignee extends RoleSpecialBase implements NGRole {
 
     public List<AddressListEntry> getDirectPlayers() throws Exception {
         List<AddressListEntry> list = new ArrayList<AddressListEntry>();
-        for (GoalRecord task : ngp.getAllGoals()) {
-            if (task.getState() == BaseRecord.STATE_ACCEPTED) {
-                NGRole assignees = task.getAssigneeRole();
+        for (GoalRecord gr : ngp.getAllGoals()) {
+            if (gr.getState() == BaseRecord.STATE_ACCEPTED) {
+                NGRole assignees = gr.getAssigneeRole();
                 list.addAll(assignees.getDirectPlayers());
             }
         }

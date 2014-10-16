@@ -25,33 +25,7 @@
     ar.assertAdmin("Unable to copy from a template to this page.");
 
     NGPage templatePage = NGPageIndex.getProjectByKeyOrFail(template);
-
-    for (GoalRecord tr : templatePage.getAllGoals()) {
-
-        GoalRecord newTask = ngp.createGoal();
-        newTask.setSynopsis( tr.getSynopsis() );
-        newTask.setDescription( tr.getDescription() );
-        newTask.setPriority( tr.getPriority() );
-        newTask.setState(BaseRecord.STATE_UNSTARTED);
-
-    }
-    for (NGRole rr : templatePage.getAllRoles()) {
-
-        String roleName = rr.getName();
-        boolean found = false;
-        for (NGRole currentRole : ngp.getAllRoles()) {
-            if (roleName.equals(currentRole.getName())) {
-                found = true;
-                break;
-            }
-        }
-        if (found) {
-            //already have a role with this name, so ignore it
-            continue;
-        }
-        String description = rr.getDescription();
-        ngp.createRole(roleName, description);
-    }
+    ngp.injectTemplate(ar,templatePage);
 
     response.sendRedirect(go);%>
 <%@ include file="functions.jsp"%>

@@ -118,56 +118,65 @@ public class TaskHelper
             if (ngpi.isProject())
             {
                 NGPage aProject = ngpi.getPage();
-                scanPageTask(aProject, false);
+                registerGoalsAssignedToUser(aProject, ale);
             }
         }
         isFilled = true;
     }
 
-    private void scanPageTask(NGPage aProject, boolean ignoreUser) throws Exception
-    {
-        for(GoalRecord tr : aProject.getAllGoals())
-        {
-            boolean myWi = true;
-            if(!ignoreUser)
-            {
-                myWi = tr.isAssignee(ale);
-            }
-            if(myWi)
-            {
-                pageMap.put(tr, aProject);
-                allTask.add(tr);
-                int state = tr.getState();
-                if(state == BaseRecord.STATE_ERROR){
-                    activeTask.add(tr);
-                }else if(state == BaseRecord.STATE_ACCEPTED){
-                    activeTask.add(tr);
-                }else if(state == BaseRecord.STATE_STARTED){
-                    activeTask.add(tr);
-                }else if(state == BaseRecord.STATE_WAITING){
-                    activeTask.add(tr);
-                }else if(state == BaseRecord.STATE_UNSTARTED){
-                    futureTask.add(tr);
-                }else if(state == BaseRecord.STATE_COMPLETE){
-                    completedTask.add(tr);
-                }
-
+    private void registerGoalsAssignedToUser(NGPage aProject, AddressListEntry forAssignee) throws Exception {
+        if (forAssignee==null) {
+        	throw new Exception("Program Logic Error: null assignee parameter in registerGoalsAssignedToUser");
+        }
+        for(GoalRecord gr : aProject.getAllGoals()) {
+            if (!gr.isPassive() && gr.isAssignee(forAssignee)) {
+                registerGoal(aProject, gr);
             }
         }
     }
 
+    private void registerAllGoalsOnPage(NGPage aProject) throws Exception {
+        for(GoalRecord gr : aProject.getAllGoals()) {
+            registerGoal(aProject, gr);
+        }
+    }
+
+
     /**
-    * loads the tasks from all pages, and then, given a list of task ids, it
+     * Includes a goal record into the registry of goals that are being
+     * tracked by this TaskHelper object.
+     */
+    private void registerGoal(NGPage aProject, GoalRecord gr) throws Exception {
+        pageMap.put(gr, aProject);
+        allTask.add(gr);
+        int state = gr.getState();
+        if(state == BaseRecord.STATE_ERROR){
+            activeTask.add(gr);
+        }else if(state == BaseRecord.STATE_ACCEPTED){
+            activeTask.add(gr);
+        }else if(state == BaseRecord.STATE_STARTED){
+            activeTask.add(gr);
+        }else if(state == BaseRecord.STATE_WAITING){
+            activeTask.add(gr);
+        }else if(state == BaseRecord.STATE_UNSTARTED){
+            futureTask.add(gr);
+        }else if(state == BaseRecord.STATE_COMPLETE){
+            completedTask.add(gr);
+        }
+    }
+
+    /**
+    * loads the goals from the specified project, and then, given a list of task ids, it
     * generate an XML dom tree from the tasks specifically mentioned by ID.
     */
-    public void loadTasData(NGPage ngp, Document doc, Element element_activities, String dataIds)
+    public void generateXPDLTaskInfo(NGPage ngp, Document doc, Element element_activities, String dataIds)
         throws Exception
     {
         String[] idList = null;
         if (dataIds!= null) {
             idList = UtilityMethods.splitOnDelimiter(dataIds,',');
         }
-        scanPageTask(ngp, true);
+        registerAllGoalsOnPage(ngp);
         for(GoalRecord tr : allTask)
         {
             if(!isRequested(tr.getId(), idList))
