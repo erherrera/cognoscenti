@@ -491,7 +491,13 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         }
         root.put("license", getLicenseInfo(resDec.lic));
         NGBook site = ngp.getSite();
-        UserRef user = new AddressListEntry(resDec.lic.getCreator());
+        UserRef licenseOwner = new AddressListEntry(resDec.lic.getCreator());
+        String restrictRole = resDec.lic.getRole();
+
+        //Primary (and secondary) roles should have access to everything.
+        //all goals.   Any license for a lesser role gets no goals.
+        boolean fullMemberAccess = ngp.primaryOrSecondaryPermission(licenseOwner)
+                && restrictRole.equalsIgnoreCase("Members");
 
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/" + resDec.projId + "/";
         root.put("projectname", ngp.getFullName());
@@ -507,23 +513,29 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         String siteUI = ar.baseURL + "t/" + ngp.getSiteKey() + "/$/public.htm";
         root.put("siteui", siteUI);
 
-        List<NGRole> rolist = null;
+        List<NGRole> licensedRoles = null;
         if (resDec.lic instanceof LicenseForUser) {
             //for user license, find all the roles they play
-            rolist = ngp.findRolesOfPlayer(user);
+            licensedRoles = ngp.findRolesOfPlayer(licenseOwner);
         }
         else {
-            //for specified license, use only the role specified
-            rolist = new Vector<NGRole>();
-            rolist.add(ngp.getRole(resDec.lic.getRole()));
+            //for specified license, use only the role specified.
+            NGRole specifiedRole = ngp.getRole(restrictRole);
+
+            //if the license owner is not a member, then the license owner must be
+            //a member of the specified role.
+            if (!ngp.primaryOrSecondaryPermission(licenseOwner) && !specifiedRole.isExpandedPlayer(licenseOwner, ngp)) {
+                throw new Exception("The license ("+resDec.licenseId
+                        +") is invalid because the user who created license is no longer a "
+                        +"member of the role ("+restrictRole+")");
+            }
+            licensedRoles = new Vector<NGRole>();
+            licensedRoles.add(specifiedRole);
         }
 
-        //Primary (and secondary) roles should have access to everything.
-        //all goals, and also any goal that the licensed user is assigned to
-        boolean isPrimeRole = ngp.primaryOrSecondaryPermission(user);
         JSONArray goals = new JSONArray();
-        for (GoalRecord goal : resDec.project.getAllGoals()) {
-            if (isPrimeRole || goal.isAssignee(user)) {
+        if (fullMemberAccess) {
+            for (GoalRecord goal : resDec.project.getAllGoals()) {
                 goals.put(goal.getJSON4Goal(resDec.project, ar.baseURL, resDec.lic));
             }
         }
@@ -540,9 +552,9 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             if (!"FILE".equals(att.getType())) {
                 continue;
             }
-            boolean canAccess = isPrimeRole || att.isPublic();
-            for (NGRole trole : rolist) {
-                if (att.roleCanAccess(trole.getName())) {
+            boolean canAccess = fullMemberAccess || att.isPublic();
+            for (NGRole lRole : licensedRoles) {
+                if (att.roleCanAccess(lRole.getName())) {
                     canAccess = true;
                 }
             }
@@ -556,8 +568,8 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
         JSONArray notes = new JSONArray();
         for (NoteRecord note : resDec.project.getAllNotes()) {
-            boolean canAccess = isPrimeRole || note.isPublic();
-            for (NGRole trole : rolist) {
+            boolean canAccess = fullMemberAccess || note.isPublic();
+            for (NGRole trole : licensedRoles) {
                 if (note.roleCanAccess(trole.getName())) {
                     canAccess = true;
                 }
