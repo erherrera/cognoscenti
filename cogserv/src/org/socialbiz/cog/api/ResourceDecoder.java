@@ -15,12 +15,20 @@
  */
 package org.socialbiz.cog.api;
 
+import java.util.List;
+import java.util.Vector;
+
+import org.socialbiz.cog.AddressListEntry;
+import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.DOMFace;
 import org.socialbiz.cog.License;
+import org.socialbiz.cog.LicenseForUser;
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
+import org.socialbiz.cog.NGRole;
+import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.UserManager;
 import org.socialbiz.cog.UserProfile;
 import org.socialbiz.cog.exception.ProgramLogicError;
@@ -53,6 +61,7 @@ public class ResourceDecoder {
 
     public String licenseId;
     public License lic;
+    private AddressListEntry licenseOwner;
 
     public ResourceDecoder(AuthRequest ar) throws Exception {
 
@@ -93,6 +102,7 @@ public class ResourceDecoder {
         project = NGPageIndex.getProjectByKeyOrFail(projId);
         lic = project.getLicense(licenseId);
         setUserFromLicense(ar);
+        licenseOwner = new AddressListEntry(lic.getCreator());
 
         curPos = slashPos+1;
         resource = path.substring(curPos);
@@ -154,5 +164,71 @@ public class ResourceDecoder {
                 ar.setUserForOneRequest(up);
             }
         }
+    }
+
+    /**
+     * License is for full member access if the name of the role is "Members"
+     * and the user is a member or an owner.
+     */
+    public boolean hasFullMemberAccess() throws Exception {
+        if (project==null || lic==null) {
+            return false;
+        }
+        return lic.getRole().equalsIgnoreCase("Members") && ownerIsMemberOfProject();
+    }
+
+    public boolean ownerIsMemberOfProject() throws Exception {
+        if (project==null || lic==null) {
+            return false;
+        }
+        return project.primaryOrSecondaryPermission(licenseOwner);
+    }
+
+    public List<NGRole> getLicensedRoles() throws Exception {
+        List<NGRole> licensedRoles = null;
+        String restrictRole = lic.getRole();
+        if (lic instanceof LicenseForUser) {
+            //for user license, find all the roles they play
+            licensedRoles = project.findRolesOfPlayer(licenseOwner);
+        }
+        else {
+            //for specified license, use only the role specified.
+            NGRole specifiedRole = project.getRole(restrictRole);
+
+            //if the license owner is not a member, then the license owner must be
+            //a member of the specified role.
+            if (!ownerIsMemberOfProject() && !specifiedRole.isExpandedPlayer(licenseOwner, project)) {
+                throw new Exception("The license ("+licenseId
+                        +") is invalid because the user who created license is no longer a "
+                        +"member of the role ("+restrictRole+")");
+            }
+            licensedRoles = new Vector<NGRole>();
+            licensedRoles.add(specifiedRole);
+        }
+        return licensedRoles;
+    }
+
+    public boolean canAccessAttachment(AttachmentRecord att) throws Exception {
+        if (hasFullMemberAccess()) {
+            return true;
+        }
+        for (NGRole lRole : getLicensedRoles()) {
+            if (att.roleCanAccess(lRole.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean canAccessNote(NoteRecord note) throws Exception {
+        if (hasFullMemberAccess()) {
+            return true;
+        }
+        for (NGRole lRole : getLicensedRoles()) {
+            if (note.roleCanAccess(lRole.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

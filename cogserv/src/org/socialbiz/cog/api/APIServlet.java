@@ -22,15 +22,11 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.List;
-import java.util.Vector;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.socialbiz.cog.AddressListEntry;
 import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
@@ -43,10 +39,8 @@ import org.socialbiz.cog.MimeTypes;
 import org.socialbiz.cog.NGBook;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NGPageIndex;
-import org.socialbiz.cog.NGRole;
 import org.socialbiz.cog.NoteRecord;
 import org.socialbiz.cog.SectionWiki;
-import org.socialbiz.cog.UserRef;
 import org.socialbiz.cog.UtilityMethods;
 import org.socialbiz.cog.WikiConverter;
 import org.workcast.json.JSONArray;
@@ -312,6 +306,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             responseOK.put("tempFileURL", urlRoot + "temp/" + fileName);
             return responseOK;
         }
+        /*
         if ("newGoal".equals(op)) {
             JSONObject newGoalObj = objIn.getJSONObject("goal");
             GoalRecord newGoal = resDec.project.createGoal();
@@ -334,8 +329,13 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             resDec.project.save(ar.getBestUserId(), ar.nowTime, "Goal synchronized from downstream linked project.");
             return responseOK;
         }
+        */
         if ("newNote".equals(op)) {
             JSONObject newNoteObj = objIn.getJSONObject("note");
+            if (!resDec.hasFullMemberAccess()) {
+                throw new Exception("The license ("+resDec.licenseId
+                        +") does not have full member access which is needed in order to create a new note.");
+            }
             NoteRecord newNote = resDec.project.createNote();
             newNote.setUniversalId(newNoteObj.getString("universalid"));
             newNote.updateNoteFromJSON(newNoteObj);
@@ -344,11 +344,14 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         }
         if ("updateNote".equals(op)) {
             JSONObject newNoteObj = objIn.getJSONObject("note");
-            NoteRecord note = resDec.project.getNoteByUidOrNull(
-                    newNoteObj.getString("universalid"));
+            String noteUID = newNoteObj.getString("universalid");
+            NoteRecord note = resDec.project.getNoteByUidOrNull(noteUID);
             if (note==null) {
-                throw new Exception("Unable to find an existing note with UID ("
-                        +newNoteObj.getString("universalid")+")");
+                throw new Exception("Unable to find an existing note with UID ("+noteUID+")");
+            }
+            if (!resDec.canAccessNote(note)) {
+                throw new Exception("The license ("+resDec.licenseId
+                        +") does not have right to access note ("+noteUID+").");
             }
             note.updateNoteFromJSON(newNoteObj);
             resDec.project.save(ar.getBestUserId(), ar.nowTime, "Note synchronized from downstream linked project.");
@@ -364,13 +367,24 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
                 throw new Exception("Attemped operation failed because the temporary file "
                         +"does not exist: "+tempFile);
             }
+            String docUID = newDocObj.getString("universalid");
             AttachmentRecord att;
             if ("updateDoc".equals(op)) {
-                att = resDec.project.findAttachmentByUidOrNull(newDocObj.getString("universalid"));
+                att = resDec.project.findAttachmentByUidOrNull(docUID);
+                if (!resDec.canAccessAttachment(att)) {
+                    tempFile.delete();
+                    throw new Exception("The license ("+resDec.licenseId
+                            +") does not have right to access document ("+docUID+").");
+                }
             }
             else {
+                if (!resDec.hasFullMemberAccess()) {
+                    tempFile.delete();
+                    throw new Exception("The license ("+resDec.licenseId
+                            +") does not have right to create new documents.");
+                }
                 att = resDec.project.createAttachment();
-                att.setUniversalId(newDocObj.getString("universalid"));
+                att.setUniversalId(docUID);
             }
             att.updateDocFromJSON(newDocObj);
             String userUpdate = newDocObj.getString("modifieduser");
@@ -491,13 +505,6 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         }
         root.put("license", getLicenseInfo(resDec.lic));
         NGBook site = ngp.getSite();
-        UserRef licenseOwner = new AddressListEntry(resDec.lic.getCreator());
-        String restrictRole = resDec.lic.getRole();
-
-        //Primary (and secondary) roles should have access to everything.
-        //all goals.   Any license for a lesser role gets no goals.
-        boolean fullMemberAccess = ngp.primaryOrSecondaryPermission(licenseOwner)
-                && restrictRole.equalsIgnoreCase("Members");
 
         String urlRoot = ar.baseURL + "api/" + resDec.siteId + "/" + resDec.projId + "/";
         root.put("projectname", ngp.getFullName());
@@ -513,28 +520,8 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         String siteUI = ar.baseURL + "t/" + ngp.getSiteKey() + "/$/public.htm";
         root.put("siteui", siteUI);
 
-        List<NGRole> licensedRoles = null;
-        if (resDec.lic instanceof LicenseForUser) {
-            //for user license, find all the roles they play
-            licensedRoles = ngp.findRolesOfPlayer(licenseOwner);
-        }
-        else {
-            //for specified license, use only the role specified.
-            NGRole specifiedRole = ngp.getRole(restrictRole);
-
-            //if the license owner is not a member, then the license owner must be
-            //a member of the specified role.
-            if (!ngp.primaryOrSecondaryPermission(licenseOwner) && !specifiedRole.isExpandedPlayer(licenseOwner, ngp)) {
-                throw new Exception("The license ("+resDec.licenseId
-                        +") is invalid because the user who created license is no longer a "
-                        +"member of the role ("+restrictRole+")");
-            }
-            licensedRoles = new Vector<NGRole>();
-            licensedRoles.add(specifiedRole);
-        }
-
         JSONArray goals = new JSONArray();
-        if (fullMemberAccess) {
+        if (resDec.hasFullMemberAccess()) {
             for (GoalRecord goal : resDec.project.getAllGoals()) {
                 goals.put(goal.getJSON4Goal(resDec.project, ar.baseURL, resDec.lic));
             }
@@ -552,13 +539,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             if (!"FILE".equals(att.getType())) {
                 continue;
             }
-            boolean canAccess = fullMemberAccess || att.isPublic();
-            for (NGRole lRole : licensedRoles) {
-                if (att.roleCanAccess(lRole.getName())) {
-                    canAccess = true;
-                }
-            }
-            if (!canAccess) {
+            if (!resDec.canAccessAttachment(att)) {
                 continue;
             }
             JSONObject thisDoc = att.getJSON4Doc(resDec.project, urlRoot, resDec.lic);
@@ -568,13 +549,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
         JSONArray notes = new JSONArray();
         for (NoteRecord note : resDec.project.getAllNotes()) {
-            boolean canAccess = fullMemberAccess || note.isPublic();
-            for (NGRole trole : licensedRoles) {
-                if (note.roleCanAccess(trole.getName())) {
-                    canAccess = true;
-                }
-            }
-            if (!canAccess) {
+            if (!resDec.canAccessNote(note)) {
                 continue;
             }
             notes.put(note.getJSON4Note(urlRoot, false, resDec.lic));
@@ -588,6 +563,11 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
     private void streamDocument(AuthRequest ar, ResourceDecoder resDec) throws Exception {
         AttachmentRecord att = resDec.project.findAttachmentByIDOrFail(resDec.docId);
+        if (!resDec.canAccessAttachment(att)) {
+            throw new Exception("Specified license ("+resDec.licenseId
+                    +") is not able to access document ("+resDec.docId+")");
+        }
+
         ar.resp.setContentType(MimeTypes.getMimeType(att.getNiceName()));
         AttachmentVersion aVer = att.getLatestVersion(resDec.project);
         File realPath = aVer.getLocalFile();
@@ -604,6 +584,10 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
     private void streamNote(AuthRequest ar, ResourceDecoder resDec) throws Exception {
         NoteRecord note = resDec.project.getNoteOrFail(resDec.noteId);
+        if (!resDec.canAccessNote(note)) {
+            throw new Exception("Specified license ("+resDec.licenseId
+                    +") is not able to access note ("+resDec.noteId+")");
+        }
         String contents = note.getData();
         if (contents.length()==0) {
             contents = "-no contents-";
