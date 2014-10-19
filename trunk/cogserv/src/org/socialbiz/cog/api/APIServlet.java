@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +33,7 @@ import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.Cognoscenti;
 import org.socialbiz.cog.GoalRecord;
+import org.socialbiz.cog.HistoryRecord;
 import org.socialbiz.cog.IdGenerator;
 import org.socialbiz.cog.License;
 import org.socialbiz.cog.LicenseForUser;
@@ -278,7 +280,6 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             return objIn;
         }
 
-
         NGPage ngp = resDec.project;
         if (ngp == null) {
             throw new Exception("Unable to find a project with the id "+resDec.projId);
@@ -303,7 +304,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
         if ("tempFile".equals(op)) {
             String fileName = "~tmp~"+IdGenerator.generateKey()+"~tmp~";
             responseOK.put("tempFileName", fileName);
-            responseOK.put("tempFileURL", urlRoot + "temp/" + fileName);
+            responseOK.put("tempFileURL", urlRoot + "temp/" + fileName + "?lic=" + resDec.licenseId);
             return responseOK;
         }
         /*
@@ -339,6 +340,8 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             NoteRecord newNote = resDec.project.createNote();
             newNote.setUniversalId(newNoteObj.getString("universalid"));
             newNote.updateNoteFromJSON(newNoteObj);
+            HistoryRecord.createNoteHistoryRecord(resDec.project, newNote, HistoryRecord.EVENT_TYPE_CREATED, ar,
+                    "From downstream project by synchronization license "+resDec.licenseId);
             resDec.project.save(ar.getBestUserId(), ar.nowTime, "New note synchronized from downstream linked project.");
             return responseOK;
         }
@@ -354,6 +357,8 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
                         +") does not have right to access note ("+noteUID+").");
             }
             note.updateNoteFromJSON(newNoteObj);
+            HistoryRecord.createNoteHistoryRecord(resDec.project, note, HistoryRecord.EVENT_TYPE_MODIFIED, ar,
+                    "From downstream project by synchronization license "+resDec.licenseId);
             resDec.project.save(ar.getBestUserId(), ar.nowTime, "Note synchronized from downstream linked project.");
             return responseOK;
         }
@@ -369,7 +374,9 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
             }
             String docUID = newDocObj.getString("universalid");
             AttachmentRecord att;
+            int historyEventType = 0;
             if ("updateDoc".equals(op)) {
+                historyEventType = HistoryRecord.EVENT_TYPE_MODIFIED;
                 att = resDec.project.findAttachmentByUidOrNull(docUID);
                 if (!resDec.canAccessAttachment(att)) {
                     tempFile.delete();
@@ -378,6 +385,7 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
                 }
             }
             else {
+                historyEventType = HistoryRecord.EVENT_TYPE_CREATED;
                 if (!resDec.hasFullMemberAccess()) {
                     tempFile.delete();
                     throw new Exception("The license ("+resDec.licenseId
@@ -397,6 +405,8 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
 
             //send all the info back for a reasonable response
             responseOK.put("doc",  att.getJSON4Doc(resDec.project, urlRoot, resDec.lic));
+            HistoryRecord.createAttHistoryRecord(resDec.project, att, historyEventType, ar,
+                    "From downstream project by synchronization license "+resDec.licenseId);
             resDec.project.save(ar.getBestUserId(), ar.nowTime, "Document synchronized from downstream linked project.");
             return responseOK;
         }

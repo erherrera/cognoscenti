@@ -93,16 +93,23 @@ public class ResourceDecoder {
 
         if ("$".equals(projId)) {
             isSite = true;
-            //TODO: should throw exception if no license id
+            if (licenseId==null) {
+                throw new Exception("Can not access the site '"+site.getKey()+"' without any license.");
+            }
             lic = site.getLicense(licenseId);
-            //TODO: should throw exception if license not found
+            if (lic==null) {
+                throw new Exception("Can not find the license '"+licenseId+"' on site '"+site.getKey()+"'");
+            }
             setUserFromLicense(ar);
             return;
         }
         project = NGPageIndex.getProjectByKeyOrFail(projId);
         lic = project.getLicense(licenseId);
-        setUserFromLicense(ar);
+        if (lic==null) {
+            throw new Exception("Can not find the license '"+licenseId+"' on project '"+projId+"'");
+        }
         licenseOwner = new AddressListEntry(lic.getCreator());
+        setUserFromLicense(ar);
 
         curPos = slashPos+1;
         resource = path.substring(curPos);
@@ -158,11 +165,17 @@ public class ResourceDecoder {
         if (lic!=null) {
             String userId = lic.getCreator();
             UserProfile up = UserManager.findUserByAnyId(userId);
-            if (up!=null) {
-                //TODO: check that user is still valid
-                //TODO: check that user is in the role of this license
-                ar.setUserForOneRequest(up);
+            if (up==null) {
+                throw new Exception("This license '"+licenseId+"' is no longer valid because the creator of the license can not be found.");
             }
+            //check that user is still valid
+            if (up.getDisabled()) {
+                throw new Exception("This license '"+licenseId+"' is no longer valid because the creator of the license is no longer enabled.");
+            }
+            //check that user is in the role of this license
+            //as long as this does not throw exception, everything is ok
+            ar.setUserForOneRequest(up);
+            getLicensedRoles();
         }
     }
 
@@ -178,7 +191,7 @@ public class ResourceDecoder {
     }
 
     public boolean ownerIsMemberOfProject() throws Exception {
-        if (project==null || lic==null) {
+        if (project==null || lic==null || licenseOwner==null) {
             return false;
         }
         return project.primaryOrSecondaryPermission(licenseOwner);
