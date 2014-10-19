@@ -33,6 +33,7 @@ import org.socialbiz.cog.AttachmentRecord;
 import org.socialbiz.cog.AttachmentVersion;
 import org.socialbiz.cog.AuthRequest;
 import org.socialbiz.cog.GoalRecord;
+import org.socialbiz.cog.HistoryRecord;
 import org.socialbiz.cog.LicenseForUser;
 import org.socialbiz.cog.NGPage;
 import org.socialbiz.cog.NoteRecord;
@@ -228,9 +229,9 @@ public class ProjectSync {
         /*
         We don't walk through the local goals because:
         1) local goals created here are never sent upstream
-        2) remote goals can not be changed here, and will never 
+        2) remote goals can not be changed here, and will never
            be updated back.
-        So we never hae any case where we send goals from here upstream   
+        So we never hae any case where we send goals from here upstream
         Only download if remote goals have changed.
         */
         JSONArray goals2 = remote.getGoals();
@@ -392,6 +393,10 @@ public class ProjectSync {
     */
     public void downloadAll() throws Exception {
 
+        int docNum = 0;
+        int noteNum = 0;
+        int goalNum = 0;
+
         Vector<SyncStatus> docsNeedingDown  = getToDownload(SyncStatus.TYPE_DOCUMENT);
         for (SyncStatus docStat : docsNeedingDown) {
             if (docStat.timeRemote==0) {
@@ -425,6 +430,8 @@ public class ProjectSync {
                 		//TODO: should we tell the user about this problem?
                 	}
                 }
+                HistoryRecord.createAttHistoryRecord(local, localAtt, HistoryRecord.EVENT_DOC_UPDATED, ar,
+                        "from upstream project");
             }
             else {
             	//this is a new document to us, but check for name conflict
@@ -440,6 +447,8 @@ public class ProjectSync {
                 localAtt.setUniversalId(docStat.universalId);
                 //this document came from upstream, so set to synch in the future upstream
                 localAtt.setUpstream(true);
+                HistoryRecord.createAttHistoryRecord(local, localAtt, HistoryRecord.EVENT_TYPE_CREATED, ar,
+                        "from upstream project");
             }
             localAtt.updateDocFromJSON(docStat.remoteCopy);
             String modifieduser = docStat.remoteCopy.getString("modifieduser");
@@ -448,6 +457,7 @@ public class ProjectSync {
             URL link = new URL(docStat.urlRemote);
             InputStream is = link.openStream();
             localAtt.streamNewVersion(local, is, modifieduser, modifiedtime);
+            docNum++;
         }
 
         Vector<SyncStatus> notesNeedingDown  = getToDownload(SyncStatus.TYPE_NOTE);
@@ -455,13 +465,16 @@ public class ProjectSync {
         for (SyncStatus noteStat : notesNeedingDown) {
 
             NoteRecord note;
+            int historyEvent = 0;
             if (noteStat.isLocal) {
                 note = local.getNote(noteStat.idLocal);
+                historyEvent = HistoryRecord.EVENT_TYPE_MODIFIED;
             }
             else {
                 note = local.createNote();
                 note.setUniversalId(noteStat.universalId);
                 note.setUpstream(true);
+                historyEvent = HistoryRecord.EVENT_TYPE_CREATED;
             }
 
             URL url = new URL(noteStat.urlRemote);
@@ -476,6 +489,9 @@ public class ProjectSync {
             }
             noteStat.remoteCopy.put("data", sb.toString());
             note.updateNoteFromJSON(noteStat.remoteCopy);
+            noteNum++;
+            HistoryRecord.createNoteHistoryRecord(local, note, historyEvent, ar,
+                    "from upstream project");
         }
 
         Vector<SyncStatus> goalsNeedingDown  = getToDownload(SyncStatus.TYPE_TASK);
@@ -492,8 +508,13 @@ public class ProjectSync {
                 goal.setRemoteUpdateURL(goalStat.urlRemote);
             }
             goal.updateGoalFromJSON(goalStat.remoteCopy);
+            goalNum++;
+        }
 
-            //TODO: create a history record for this
+        if (docNum+noteNum+goalNum>0) {
+            HistoryRecord.createContainerHistoryRecord(local,
+                HistoryRecord.EVENT_DOC_UPDATED, ar, "Synchronized from upstream project:  "+docNum+" documents, "
+                +noteNum+" Notes, and "+goalNum+" goals.");
         }
 
         local.saveFile(ar, "Synchronized notes and documents from upstream project");
@@ -528,13 +549,15 @@ public class ProjectSync {
         Vector<SyncStatus> docsNeedingUp  = getToUpload(SyncStatus.TYPE_DOCUMENT);
         for (SyncStatus docStat : docsNeedingUp) {
             AttachmentRecord newAtt = local.findAttachmentByIDOrFail(docStat.idLocal);
+
+            //first we make a quick request to the project to get a temp file name to send to
             JSONObject tempFileRequest = new JSONObject();
             tempFileRequest.put("operation", "tempFile");
             JSONObject response = remote.call(tempFileRequest);
             String tempFileName = response.getString("tempFileName");
             String tempFileURL = response.getString("tempFileURL");
 
-            //now upload the contents to the tempfile
+            //now upload the contents to the tempfile address
             AttachmentVersion aVer = newAtt.getLatestVersion(local);
             File docFile = aVer.getLocalFile();
             URL remoteURL = new URL(tempFileURL);

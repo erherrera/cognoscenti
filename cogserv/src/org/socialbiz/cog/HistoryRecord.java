@@ -41,6 +41,7 @@ public class HistoryRecord extends DOMFace
     public final static int CONTEXT_TYPE_DOCUMENT     = 3;
     public final static int CONTEXT_TYPE_LEAFLET      = 4;
     public final static int CONTEXT_TYPE_ROLE         = 5;
+    public final static int CONTEXT_TYPE_CONTAINER    = 6;
 
     public final static String EVENT_TYPE_PREFIX="event.type";
     public final static String CONTEXT_TYPE_PREFIX="context.type";
@@ -166,6 +167,11 @@ public class HistoryRecord extends DOMFace
         setAttribute("id", id);
     }
 
+
+
+    /**
+     * TODO: document what the event type is
+     */
     public int getEventType()
         throws Exception
     {
@@ -216,17 +222,23 @@ public class HistoryRecord extends DOMFace
     }
 
     /**
-    * Tells how to interpret the context id
+    * Tells how to interpret the context id.  Must be one of:
+    * CONTEXT_TYPE_PROCESS      = 0;
+    * CONTEXT_TYPE_TASK         = 1;
+    * CONTEXT_TYPE_PERMISSIONS  = 2;
+    * CONTEXT_TYPE_DOCUMENT     = 3;
+    * CONTEXT_TYPE_LEAFLET      = 4;
+    * CONTEXT_TYPE_ROLE         = 5;
+    * CONTEXT_TYPE_CONTAINER    = 6;
     */
-    public int getContextType()
-        throws Exception
-    {
+    public int getContextType() throws Exception {
         return safeConvertInt(getScalar("contextType"));
     }
-    public void setContextType(int context)
-        throws Exception
-    {
-        setScalar("contextType", Integer.toString(context));
+    public void setContextType(int contextTypeVal) throws Exception {
+        if (contextTypeVal<0 || contextTypeVal>6) {
+            throw new Exception("Program Logic Error: history context type must be from 0 to 6.");
+        }
+        setScalar("contextType", Integer.toString(contextTypeVal));
     }
 
     /**
@@ -291,7 +303,7 @@ public class HistoryRecord extends DOMFace
         setScalar("responsible", resp);
     }
 
-    public static String getContext(int ptype)
+    public static String getContextTypeName(int ptype)
     {
         switch (ptype)
         {
@@ -344,13 +356,24 @@ public class HistoryRecord extends DOMFace
         return createHistoryRecord(ngp, context, contextType, 0, eventType, ar, comments);
     }
 
-
+    /**
+     *
+     * @param ngc the container (Project, Site, Profile) that this history is to add to
+     * @param objectID this is the ID of the object that the history is about.  Use null string if about the entire container
+     * @param contextType
+     * @param contextVersion
+     * @param eventType
+     * @param ar
+     * @param comments
+     * @return
+     * @throws Exception
+     */
     public static HistoryRecord createHistoryRecord(NGContainer ngc,
-        String context, int contextType, long contextVersion, int eventType,
+        String objectID, int contextType, long contextVersion, int eventType,
         AuthRequest ar, String comments) throws Exception
     {
         HistoryRecord hr = ngc.createNewHistory();
-        hr.setContext(context);
+        hr.setContext(objectID);
         hr.setContextType(contextType);
         hr.setContextVersion(contextVersion);
         hr.setEventType(eventType);
@@ -360,114 +383,148 @@ public class HistoryRecord extends DOMFace
         return hr;
     }
 
+    /**
+     * Creates a history record appropriate for the entire container
+     * without referring to any part within the container.
+     */
+    public static HistoryRecord createContainerHistoryRecord(NGContainer ngc,
+            int eventType, AuthRequest ar, String comments) throws Exception
+    {
+        return createHistoryRecord(ngc, "",  HistoryRecord.CONTEXT_TYPE_CONTAINER,
+                0, eventType, ar, comments);
+    }
+
+    /**
+     * Creates a history record appropriate for a change to a note.
+     */
+    public static HistoryRecord createNoteHistoryRecord(NGContainer ngc,
+            NoteRecord note, int eventType, AuthRequest ar, String comments) throws Exception
+    {
+        return createHistoryRecord(ngc, note.getId(),  HistoryRecord.CONTEXT_TYPE_LEAFLET,
+                0, eventType, ar, comments);
+    }
+
+
+    /**
+     * Creates a history record appropriate for a change to a attachment.
+     */
+    public static HistoryRecord createAttHistoryRecord(NGContainer ngc,
+            AttachmentRecord att, int eventType, AuthRequest ar, String comments) throws Exception
+    {
+        return createHistoryRecord(ngc, att.getId(),  HistoryRecord.CONTEXT_TYPE_DOCUMENT,
+                0, eventType, ar, comments);
+    }
 
 
     public String getCombinedKey()
         throws Exception
     {
-        String context;
+        String messageID;
         int ctx = getContextType();
         switch (ctx) {
             case CONTEXT_TYPE_PROCESS:
-                context = "history.process.";
+                messageID = "history.process.";
                 break;
             case CONTEXT_TYPE_TASK:
-                context = "history.task.";
+                messageID = "history.task.";
                 break;
             case CONTEXT_TYPE_PERMISSIONS:
-                context = "history.permission.";
+                messageID = "history.permission.";
                 break;
             case CONTEXT_TYPE_DOCUMENT:
-                context = "history.doc.";
+                messageID = "history.doc.";
                 break;
             case CONTEXT_TYPE_LEAFLET:
-                context = "history.note.";
+                messageID = "history.note.";
                 break;
             case CONTEXT_TYPE_ROLE:
-                context = "history.role.";
+                messageID = "history.role.";
+                break;
+            case CONTEXT_TYPE_CONTAINER:
+                messageID = "history.container.";
                 break;
             default:
                 throw new ProgramLogicError("HistoryRecord.getCombinedKey does "
-                + "not know how to handle a context value: "+ctx);
+                + "not know how to handle a context type value: "+ctx);
         }
 
         int event = getEventType();
         switch (event)
         {
             case EVENT_TYPE_CREATED:
-                return context+"created";
+                return messageID+"created";
             case EVENT_TYPE_MODIFIED:
-                return context+"modified";
+                return messageID+"modified";
             case EVENT_TYPE_DELETED:
-                return context+"deleted";
+                return messageID+"deleted";
             case EVENT_TYPE_APPROVED:
-                return context+"approved";
+                return messageID+"approved";
             case EVENT_TYPE_REJECTED:
-                return context+"rejected";
+                return messageID+"rejected";
             case EVENT_TYPE_SUBTASK_CREATED:
-                return context+"subtask.add";
+                return messageID+"subtask.add";
             case EVENT_TYPE_SUBLEAF_CREATED:
-                return context+"subproject.add";
+                return messageID+"subproject.add";
             case EVENT_TYPE_REORDERED:
-                return context+"reordered";
+                return messageID+"reordered";
             case EVENT_ROLE_ADDED:
-                return context+"role.add";
+                return messageID+"role.add";
             case EVENT_ROLE_REMOVED:
-                return context+"role.remove";
+                return messageID+"role.remove";
             case EVENT_ROLE_MODIFIED:
-                return context+"role.mod";
+                return messageID+"role.mod";
             case EVENT_TYPE_STATE_CHANGE_ERROR:
-                return context+"state.error";
+                return messageID+"state.error";
             case EVENT_TYPE_STATE_CHANGE_UNSTARTED:
-                return context+"state.unstarted";
+                return messageID+"state.unstarted";
             case EVENT_TYPE_STATE_CHANGE_STARTED:
-                return context+"state.started";
+                return messageID+"state.started";
             case EVENT_TYPE_STATE_CHANGE_ACCEPTED:
-                return context+"state.accepted";
+                return messageID+"state.accepted";
             case EVENT_TYPE_STATE_CHANGE_WAITING:
-                return context+"state.waiting";
+                return messageID+"state.waiting";
             case EVENT_TYPE_STATE_CHANGE_COMPLETE:
-                return context+"state.completed";
+                return messageID+"state.completed";
             case EVENT_TYPE_STATE_CHANGE_SKIPPED:
-                return context+"state.skipped";
+                return messageID+"state.skipped";
             case EVENT_TYPE_STATE_CHANGE_REVIEWED:
-                return context+"state.reviewed";
+                return messageID+"state.reviewed";
             case EVENT_MEMBER_REQUEST:
-                return context+"member.request";
+                return messageID+"member.request";
             case EVENT_MEMBER_ADDED:
-                return context+"member.add";
+                return messageID+"member.add";
             case EVENT_MEMBER_REMOVED:
-                return context+"member.remove";
+                return messageID+"member.remove";
             case EVENT_ADMIN_REQUEST:
-                return context+"admin.request";
+                return messageID+"admin.request";
             case EVENT_ADMIN_ADDED:
-                return context+"admin.add";
+                return messageID+"admin.add";
             case EVENT_ADMIN_REMOVED:
-                return context+"admin.remove";
+                return messageID+"admin.remove";
             case EVENT_LEVEL_CHANGE:
-                return context+"access.level.change";
+                return messageID+"access.level.change";
             case EVENT_PLAYER_ADDED:
-                return context+"player.add";
+                return messageID+"player.add";
             case EVENT_PLAYER_REMOVED:
-                return context+"player.removed";
+                return messageID+"player.removed";
             case EVENT_PLAYER_ADDED_CUSTOM_ROLE:
-                return context+"player.custom";
+                return messageID+"player.custom";
             case EVENT_DOC_ADDED:
-                return context+"attached";
+                return messageID+"attached";
             case EVENT_DOC_REMOVED:
-                return context+"removed";
+                return messageID+"removed";
             case EVENT_DOC_UPDATED:
-                return context+"updated";
+                return messageID+"updated";
             case EVENT_DOC_APPROVED:
-                return context+"mark.read";
+                return messageID+"mark.read";
             case EVENT_DOC_REJECTED:
-                return context+"mark.reject";
+                return messageID+"mark.reject";
             case EVENT_DOC_SKIPPED:
-                return context+"mark.skipped";
+                return messageID+"mark.skipped";
             case EVENT_EMAIL_SENT:
-                return context+"email.sent";
+                return messageID+"email.sent";
             default:
-                return context+"((HISTORY TYPE "+event+"))";
+                return messageID+"((HISTORY TYPE "+event+"))";
         }
 
     }
@@ -624,7 +681,7 @@ public class HistoryRecord extends DOMFace
         }
     }
 
-    
+
     public void writeLocalizedHistoryMessage(NGContainer ngp, AuthRequest ar) throws Exception {
         String key = getCombinedKey();
         String[] args = null;
@@ -792,5 +849,5 @@ public class HistoryRecord extends DOMFace
             ngc.writeContainerLink(ar, 100);
         }
     }
-    
+
 }
