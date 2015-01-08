@@ -226,10 +226,21 @@ public class NGBook extends ContainerCommon implements NGContainer {
     public static Vector<NGBook> getAllSites() {
         // might do a copy here if we fear that the receiver will corrupt this
         // vector
-        return allSites;
+    	if (allSites!=null) {
+    		return allSites;
+    	}
+    	
+    	//never return a null when the return value is a collection
+    	return new Vector<NGBook>();
     }
 
     public static void registerSite(NGBook foundSite) throws Exception {
+    	if (allSites==null) {
+    		throw new Exception("Can not register a site when the NGBook class has not completed initialization.  (allSites is null)");
+    	}
+    	if (keyToSite==null) {
+    		throw new Exception("Can not register a site when the NGBook class has not completed initialization.  (keyToSite is null)");
+    	}
         allSites.add(foundSite);
         keyToSite.put(foundSite.getKey(), foundSite);
     }
@@ -239,6 +250,12 @@ public class NGBook extends ContainerCommon implements NGContainer {
      * Used when deleting a site
      */
     public static void unregisterSite(String siteKey) throws Exception {
+    	if (allSites==null) {
+    		throw new Exception("Can not unregister a site when the NGBook class has not completed initialization.  (allSites is null)");
+    	}
+    	if (keyToSite==null) {
+    		throw new Exception("Can not unregister a site when the NGBook class has not completed initialization.  (keyToSite is null)");
+    	}
         NGBook fSite = keyToSite.get(siteKey);
         allSites.remove(fSite);
         keyToSite.remove(siteKey);

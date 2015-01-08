@@ -177,7 +177,7 @@ public class ServerInitializer extends TimerTask {
             return;
         }
 
-        System.out.println("COG SERVER INIT - Starting state "+getServerStateString()+" at "+new Date());
+        System.out.println("COG SERVER INIT - Starting state ("+getServerStateString()+") at "+new Date());
         //only if it is in FAILED state, it should attempt to reinitialize everything.
         //Init fails if any init method throws an exception
         try {
@@ -203,6 +203,7 @@ public class ServerInitializer extends TimerTask {
             Cognoscenti.initializeAll(rootFolder, timerForOtherTasks);
 
             SSOFIUserManager.initSSOFI(ConfigFile.getProperty("baseURL"));
+            
             System.out.println("ServerInitializer: successfully initialized and ready");
             serverInitState = STATE_RUNNING;
             lastFailureMsg = null;
@@ -211,11 +212,13 @@ public class ServerInitializer extends TimerTask {
             lastFailureMsg = e;
             serverInitState = STATE_FAILED;
             try {
-                System.out.println("ServerInitializer: FAILED because "+e.toString());
+                System.out.println("ServerInitializer: (FAILED) because "+e.toString());
+                e.printStackTrace();
                 if (timerForOtherTasks!=null) {
                     timerForOtherTasks.cancel();
                 }
                 timerForOtherTasks = null;
+	            Cognoscenti.clearAllStaticVariables();
                 NGPageIndex.clearAllStaticVars();
             }
             catch (Exception eee) {

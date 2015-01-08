@@ -208,7 +208,7 @@ public class EmergencyConfigServlet extends javax.servlet.http.HttpServlet {
         resp.setContentType("text/html;charset=UTF-8");
 
         String go = req.getParameter("go");
-        ConfigTokenRetriever ctr = new ConfigTokenRetriever(go, NGPageIndex.initFailureException());
+        ConfigTokenRetriever ctr = new ConfigTokenRetriever(go, ServerInitializer.lastFailureMsg);
 
         File templateFile = ConfigFile.getFileFromRoot("init/InitErrorDisplay.htm");
         TemplateStreamer.streamTemplate(out, templateFile, "UTF-8", ctr);

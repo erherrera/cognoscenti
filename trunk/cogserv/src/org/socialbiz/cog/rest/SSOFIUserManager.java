@@ -20,11 +20,6 @@
 
 package org.socialbiz.cog.rest;
 
-import org.workcast.ssoficlient.interfaces.GlobalId;
-import org.workcast.ssoficlient.service.LoginServlet;
-import org.workcast.ssoficlient.service.SingleTenantManager;
-import org.workcast.ssoficlient.service.StringGlobalId;
-
 import java.io.File;
 
 import javax.servlet.http.HttpSession;
@@ -34,6 +29,10 @@ import org.socialbiz.cog.ConfigFile;
 import org.socialbiz.cog.NGSession;
 import org.socialbiz.cog.UserManager;
 import org.socialbiz.cog.UserProfile;
+import org.workcast.ssoficlient.interfaces.GlobalId;
+import org.workcast.ssoficlient.service.LoginServlet;
+import org.workcast.ssoficlient.service.SingleTenantManager;
+import org.workcast.ssoficlient.service.StringGlobalId;
 
 /**
  * Implementation of the user manager required by SSOFI, and translating to
@@ -171,14 +170,11 @@ public class  SSOFIUserManager implements org.workcast.ssoficlient.interfaces.Us
     }
 
     public static void initSSOFI(String baseURL) throws Exception {
-        if (!LoginServlet.isInitialized() || true) {
-
-            File configFile = ConfigFile.getFile("ssofi.config");
-            if (!configFile.exists()) {
-                throw new Exception("The login configuration file is missing: "+configFile);
-            }
-            LoginServlet.initialize(new SingleTenantManager(new SSOFIUserManager()), configFile);
+        File configFile = ConfigFile.getFile("ssofi.config");
+        if (!configFile.exists()) {
+            throw new Exception("The login configuration file is missing: "+configFile);
         }
+        LoginServlet.initialize(new SingleTenantManager(new SSOFIUserManager()), configFile);
     }
 
     public boolean canCreateUser() {
