@@ -67,6 +67,10 @@ import javax.servlet.http.HttpServletResponse;
 public class APUServlet extends javax.servlet.http.HttpServlet {
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        //this is an API to be read by others, so you have to set the CORS to
+        //allow scripts to read this data from a browser.
+        resp.setHeader("Access-Control-Allow-Origin","*");
+
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         try {
             System.out.println("API_GET: "+ar.getCompleteURL());
@@ -108,6 +112,10 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
     }
 
     public void doPut(HttpServletRequest req, HttpServletResponse resp) {
+        //this is an API to be read by others, so you have to set the CORS to
+        //allow scripts to read this data from a browser.
+        resp.setHeader("Access-Control-Allow-Origin","*");
+
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         ar.resp.setContentType("application/json");
         try {
@@ -119,6 +127,10 @@ public class APUServlet extends javax.servlet.http.HttpServlet {
     }
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        //this is an API to be read by others, so you have to set the CORS to
+        //allow scripts to read this data from a browser.
+        resp.setHeader("Access-Control-Allow-Origin","*");
+
         AuthRequest ar = AuthRequest.getOrCreate(req, resp);
         ar.resp.setContentType("application/json");
         try {
