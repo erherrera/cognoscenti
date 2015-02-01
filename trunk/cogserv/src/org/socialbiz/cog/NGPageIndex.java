@@ -1249,28 +1249,20 @@ public class NGPageIndex {
      * Get the first page that has email that still needs to be sent Returns
      * null if there are not any
      */
-    public static NGPage getPageWithEmailToSend() throws Exception {
+    public static String getPageWithEmailToSend() throws Exception {
         if (projectsWithEmailToSend.size() == 0) {
             return null;
         }
-
-        Vector<String> copyList = new Vector<String>();
-        copyList.addAll(projectsWithEmailToSend);
-        for (String key : copyList) {
-            NGContainer ngc = getContainerByKey(key);
-            if (ngc instanceof NGPage) {
-                NGPage aPage = (NGPage) ngc;
-                if (aPage.countEmailToSend() > 0) {
-                    return aPage;
-                }
-            }
-            // hmm, didn't have email after all, should be removed. This is how
-            // the list gets cleaned up after the email is sent
-            projectsWithEmailToSend.remove(key);
-        }
-        return null;
+        return projectsWithEmailToSend.firstElement();
     }
 
-    // /////////////// DEPRECATED ///////////////////////////
+    /**
+     * When you find that a project does not have any more email to send,
+     * call removePageFromEmailToSend to remove from the cached list.
+     */
+    public static void removePageFromEmailToSend(String key) {
+        projectsWithEmailToSend.removeElement(key);
+    }
+
 
 }

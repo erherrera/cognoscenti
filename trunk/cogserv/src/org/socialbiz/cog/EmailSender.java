@@ -35,7 +35,6 @@ import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.Multipart;
@@ -51,6 +50,7 @@ import javax.mail.internet.MimeUtility;
 import org.socialbiz.cog.exception.NGException;
 import org.socialbiz.cog.exception.ProgramLogicError;
 import org.workcast.streams.HTMLWriter;
+import org.workcast.streams.MemFile;
 
 /**
  * Support class for sending email messages based on an email configuration
@@ -340,11 +340,21 @@ public class EmailSender extends TimerTask {
 
                     clone.write("</body></html>");
                     clone.flush();
+
+                    //very important.  Don't hold on to the locks while sending the email because if the
+                    //email server is slow (and we have one that is) then all those pages are locked
+                    //while talking to the email server.   This frees the locks that are no longer needed.
+                    NGPageIndex.clearLocksHeldByThisThread();
+
                     if ((numberOfUpdates > 0) || numTasks > 0) {
                         String thisSubj = "Daily Digest - " + numberOfUpdates
                                 + " updates, " + numTasks + " tasks, "
                                 + numReminders + " reminders.";
+
+                        //Actually SEND the email here
                         quickEmail(ooa, null, thisSubj, bodyOut.toString());
+
+
                         debugEvidence.write("\n<li>");
                         HTMLWriter.writeHtml(debugEvidence, thisSubj);
                         debugEvidence.write(" for ");
@@ -373,6 +383,10 @@ public class EmailSender extends TimerTask {
                     debugEvidence.write("] because ");
                     HTMLWriter.writeHtml(debugEvidence, e.toString());
                 }
+
+                //this clears locks if there was an error during sending
+                NGPageIndex.clearLocksHeldByThisThread();
+
             }// for.
 
             // at the very last moment, if all was successful, mark down the
@@ -705,8 +719,7 @@ public class EmailSender extends TimerTask {
 
         try {
 
-            // just checking here that all the addressees have a valid email
-            // address.
+            // just checking here that all the addressees have a valid email address.
             // they should not have gotten into the sendTo list without one.
             for (OptOutAddr ooa : addresses) {
                 ooa.assertValidEmail();
@@ -722,7 +735,7 @@ public class EmailSender extends TimerTask {
             emailRec.setProjectId(ngc.getKey());
             emailRec.setAttachmentIds(attachIds);
             ngc.save("SERVER", System.currentTimeMillis(), "Sending an email message");
-            
+
             //note, this is a little dangerous because there must not be any modifications
             //of ngc after this point!
             NGPageIndex.releaseLock(ngc);
@@ -821,8 +834,7 @@ public class EmailSender extends TimerTask {
             int addressCount = 0;
 
             // send the message to each addressee individually so they each get
-            // their
-            // own op-out unsubscribe line.
+            // their own op-out unsubscribe line.
             for (OptOutAddr ooa : addresses) {
 
                 MimeMessage message = new MimeMessage(mailSession);
@@ -853,8 +865,7 @@ public class EmailSender extends TimerTask {
 
                 try {
                     // if overrideAddress is configured, then all email will go
-                    // to that
-                    // email address, instead of the address in the profile.
+                    // to that email address, instead of the address in the profile.
                     if (overrideAddress != null && overrideAddress.length() > 0) {
                         addressTo[0] = new InternetAddress(overrideAddress);
                     } else {
@@ -890,36 +901,23 @@ public class EmailSender extends TimerTask {
         }
     }
 
+    /**
+     * Note that this method needs to work without accessing the NGPage object
+     * directly.  We must use only the EmailRecord object alone, by using
+     * the attachment contents inside the object.
+     */
     private static void attachFiles(Multipart mp, EmailRecord eRec) throws Exception {
         Vector<String> attachids = eRec.getAttachmentIds();
-        if (attachids.size()==0) {
-            return;
-        }
-        String projId = eRec.getProjectId();
-        if (projId ==null || projId.length()==0) {
-            //no project id, no way to attach documents
-            return;
-        }
-
-        NGContainer ngc = NGPageIndex.getContainerByKey(projId);
         for (String oneId : attachids) {
+
+            File path = eRec.getAttachPath(oneId);
+            MemFile mf = eRec.getAttachContents(oneId);
+
             MimeBodyPart pat = new MimeBodyPart();
-
-            AttachmentRecord attach = ngc.findAttachmentByID(oneId);
-            if (attach==null) {
-                //attachments might get removed in the mean time, just ignore them
-                continue;
-            }
-            AttachmentVersion aVer = attach.getLatestVersion(ngc);
-            if (aVer==null) {
-                continue;
-            }
-            File attachFile = aVer.getLocalFile();
-
-            // Put a file in the part
-            FileDataSource fds = new FileDataSource(attachFile);
-            pat.setDataHandler(new DataHandler(fds));
-            pat.setFileName(attach.getDisplayName());
+            MemFileDataSource mfds = new MemFileDataSource(mf, path.toString(),
+                            MimeTypes.getMimeType(path.getName()));
+            pat.setDataHandler(new DataHandler(mfds));
+            pat.setFileName(path.getName());
             mp.addBodyPart(pat);
         }
     }

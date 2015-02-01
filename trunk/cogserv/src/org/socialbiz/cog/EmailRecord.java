@@ -20,11 +20,15 @@
 
 package org.socialbiz.cog;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.socialbiz.cog.exception.NGException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.workcast.streams.MemFile;
 
 public class EmailRecord extends DOMFace
 {
@@ -33,6 +37,9 @@ public class EmailRecord extends DOMFace
     public static final String SENT = "Sent";
     public static final String FAILED = "Failed";
     public static final String SKIPPED = "Skipped";
+
+    private Hashtable<String, MemFile> attachmentContents;
+    private Hashtable<String, File>    attachmentPaths;
 
     public EmailRecord(Document doc, Element upEle, DOMFace p)
     {
@@ -185,6 +192,69 @@ public class EmailRecord extends DOMFace
     }
     public void setAttachmentIds(Vector<String> ids) {
         setVector("attachid", ids);
+    }
+
+    /**
+     * Read attachments into cache so that all the information to send
+     * a file is held in memory and there is no chance for failure.
+     */
+    public void prepareForSending(NGContainer ngc) throws Exception {
+        attachmentContents = new Hashtable<String, MemFile>();
+        attachmentPaths = new Hashtable<String, File>();
+
+        for (String oneId : getAttachmentIds()) {
+
+            AttachmentRecord attach = ngc.findAttachmentByID(oneId);
+            if (attach==null) {
+                //attachments might get removed in the mean time, just ignore them
+                continue;
+            }
+            AttachmentVersion aVer = attach.getLatestVersion(ngc);
+            if (aVer==null) {
+                continue;
+            }
+            File attachFile = aVer.getLocalFile();
+            if (!attachFile.exists()) {
+                continue;
+            }
+            attachmentPaths.put(oneId,  attachFile);
+
+            MemFile thisContent = new MemFile();
+            thisContent.fillWithInputStream(new FileInputStream(attachFile));
+            attachmentContents.put(oneId, thisContent);
+       }
+    }
+
+    public void clearCache() throws Exception {
+        attachmentContents = null;
+        attachmentPaths = null;
+    }
+
+    /**
+     * If the EailRecord is 'prepared' for sending, then you can get the file path for an attachment.
+     * Returns null if for any reason it was not able to find attachment or it had no latest version.
+     */
+    public File getAttachPath(String attId) throws Exception  {
+        if (attachmentPaths==null) {
+            throw new Exception("EmailRecord object has not been prepared for sending, and so can not return attachment paths.");
+        }
+        return attachmentPaths.get(attId);
+    }
+
+    /**
+     * If the EailRecord is 'prepared' for sending, then you can get the contents of an attachment
+     * from the MemFile returned by this method.
+     * Returns null if for any reason it was not able to find and get the contents.
+     */
+    public MemFile getAttachContents(String attId) throws Exception  {
+        if (attachmentContents==null) {
+            throw new Exception("EmailRecord object has not been prepared for sending, and so can not return attachment contents.");
+        }
+        MemFile mf = attachmentContents.get(attId);
+        if (mf==null) {
+            return null;
+        }
+        return mf;
     }
 
 }

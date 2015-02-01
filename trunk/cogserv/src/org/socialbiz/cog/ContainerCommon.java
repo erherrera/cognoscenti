@@ -180,7 +180,7 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
         attachParent.removeChild(att);
     }
     public void purgeDeletedAttachments() throws Exception {
-        Vector<AttachmentRecord> cleanList = new Vector<AttachmentRecord>(); 
+        Vector<AttachmentRecord> cleanList = new Vector<AttachmentRecord>();
         for (AttachmentRecord ar : getAllAttachments()) {
             if (!ar.isDeleted()) {
                 //don't purge or do anything to non-deleted attachments
@@ -739,11 +739,21 @@ public abstract class ContainerCommon extends DOMFile implements NGContainer
         return mail.getChildren("email", EmailRecord.class);
     }
 
+
+    public EmailRecord getEmail(String id) throws Exception {
+        for (EmailRecord er : getAllEmail()) {
+            if (id.equals(er.getId())) {
+                return er;
+            }
+        }
+        throw new Exception("There is no email record with id="+id+" on container "+getKey());
+    }
+
     @Override
     public EmailRecord createEmail() throws Exception {
         DOMFace mail = requireChild("mail", DOMFace.class);
         EmailRecord email = mail.createChild("email", EmailRecord.class);
-        email.setId(getUniqueOnPage());
+        email.setId(IdGenerator.generateKey());
         return email;
     }
 
