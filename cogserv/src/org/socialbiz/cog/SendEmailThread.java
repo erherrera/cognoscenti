@@ -30,23 +30,47 @@ public class SendEmailThread extends TimerTask {
 
     public void run() {
         try {
-            EmailRecord eRec=null;
-            NGPage possiblePage = null;
+            String pageKey;
 
             //walk through the known pages and see if there are any email
             //messages there to send
-            while ((possiblePage=NGPageIndex.getPageWithEmailToSend()) != null) {
-                while ( (eRec=possiblePage.getEmailReadyToSend()) != null) {
-                    EmailSender.sendPreparedMessageImmediately(eRec);
+            while ((pageKey=NGPageIndex.getPageWithEmailToSend()) != null) {
+
+                //START first transaction here
+                NGPage possiblePage =  NGPageIndex.getProjectByKeyOrFail(pageKey);
+                EmailRecord eRec=possiblePage.getEmailReadyToSend();
+                if (eRec==null) {
+                    NGPageIndex.removePageFromEmailToSend(pageKey);
                 }
-                possiblePage.save();
+                else {
+                    String id = eRec.getId();
+                    eRec.prepareForSending(possiblePage);
+                    NGPageIndex.clearLocksHeldByThisThread();
+
+                    //this is done while not holding any locks .... important because some servers are slow
+                    EmailSender.sendPreparedMessageImmediately(eRec);
+
+                    //START the second transaction to update that the message has been sent
+                    possiblePage =  NGPageIndex.getProjectByKeyOrFail(pageKey);
+                    eRec=possiblePage.getEmail(id);
+
+                    eRec.setStatus(EmailRecord.SENT);
+                    possiblePage.save();
+                    eRec.setLastSentDate(System.currentTimeMillis());
+                }
+                //let go of locks from that or any other pages at this time before looping back
+                NGPageIndex.clearLocksHeldByThisThread();
+
+                //This is a background task, so give others the chance to get in.  Don't hog the lock.
+                Thread.sleep(5000);
             }
 
             //This is the old, deprecated way to store email messages in the
             //for sending later in a single global store.
-            while ( (eRec=EmailRecordMgr.getEmailReadyToSend()) != null) {
-                EmailSender.sendPreparedMessageImmediately(eRec);
-                EmailRecordMgr.save();
+            if (EmailRecordMgr.getEmailReadyToSend() != null) {
+                //EmailSender.sendPreparedMessageImmediately(eRec);
+                //EmailRecordMgr.save();
+                throw new Exception("Deprecated EmailRecordMgr.getEmailReadyToSend is still being used?");
             }
 
         }

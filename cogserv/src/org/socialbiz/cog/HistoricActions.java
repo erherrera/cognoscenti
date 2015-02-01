@@ -44,7 +44,7 @@ public class HistoricActions {
             String siteDescription) throws Exception {
         SiteRequest immediateRequest = SiteReqFile.createNewSiteRequest(siteId,
             siteName, siteDescription, ar);
-        return completeSiteRequest(immediateRequest, true, 
+        return completeSiteRequest(immediateRequest, true,
                 "Granted immediately without administrator involvement");
     }
 
@@ -201,13 +201,14 @@ public class HistoricActions {
     private void sendInviteEmail(String pageId, String emailId, String role) throws Exception {
         StringWriter bodyWriter = new StringWriter();
         NGContainer container = NGPageIndex.getContainerByKey(pageId);
-        UserProfile up = UserManager.findUserByAnyId(emailId);
-        AuthRequest clone = new AuthDummy(up, bodyWriter);
+        UserProfile receivingUser = UserManager.findUserByAnyId(emailId);
+        AuthRequest clone = new AuthDummy(receivingUser, bodyWriter);
         UserProfile requestingUser = ar.getUserProfile();
+
         String dest = emailId;
 
-        if (up != null) {
-            dest = up.getPreferredEmail();
+        if (receivingUser != null) {
+            dest = receivingUser.getPreferredEmail();
             if (dest == null) {
             	//if looked up by email address, should at least find that email address!
                 throw new Exception("something is wrong with the user information, looked up user '"
@@ -238,8 +239,21 @@ public class HistoricActions {
         clone.write("' role of the ");
         container.writeContainerLink(clone, 100);
         clone.write(" project.</p>");
-        // NGWebUtils.standardEmailFooter(clone, requestingUser, ooa, container);
-        clone.write("</body></html>");
+
+        if (receivingUser==null) {
+            clone.write("<p>Cognoscenti is a cloud-based service to help people manage the documents, ");
+            clone.write("notes, and goals of a project.  ");
+            clone.write("It uses an approach known as Adaptive Case Management (ACM).  ");
+            clone.write("By being added to this role, you will have some ability to access that project ");
+            clone.write("and to receive email from the people working on the project.</p>");
+            clone.write("<p>I've checked, and there is no user profile for you at this email address (");
+            clone.writeHtml(emailId);
+            clone.write(") so you have two options: create a new login and profile for this email address, ");
+            clone.write("or add this email address to an existing user profile that you already have.");
+            clone.write("Creating a new login profile is free and easy.</p>");
+        }
+        //clone.write("<p>If you do not know this person, this project, or for any reason you do not want");
+        //clone.write("to be included in this role, you can easily <a href="">unsubscribe</a> from the role.</p>");
 
         EmailSender.containerEmail(ooa, container, "Added to " + role
                 + " role of " + container.getFullName(), bodyWriter.toString(),
